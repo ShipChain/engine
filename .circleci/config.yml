@@ -1,0 +1,220 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: docker/compose:1.19.0
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build application Docker image
+          command: |
+            docker-compose -f compose/circleci.yml build
+
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py-pip
+            pip install awscli
+
+      - run:
+          name: Launch the docker containers
+          command: |
+            $(aws ecr get-login --no-include-email)
+            docker-compose -f compose/circleci.yml up -d
+
+      - run:
+          name: Run unit tests
+          command: |
+            docker-compose -f compose/circleci.yml exec -T rpc yarn test
+
+      - run:
+          name: Copy artifacts from Docker
+          command: |
+            docker cp $(docker-compose -f compose/circleci.yml ps -q rpc):/app/reports reports
+
+      - store_test_results:
+          path: reports
+      - store_artifacts:
+          path: reports
+
+      - run:
+          name: Save docker image
+          command: |
+            mkdir -p docker-cache
+            docker save -o docker-cache/built-image.tar engine-node
+
+      - save_cache:
+          key: docker-cache-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - docker-cache
+
+  push-to-ecr:
+    docker:
+      - image: docker:stable-git
+
+    steps:
+      - restore_cache:
+          keys:
+            - docker-cache-{{ .Branch }}-{{ .Revision }}
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Set dynamic ENV variables
+          command: |
+            echo 'export SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)' >> $BASH_ENV
+
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py-pip
+            pip install awscli
+
+      - run:
+          name: Load docker image
+          command: |
+            docker load < /root/repo/docker-cache/built-image.tar
+
+      - run:
+          name: Push image to ECR
+          command: |
+            source $BASH_ENV
+            docker tag engine-node $ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH
+            docker tag engine-node $ECR_ENDPOINT/engine-node:latest
+            $(aws ecr get-login --no-include-email)
+            docker push $ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH
+            docker push $ECR_ENDPOINT/engine-node:latest
+
+  deploy-to-dev:
+    docker:
+      - image: docker:stable-git
+
+    steps:
+      - run:
+          name: Set dynamic ENV variables
+          command: |
+            echo 'export SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)' >> $BASH_ENV
+
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py-pip
+            pip install awscli
+
+      - run:
+          name: Deploy new Task Revision to ECS
+          command: |
+            source $BASH_ENV
+            aws lambda invoke --function-name DeployImageToECS --payload "{
+                \"app\": \"engine\",
+                \"env\": \"DEV\",
+                \"image\": \"$ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH\"
+              }" outputfile.txt && cat outputfile.txt
+
+  deploy-to-stage:
+    docker:
+      - image: docker:stable-git
+
+    steps:
+      - run:
+          name: Set dynamic ENV variables
+          command: |
+            echo 'export SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)' >> $BASH_ENV
+
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py-pip
+            pip install awscli
+
+      - run:
+          name: Deploy new Task Revision to ECS
+          command: |
+            source $BASH_ENV
+            aws lambda invoke --function-name DeployImageToECS --payload "{
+                \"app\": \"engine\",
+                \"env\": \"STAGE\",
+                \"image\": \"$ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH\"
+              }" outputfile.txt && cat outputfile.txt
+
+  deploy-to-prod:
+    docker:
+      - image: docker:stable-git
+
+    steps:
+      - run:
+          name: Set dynamic ENV variables
+          command: |
+            echo 'export SHORT_GIT_HASH=$(echo $CIRCLE_SHA1 | cut -c -7)' >> $BASH_ENV
+
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py-pip
+            pip install awscli
+
+      - run:
+          name: Deploy new Task Revision to ECS
+          command: |
+            source $BASH_ENV
+            aws lambda invoke --function-name DeployImageToECS --payload "{
+                \"app\": \"engine\",
+                \"env\": \"PROD\",
+                \"image\": \"$ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH\"
+              }" outputfile.txt && cat outputfile.txt
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - push-to-ecr:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build
+      - deploy-to-dev:
+          filters:
+            branches:
+              only: master
+          requires:
+            - push-to-ecr
+      - hold-deploy-stage:
+          filters:
+            branches:
+              only: master
+          type: approval
+          requires:
+            - push-to-ecr
+      - deploy-to-stage:
+          filters:
+            branches:
+              only: master
+          requires:
+            - hold-deploy-stage
+      - hold-deploy-prod:
+          filters:
+            branches:
+              only: master
+          type: approval
+          requires:
+            - deploy-to-stage
+      - deploy-to-prod:
+          filters:
+            branches:
+              only: master
+          requires:
+            - hold-deploy-prod

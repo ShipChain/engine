@@ -1,0 +1,600 @@
+{
+  "$id": "http://schema.shipchain.io/1.0.0/shipment.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[a-fA-F\\d]{8}-[a-fA-F\\d]{4}-4[a-fA-F\\d]{3}-[89abAB][a-fA-F\\d]{3}-[a-fA-F\\d]{12}$",
+      "examples": [
+        "c70a9b2f-bad9-4ace-b981-807cbb44782d"
+      ],
+      "maxLength": 36,
+      "$id": "/properties/id",
+      "title": "Shipment UUID",
+      "description": "The ID of the Shipment"
+    },
+    "carrier_scac": {
+      "$id": "/properties/carrier_scac",
+      "type": "string",
+      "title": "Carrier's SCAC",
+      "description": "SCAC code of the carrier.",
+      "default": "",
+      "examples": [
+        "USPS"
+      ],
+      "maxLength": 255
+    },
+    "forwarder_scac": {
+      "$id": "/properties/forwarder_scac",
+      "type": "string",
+      "title": "Forwarder's SCAC",
+      "description": "SCAC code of the frieght forwarder.",
+      "default": "",
+      "examples": [
+        "USPS"
+      ],
+      "maxLength": 255
+    },
+    "nvocc_scac": {
+      "$id": "/properties/nvocc_scac",
+      "type": "string",
+      "title": "NVOCC's SCAC",
+      "description": "SCAC code of the Non-Vessel Operating Common Carrier.",
+      "default": "",
+      "examples": [
+        "USPS"
+      ],
+      "maxLength": 255
+    },
+    "shipper_reference": {
+      "$id": "/properties/shipper_reference",
+      "type": "string",
+      "title": "Shipper's reference number",
+      "description": "Reference number of this shipment assigned by the Shipper",
+      "default": "",
+      "examples": [
+        "shipper reference 1"
+      ],
+      "maxLength": 255
+    },
+    "forwarder_reference": {
+      "$id": "/properties/forwarder_reference",
+      "type": "string",
+      "title": "Forwarder's reference number",
+      "description": "Reference number of this shipment assigned by the Forwarder",
+      "default": "",
+      "examples": [
+        "forwarder reference 1"
+      ],
+      "maxLength": 255
+    },
+    "forwarders_shipper_id": {
+      "$id": "/properties/forwarders_shipper_id",
+      "type": "string",
+      "title": "Forwarder's id assigned to the Shipper",
+      "description": "ID of the Shipper assigned by the Forwarder",
+      "default": "",
+      "examples": [
+        "SHIPPER07"
+      ],
+      "maxLength": 255
+    },
+    "ship_from_location": {
+      "$ref": "http://schema.shipchain.io/1.0.0/location.json",
+      "title": "Ship from address",
+      "description": "The Shipment's ship-from address"
+    },
+    "ship_to_location": {
+      "$ref": "http://schema.shipchain.io/1.0.0/location.json",
+      "title": "Ship to address",
+      "description": "The Shipment's ship-to address"
+    },
+    "final_destination_location": {
+      "$ref": "http://schema.shipchain.io/1.0.0/location.json",
+      "title": "Shipment Final Destination",
+      "description": "The Shipment's Final Destination address"
+    },
+    "carrier_instructions": {
+      "$id": "/properties/carrier_instructions",
+      "type": "string",
+      "title": "Special Instructions",
+      "description": "Shipper's instructions to the carrier",
+      "default": "",
+      "examples": [
+        "Do not ignite"
+      ],
+      "maxLength": 255
+    },
+    "pro_number": {
+      "$id": "/properties/pro_number",
+      "type": "string",
+      "title": "PRO number for Truck shipment",
+      "description": "Progressive Number for shipment tracking",
+      "default": "",
+      "examples": [
+        "8124598752"
+      ],
+      "maxLength": 255
+    },
+    "master_bill": {
+      "$id": "/properties/master_bill",
+      "type": "string",
+      "title": "Master Bill of Lading Number",
+      "description": "The master Bill of Lading Number",
+      "default": "",
+      "examples": [
+        "82863513"
+      ],
+      "maxLength": 255
+    },
+    "house_bill": {
+      "$id": "/properties/house_bill",
+      "type": "string",
+      "title": "House Bill of Lading Number",
+      "description": "The House Bill of Lading Number",
+      "default": "",
+      "examples": [
+        "8124598751"
+      ],
+      "maxLength": 255
+    },
+    "subhouse_bill": {
+      "$id": "/properties/subhouse_bill",
+      "type": "string",
+      "title": "Sub-House Bill of Lading Number",
+      "description": "The Sub-House Bill of Lading Number",
+      "default": "",
+      "examples": [
+        "8124598753"
+      ],
+      "maxLength": 255
+    },
+    "freight_payment_terms": {
+      "$id": "/properties/freight_payment_terms",
+      "type": "string",
+      "title": "Payment Terms",
+      "description": "The payment terms for the Shipment",
+      "default": "",
+      "examples": [
+        "Prepaid"
+      ],
+      "maxLength": 255
+    },
+    "vessel_name": {
+      "$id": "/properties/vessel_name",
+      "type": "string",
+      "title": "The Vessel_name Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "SITC YANTAI"
+      ],
+      "maxLength": 255
+    },
+    "voyage_number": {
+      "$id": "/properties/voyage_number",
+      "type": "string",
+      "title": "The Voyage_number Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "1419E"
+      ],
+      "maxLength": 255
+    },
+    "mode": {
+      "$id": "/properties/mode",
+      "type": "string",
+      "title": "The Mode Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "TRUCK"
+      ],
+      "maxLength": 255
+    },
+    "number_of_packages": {
+      "$id": "/properties/number_of_packages",
+      "type": "integer",
+      "title": "The Number_of_packages Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        50
+      ]
+    },
+    "gross_weight_kgs": {
+      "$id": "/properties/gross_weight_kgs",
+      "type": "integer",
+      "title": "The Gross_weight_kgs Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        75
+      ]
+    },
+    "volume_cbms": {
+      "$id": "/properties/volume_cbms",
+      "type": "integer",
+      "title": "The Volume_cbms Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        7
+      ]
+    },
+    "container_count": {
+      "$id": "/properties/container_count",
+      "type": "integer",
+      "title": "The Container_count Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    },
+    "dimensional_weight": {
+      "$id": "/properties/dimensional_weight",
+      "type": "integer",
+      "title": "The Dimensional_weight Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        700
+      ]
+    },
+    "chargeable_weight": {
+      "$id": "/properties/chargeable_weight",
+      "type": "integer",
+      "title": "The Chargeable_weight Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": 0,
+      "examples": [
+        700
+      ]
+    },
+    "docs_received_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/docs_received_actual",
+      "title": "The Docs_received_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "docs_approved_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/docs_approved_actual",
+      "title": "The Docs_approved_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "pickup_appointment_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/pickup_appointment_actual",
+      "title": "The Pickup_appointment_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "pickup_estimated": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/pickup_estimated",
+      "title": "The Pickup_estimated Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "pickup_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/pickup_actual",
+      "title": "The Pickup_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "loading_estimated": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/loading_estimated",
+      "title": "The Loading_estimated Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "loading_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/loading_actual",
+      "title": "The Loading_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "departure_estimated": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/departure_estimated",
+      "title": "The Departure_estimated Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "departure_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/departure_actual",
+      "title": "The Departure_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "delivery_appointment_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/delivery_appointment_actual",
+      "title": "The Delivery_appointment_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "arrival_port_estimated": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/arrival_port_estimated",
+      "title": "The Arrival_port_estimated Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "arrival_port_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/arrival_port_actual",
+      "title": "The Arrival_port_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "delivery_estimated": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/delivery_estimated",
+      "title": "The Delivery_estimated Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "delivery_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/delivery_actual",
+      "title": "The Delivery_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "last_attempted_delivery_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/last_attempted_delivery_actual",
+      "title": "The Last_attempted_delivery_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "cancel_requested_date_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/cancel_requested_date_actual",
+      "title": "The Cancel_requested_date_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "cancel_confirmed_date_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/cancel_confirmed_date_actual",
+      "title": "The Cancel_confirmed_date_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "customs_filed_date_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/customs_filed_date_actual",
+      "title": "The Customs_filed_date_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "customs_hold_date_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/customs_hold_date_actual",
+      "title": "The Customs_hold_date_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "customs_release_date_actual": {
+      "type": "string",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "$id": "/properties/customs_release_date_actual",
+      "title": "The Customs_release_date_actual Schema",
+      "description": "An explanation about the purpose of this instance."
+    },
+    "containerization_type": {
+      "$id": "/properties/containerization_type",
+      "type": "string",
+      "title": "The Containerization_type Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "LCL"
+      ],
+      "maxLength": 255
+    },
+    "arrival_unlocode": {
+      "$id": "/properties/arrival_unlocode",
+      "type": "string",
+      "title": "The Arrival_unlocode Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "US NYC"
+      ],
+      "maxLength": 255
+    },
+    "final_port_unlocode": {
+      "$id": "/properties/final_port_unlocode",
+      "type": "string",
+      "title": "The Final_port_unlocode Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "US NYC"
+      ],
+      "maxLength": 255
+    },
+    "import_unlocode": {
+      "$id": "/properties/import_unlocode",
+      "type": "string",
+      "title": "The Import_unlocode Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "US NYC"
+      ],
+      "maxLength": 255
+    },
+    "lading_unlocode": {
+      "$id": "/properties/lading_unlocode",
+      "type": "string",
+      "title": "The Lading_unlocode Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "US NYC"
+      ],
+      "maxLength": 255
+    },
+    "origin_unlocode": {
+      "$id": "/properties/origin_unlocode",
+      "type": "string",
+      "title": "The Origin_unlocode Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "US NYC"
+      ],
+      "maxLength": 255
+    },
+    "us_routed_export": {
+      "$id": "/properties/us_routed_export",
+      "type": "boolean",
+      "title": "The Us_routed_export Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": false,
+      "examples": [
+        true
+      ]
+    },
+    "import_customs_mode": {
+      "$id": "/properties/import_customs_mode",
+      "type": "string",
+      "title": "The Import_customs_mode Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "30"
+      ],
+      "maxLength": 255
+    },
+    "us_customs_export_port": {
+      "$id": "/properties/us_customs_export_port",
+      "type": "string",
+      "title": "The Us_customs_export_port Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "4670"
+      ],
+      "maxLength": 255
+    },
+    "us_customs_import_port": {
+      "$id": "/properties/us_customs_import_port",
+      "type": "string",
+      "title": "The Us_customs_import_port Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "1001"
+      ],
+      "maxLength": 255
+    },
+    "updated_at": {
+      "$id": "/properties/updated_at",
+      "type": "string",
+      "title": "The Updated_at Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "maxLength": 255
+    },
+    "created_at": {
+      "$id": "/properties/created_at",
+      "type": "string",
+      "title": "The Created_at Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "2010-02-18T16:23.33+0600"
+      ],
+      "maxLength": 255
+    },
+    "customer_fields": {
+      "$id": "/properties/customer_fields",
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "id"
+  ]
+}

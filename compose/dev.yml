@@ -1,0 +1,69 @@
+version: '2'
+services:
+
+  geth-poa:
+    image: shipchain/geth-poa
+    expose:
+      - '8545'
+    environment:
+      - GETH_VERBOSITY=1
+
+  sftp:
+      image: atmoz/sftp
+      ports:
+          - "2222:22"
+      command: shipchain_user:shipchain_password:::upload
+
+  echo-server:
+    image: jmalloc/echo-server
+    ports:
+    - "5555:5555"
+    environment:
+    - PORT=5555
+    - LOG_HTTP_BODY=1
+
+  psql:
+    image: sameersbn/postgresql:9.6-2
+    ports:
+    - "5431:5432"
+    environment:
+      - DB_NAME=engine
+      - DB_PASS=engine
+      - DB_USER=engine
+      - DB_EXTENSION="uuid-ossp"
+    volumes:
+    - /data/shipchain/engine/postgresql:/var/lib/postgresql
+
+  rpc:
+    extends:
+      service: engine-node
+      file: build.yml
+    command: nodemon -e "ts" -x "ts-node" rpc-server.ts
+    ports:
+      - "2000:2000"
+    networks:
+      default:
+        aliases:
+          - engine-rpc
+      portal:
+        aliases:
+          - engine-rpc
+    links:
+      - psql
+      - geth-poa
+      - sftp
+      - echo-server
+    volumes:
+      - ../:/app
+    environment:
+      - ENV
+      - GETH_NODE=geth-poa:8545
+      - SERVICE=engine-rpc
+      - DATABASE_URL
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - ELASTICSEARCH_URL
+
+networks:
+  portal:
+    external: true

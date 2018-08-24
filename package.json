@@ -1,0 +1,65 @@
+{
+  "name": "shipchain-engine",
+  "version": "0.8.0-beta",
+  "description": "ShipChain platform Web3 bindings and helper methods, plus an RPC server",
+  "main": "index.js",
+  "dependencies": {
+    "ajv": "^6.5.2",
+    "aws-sdk": "^2.252.1",
+    "eth-crypto": "^1.2.3",
+    "ethereumjs-tx": "^1.3.7",
+    "get-stream": "^3.0.0",
+    "json-rpc2": "^1.0.2",
+    "json-schema-to-typescript": "^5.5.0",
+    "json-stable-stringify": "^1.0.1",
+    "mkdirp": "^0.5.1",
+    "node-fetch": "^2.1.2",
+    "pg": "^7.4.3",
+    "read-source-stream": "^1.0.4",
+    "reflect-metadata": "^0.1.12",
+    "sql.js": "^0.5.0",
+    "sqlite3": "^4.0.0",
+    "ssh2-sftp-client": "2.1.1",
+    "typedarray-to-buffer": "^3.1.5",
+    "typeorm": "^0.2.7",
+    "validator": "^10.4.0",
+    "web3": "^1.0.0-beta.34",
+    "winston": "^3.0.0",
+    "winston-elasticsearch": "^0.7.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.0.0",
+    "@types/node": "^10.3.1",
+    "chai": "^4.1.2",
+    "jest": "^23.1.0",
+    "jest-junit": "^4.0.0",
+    "mocha": "^5.1.1",
+    "nodemon": "^1.17.4",
+    "prettier": "1.13.5",
+    "ts-jest": "^22.4.6",
+    "ts-node": "^6.1.0",
+    "typescript": "^2.9.1"
+  },
+  "scripts": {
+    "test": "jest --detectOpenHandles --forceExit",
+    "server": "ts-node rpc-server.ts",
+    "ingest_primitives": "node ingestPrimitives.js",
+    "start": "nodemon -e 'ts' -x 'ts-node' rpc-server.ts",
+    "clean": "rm -rf ./dist && find src -name '*.js* -rm'",
+    "prettier": "./node_modules/.bin/prettier --write 'src/**/*.ts' ",
+    "typeorm": "tsc && ./node_modules/.bin/typeorm"
+  },
+  "jest-junit": {
+    "output": "reports/junit.xml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shipchain/engine.git"
+  },
+  "author": "Lucas Clay <lclay@shipchain.io>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/shipchain/engine/issues"
+  },
+  "homepage": "https://github.com/shipchain/engine#readme"
+}

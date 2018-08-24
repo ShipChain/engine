@@ -1,0 +1,12 @@
+node_modules/*
+npm-debug.log
+yarn-error.log
+src/**/*.js
+src/**/*.js.map
+!src/__tests__/*.js
+JetBrains.Dockerfile
+coverage/
+.idea
+reports/
+/storage/
+.env

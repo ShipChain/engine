@@ -1,0 +1,48 @@
+version: '2'
+services:
+
+  geth-poa:
+    image: shipchain/geth-poa
+    expose:
+      - '8545'
+
+  sftp:
+    image: atmoz/sftp
+    expose:
+      - '22'
+    command: shipchain_user:shipchain_password:::upload
+
+  psql:
+    image: sameersbn/postgresql:9.6-2
+    expose:
+      - '5432'
+    environment:
+    - DB_NAME=engine
+    - DB_PASS=engine
+    - DB_USER=engine
+    - DB_EXTENSION="uuid-ossp"
+    volumes:
+    - /data/shipchain/engine/postgresql:/var/lib/postgresql
+
+  rpc:
+    extends:
+      service: engine-node
+      file: build.yml
+    command: sleep infinity
+    links:
+      - geth-poa
+      - psql
+      - sftp
+    environment:
+      - ENV
+      - GETH_NODE
+      - SERVICE=engine-app
+      - SFTP_DRIVER_TESTS
+      - SFTP_HOST=sftp
+      - SFTP_PORT=22
+      - SFTP_USER=shipchain_user
+      - SFTP_PASS=shipchain_password
+      - S3_DRIVER_TESTS
+      - S3_BUCKET
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
