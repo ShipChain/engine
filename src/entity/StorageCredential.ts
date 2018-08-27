@@ -57,6 +57,7 @@ export class StorageCredential extends BaseEntity {
 
         return await repository.createQueryBuilder("storageCredential")
             .select([
+                "storageCredential.id",
                 "storageCredential.title",
                 "storageCredential.driver_type",
                 "storageCredential.base_path"])
