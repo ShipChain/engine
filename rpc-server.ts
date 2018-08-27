@@ -28,7 +28,7 @@ import { TokenContract } from "./src/shipchain/TokenContract";
 import { FundingType, LoadContract } from "./src/shipchain/LoadContract";
 import { TransmissionConfirmationCallback } from "./src/shipchain/TransmissionConfirmationCallback";
 
-import { buildSchemaValidators, uuidArgumentValidator, validateShipmentArgs } from "./rpc-validators";
+import { buildSchemaValidators, uuidArgumentValidator, validateShipmentArgs } from "./rpc/validators";
 import { getRDSconfig } from "./rdsconfig";
 
 const test_net_utils = require("./src/local-test-net-utils");

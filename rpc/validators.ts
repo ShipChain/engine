@@ -23,7 +23,7 @@ const validator = require("validator");
 let ajv;
 let shipmentValidator;
 
-async function buildSchemaValidators() {
+export async function buildSchemaValidators() {
   const fs = require("fs");
   const AJV = require("ajv");
   const fetch = require("node-fetch");
@@ -51,7 +51,7 @@ async function buildSchemaValidators() {
   });
 }
 
-function uuidArgumentValidator(args, argsToCheck) {
+export function uuidArgumentValidator(args, argsToCheck) {
   for (let checkArg in argsToCheck) {
     if (argsToCheck.hasOwnProperty(checkArg)) {
       if (checkArg >= args.length) {
@@ -64,7 +64,7 @@ function uuidArgumentValidator(args, argsToCheck) {
   }
 }
 
-function validateShipmentArgs(shipment) {
+export function validateShipmentArgs(shipment) {
   if (shipmentValidator === null) {
     throw new Error("JSONSchema Validator is invalid");
   }
@@ -74,9 +74,3 @@ function validateShipmentArgs(shipment) {
     throw new rpc.Error.InvalidParams("Shipment Invalid: " + ajv.errorsText(shipmentValidator.errors));
   }
 }
-
-module.exports = {
-  buildSchemaValidators,
-  uuidArgumentValidator,
-  validateShipmentArgs
-};
