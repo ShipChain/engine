@@ -36,6 +36,14 @@ export abstract class BaseContract {
         });
     }
 
+    getContractVersion() {
+        return this._contract.version.title;
+    }
+
+    getEthDriver() {
+        return this._eth;
+    }
+
     async callStatic(method: string, args: any[], transform: boolean = false) {
         const staticResponse = await this._contract.call_static(method, args);
 
