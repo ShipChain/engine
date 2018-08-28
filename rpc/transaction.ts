@@ -21,7 +21,7 @@ import { Wallet } from "../src/entity/Wallet";
 import { BaseContract } from "../src/contracts/BaseContract";
 import { TransmissionConfirmationCallback } from "../src/shipchain/TransmissionConfirmationCallback";
 
-import { LoadedContracts } from "./loadedContracts";
+import { LoadedContracts } from "./contracts";
 import { RPCMethod } from "./decorators";
 
 

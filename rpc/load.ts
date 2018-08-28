@@ -19,7 +19,7 @@ import { LoadVault } from "../src/shipchain/LoadVault";
 import { StorageCredential } from "../src/entity/StorageCredential";
 
 import { RPCMethod } from "./decorators";
-import { LoadedContracts } from "./loadedContracts";
+import { LoadedContracts } from "./contracts";
 import { LoadContract } from "../src/shipchain/LoadContract";
 import { TokenContract } from "../src/shipchain/TokenContract";
 import { validateShipmentArgs } from "./validators";

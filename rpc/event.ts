@@ -17,7 +17,7 @@
 import { EventSubscription } from "../src/entity/EventSubscription";
 
 import { RPCMethod } from "./decorators";
-import { LoadedContracts } from "./loadedContracts";
+import { LoadedContracts } from "./contracts";
 
 const loadedContracts = LoadedContracts.Instance;
 

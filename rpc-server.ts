@@ -26,7 +26,7 @@ import { TokenContract } from "./src/shipchain/TokenContract";
 import { LoadContract } from "./src/shipchain/LoadContract";
 
 import { buildSchemaValidators } from "./rpc/validators";
-import { LoadedContracts } from "./rpc/loadedContracts";
+import { loadContractFixtures } from "./rpc/contracts";
 import { RPCLoad } from "./rpc/load";
 import { RPCEvent } from "./rpc/event";
 import { RPCWallet } from "./rpc/wallet";

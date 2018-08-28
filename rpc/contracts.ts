@@ -19,6 +19,7 @@ import { Logger, loggers } from "winston";
 
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
+const ENV = process.env.ENV || "LOCAL";
 
 
 export class LoadedContracts {
