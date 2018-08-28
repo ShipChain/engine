@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import { RPCMethod } from "./decorators";
-import { StorageCredential } from "../src/entity/StorageCredential";
+import { RPCMethod } from './decorators';
+import { StorageCredential } from '../src/entity/StorageCredential';
 
 export class RPCStorageCredentials {
-
-    @RPCMethod({require: ["credentials"]})
+    @RPCMethod({ require: ['credentials'] })
     public static async Create(args) {
-
         const credentials = StorageCredential.generate_entity(args.credentials);
 
         await credentials.save();
@@ -32,8 +30,8 @@ export class RPCStorageCredentials {
                 id: credentials.id,
                 title: credentials.title,
                 driver_type: credentials.driver_type,
-                base_path: credentials.base_path
-            }
+                base_path: credentials.base_path,
+            },
         };
     }
 
@@ -43,7 +41,7 @@ export class RPCStorageCredentials {
 
         return {
             success: true,
-            credentials: storageCredentials
+            credentials: storageCredentials,
         };
     }
 }

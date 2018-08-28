@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
+const rpc = require('json-rpc2');
 
-const rpc = require("json-rpc2");
+import { Wallet } from '../src/entity/Wallet';
+import { BaseContract } from '../src/contracts/BaseContract';
+import { TransmissionConfirmationCallback } from '../src/shipchain/TransmissionConfirmationCallback';
 
-import { Wallet } from "../src/entity/Wallet";
-import { BaseContract } from "../src/contracts/BaseContract";
-import { TransmissionConfirmationCallback } from "../src/shipchain/TransmissionConfirmationCallback";
-
-import { LoadedContracts } from "./contracts";
-import { RPCMethod } from "./decorators";
-
+import { LoadedContracts } from './contracts';
+import { RPCMethod } from './decorators';
 
 const loadedContracts = LoadedContracts.Instance;
 
 export class RPCTransaction {
-
     @RPCMethod({
-        require: ["signerWallet", "txUnsigned"],
+        require: ['signerWallet', 'txUnsigned'],
         validate: {
-            uuid: ["signerWallet"]
-        }
+            uuid: ['signerWallet'],
+        },
     })
     public static async Sign(args) {
-
-        if (typeof args.txUnsigned !== "object") {
+        if (typeof args.txUnsigned !== 'object') {
             // TODO: Validate arg as EthereumTx object
-            throw new rpc.Error.InvalidParams("Invalid Ethereum Transaction format");
+            throw new rpc.Error.InvalidParams('Invalid Ethereum Transaction format');
         }
 
         const signerWallet = await Wallet.getById(args.signerWallet);
@@ -47,26 +43,25 @@ export class RPCTransaction {
 
         return {
             success: true,
-            transaction: txSigned
+            transaction: txSigned,
         };
     }
 
-    @RPCMethod({require: ["txSigned"]})
+    @RPCMethod({ require: ['txSigned'] })
     public static async Send(args) {
-
-        if (typeof args.txSigned !== "object") {
+        if (typeof args.txSigned !== 'object') {
             // TODO: Validate arg as EthereumTx object
-            throw new rpc.Error.InvalidParams("Invalid Ethereum Transaction format");
+            throw new rpc.Error.InvalidParams('Invalid Ethereum Transaction format');
         }
 
         let callbacks = new TransmissionConfirmationCallback(args.callbackUrl);
 
-        const LOAD_CONTRACT: BaseContract = loadedContracts.get("LOAD");
+        const LOAD_CONTRACT: BaseContract = loadedContracts.get('LOAD');
         const txReceipt = await LOAD_CONTRACT.sendTransaction(args.txSigned, callbacks);
 
         return {
             success: true,
-            receipt: txReceipt
+            receipt: txReceipt,
         };
     }
 }

@@ -46,7 +46,7 @@
     "ingest_primitives": "node ingestPrimitives.js",
     "start": "nodemon -e 'ts' -x 'ts-node' rpc-server.ts",
     "clean": "rm -rf ./dist && find src -name '*.js* -rm'",
-    "prettier": "./node_modules/.bin/prettier --write 'src/**/*.ts' ",
+    "prettier": "./node_modules/.bin/prettier --write 'src/**/*.ts' 'rpc/**/*.ts' ",
     "typeorm": "tsc && ./node_modules/.bin/typeorm"
   },
   "jest-junit": {

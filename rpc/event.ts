@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-import { EventSubscription } from "../src/entity/EventSubscription";
+import { EventSubscription } from '../src/entity/EventSubscription';
 
-import { RPCMethod } from "./decorators";
-import { LoadedContracts } from "./contracts";
+import { RPCMethod } from './decorators';
+import { LoadedContracts } from './contracts';
 
 const loadedContracts = LoadedContracts.Instance;
 
 export class RPCEvent {
-
-    @RPCMethod({require: ["subscription"]})
+    @RPCMethod({ require: ['subscription'] })
     public static async Subscribe(args) {
-
         const eventSubscription = await EventSubscription.getOrCreate(args.subscription);
 
         await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
@@ -35,14 +33,13 @@ export class RPCEvent {
             subscription: {
                 events: eventSubscription.eventNames,
                 contract: eventSubscription.project,
-                callback: eventSubscription.url
-            }
+                callback: eventSubscription.url,
+            },
         };
     }
 
-    @RPCMethod({require: ["subscription"]})
+    @RPCMethod({ require: ['subscription'] })
     public static async Unsubscribe(args) {
-
         const eventSubscription = await EventSubscription.unsubscribe(args.subscription);
 
         return {
@@ -50,8 +47,8 @@ export class RPCEvent {
             subscription: {
                 events: eventSubscription.eventNames,
                 contract: eventSubscription.project,
-                callback: eventSubscription.url
-            }
+                callback: eventSubscription.url,
+            },
         };
     }
 }
@@ -62,5 +59,4 @@ export async function startEventSubscriptions() {
     for (let eventSubscription of eventSubscriptions) {
         await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
     }
-
 }

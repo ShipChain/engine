@@ -2,10 +2,9 @@
   <img src="https://shipchain.io/img/logo.png" alt="ShipChain"/>
 </p>
 
-[![CircleCI](https://circleci.com/gh/ShipChain/engine/tree/master.svg?style=svg&circle-token=9c6904f69bc63707c4cea53d54d888e46a391401)](https://circleci.com/gh/ShipChain/engine/tree/master)
+[![CircleCI](https://circleci.com/gh/ShipChain/engine/tree/master.svg?style=svg)](https://circleci.com/gh/ShipChain/engine/tree/master)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-
-<!-- [![CircleCI](https://img.shields.io/circleci/token/9c6904f69bc63707c4cea53d54d888e46a391401/project/github/ShipChain/engine/master.svg)](https://circleci.com/gh/ShipChain/engine/tree/master) -->
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=svg)](https://github.com/prettier/prettier)
 
 # ShipChain Engine Project
 An RPC server that exposes our Typescript abstraction layer on top of Web3 bindings for ShipChain's Ethereum smart contracts.

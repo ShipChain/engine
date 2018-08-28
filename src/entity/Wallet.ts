@@ -67,11 +67,13 @@ export class Wallet extends BaseEntity {
         const DB = getConnection();
         const repository = DB.getRepository(Wallet);
 
-        return await repository.createQueryBuilder("wallet")
+        return await repository
+            .createQueryBuilder('wallet')
             .select([
                 // "wallet.title",
-                "wallet.id",
-                "wallet.address"])
+                'wallet.id',
+                'wallet.address',
+            ])
             .getMany();
     }
 

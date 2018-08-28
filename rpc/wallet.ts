@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import { Wallet } from "../src/entity/Wallet";
-import { BaseContract } from "../src/contracts/BaseContract";
-import { LoadedContracts} from "./contracts";
-import { RPCMethod } from "./decorators";
+import { Wallet } from '../src/entity/Wallet';
+import { BaseContract } from '../src/contracts/BaseContract';
+import { LoadedContracts } from './contracts';
+import { RPCMethod } from './decorators';
 
 const loadedContracts = LoadedContracts.Instance;
 
 export class RPCWallet {
-
     @RPCMethod()
     public static async Create() {
         const wallet = Wallet.generate_entity();
@@ -32,14 +31,13 @@ export class RPCWallet {
             wallet: {
                 id: wallet.id,
                 public_key: wallet.public_key,
-                address: wallet.address
-            }
+                address: wallet.address,
+            },
         };
     }
 
-    @RPCMethod({require: ["privateKey"]})
+    @RPCMethod({ require: ['privateKey'] })
     public static async Import(args) {
-
         const wallet = await Wallet.import_entity(args.privateKey);
         await wallet.save();
         return {
@@ -47,8 +45,8 @@ export class RPCWallet {
             wallet: {
                 id: wallet.id,
                 public_key: wallet.public_key,
-                address: wallet.address
-            }
+                address: wallet.address,
+            },
         };
     }
 
@@ -58,30 +56,29 @@ export class RPCWallet {
 
         return {
             success: true,
-            wallets: wallets
+            wallets: wallets,
         };
     }
 
     @RPCMethod({
-        require: ["walletId"],
+        require: ['walletId'],
         validate: {
-            uuid: ["walletId"],
-        }})
+            uuid: ['walletId'],
+        },
+    })
     public static async Balance(args) {
-
         const wallet = await Wallet.getById(args.walletId);
 
-        const TOKEN_CONTRACT: BaseContract = loadedContracts.get("Token");
+        const TOKEN_CONTRACT: BaseContract = loadedContracts.get('Token');
         const EthDriver = TOKEN_CONTRACT.getEthDriver();
 
         const eth_balance = await EthDriver.getBalance(wallet.address);
-        const ship_balance = await TOKEN_CONTRACT.callStatic("balanceOf", [wallet.address]);
+        const ship_balance = await TOKEN_CONTRACT.callStatic('balanceOf', [wallet.address]);
 
         return {
             success: true,
             ether: eth_balance,
-            ship: ship_balance
+            ship: ship_balance,
         };
     }
-
 }

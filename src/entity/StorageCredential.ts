@@ -55,12 +55,14 @@ export class StorageCredential extends BaseEntity {
         const DB = getConnection();
         const repository = DB.getRepository(StorageCredential);
 
-        return await repository.createQueryBuilder("storageCredential")
+        return await repository
+            .createQueryBuilder('storageCredential')
             .select([
-                "storageCredential.id",
-                "storageCredential.title",
-                "storageCredential.driver_type",
-                "storageCredential.base_path"])
+                'storageCredential.id',
+                'storageCredential.title',
+                'storageCredential.driver_type',
+                'storageCredential.base_path',
+            ])
             .getMany();
     }
 

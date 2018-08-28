@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { validateUuid } from "./validators";
+import { validateUuid } from './validators';
 
-const rpc = require("json-rpc2");
+const rpc = require('json-rpc2');
 
 class RPCMethodOptions {
     require?: string[];
@@ -44,7 +44,10 @@ export function RPCMethod(options?: RPCMethodOptions) {
 
             const callback = arguments[2];
 
-            originalMethod.apply(context, arguments).then(resolve => callback(null, resolve)).catch(reject => callback(reject));
+            originalMethod
+                .apply(context, arguments)
+                .then(resolve => callback(null, resolve))
+                .catch(reject => callback(reject));
         };
 
         // return edited descriptor as opposed to overwriting the descriptor
@@ -53,7 +56,6 @@ export function RPCMethod(options?: RPCMethodOptions) {
 }
 
 function checkOptions(args, options: RPCMethodOptions) {
-
     if (options && options.require) {
         checkRequiredParameters(args[0], options.require);
     }
@@ -61,7 +63,6 @@ function checkOptions(args, options: RPCMethodOptions) {
     if (options && options.validate) {
         validateParameters(args[0], options.validate);
     }
-
 }
 
 function checkRequiredParameters(args, required: string[]) {
@@ -74,13 +75,13 @@ function checkRequiredParameters(args, required: string[]) {
     }
 
     if (missing.length > 0) {
-        throw new rpc.Error.InvalidParams(`Missing required parameter${missing.length === 1 ? "" : "s"}: '${missing.join(", ")}'`);
+        throw new rpc.Error.InvalidParams(
+            `Missing required parameter${missing.length === 1 ? '' : 's'}: '${missing.join(', ')}'`,
+        );
     }
-
 }
 
 function validateParameters(args, validations: RPCMethodValidateOptions) {
-
     let failed: string[] = [];
 
     if (validations && validations.uuid) {
@@ -92,7 +93,6 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throw new rpc.Error.InvalidParams(`Invalid UUID${failed.length === 1 ? "" : "s"}: '${failed.join(", ")}'`);
+        throw new rpc.Error.InvalidParams(`Invalid UUID${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
-
 }
