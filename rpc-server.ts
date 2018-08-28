@@ -30,6 +30,7 @@ import { TransmissionConfirmationCallback } from "./src/shipchain/TransmissionCo
 
 import { buildSchemaValidators, uuidArgumentValidator, validateShipmentArgs } from "./rpc/validators";
 import { LoadedContracts } from "./rpc/loadedContracts";
+import { RPCEvent } from "./rpc/event";
 import { RPCWallet } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
 import { RPCStorageCredentials } from "./rpc/storage_credentials";
@@ -505,35 +506,8 @@ server.expose("load", {
 });
 
 server.expose("event", {
-    "subscribe": asyncRPCHandler(async (args) => {
-
-        const eventSubscription = await EventSubscription.getOrCreate(args[0]);
-
-        await eventSubscription.start(getCurrentContractForProject(eventSubscription.project));
-
-        return {
-            success: true,
-            subscription: {
-                events: eventSubscription.eventNames,
-                contract: eventSubscription.project,
-                callback: eventSubscription.url
-            }
-        };
-    }),
-
-    "unsubscribe": asyncRPCHandler(async (args) => {
-
-        const eventSubscription = await EventSubscription.unsubscribe(args[0]);
-
-        return {
-            success: true,
-            subscription: {
-                events: eventSubscription.eventNames,
-                contract: eventSubscription.project,
-                callback: eventSubscription.url
-            }
-        };
-    })
+    "subscribe": RPCEvent.Subscribe,
+    "unsubscribe": RPCEvent.Unsubscribe
 });
 
 // Build Schema Validators
