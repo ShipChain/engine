@@ -32,6 +32,7 @@ import { buildSchemaValidators, uuidArgumentValidator, validateShipmentArgs } fr
 import { LoadedContracts } from "./rpc/loadedContracts";
 import { RPCWallet } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
+import { RPCStorageCredentials } from "./rpc/storage_credentials";
 
 
 import { getRDSconfig } from "./rdsconfig";
@@ -147,29 +148,8 @@ server.expose("wallet", {
 });
 
 server.expose("storage_credentials", {
-    "create_hosted": asyncRPCHandler(async (args) => {
-        const credentials = StorageCredential.generate_entity(args[0]);
-
-        await credentials.save();
-
-        return {
-            success: true,
-            credentials: {
-                id: credentials.id,
-                title: credentials.title,
-                driver_type: credentials.driver_type,
-                base_path: credentials.base_path
-            }
-        };
-    }),
-    "list": asyncRPCHandler(async (args) => {
-        const storageCredentials: StorageCredential[] = await StorageCredential.listAll();
-
-        return {
-            success: true,
-            credentials: storageCredentials
-        };
-    })
+    "create_hosted": RPCStorageCredentials.Create,
+    "list": RPCStorageCredentials.List
 });
 
 server.expose("transaction", {
