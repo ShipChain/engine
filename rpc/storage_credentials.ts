@@ -18,9 +18,9 @@ import { RPCMethod } from './decorators';
 import { StorageCredential } from '../src/entity/StorageCredential';
 
 export class RPCStorageCredentials {
-    @RPCMethod({ require: ['credentials'] })
+    @RPCMethod({ require: ['title', 'driver_type'] })
     public static async Create(args) {
-        const credentials = StorageCredential.generate_entity(args.credentials);
+        const credentials = StorageCredential.generate_entity(args);
 
         await credentials.save();
 
