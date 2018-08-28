@@ -46,6 +46,12 @@ Install the required Node packages:
 bin/ddo npm install
 ```
 
+Build the Docker image:
+
+```
+bin/dc build
+```
+
 ### Scripts
 
 The scripts provided in the `bin` directory allow for easier interaction with the Docker compose services and containers.  By default, these scripts use the `dev.yml` compose file.  This can be changed to any configuration file by setting the `ROLE` environment variable.  For example if you want to use `my_settings.yml` with the scripts provided, you would only need to set `ROLE=my_settings` in your environment.
