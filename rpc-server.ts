@@ -19,16 +19,13 @@ require("./loggingConfig");
 import { Logger, loggers } from "winston";
 
 import { Wallet } from "./src/entity/Wallet";
-import { StorageCredential } from "./src/entity/StorageCredential";
 import { Project } from "./src/entity/Contract";
 import { EventSubscription } from "./src/entity/EventSubscription";
 
-import { LoadVault } from "./src/shipchain/LoadVault";
 import { TokenContract } from "./src/shipchain/TokenContract";
-import { FundingType, LoadContract } from "./src/shipchain/LoadContract";
-import { TransmissionConfirmationCallback } from "./src/shipchain/TransmissionConfirmationCallback";
+import { LoadContract } from "./src/shipchain/LoadContract";
 
-import { buildSchemaValidators, uuidArgumentValidator, validateShipmentArgs } from "./rpc/validators";
+import { buildSchemaValidators } from "./rpc/validators";
 import { LoadedContracts } from "./rpc/loadedContracts";
 import { RPCLoad } from "./rpc/load";
 import { RPCEvent } from "./rpc/event";
@@ -98,20 +95,6 @@ async function loadContractFixtures() {
     loadedContracts.register("Token", TOKEN_CONTRACT, true);
 }
 
-function getCurrentContractForProject(projectName: string) {
-    let contract;
-
-    if (projectName == "LOAD") {
-        contract = LOAD_CONTRACT._contract;
-    } else if (projectName == "Token") {
-        contract = TOKEN_CONTRACT._contract;
-    } else {
-        throw new Error("Invalid Project Name");
-    }
-
-    return contract;
-}
-
 async function startEventSubscriptions() {
     let eventSubscriptions: EventSubscription[] = await EventSubscription.getStartable();
 
@@ -131,12 +114,6 @@ const server = rpc.Server.$create({
         "Access-Control-Allow-Origin": "*"
     }
 });
-
-function asyncRPCHandler(func) {
-    return function(args, opt, callback) {
-        func(args, opt).then(resolve => callback(null, resolve)).catch(reject => callback(reject));
-    };
-}
 
 server.on("error", function(err) {
     logger.error(`${err}`);
