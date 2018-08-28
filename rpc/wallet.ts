@@ -61,13 +61,13 @@ export class RPCWallet {
     }
 
     @RPCMethod({
-        require: ['walletId'],
+        require: ['wallet'],
         validate: {
-            uuid: ['walletId'],
+            uuid: ['wallet'],
         },
     })
     public static async Balance(args) {
-        const wallet = await Wallet.getById(args.walletId);
+        const wallet = await Wallet.getById(args.wallet);
 
         const TOKEN_CONTRACT: BaseContract = loadedContracts.get('Token');
         const EthDriver = TOKEN_CONTRACT.getEthDriver();

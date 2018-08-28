@@ -28,7 +28,7 @@ const loadedContracts = LoadedContracts.Instance;
 
 export class RPCLoad {
     @RPCMethod({
-        require: ['storageCredentials', 'shipperWallet', 'carrierWallet'],
+        require: ['storageCredentials', 'shipperWallet'],
         validate: {
             uuid: ['storageCredentials', 'shipperWallet', 'carrierWallet'],
         },
@@ -36,11 +36,15 @@ export class RPCLoad {
     public static async CreateVault(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const shipperWallet = await Wallet.getById(args.shipperWallet);
-        const carrierWallet = await Wallet.getById(args.carrierWallet);
 
         const vault = new LoadVault(storage);
         await vault.getOrCreateMetadata(shipperWallet);
-        await vault.authorize(shipperWallet, 'owners', carrierWallet.public_key);
+
+        if(args.carrierWallet) {
+            const carrierWallet = await Wallet.getById(args.carrierWallet);
+            await vault.authorize(shipperWallet, 'owners', carrierWallet.public_key);
+        }
+
         const signature = await vault.writeMetadata(shipperWallet);
 
         return {
@@ -77,13 +81,13 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['updaterWallet', 'shipmentId', 'url', 'hash'],
+        require: ['shipperWallet', 'shipmentId', 'url', 'hash'],
         validate: {
-            uuid: ['updaterWallet'],
+            uuid: ['shipperWallet'],
         },
     })
     public static async UpdateVaultHashTx(args) {
-        const updaterWallet = await Wallet.getById(args.updaterWallet);
+        const shipperWallet = await Wallet.getById(args.shipperWallet);
 
         if (args.url.length > 2000) {
             throw new Error('URL too long');
@@ -94,7 +98,7 @@ export class RPCLoad {
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD');
 
-        const txUnsigned = await LOAD_CONTRACT.updateVault(updaterWallet, args.shipmentId, args.url, args.hash);
+        const txUnsigned = await LOAD_CONTRACT.updateVault(shipperWallet, args.shipmentId, args.url, args.hash);
 
         return {
             success: true,
@@ -174,17 +178,17 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['committerWallet', 'shipmentId'],
+        require: ['carrierWallet', 'shipmentId'],
         validate: {
-            uuid: ['committerWallet'],
+            uuid: ['carrierWallet'],
         },
     })
     public static async CommitToShipmentTx(args) {
-        const committerWallet = await Wallet.getById(args[0]);
+        const carrierWallet = await Wallet.getById(args.carrierWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD');
 
-        const txUnsigned = await LOAD_CONTRACT.commitToShipmentContract(committerWallet, args.shipmentId);
+        const txUnsigned = await LOAD_CONTRACT.commitToShipmentContract(carrierWallet, args.shipmentId);
 
         return {
             success: true,
@@ -193,17 +197,17 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['committerWallet', 'shipmentId'],
+        require: ['carrierWallet', 'shipmentId'],
         validate: {
-            uuid: ['committerWallet'],
+            uuid: ['carrierWallet'],
         },
     })
     public static async ShipmentInTransitTx(args) {
-        const committerWallet = await Wallet.getById(args[0]);
+        const carrierWallet = await Wallet.getById(args.carrierWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD');
 
-        const txUnsigned = await LOAD_CONTRACT.inTransitByCarrier(committerWallet, args.shipmentId);
+        const txUnsigned = await LOAD_CONTRACT.inTransitByCarrier(carrierWallet, args.shipmentId);
 
         return {
             success: true,
@@ -212,17 +216,17 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['committerWallet', 'shipmentId'],
+        require: ['carrierWallet', 'shipmentId'],
         validate: {
-            uuid: ['committerWallet'],
+            uuid: ['carrierWallet'],
         },
     })
     public static async CarrierCompleteTx(args) {
-        const committerWallet = await Wallet.getById(args[0]);
+        const carrierWallet = await Wallet.getById(args.carrierWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD');
 
-        const txUnsigned = await LOAD_CONTRACT.contractCompletedByCarrier(committerWallet, args.shipmentId);
+        const txUnsigned = await LOAD_CONTRACT.contractCompletedByCarrier(carrierWallet, args.shipmentId);
 
         return {
             success: true,
@@ -237,7 +241,7 @@ export class RPCLoad {
         },
     })
     public static async ShipperAcceptTx(args) {
-        const shipperWallet = await Wallet.getById(args[0]);
+        const shipperWallet = await Wallet.getById(args.shipperWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD');
 
@@ -256,7 +260,7 @@ export class RPCLoad {
         },
     })
     public static async ShipperCancelTx(args) {
-        const shipperWallet = await Wallet.getById(args[0]);
+        const shipperWallet = await Wallet.getById(args.shipperWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD');
 
@@ -269,17 +273,17 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['payWallet', 'shipmentId'],
+        require: ['carrierWallet', 'shipmentId'],
         validate: {
-            uuid: ['payWallet'],
+            uuid: ['carrierWallet'],
         },
     })
     public static async PayOutTx(args) {
-        const payWallet = await Wallet.getById(args[0]);
+        const carrierWallet = await Wallet.getById(args.carrierWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD');
 
-        const txUnsigned = await LOAD_CONTRACT.payOut(payWallet, args.shipmentId);
+        const txUnsigned = await LOAD_CONTRACT.payOut(carrierWallet, args.shipmentId);
 
         return {
             success: true,
@@ -328,41 +332,41 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['credentials', 'vaultWallet', 'vaultId'],
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
         validate: {
-            uuid: ['credentials', 'vaultWallet', 'vaultId'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
         },
     })
     public static async GetTrackingData(args) {
-        const storage = await StorageCredential.getOptionsById(args.credentials);
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
-        const load = new LoadVault(storage, args.vaultId);
+        const load = new LoadVault(storage, args.vault);
         const contents = await load.getTrackingData(wallet);
 
         return {
             success: true,
             wallet_id: wallet.id,
-            load_id: args.vaultId,
+            load_id: args.vault,
             contents: contents,
         };
     }
 
     @RPCMethod({
-        require: ['credentials', 'vaultWallet', 'vaultId', 'payload'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'payload'],
         validate: {
-            uuid: ['credentials', 'vaultWallet', 'vaultId'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
         },
     })
     public static async AddTrackingData(args) {
-        const storage = await StorageCredential.getOptionsById(args.credentials);
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
         if (args.payload == '') {
             throw new Error('Invalid Payload provided');
         }
 
-        const load = new LoadVault(storage, args.vaultId);
+        const load = new LoadVault(storage, args.vault);
 
         await load.getOrCreateMetadata(wallet);
         await load.addTrackingData(wallet, args.payload);
@@ -375,39 +379,39 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['credentials', 'vaultWallet', 'vaultId'],
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
         validate: {
-            uuid: ['credentials', 'vaultWallet', 'vaultId'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
         },
     })
     public static async GetShipmentData(args) {
-        const storage = await StorageCredential.getOptionsById(args.credentials);
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
-        const load = new LoadVault(storage, args.vaultId);
+        const load = new LoadVault(storage, args.vault);
         const contents = await load.getShipmentData(wallet);
 
         return {
             success: true,
             wallet_id: wallet.id,
-            load_id: args.vaultId,
+            load_id: args.vault,
             shipment: contents,
         };
     }
 
     @RPCMethod({
-        require: ['credentials', 'vaultWallet', 'vaultId', 'shipment'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'shipment'],
         validate: {
-            uuid: ['credentials', 'vaultWallet', 'vaultId'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
         },
     })
     public static async AddShipmentData(args) {
         validateShipmentArgs(args.shipment);
 
-        const storage = await StorageCredential.getOptionsById(args.credentials);
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
-        const load = new LoadVault(storage, args.vaultId);
+        const load = new LoadVault(storage, args.vault);
 
         await load.getOrCreateMetadata(wallet);
         await load.addShipmentData(wallet, args.shipment);
