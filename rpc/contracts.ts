@@ -16,6 +16,14 @@
 
 import { BaseContract } from "../src/contracts/BaseContract";
 import { Logger, loggers } from "winston";
+import { Project } from "../src/entity/Contract";
+import { Wallet } from "../src/entity/Wallet";
+import { TokenContract } from "../src/shipchain/TokenContract";
+import { LoadContract } from "../src/shipchain/LoadContract";
+
+const typeorm = require("typeorm");
+const test_net_utils = require("../src/local-test-net-utils");
+
 
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
@@ -85,4 +93,45 @@ export class LoadedContracts {
             return this.contracts[project][version].contract;
         }
     }
+}
+
+
+export async function loadContractFixtures() {
+
+    let TOKEN_CONTRACT;
+    let LOAD_CONTRACT;
+
+    const loadedContracts = LoadedContracts.Instance;
+
+    await Project.loadFixtures("/contracts");
+
+    if (ENV === "DEV" || ENV === "LOCAL") {
+        const GETH_NODE = process.env.GETH_NODE || "localhost:8545";
+        logger.info(`Loading Contracts from ${GETH_NODE}`);
+        const [web3, network, token, load] = await test_net_utils.setupLocalTestNetContracts(GETH_NODE, await typeorm.getConnection().getRepository(Wallet).find());
+        TOKEN_CONTRACT = new TokenContract(token.network.title, token.version.title);
+        LOAD_CONTRACT = new LoadContract(load.network.title, load.version.title);
+    }
+
+    else if (ENV === "STAGE") {
+        logger.info("Loading Contracts from Ropsten");
+        TOKEN_CONTRACT = new TokenContract("ropsten", "1.0");
+        LOAD_CONTRACT = new LoadContract("ropsten", "1.0.2");
+    }
+
+    else if (ENV === "PROD") {
+        logger.info("Loading Contracts from Main");
+        TOKEN_CONTRACT = new TokenContract("main", "1.0");
+        LOAD_CONTRACT = new LoadContract("main", "1.0.2");
+    }
+
+    else {
+        throw new Error("Unable to determine appropriate Ethereum Network!");
+    }
+
+    await TOKEN_CONTRACT.Ready;
+    await LOAD_CONTRACT.Ready;
+
+    loadedContracts.register("LOAD", LOAD_CONTRACT, true);
+    loadedContracts.register("Token", TOKEN_CONTRACT, true);
 }

@@ -55,3 +55,12 @@ export class RPCEvent {
         };
     }
 }
+
+export async function startEventSubscriptions() {
+    let eventSubscriptions: EventSubscription[] = await EventSubscription.getStartable();
+
+    for (let eventSubscription of eventSubscriptions) {
+        await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
+    }
+
+}

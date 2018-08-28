@@ -18,95 +18,26 @@
 require("./loggingConfig");
 import { Logger, loggers } from "winston";
 
-import { Wallet } from "./src/entity/Wallet";
-import { Project } from "./src/entity/Contract";
-import { EventSubscription } from "./src/entity/EventSubscription";
-
-import { TokenContract } from "./src/shipchain/TokenContract";
-import { LoadContract } from "./src/shipchain/LoadContract";
-
 import { buildSchemaValidators } from "./rpc/validators";
 import { loadContractFixtures } from "./rpc/contracts";
 import { RPCLoad } from "./rpc/load";
-import { RPCEvent } from "./rpc/event";
+import { RPCEvent, startEventSubscriptions } from "./rpc/event";
 import { RPCWallet } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
 import { RPCStorageCredentials } from "./rpc/storage_credentials";
 
-
 import { getRDSconfig } from "./rdsconfig";
-
-const test_net_utils = require("./src/local-test-net-utils");
 
 const typeorm = require("typeorm");
 const rpc = require("json-rpc2");
 const process = require("process");
 
 
-const PORT = process.env.PORT || 2000;
-const ENV = process.env.ENV || "LOCAL";
-
-
-// Load Contract Fixtures from Meta-data
-// =====================================
-let TOKEN_CONTRACT = null;
-let LOAD_CONTRACT = null;
-
-
 // We need to ignore the TSError here until this is released: https://github.com/winstonjs/winston/pull/1362
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
+const PORT = process.env.PORT || 2000;
 
-const loadedContracts = LoadedContracts.Instance;
-
-
-async function loadContractFixtures() {
-
-    await Project.loadFixtures("/contracts");
-
-    if (ENV === "DEV" || ENV === "LOCAL") {
-        const GETH_NODE = process.env.GETH_NODE || "localhost:8545";
-        logger.info(`Loading Contracts from ${GETH_NODE}`);
-        const [web3, network, token, load] = await test_net_utils.setupLocalTestNetContracts(GETH_NODE, await typeorm.getConnection().getRepository(Wallet).find());
-        TOKEN_CONTRACT = new TokenContract(token.network.title, token.version.title);
-        LOAD_CONTRACT = new LoadContract(load.network.title, load.version.title);
-    }
-
-    else if (ENV === "STAGE") {
-        logger.info("Loading Contracts from Ropsten");
-        TOKEN_CONTRACT = new TokenContract("ropsten", "1.0");
-        LOAD_CONTRACT = new LoadContract("ropsten", "1.0.2");
-    }
-
-    else if (ENV === "PROD") {
-        logger.info("Loading Contracts from Main");
-        TOKEN_CONTRACT = new TokenContract("main", "1.0");
-        LOAD_CONTRACT = new LoadContract("main", "1.0.2");
-    }
-
-    else {
-        throw new Error("Unable to determine appropriate Ethereum Network!");
-    }
-
-    await TOKEN_CONTRACT.Ready;
-    await LOAD_CONTRACT.Ready;
-
-    loadedContracts.register("LOAD", LOAD_CONTRACT, true);
-    loadedContracts.register("Token", TOKEN_CONTRACT, true);
-}
-
-async function startEventSubscriptions() {
-    let eventSubscriptions: EventSubscription[] = await EventSubscription.getStartable();
-
-    for (let eventSubscription of eventSubscriptions) {
-        await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
-    }
-
-}
-
-
-// Expose RPC Method Handlers
-// ==========================
 
 const server = rpc.Server.$create({
     "websocket": true, // is true by default
@@ -119,6 +50,9 @@ server.on("error", function(err) {
     logger.error(`${err}`);
 });
 
+
+// Expose RPC Method Handlers
+// ==========================
 server.expose("wallet", {
     "create_hosted": RPCWallet.Create,
     "import_hosted": RPCWallet.Import,
@@ -168,7 +102,7 @@ server.expose("event", {
 // Connect to TypeORM
 // Start RPC Server
 // =======================
-async function startServer() {
+async function startRpcServer() {
     await buildSchemaValidators();
 
     // read connection options from ormconfig file (or ENV variables)
@@ -187,4 +121,6 @@ async function startServer() {
     server.listen(PORT, "0.0.0.0");
 }
 
-startServer();
+startRpcServer().catch(err => {
+    logger.error(`${err}`);
+});
