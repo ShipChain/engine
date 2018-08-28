@@ -21,27 +21,6 @@ import { Logger, loggers } from "winston";
 const logger: Logger = loggers.get('engine');
 
 
-export function RPCAsync(target, key, descriptor) {
-    // save a reference to the original method this way we keep the values currently in the
-    // descriptor and don't overwrite what another decorator might have done to the descriptor.
-    if(descriptor === undefined) {
-        descriptor = Object.getOwnPropertyDescriptor(target, key);
-    }
-    const originalMethod = descriptor.value;
-
-    //editing the descriptor/value parameter
-    descriptor.value = function () {
-        let context = this;
-        const callback = arguments[2];
-
-        originalMethod.apply(context, arguments).then(resolve => callback(null, resolve)).catch(reject => callback(reject));
-    };
-
-    // return edited descriptor as opposed to overwriting the descriptor
-    return descriptor;
-}
-
-
 export class LoadedContracts {
     private static _instance: LoadedContracts;
 

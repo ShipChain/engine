@@ -64,6 +64,10 @@ export function uuidArgumentValidator(args, argsToCheck) {
   }
 }
 
+export function validateUuid(uuid) {
+    return (typeof uuid === "string" && validator.isUUID(uuid))
+}
+
 export function validateShipmentArgs(shipment) {
   if (shipmentValidator === null) {
     throw new Error("JSONSchema Validator is invalid");
