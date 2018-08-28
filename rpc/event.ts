@@ -22,9 +22,9 @@ import { LoadedContracts } from './contracts';
 const loadedContracts = LoadedContracts.Instance;
 
 export class RPCEvent {
-    @RPCMethod({ require: ['subscription'] })
+    @RPCMethod({ require: ['url', 'project'] })
     public static async Subscribe(args) {
-        const eventSubscription = await EventSubscription.getOrCreate(args.subscription);
+        const eventSubscription = await EventSubscription.getOrCreate(args);
 
         await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
 
@@ -38,9 +38,9 @@ export class RPCEvent {
         };
     }
 
-    @RPCMethod({ require: ['subscription'] })
+    @RPCMethod({ require: ['url'] })
     public static async Unsubscribe(args) {
-        const eventSubscription = await EventSubscription.unsubscribe(args.subscription);
+        const eventSubscription = await EventSubscription.unsubscribe(args.url);
 
         return {
             success: true,
