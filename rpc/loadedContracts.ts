@@ -34,7 +34,7 @@ export class LoadedContracts {
         return this._instance || (this._instance = new this());
     }
 
-    public loadedContract(project: string, contract: BaseContract, latest: boolean = false) {
+    public register(project: string, contract: BaseContract, latest: boolean = false) {
         const version = contract.getContractVersion();
 
         if(!this.contracts.hasOwnProperty(project)) {
@@ -53,7 +53,7 @@ export class LoadedContracts {
         };
     }
 
-    public getContract(project: string, version?: string): BaseContract {
+    public get(project: string, version?: string): BaseContract {
         if(!this.contracts.hasOwnProperty(project)) {
             throw new Error(`Contract '${project}' not loaded`)
         }

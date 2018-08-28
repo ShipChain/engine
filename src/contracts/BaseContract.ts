@@ -36,6 +36,10 @@ export abstract class BaseContract {
         });
     }
 
+    getContractEntity() {
+        return this._contract;
+    }
+
     getContractVersion() {
         return this._contract.version.title;
     }

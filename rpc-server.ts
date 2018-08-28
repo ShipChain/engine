@@ -57,6 +57,8 @@ let LOAD_CONTRACT = null;
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
 
+const loadedContracts = LoadedContracts.Instance;
+
 
 async function loadContractFixtures() {
 
@@ -88,6 +90,9 @@ async function loadContractFixtures() {
 
     await TOKEN_CONTRACT.Ready;
     await LOAD_CONTRACT.Ready;
+
+    loadedContracts.register("LOAD", LOAD_CONTRACT, true);
+    loadedContracts.register("Token", TOKEN_CONTRACT, true);
 }
 
 function getCurrentContractForProject(projectName: string) {
@@ -108,7 +113,7 @@ async function startEventSubscriptions() {
     let eventSubscriptions: EventSubscription[] = await EventSubscription.getStartable();
 
     for (let eventSubscription of eventSubscriptions) {
-        await eventSubscription.start(getCurrentContractForProject(eventSubscription.project));
+        await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
     }
 
 }
