@@ -1,5 +1,5 @@
 {
-  "$id": "http://schema.shipchain.io/1.0.0/shipment.json",
+  "$id": "http://schema.shipchain.io/1.0.1/shipment.json",
   "type": "object",
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -84,17 +84,17 @@
       "maxLength": 255
     },
     "ship_from_location": {
-      "$ref": "http://schema.shipchain.io/1.0.0/location.json",
+      "$ref": "http://schema.shipchain.io/1.0.1/location.json",
       "title": "Ship from address",
       "description": "The Shipment's ship-from address"
     },
     "ship_to_location": {
-      "$ref": "http://schema.shipchain.io/1.0.0/location.json",
+      "$ref": "http://schema.shipchain.io/1.0.1/location.json",
       "title": "Ship to address",
       "description": "The Shipment's ship-to address"
     },
     "final_destination_location": {
-      "$ref": "http://schema.shipchain.io/1.0.0/location.json",
+      "$ref": "http://schema.shipchain.io/1.0.1/location.json",
       "title": "Shipment Final Destination",
       "description": "The Shipment's Final Destination address"
     },
@@ -209,7 +209,7 @@
     },
     "gross_weight_kgs": {
       "$id": "/properties/gross_weight_kgs",
-      "type": "integer",
+      "type": "number",
       "title": "The Gross_weight_kgs Schema",
       "description": "An explanation about the purpose of this instance.",
       "default": 0,
@@ -219,7 +219,7 @@
     },
     "volume_cbms": {
       "$id": "/properties/volume_cbms",
-      "type": "integer",
+      "type": "number",
       "title": "The Volume_cbms Schema",
       "description": "An explanation about the purpose of this instance.",
       "default": 0,
@@ -239,7 +239,7 @@
     },
     "dimensional_weight": {
       "$id": "/properties/dimensional_weight",
-      "type": "integer",
+      "type": "number",
       "title": "The Dimensional_weight Schema",
       "description": "An explanation about the purpose of this instance.",
       "default": 0,
@@ -249,7 +249,7 @@
     },
     "chargeable_weight": {
       "$id": "/properties/chargeable_weight",
-      "type": "integer",
+      "type": "number",
       "title": "The Chargeable_weight Schema",
       "description": "An explanation about the purpose of this instance.",
       "default": 0,
@@ -567,26 +567,24 @@
       "maxLength": 255
     },
     "updated_at": {
-      "$id": "/properties/updated_at",
       "type": "string",
-      "title": "The Updated_at Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": "",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "maxLength": 255
+      "$id": "/properties/updated_at",
+      "title": "The Updated_at Schema",
+      "description": "An explanation about the purpose of this instance."
     },
     "created_at": {
-      "$id": "/properties/created_at",
       "type": "string",
-      "title": "The Created_at Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": "",
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "maxLength": 255
+      "$id": "/properties/created_at",
+      "title": "The Created_at Schema",
+      "description": "An explanation about the purpose of this instance."
     },
     "customer_fields": {
       "$id": "/properties/customer_fields",
