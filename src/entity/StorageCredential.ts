@@ -23,8 +23,8 @@ const logger: Logger = loggers.get('engine');
 class StorageCredentialAttrs {
     title: string;
     driver_type: string;
-    base_path: string;
-    options: Object;
+    base_path?: string;
+    options?: Object;
 }
 
 @Entity()
@@ -43,7 +43,7 @@ export class StorageCredential extends BaseEntity {
 
     static generate_entity(attrs: StorageCredentialAttrs) {
         const credentials = new StorageCredential();
-        credentials.title = attrs.title || null;
+        credentials.title = attrs.title;
         credentials.driver_type = attrs.driver_type;
         credentials.base_path = attrs.base_path || './';
         credentials.options = attrs.options || {};
