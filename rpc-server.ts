@@ -29,6 +29,11 @@ import { FundingType, LoadContract } from "./src/shipchain/LoadContract";
 import { TransmissionConfirmationCallback } from "./src/shipchain/TransmissionConfirmationCallback";
 
 import { buildSchemaValidators, uuidArgumentValidator, validateShipmentArgs } from "./rpc/validators";
+import { LoadedContracts } from "./rpc/loadedContracts";
+import { RPCWallet } from "./rpc/wallet";
+import { RPCTransaction } from "./rpc/transaction";
+
+
 import { getRDSconfig } from "./rdsconfig";
 
 const test_net_utils = require("./src/local-test-net-utils");
@@ -130,53 +135,10 @@ server.on("error", function(err) {
 });
 
 server.expose("wallet", {
-    "create_hosted": asyncRPCHandler(async () => {
-        const wallet = Wallet.generate_entity();
-        await wallet.save();
-        return {
-            success: true,
-            wallet: {
-                id: wallet.id,
-                public_key: wallet.public_key,
-                address: wallet.address
-            }
-        };
-    }),
-    "import_hosted": asyncRPCHandler(async (args) => {
-        const wallet = await Wallet.import_entity(args[0]);
-        await wallet.save();
-        return {
-            success: true,
-            wallet: {
-                id: wallet.id,
-                public_key: wallet.public_key,
-                address: wallet.address
-            }
-        };
-    }),
-    "list": asyncRPCHandler(async (args) => {
-        const wallets: Wallet[] = await Wallet.listAll();
-
-        return {
-            success: true,
-            wallets: wallets
-        };
-    }),
-    "balance": asyncRPCHandler(async (args) => {
-        uuidArgumentValidator(args, {
-            0: "Account Wallet"
-        });
-
-        const wallet = await Wallet.getById(args[0]);
-        const eth_balance = await TOKEN_CONTRACT._eth.getBalance(wallet.address);
-        const ship_balance = await TOKEN_CONTRACT.callStatic("balanceOf", [wallet.address]);
-
-        return {
-            success: true,
-            ether: eth_balance,
-            ship: ship_balance
-        };
-    })
+    "create_hosted": RPCWallet.Create,
+    "import_hosted": RPCWallet.Import,
+    "list": RPCWallet.List,
+    "balance": RPCWallet.Balance
 });
 
 server.expose("storage_credentials", {
@@ -206,43 +168,8 @@ server.expose("storage_credentials", {
 });
 
 server.expose("transaction", {
-    "sign": asyncRPCHandler(async (args) => {
-        uuidArgumentValidator(args, {
-            0: "Signer Wallet"
-        });
-
-        const txUnsigned = args[1];
-        if (typeof txUnsigned !== "object") {
-            // TODO: Validate arg as EthereumTx object
-            throw new rpc.Error.InvalidParams("Invalid Ethereum Transaction format");
-        }
-
-        const signerWallet = await Wallet.getById(args[0]);
-        const txSigned = await signerWallet.sign_tx(txUnsigned);
-
-        return {
-            success: true,
-            transaction: txSigned
-        };
-    }),
-
-    "send": asyncRPCHandler(async (args) => {
-        const txSigned = args[0];
-        if (typeof txSigned !== "object") {
-            // TODO: Validate arg as EthereumTx object
-            throw new rpc.Error.InvalidParams("Invalid Ethereum Transaction format");
-        }
-
-        const callbackUrl = args[1];
-        let callbacks = new TransmissionConfirmationCallback(callbackUrl);
-
-        const txReceipt = await LOAD_CONTRACT.sendTransaction(txSigned, callbacks);
-
-        return {
-            success: true,
-            receipt: txReceipt
-        };
-    })
+    "sign": RPCTransaction.Sign,
+    "send": RPCTransaction.Send
 });
 
 server.expose("load", {
