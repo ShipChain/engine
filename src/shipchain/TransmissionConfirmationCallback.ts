@@ -60,11 +60,11 @@ export class TransmissionConfirmationCallback extends ContractCallback {
         }
     }
 
-    protected async confirmation(num, obj) {
+    protected async confirmation(num, receipt) {
         if (num === ContractCallback.CONFIRMATIONS_REQUIRED) {
             this.postData({
                 type: 'ETH_TRANSACTION',
-                body: { status: 'success' },
+                body: receipt,
             });
         }
     }
