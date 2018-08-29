@@ -11,6 +11,7 @@ RUN mkdir /app
 WORKDIR /app
 
 ADD ./package.json /app/
+ADD ./package-lock.json /app/
 RUN npm install
 ENV NODE_PATH /app/node_modules
 ENV PATH $PATH:/app/node_modules/.bin
