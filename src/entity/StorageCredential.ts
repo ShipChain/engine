@@ -23,8 +23,8 @@ const logger: Logger = loggers.get('engine');
 class StorageCredentialAttrs {
     title: string;
     driver_type: string;
-    base_path: string;
-    options: Object;
+    base_path?: string;
+    options?: Object;
 }
 
 @Entity()
@@ -43,7 +43,7 @@ export class StorageCredential extends BaseEntity {
 
     static generate_entity(attrs: StorageCredentialAttrs) {
         const credentials = new StorageCredential();
-        credentials.title = attrs.title || null;
+        credentials.title = attrs.title;
         credentials.driver_type = attrs.driver_type;
         credentials.base_path = attrs.base_path || './';
         credentials.options = attrs.options || {};
@@ -55,11 +55,14 @@ export class StorageCredential extends BaseEntity {
         const DB = getConnection();
         const repository = DB.getRepository(StorageCredential);
 
-        return await repository.createQueryBuilder("storageCredential")
+        return await repository
+            .createQueryBuilder('storageCredential')
             .select([
-                "storageCredential.title",
-                "storageCredential.driver_type",
-                "storageCredential.base_path"])
+                'storageCredential.id',
+                'storageCredential.title',
+                'storageCredential.driver_type',
+                'storageCredential.base_path',
+            ])
             .getMany();
     }
 

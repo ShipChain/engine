@@ -14,14 +14,6 @@ services:
           - "2222:22"
       command: shipchain_user:shipchain_password:::upload
 
-  echo-server:
-    image: jmalloc/echo-server
-    ports:
-    - "5555:5555"
-    environment:
-    - PORT=5555
-    - LOG_HTTP_BODY=1
-
   psql:
     image: sameersbn/postgresql:9.6-2
     ports:
@@ -52,7 +44,6 @@ services:
       - psql
       - geth-poa
       - sftp
-      - echo-server
     volumes:
       - ../:/app
     environment:
