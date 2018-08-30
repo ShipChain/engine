@@ -56,6 +56,8 @@ export class RPCTransaction {
 
         let callbacks = new TransmissionConfirmationCallback(args.callbackUrl);
 
+        // We don't need a specific version of the contract here, we
+        // only need access to the network of a registered contract
         const LOAD_CONTRACT: BaseContract = loadedContracts.get('LOAD');
         const txReceipt = await LOAD_CONTRACT.sendTransaction(args.txSigned, callbacks);
 

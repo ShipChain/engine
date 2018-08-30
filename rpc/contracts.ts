@@ -16,7 +16,7 @@
 
 import { BaseContract } from '../src/contracts/BaseContract';
 import { Logger, loggers } from 'winston';
-import { Project } from '../src/entity/Contract';
+import { Project, Contract, Version } from '../src/entity/Contract';
 import { Wallet } from '../src/entity/Wallet';
 import { TokenContract } from '../src/shipchain/TokenContract';
 import { LoadContract } from '../src/shipchain/LoadContract';
@@ -49,9 +49,7 @@ export class LoadedContracts {
         }
 
         if (this.contracts[project].hasOwnProperty(version)) {
-            const message = `Contract '${project}' version '${version}' already loaded`;
-            logger.error(message);
-            throw new Error(message);
+            throw new Error(`Contract '${project}' version '${version}' already loaded`);
         }
 
         this.contracts[project][version] = {
@@ -73,15 +71,12 @@ export class LoadedContracts {
                     }
                 }
             }
+            throw new Error(`Contract '${project}' has no latest version specified`);
+        }
 
-            const message = `Contract '${project}' has no latest version specified`;
-            logger.error(message);
-            throw new Error(message);
-        } else {
+        else {
             if (!this.contracts[project].hasOwnProperty(version)) {
-                const message = `Contract '${project}' version '${version}' not loaded`;
-                logger.error(message);
-                throw new Error(message);
+                throw new Error(`Contract '${project}' version '${version}' not loaded`);
             }
 
             return this.contracts[project][version].contract;
@@ -126,4 +121,29 @@ export async function loadContractFixtures() {
 
     loadedContracts.register('LOAD', LOAD_CONTRACT, true);
     loadedContracts.register('Token', TOKEN_CONTRACT, true);
+
+    await registerPreviousLoadContracts(LOAD_CONTRACT);
+}
+
+async function registerPreviousLoadContracts(LOAD_CONTRACT: LoadContract) {
+    const currentContract = LOAD_CONTRACT.getContractEntity();
+    const loadedContracts = LoadedContracts.Instance;
+
+    const previousContracts: Contract[] = await Contract.find({
+        projectId: currentContract.projectId,
+        networkId: currentContract.networkId,
+        versionId: typeorm.Not(currentContract.versionId)
+    });
+
+    for(let previousContract of previousContracts){
+        const previousVersion: Version = await Version.findOne({id: previousContract.versionId});
+
+        const oldLoadContract: LoadContract = new LoadContract(currentContract.network.title, previousVersion.title);
+        await oldLoadContract.Ready;
+
+        logger.info(`Loading previous '${currentContract.project.title}' contract version ${previousVersion.title}`);
+
+        loadedContracts.register(currentContract.project.title, oldLoadContract);
+    }
+
 }
