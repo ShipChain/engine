@@ -8,6 +8,8 @@ services:
       timeout: 10s
       interval: 10s
       retries: 3
+    volumes:
+    - /data/shipchain/engine/chain:/geth/chain
     expose:
       - '8545'
     environment:
