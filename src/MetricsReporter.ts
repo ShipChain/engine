@@ -19,6 +19,7 @@ import { Logger, loggers } from "winston";
 
 // @ts-ignore
 const logger: Logger = loggers.get("engine");
+const ENVIRONMENT = process.env.ENV || "LOCAL";
 const INFLUXDB_URL = process.env.INFLUXDB_URL;
 
 export class MetricsReporter {
@@ -39,22 +40,37 @@ export class MetricsReporter {
         return this._instance || (this._instance = new this());
     }
 
-    public report(measurement: string, point: IPoint, options: IWriteOptions = undefined) {
+    public methodCall(method: string) {
+
+        const point = {
+            tags: {
+                environment: ENVIRONMENT,
+                method: method
+            },
+            fields: {
+                count: 1
+            },
+            timestamp: new Date()
+        };
+
+        this.report('method_invocation', point)
+    }
+
+
+    protected report(measurement: string, point: IPoint, options: IWriteOptions = undefined) {
         this.reportMultiple(measurement, [point], options)
     }
 
-    public reportMultiple(measurement: string, points: IPoint[], options: IWriteOptions = undefined) {
+    protected reportMultiple(measurement: string, points: IPoint[], options: IWriteOptions = undefined) {
         if(this.influx) {
             this.influx.writeMeasurement(measurement, points, options)
                 .then(
-                    result => {
-                        logger.error(`Successfully reporting metrics ${result}`);
-                    },
+                    result => {},
                     error => {
-                        logger.error(`Caught Error when reporting metrics ${error}`);
+                        logger.error(`Error when reporting metrics ${error}`);
                     })
                 .catch(error => {
-                    logger.error(`Caught Error when reporting metrics ${error}`);
+                    logger.error(`Error when reporting metrics ${error}`);
                 });
         }
     }

@@ -27,7 +27,7 @@ import { RPCTransaction } from "./rpc/transaction";
 import { RPCStorageCredentials } from "./rpc/storage_credentials";
 
 import { getRDSconfig } from "./rdsconfig";
-import { MetricsReporter } from "./MetricsReporter";
+import { MetricsReporter } from "./src/MetricsReporter";
 
 const typeorm = require("typeorm");
 const rpc = require("json-rpc2");
@@ -120,18 +120,7 @@ async function startRpcServer() {
 
     const metrics = MetricsReporter.Instance;
 
-    metrics.report("lucas_test",
-        {
-            tags: {
-                hostname: "lucasgram"
-            },
-            fields: {
-                aString: "String Value",
-                aNumber: 1337,
-            },
-            timestamp: Date.now()
-        }
-    );
+    metrics.methodCall("startRpcServer");
 
     logger.info(`RPC server listening on ${PORT}`);
     server.listen(PORT, "0.0.0.0");
