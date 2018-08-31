@@ -18,7 +18,7 @@ import { Wallet } from '../src/entity/Wallet';
 import { LoadVault } from '../src/shipchain/LoadVault';
 import { StorageCredential } from '../src/entity/StorageCredential';
 
-import { RPCMethod } from './decorators';
+import { RPCMethod, RPCNamespace } from './decorators';
 import { LoadedContracts } from './contracts';
 import { LoadContract } from '../src/shipchain/LoadContract';
 import { TokenContract } from '../src/shipchain/TokenContract';
@@ -26,6 +26,7 @@ import { validateShipmentArgs } from './validators';
 
 const loadedContracts = LoadedContracts.Instance;
 
+@RPCNamespace({ name: 'Load' })
 export class RPCLoad {
     @RPCMethod({
         require: ['storageCredentials', 'shipperWallet'],
@@ -40,7 +41,7 @@ export class RPCLoad {
         const vault = new LoadVault(storage);
         await vault.getOrCreateMetadata(shipperWallet);
 
-        if(args.carrierWallet) {
+        if (args.carrierWallet) {
             const carrierWallet = await Wallet.getById(args.carrierWallet);
             await vault.authorize(shipperWallet, 'owners', carrierWallet.public_key);
         }

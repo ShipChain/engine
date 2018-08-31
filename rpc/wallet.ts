@@ -17,10 +17,11 @@
 import { Wallet } from '../src/entity/Wallet';
 import { BaseContract } from '../src/contracts/BaseContract';
 import { LoadedContracts } from './contracts';
-import { RPCMethod } from './decorators';
+import { RPCMethod, RPCNamespace } from './decorators';
 
 const loadedContracts = LoadedContracts.Instance;
 
+@RPCNamespace({ name: 'Wallet' })
 export class RPCWallet {
     @RPCMethod()
     public static async Create() {

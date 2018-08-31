@@ -16,11 +16,12 @@
 
 import { EventSubscription } from '../src/entity/EventSubscription';
 
-import { RPCMethod } from './decorators';
+import { RPCMethod, RPCNamespace } from './decorators';
 import { LoadedContracts } from './contracts';
 
 const loadedContracts = LoadedContracts.Instance;
 
+@RPCNamespace({ name: 'Event' })
 export class RPCEvent {
     @RPCMethod({ require: ['url', 'project'] })
     public static async Subscribe(args) {

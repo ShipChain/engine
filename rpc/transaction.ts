@@ -21,10 +21,11 @@ import { BaseContract } from '../src/contracts/BaseContract';
 import { TransmissionConfirmationCallback } from '../src/shipchain/TransmissionConfirmationCallback';
 
 import { LoadedContracts } from './contracts';
-import { RPCMethod } from './decorators';
+import { RPCMethod, RPCNamespace } from './decorators';
 
 const loadedContracts = LoadedContracts.Instance;
 
+@RPCNamespace({ name: 'Transaction' })
 export class RPCTransaction {
     @RPCMethod({
         require: ['signerWallet', 'txUnsigned'],
@@ -44,7 +45,7 @@ export class RPCTransaction {
         return {
             success: true,
             transaction: txSigned,
-            hash: txHash
+            hash: txHash,
         };
     }
 

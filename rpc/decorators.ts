@@ -15,8 +15,29 @@
  */
 
 import { validateUuid } from './validators';
+import { MetricsReporter } from '../src/MetricsReporter';
+import { Logger, loggers } from "winston";
 
 const rpc = require('json-rpc2');
+
+// @ts-ignore
+const logger: Logger = loggers.get('engine');
+const metrics = MetricsReporter.Instance;
+
+class RPCNamespaceOptions {
+    name: string;
+}
+
+export function RPCNamespace(options: RPCNamespaceOptions) {
+    return function RPCNamespace(target: any) {
+        let original = target;
+
+        original.__isRpcClass = true;
+        original.__rpcNamespace = options.name;
+
+        return original;
+    };
+}
 
 class RPCMethodOptions {
     require?: string[];
@@ -39,6 +60,14 @@ export function RPCMethod(options?: RPCMethodOptions) {
         //editing the descriptor/value parameter
         descriptor.value = function() {
             let context = this;
+
+            // We cannot check this at compile time due to the class-decorator not being
+            // fully applied yet while the methods are being defined within the class
+            if(!target.__isRpcClass) {
+                logger.error(`@RPCMethod '${propertyKey}' used outside of @RPCNamespace in '${target.name || target.constructor.name}'`);
+            }
+
+            metrics.methodCall(target.__rpcNamespace + '.' + propertyKey);
 
             checkOptions(arguments, options);
 

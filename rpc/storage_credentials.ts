@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { RPCMethod } from './decorators';
+import { RPCMethod, RPCNamespace } from './decorators';
 import { StorageCredential } from '../src/entity/StorageCredential';
 
+@RPCNamespace({ name: 'StorageCredentials' })
 export class RPCStorageCredentials {
     @RPCMethod({ require: ['title', 'driver_type'] })
     public static async Create(args) {

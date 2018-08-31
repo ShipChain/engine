@@ -72,9 +72,7 @@ export class LoadedContracts {
                 }
             }
             throw new Error(`Contract '${project}' has no latest version specified`);
-        }
-
-        else {
+        } else {
             if (!this.contracts[project].hasOwnProperty(version)) {
                 throw new Error(`Contract '${project}' version '${version}' not loaded`);
             }
@@ -132,11 +130,11 @@ async function registerPreviousLoadContracts(LOAD_CONTRACT: LoadContract) {
     const previousContracts: Contract[] = await Contract.find({
         projectId: currentContract.projectId,
         networkId: currentContract.networkId,
-        versionId: typeorm.Not(currentContract.versionId)
+        versionId: typeorm.Not(currentContract.versionId),
     });
 
-    for(let previousContract of previousContracts){
-        const previousVersion: Version = await Version.findOne({id: previousContract.versionId});
+    for (let previousContract of previousContracts) {
+        const previousVersion: Version = await Version.findOne({ id: previousContract.versionId });
 
         const oldLoadContract: LoadContract = new LoadContract(currentContract.network.title, previousVersion.title);
         await oldLoadContract.Ready;
@@ -145,5 +143,4 @@ async function registerPreviousLoadContracts(LOAD_CONTRACT: LoadContract) {
 
         loadedContracts.register(currentContract.project.title, oldLoadContract);
     }
-
 }

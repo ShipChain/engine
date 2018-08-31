@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { InfluxDB, IPoint, IWriteOptions } from "influx";
-import { Logger, loggers } from "winston";
+import { InfluxDB, IPoint, IWriteOptions } from 'influx';
+import { Logger, loggers } from 'winston';
 
 // @ts-ignore
-const logger: Logger = loggers.get("engine");
-const ENVIRONMENT = process.env.ENV || "LOCAL";
+const logger: Logger = loggers.get('engine');
+const ENVIRONMENT = process.env.ENV || 'LOCAL';
 const INFLUXDB_URL = process.env.INFLUXDB_URL;
 
 export class MetricsReporter {
@@ -28,9 +28,10 @@ export class MetricsReporter {
     private readonly influx: InfluxDB = null;
 
     private constructor() {
-        if(INFLUXDB_URL) {
+        if (INFLUXDB_URL) {
             // Connect to a single host with a DSN:
             this.influx = new InfluxDB(INFLUXDB_URL);
+            logger.info(`Metrics reporting is enabled`);
         } else {
             logger.info(`Metrics reporting is disabled`);
         }
@@ -41,38 +42,37 @@ export class MetricsReporter {
     }
 
     public methodCall(method: string) {
-
         const point = {
             tags: {
                 environment: ENVIRONMENT,
-                method: method
+                method: method,
             },
             fields: {
-                count: 1
+                count: 1,
             },
-            timestamp: new Date()
+            timestamp: new Date(),
         };
 
-        this.report('method_invocation', point)
+        this.report('engine.method_invocation', point);
     }
 
-
     protected report(measurement: string, point: IPoint, options: IWriteOptions = undefined) {
-        this.reportMultiple(measurement, [point], options)
+        this.reportMultiple(measurement, [point], options);
     }
 
     protected reportMultiple(measurement: string, points: IPoint[], options: IWriteOptions = undefined) {
-        if(this.influx) {
-            this.influx.writeMeasurement(measurement, points, options)
+        if (this.influx) {
+            this.influx
+                .writeMeasurement(measurement, points, options)
                 .then(
                     result => {},
                     error => {
                         logger.error(`Error when reporting metrics ${error}`);
-                    })
+                    },
+                )
                 .catch(error => {
                     logger.error(`Error when reporting metrics ${error}`);
                 });
         }
     }
-
 }
