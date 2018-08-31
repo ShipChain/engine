@@ -54,6 +54,7 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - ELASTICSEARCH_URL
+      - INFLUXDB_URL
 
 networks:
   portal:
