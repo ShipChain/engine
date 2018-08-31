@@ -5,6 +5,7 @@
 [![CircleCI](https://circleci.com/gh/ShipChain/engine/tree/master.svg?style=svg)](https://circleci.com/gh/ShipChain/engine/tree/master)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=svg)](https://github.com/prettier/prettier)
+[![Chat](https://img.shields.io/badge/gitter-ShipChain/lobby-green.svg)](https://gitter.im/ShipChain/Lobby)
 
 # ShipChain Engine Project
 An RPC server that exposes our Typescript abstraction layer on top of Web3 bindings for ShipChain's Ethereum smart contracts.
@@ -29,6 +30,10 @@ Once Docker is installed, you will need a Docker "network" named `portal`:
 ```
 docker network create portal
 ```
+
+You will also need to create a new directory tree `/data/shipchain/engine/postgresql` to persist your local database.
+
+Note:  Depending on OS settings, some users may encounter permission errors when running Engine.  This is commonly due to missing [Shared Drives](https://docs.docker.com/docker-for-windows/#shared-drives) on Windows or [File Sharing](https://docs.docker.com/docker-for-mac/#file-sharing) on Mac.  Be sure these are setup to allow access to the `/data` directory you created.
 
 ### Installing
 

@@ -70,7 +70,7 @@ describe('ContractEntity', function() {
                 await token.build_transaction('transfer', [other.address, 100 * SHIP]),
             );
 
-            const signed_tx = await owner.sign_tx(txParams);
+            const [signed_tx, txHash] = await owner.sign_tx(txParams);
 
             const receipt = await network.send_tx(signed_tx);
 

@@ -223,10 +223,11 @@ export class EventSubscription extends BaseEntity {
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {
         async function pollMethod() {
             return new Promise((resolve, reject) => {
+                logger.debug(`Searching for Events fromBlock ${eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0}`);
                 eventSubscription.contractDriver.getPastEvents(
                     eventName,
                     {
-                        fromBlock: eventSubscription.lastBlock ? eventSubscription.lastBlock + 1 : 0,
+                        fromBlock: eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0,
                         toBlock: 'latest',
                     },
                     async (error, events) => {
@@ -234,6 +235,8 @@ export class EventSubscription extends BaseEntity {
                             logger.error(`Error retrieving Events: ${error}`);
                             reject(error);
                         }
+
+                        logger.debug(`Found ${events.length} Events`);
 
                         if (events.length) {
                             let highestBlock = EventSubscription.findHighestBlockInEvents(

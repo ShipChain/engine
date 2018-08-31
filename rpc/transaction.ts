@@ -39,11 +39,12 @@ export class RPCTransaction {
         }
 
         const signerWallet = await Wallet.getById(args.signerWallet);
-        const txSigned = await signerWallet.sign_tx(args.txUnsigned);
+        const [txSigned, txHash] = await signerWallet.sign_tx(args.txUnsigned);
 
         return {
             success: true,
             transaction: txSigned,
+            hash: txHash
         };
     }
 

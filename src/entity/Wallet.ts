@@ -179,12 +179,14 @@ export class Wallet extends BaseEntity {
 
         tx.sign(this.__unlocked_key_buffer());
 
-        return tx;
+        const txHash = '0x' + tx.hash().toString('hex');
+
+        return [tx, txHash];
     }
 
     async sign_and_send_tx(network, txParams) {
         txParams = await this.add_tx_params(network, txParams);
-
-        return await network.send_tx(this.sign_tx(txParams));
+        let [txSigned, txHash] = this.sign_tx(txParams);
+        return await network.send_tx(txSigned);
     }
 }
