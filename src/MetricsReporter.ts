@@ -33,7 +33,7 @@ export class MetricsReporter {
             this.influx = new InfluxDB(INFLUXDB_URL);
             logger.info(`Metrics reporting is enabled`);
         } else {
-            logger.info(`Metrics reporting is disabled`);
+            logger.warn(`Metrics reporting is disabled`);
         }
     }
 
@@ -41,19 +41,45 @@ export class MetricsReporter {
         return this._instance || (this._instance = new this());
     }
 
-    public methodCall(method: string) {
-        const point = {
+    private static buildPoint(tags: any = {}, fields: any = {}) {
+        let defaultPoint = {
             tags: {
                 environment: ENVIRONMENT,
-                method: method,
             },
             fields: {
                 count: 1,
             },
-            timestamp: new Date(),
         };
 
+        return {
+            tags: Object.assign(defaultPoint.tags, tags),
+            fields: Object.assign(defaultPoint.fields, fields),
+            timestamp: new Date(),
+        };
+    }
+
+    public methodCall(method: string) {
+        const point = MetricsReporter.buildPoint({method: method} );
+
         this.report('engine.method_invocation', point);
+    }
+
+    public methodFail(method: string) {
+        const point = MetricsReporter.buildPoint({method: method} );
+
+        this.report('engine.method_failure', point);
+    }
+
+    public countAction(action: string, tags: any = {}) {
+        const point = MetricsReporter.buildPoint( Object.assign({action: action}, tags) );
+
+        this.report('engine.action_count', point);
+    }
+
+    public entityTotal(entity: string, count: number) {
+        const point = MetricsReporter.buildPoint({entity: entity}, {count: count} );
+
+        this.report('engine.entity_total', point);
     }
 
     protected report(measurement: string, point: IPoint, options: IWriteOptions = undefined) {
@@ -61,6 +87,8 @@ export class MetricsReporter {
     }
 
     protected reportMultiple(measurement: string, points: IPoint[], options: IWriteOptions = undefined) {
+        // Later we can add in caching of points to send in bulk
+        // and handling a backlog of points that failed to report
         if (this.influx) {
             this.influx
                 .writeMeasurement(measurement, points, options)
