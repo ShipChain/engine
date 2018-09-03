@@ -59,25 +59,25 @@ export class MetricsReporter {
     }
 
     public methodCall(method: string) {
-        const point = MetricsReporter.buildPoint({method: method} );
+        const point = MetricsReporter.buildPoint({ method: method });
 
         this.report('engine.method_invocation', point);
     }
 
     public methodFail(method: string) {
-        const point = MetricsReporter.buildPoint({method: method} );
+        const point = MetricsReporter.buildPoint({ method: method });
 
         this.report('engine.method_failure', point);
     }
 
     public countAction(action: string, tags: any = {}) {
-        const point = MetricsReporter.buildPoint( Object.assign({action: action}, tags) );
+        const point = MetricsReporter.buildPoint(Object.assign({ action: action }, tags));
 
         this.report('engine.action_count', point);
     }
 
     public entityTotal(entity: string, count: number) {
-        const point = MetricsReporter.buildPoint({entity: entity}, {count: count} );
+        const point = MetricsReporter.buildPoint({ entity: entity }, { count: count });
 
         this.report('engine.entity_total', point);
     }
