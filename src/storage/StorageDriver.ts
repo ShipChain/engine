@@ -17,14 +17,17 @@
 import * as path from 'path';
 
 export abstract class StorageDriver {
+    protected readonly type: string = 'local';
+
     protected config;
     protected base_path = './'; // Default to root directory, overwrite with vault config if desired
 
-    protected constructor(config) {
+    protected constructor(config, type: string) {
         this.config = config;
         if (typeof config.base_path != undefined) {
             this.base_path = config.base_path;
         }
+        this.type = type;
     }
 
     protected getFullVaultPath(relativeFilePath: string) {

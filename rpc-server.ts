@@ -37,6 +37,7 @@ const process = require("process");
 // We need to ignore the TSError here until this is released: https://github.com/winstonjs/winston/pull/1362
 // @ts-ignore
 const logger: Logger = loggers.get("engine");
+const metrics = MetricsReporter.Instance;
 const PORT = process.env.PORT || 2000;
 
 
@@ -118,9 +119,7 @@ async function startRpcServer() {
     await loadContractFixtures();
     await startEventSubscriptions();
 
-    const metrics = MetricsReporter.Instance;
-
-    metrics.methodCall("startRpcServer");
+    metrics.countAction("startRpcServer");
 
     logger.info(`RPC server listening on ${PORT}`);
     server.listen(PORT, "0.0.0.0");

@@ -15,10 +15,14 @@
  */
 
 import { DirectoryListing, DriverError, FileEntity, StorageDriver } from '../StorageDriver';
+import { MetricsReporter } from '../../MetricsReporter';
 import * as path from 'path';
 import S3 = require('aws-sdk/clients/s3');
 
+const metrics = MetricsReporter.Instance;
+
 export class S3StorageDriver extends StorageDriver {
+
     s3: S3;
     bucket: string;
 
@@ -26,7 +30,7 @@ export class S3StorageDriver extends StorageDriver {
     acl: S3.ObjectCannedACL;
 
     constructor(config) {
-        super(config);
+        super(config, 's3');
 
         let s3_options = { apiVersion: '2006-03-01' };
 
@@ -57,6 +61,7 @@ export class S3StorageDriver extends StorageDriver {
     }
 
     async getFile(filePath: string, binary: boolean = false): Promise<any> {
+        metrics.countAction('storage_get_file', { driver_type: this.type });
         let fullVaultPath = this.getFullVaultPath(filePath);
 
         return new Promise((resolve, reject) => {
@@ -81,6 +86,7 @@ export class S3StorageDriver extends StorageDriver {
     }
 
     async putFile(filePath: string, data: any, binary: boolean = false): Promise<any> {
+        metrics.countAction('storage_put_file', { driver_type: this.type });
         let fullVaultPath = this.getFullVaultPath(filePath);
 
         return new Promise((resolve, reject) => {
@@ -107,6 +113,7 @@ export class S3StorageDriver extends StorageDriver {
     }
 
     async removeFile(filePath: string): Promise<any> {
+        metrics.countAction('storage_remove_file', { driver_type: this.type });
         let fullVaultPath = this.getFullVaultPath(filePath);
 
         return new Promise((resolve, reject) => {
@@ -131,6 +138,7 @@ export class S3StorageDriver extends StorageDriver {
     }
 
     async fileExists(filePath: string): Promise<any> {
+        metrics.countAction('storage_file_exists', { driver_type: this.type });
         let fullVaultPath = this.getFullVaultPath(filePath);
 
         return new Promise((resolve, reject) => {
@@ -240,6 +248,7 @@ export class S3StorageDriver extends StorageDriver {
     }
 
     async listDirectory(vaultDirectory: string, recursive: boolean = false): Promise<any> {
+        metrics.countAction('storage_list_directory', { driver_type: this.type });
         let vaultSearchPath = vaultDirectory;
 
         if (vaultSearchPath) {
