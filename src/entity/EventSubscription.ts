@@ -155,6 +155,18 @@ export class EventSubscription extends BaseEntity {
         return await repository.find();
     }
 
+    static async getCount() {
+        const DB = getConnection();
+        const repository = DB.getRepository(EventSubscription);
+
+        const count = await repository
+            .createQueryBuilder('eventSubscription')
+            .select('COUNT(eventSubscription.url) AS cnt')
+            .getRawMany();
+
+        return count[0]['cnt'];
+    }
+
     static async unsubscribe(url: string) {
         if (EventSubscription.activeSubscriptions[url]) {
             let eventSubscription = EventSubscription.activeSubscriptions[url];
@@ -223,7 +235,11 @@ export class EventSubscription extends BaseEntity {
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {
         async function pollMethod() {
             return new Promise((resolve, reject) => {
-                logger.debug(`Searching for Events fromBlock ${eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0}`);
+                logger.debug(
+                    `Searching for Events fromBlock ${
+                        eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0
+                    }`,
+                );
                 eventSubscription.contractDriver.getPastEvents(
                     eventName,
                     {

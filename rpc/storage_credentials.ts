@@ -16,6 +16,9 @@
 
 import { RPCMethod, RPCNamespace } from './decorators';
 import { StorageCredential } from '../src/entity/StorageCredential';
+import { MetricsReporter } from '../src/MetricsReporter';
+
+const metrics = MetricsReporter.Instance;
 
 @RPCNamespace({ name: 'StorageCredentials' })
 export class RPCStorageCredentials {
@@ -24,6 +27,13 @@ export class RPCStorageCredentials {
         const credentials = StorageCredential.generate_entity(args);
 
         await credentials.save();
+
+        // This should be non-blocking
+        StorageCredential.getCount()
+            .then(count => {
+                metrics.entityTotal('StorageCredential', count);
+            })
+            .catch(err => {});
 
         return {
             success: true,

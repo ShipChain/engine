@@ -15,11 +15,13 @@
  */
 
 import { EventSubscription } from '../src/entity/EventSubscription';
+import { MetricsReporter } from '../src/MetricsReporter';
 
 import { RPCMethod, RPCNamespace } from './decorators';
 import { LoadedContracts } from './contracts';
 
 const loadedContracts = LoadedContracts.Instance;
+const metrics = MetricsReporter.Instance;
 
 @RPCNamespace({ name: 'Event' })
 export class RPCEvent {
@@ -28,6 +30,13 @@ export class RPCEvent {
         const eventSubscription = await EventSubscription.getOrCreate(args);
 
         await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
+
+        // This should be non-blocking
+        EventSubscription.getCount()
+            .then(count => {
+                metrics.entityTotal('EventSubscription', count);
+            })
+            .catch(err => {});
 
         return {
             success: true,
