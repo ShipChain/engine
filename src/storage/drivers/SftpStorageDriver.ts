@@ -15,14 +15,18 @@
  */
 
 import { DirectoryListing, DriverError, FileEntity, StorageDriver } from '../StorageDriver';
+import { MetricsReporter } from '../../MetricsReporter';
 import * as path from 'path';
 
 const getStream = require('get-stream');
 const SftpClient = require('ssh2-sftp-client');
 
+const metrics = MetricsReporter.Instance;
+
 export class SftpStorageDriver extends StorageDriver {
+
     constructor(config) {
-        super(config);
+        super(config, 'sftp');
     }
 
     private async _connect() {
@@ -41,6 +45,7 @@ export class SftpStorageDriver extends StorageDriver {
     }
 
     async getFile(filePath: string, binary: boolean = false): Promise<any> {
+        metrics.countAction('storage_get_file', { driver_type: this.type });
         let encodingSftp = binary ? null : 'utf8';
         let encodingStream = binary ? 'buffer' : 'utf8';
 
@@ -61,6 +66,7 @@ export class SftpStorageDriver extends StorageDriver {
     }
 
     async putFile(filePath: string, data: any, binary: boolean = false): Promise<any> {
+        metrics.countAction('storage_put_file', { driver_type: this.type });
         let encoding = binary ? null : 'utf8';
 
         if (!data) {
@@ -86,6 +92,7 @@ export class SftpStorageDriver extends StorageDriver {
     }
 
     async removeFile(filePath: string): Promise<any> {
+        metrics.countAction('storage_remove_file', { driver_type: this.type });
         let sftp = await this._connect();
 
         let fullVaultPath = this.getFullVaultPath(filePath);
@@ -104,6 +111,7 @@ export class SftpStorageDriver extends StorageDriver {
     }
 
     async fileExists(filePath: string): Promise<any> {
+        metrics.countAction('storage_file_exists', { driver_type: this.type });
         let sftp = await this._connect();
 
         let parsedPath = this.parseFullVaultPath(filePath);
@@ -165,6 +173,7 @@ export class SftpStorageDriver extends StorageDriver {
     }
 
     async listDirectory(vaultDirectory: string, recursive: boolean = false): Promise<any> {
+        metrics.countAction('storage_list_directory', { driver_type: this.type });
         let sftp = await this._connect();
 
         let vaultSearchPath = vaultDirectory;

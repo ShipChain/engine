@@ -15,6 +15,7 @@
  */
 
 import { DirectoryListing, DriverError, FileEntity, StorageDriver } from '../StorageDriver';
+import { MetricsReporter } from '../../MetricsReporter';
 
 const fs = require('fs');
 const util = require('util');
@@ -24,9 +25,12 @@ const _mkdirp = require('mkdirp');
 // Convert mkdirp into Promise version of same
 const mkdirp = util.promisify(_mkdirp);
 
+const metrics = MetricsReporter.Instance;
+
 export class LocalStorageDriver extends StorageDriver {
+
     constructor(config) {
-        super(config);
+        super(config, 'local');
     }
 
     private async _validateDirectoryPath(filePath: string): Promise<any> {
@@ -51,6 +55,7 @@ export class LocalStorageDriver extends StorageDriver {
     }
 
     async getFile(filePath: string, binary: boolean = false): Promise<any> {
+        metrics.countAction('storage_get_file', { driver_type: this.type });
         let encoding = binary ? null : 'utf8';
         return new Promise((resolve, reject) => {
             fs.readFile(this.getFullVaultPath(filePath), encoding, (err, data) => {
@@ -64,6 +69,7 @@ export class LocalStorageDriver extends StorageDriver {
     }
 
     async putFile(filePath: string, data: any, binary: boolean = false): Promise<any> {
+        metrics.countAction('storage_put_file', { driver_type: this.type });
         let encoding = binary ? null : 'utf8';
 
         if (!data) {
@@ -84,6 +90,7 @@ export class LocalStorageDriver extends StorageDriver {
     }
 
     async removeFile(filePath: string): Promise<any> {
+        metrics.countAction('storage_remove_file', { driver_type: this.type });
         return new Promise((resolve, reject) => {
             fs.unlink(this.getFullVaultPath(filePath), (err, data) => {
                 if (err) {
@@ -100,6 +107,7 @@ export class LocalStorageDriver extends StorageDriver {
     }
 
     async fileExists(filePath: string): Promise<any> {
+        metrics.countAction('storage_file_exists', { driver_type: this.type });
         return await this.checkIfFile(this.getFullVaultPath(filePath));
     }
 
@@ -156,6 +164,7 @@ export class LocalStorageDriver extends StorageDriver {
     }
 
     async listDirectory(vaultDirectory: string, recursive: boolean = false): Promise<any> {
+        metrics.countAction('storage_list_directory', { driver_type: this.type });
         let vaultSearchPath = vaultDirectory;
 
         if (vaultSearchPath) {

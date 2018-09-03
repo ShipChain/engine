@@ -112,6 +112,11 @@ If you want to also log messages to ElasticSearch, add the following variable po
  - `ELASTICSEARCH_LEVEL`
  	- Defaults to the value set in `LOGGING_LEVEL`
 
+##### Metrics
+Engine supports the reporting of application metrics to an InfluxDB instance. We use this internally in combination with
+Graphana to make a real-time dashboard of our application use. In order to use this, set:
+ - `INFLUXDB_URL` - With the format `http://{host}:{port}/{database}`
+
 ## Running the tests
 
 Testing is handled through the Docker containers as well and can be invoked via the `bin/docker_tests` script.  This is the recommended way to run the tests.

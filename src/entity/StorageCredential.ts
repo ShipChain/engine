@@ -66,6 +66,18 @@ export class StorageCredential extends BaseEntity {
             .getMany();
     }
 
+    static async getCount() {
+        const DB = getConnection();
+        const repository = DB.getRepository(StorageCredential);
+
+        const count = await repository
+            .createQueryBuilder('storageCredential')
+            .select('COUNT(storageCredential.id) AS cnt')
+            .getRawMany();
+
+        return count[0]['cnt'];
+    }
+
     static async getOptionsById(id: string) {
         const DB = getConnection();
         const repository = DB.getRepository(StorageCredential);

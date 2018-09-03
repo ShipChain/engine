@@ -16,16 +16,27 @@
 
 import { Wallet } from '../src/entity/Wallet';
 import { BaseContract } from '../src/contracts/BaseContract';
+import { MetricsReporter } from '../src/MetricsReporter';
 import { LoadedContracts } from './contracts';
-import { RPCMethod } from './decorators';
+import { RPCMethod, RPCNamespace } from './decorators';
 
 const loadedContracts = LoadedContracts.Instance;
+const metrics = MetricsReporter.Instance;
 
+@RPCNamespace({ name: 'Wallet' })
 export class RPCWallet {
     @RPCMethod()
     public static async Create() {
         const wallet = Wallet.generate_entity();
         await wallet.save();
+
+        // This should be non-blocking
+        Wallet.getCount()
+            .then(count => {
+                metrics.entityTotal('Wallet', count);
+            })
+            .catch(err => {});
+
         return {
             success: true,
             wallet: {
@@ -40,6 +51,14 @@ export class RPCWallet {
     public static async Import(args) {
         const wallet = await Wallet.import_entity(args.privateKey);
         await wallet.save();
+
+        // This should be non-blocking
+        Wallet.getCount()
+            .then(count => {
+                metrics.entityTotal('Wallet', count);
+            })
+            .catch(err => {});
+
         return {
             success: true,
             wallet: {

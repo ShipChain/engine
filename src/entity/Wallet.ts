@@ -77,6 +77,18 @@ export class Wallet extends BaseEntity {
             .getMany();
     }
 
+    static async getCount() {
+        const DB = getConnection();
+        const repository = DB.getRepository(Wallet);
+
+        const count = await repository
+            .createQueryBuilder('wallet')
+            .select('COUNT(wallet.id) AS cnt')
+            .getRawMany();
+
+        return count[0]['cnt'];
+    }
+
     static generate_identity() {
         return EthCrypto.createIdentity();
     }
