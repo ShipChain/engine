@@ -476,7 +476,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **Lucas Clay** - [mlclay](https://github.com/mlclay)
-* **Leeward Bound** - [linked](https://github.com/linked)
+* **Leeward Bound** - [leewardbound](https://github.com/leewardbound)
 * **Adam Hodges** - [ajhodges](https://github.com/ajhodges)
 * **James Neyer** - [jamesfneyer](https://github.com/jamesfneyer)
 
