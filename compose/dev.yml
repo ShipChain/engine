@@ -48,7 +48,7 @@ services:
       - ../:/app
     environment:
       - ENV
-      - GETH_NODE=geth-poa:8545
+      - GETH_NODE=http://geth-poa:8545
       - SERVICE=engine-rpc
       - DATABASE_URL
       - AWS_ACCESS_KEY_ID

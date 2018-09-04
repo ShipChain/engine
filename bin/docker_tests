@@ -11,7 +11,7 @@ cd "${0%/*}/.."
 echo "Running tests"
 
 export ROLE=circleci
-export GETH_NODE=geth-poa:8545
+export GETH_NODE=http://geth-poa:8545
 
 bin/dc down
 

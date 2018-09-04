@@ -91,7 +91,7 @@ export async function loadContractFixtures() {
     await Project.loadFixtures('/contracts');
 
     if (ENV === 'DEV' || ENV === 'LOCAL') {
-        const GETH_NODE = process.env.GETH_NODE || 'localhost:8545';
+        const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';
         logger.info(`Loading Contracts from ${GETH_NODE}`);
         const [web3, network, token, load] = await test_net_utils.setupLocalTestNetContracts(
             GETH_NODE,

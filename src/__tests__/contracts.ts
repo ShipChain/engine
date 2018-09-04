@@ -22,7 +22,7 @@ import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
 
 const utils = require('../local-test-net-utils');
-const GETH_NODE = process.env.GETH_NODE || 'localhost:8545';
+const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';
 
 describe('ContractEntity', function() {
     beforeEach(async () => {
