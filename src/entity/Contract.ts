@@ -63,7 +63,7 @@ export class Project extends BaseEntity {
         const networks = {};
         for (let title of Object.keys(meta.networks)) {
             const nData = meta.networks[title];
-            networks[title] = await Network.getOrCreate(title, nData.internal_address, nData.description);
+            networks[title] = await Network.getOrCreate(title, nData.public_address, nData.description);
         }
 
         for (let title of Object.keys(meta.contracts)) {
