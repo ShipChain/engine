@@ -199,11 +199,11 @@ export class Network extends BaseEntity {
             network = new Network();
             network.title = title;
             network.description = description;
-            network.connection_string = `http://${connection_string}`;
+            network.connection_string = connection_string;
             await network.save();
         } else if (network.connection_string !== connection_string || network.description !== description) {
             network.description = description;
-            network.connection_string = `http://${connection_string}`;
+            network.connection_string = connection_string;
             await network.save();
         }
         return network;
