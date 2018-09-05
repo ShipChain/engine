@@ -586,7 +586,7 @@ export class ExternalListDailyContainer extends ExternalContainer {
 
     constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
-        this.encrypted_contents = meta ? meta.encrypted_contents : {};
+        this.encrypted_contents = null;
         this.raw_contents = {};
     }
 
@@ -613,12 +613,13 @@ export class ExternalListDailyContainer extends ExternalContainer {
         }
 
         let todaysProperty = ExternalListDailyContainer.getCurrentDayProperty();
+        this.desired_day = todaysProperty;
+
         const hash = utils.objectHash(blob);
+
         if (
             !this.raw_contents.hasOwnProperty(todaysProperty) &&
-            (this.encrypted_contents &&
-                this.encrypted_contents.hasOwnProperty(todaysProperty) &&
-                Object.keys(this.encrypted_contents[todaysProperty]).length)
+            this.meta[this.getExternalFilename()]
         ) {
             await this.decryptContents(author, todaysProperty);
         }
