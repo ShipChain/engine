@@ -431,7 +431,7 @@ export abstract class ExternalContainer extends Container {
 
     constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
-        this.encrypted_contents = meta ? meta.encrypted_contents : {};
+        this.encrypted_contents = null;
         this.raw_contents = [];
     }
 
@@ -514,14 +514,20 @@ export abstract class ExternalContainer extends Container {
     }
 
     async buildMetadata(author: Wallet) {
-        const containerKey = this.getExternalFilename();
-        await this.encryptContents();
+        // Only build metadata if we've modified the contents of if this is a new vault.
+        // check fileExists last to prevent it from being called if we DO modify data
+        if(this.modified_raw_contents || !(await this.vault.fileExists(this.getExternalFilename())) ) {
+            const containerKey = this.getExternalFilename();
+            await this.encryptContents();
 
-        let metadata = this.meta;
-        metadata.container_type = this.container_type;
-        metadata[containerKey] = await this.writeEncryptedFileContents(author);
+            let metadata = this.meta;
+            metadata.container_type = this.container_type;
+            metadata[containerKey] = await this.writeEncryptedFileContents(author);
 
-        return metadata;
+            return metadata;
+        } else {
+            return this.meta;
+        }
     }
 }
 
@@ -534,6 +540,7 @@ export class ExternalFileContainer extends ExternalContainer {
         }
 
         this.raw_contents = blob;
+        this.modified_raw_contents = true;
         const hash = utils.objectHash(blob);
         this.logAction(author, 'setcontents', null, { hash });
     }
@@ -553,6 +560,7 @@ export class ExternalListContainer extends ExternalContainer {
         }
 
         this.raw_contents.push(blob);
+        this.modified_raw_contents = true;
         this.logAction(author, 'append', null, { hash });
     }
 
