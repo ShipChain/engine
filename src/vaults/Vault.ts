@@ -246,6 +246,7 @@ export abstract class Container {
     public name: string;
     public meta: any;
     public container_type: string;
+    protected modified_raw_contents: boolean = false;
 
     constructor(vault: Vault, name: string, meta?: any) {
         this.vault = vault;
@@ -306,14 +307,16 @@ export abstract class EmbeddedContainer extends Container {
     abstract getRawContents();
 
     async encryptContents() {
-        const unencrypted = this.getRawContents();
-        this.encrypted_contents = {};
+        if(this.modified_raw_contents) {
+            const unencrypted = this.getRawContents();
+            this.encrypted_contents = {};
 
-        for (const idx in this.meta.roles) {
-            const role = this.meta.roles[idx];
-            // TODO: Try/Catch Encryption
-            const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
-            this.encrypted_contents[role] = _encrypted_data.to_string;
+            for (const idx in this.meta.roles) {
+                const role = this.meta.roles[idx];
+                // TODO: Try/Catch Encryption
+                const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
+                this.encrypted_contents[role] = _encrypted_data.to_string;
+            }
         }
 
         return this.encrypted_contents;
@@ -372,6 +375,7 @@ export class EmbeddedFileContainer extends EmbeddedContainer {
         }
 
         this.raw_contents = blob;
+        this.modified_raw_contents = true;
         const hash = utils.objectHash(blob);
         this.logAction(author, 'setcontents', null, { hash });
     }
@@ -399,6 +403,7 @@ export class EmbeddedListContainer extends EmbeddedContainer {
             await this.decryptContents(author);
         }
         this.raw_contents.push(blob);
+        this.modified_raw_contents = true;
         this.logAction(author, 'append', null, { hash });
     }
 
@@ -410,7 +415,9 @@ export class EmbeddedListContainer extends EmbeddedContainer {
         const decrypted = await super.decryptContents(user);
 
         try {
-            return (this.raw_contents = JSON.parse(decrypted));
+            this.raw_contents = JSON.parse(decrypted);
+            this.modified_raw_contents = true;
+            return this.raw_contents;
         } catch (_err) {
             throw new Error('Unable to parse decrypted vault contents');
         }
