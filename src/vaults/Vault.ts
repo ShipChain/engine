@@ -307,15 +307,18 @@ export abstract class EmbeddedContainer extends Container {
     abstract getRawContents();
 
     async encryptContents() {
-        if(this.modified_raw_contents) {
+        if(this.modified_raw_contents || Object.keys(this.encrypted_contents).length === 0 ) {
             const unencrypted = this.getRawContents();
             this.encrypted_contents = {};
 
             for (const idx in this.meta.roles) {
                 const role = this.meta.roles[idx];
-                // TODO: Try/Catch Encryption
-                const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
-                this.encrypted_contents[role] = _encrypted_data.to_string;
+                try {
+                    const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
+                    this.encrypted_contents[role] = _encrypted_data.to_string;
+                } catch (_err) {
+                    throw new Error('Unable to encrypt vault data (' + _err.message + ')');
+                }
             }
         }
 
@@ -467,9 +470,13 @@ export abstract class ExternalContainer extends Container {
 
         for (const idx in this.meta.roles) {
             const role = this.meta.roles[idx];
-            // TODO: Try/Catch Encryption
-            const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
-            this.encrypted_contents[role] = _encrypted_data.to_string;
+
+            try {
+                const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
+                this.encrypted_contents[role] = _encrypted_data.to_string;
+            } catch (_err) {
+                throw new Error('Unable to encrypt vault data (' + _err.message + ')');
+            }
         }
     }
 
