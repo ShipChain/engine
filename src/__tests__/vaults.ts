@@ -139,6 +139,92 @@ describe('Vaults', function() {
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
+    it(`can properly create/read empty embedded file containers`, async () => {
+        let author = Wallet.generate_entity();
+        let vault = new Vault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+
+        vault.getOrCreateContainer(author, 'embedded_file', 'embedded_file');
+
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        const re_open = new Vault(storage_driver, vault.id);
+        await re_open.loadMetadata();
+        expect(await re_open.verify()).toBe(true);
+
+        const re_open_container = re_open.getOrCreateContainer(author, 'embedded_file', 'embedded_file');
+
+        try {
+            await re_open_container.decryptContents(author);
+            fail('Should not have decrypted empty embedded file');
+        } catch (_err) {
+            expect(_err).toEqual(new Error('Container contents empty'));
+        }
+    });
+
+    it(`can properly create/read empty embedded list containers`, async () => {
+        let author = Wallet.generate_entity();
+        let vault = new Vault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+
+        vault.getOrCreateContainer(author, 'embedded_list', 'embedded_list');
+
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        const re_open = new Vault(storage_driver, vault.id);
+        await re_open.loadMetadata();
+        expect(await re_open.verify()).toBe(true);
+
+        const re_open_container = re_open.getOrCreateContainer(author, 'embedded_list', 'embedded_list');
+
+        expect(await re_open_container.decryptContents(author)).toEqual([]);
+    });
+
+    it(`can properly create/read empty external file containers`, async () => {
+        let author = Wallet.generate_entity();
+        let vault = new Vault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+
+        vault.getOrCreateContainer(author, 'external_file', 'external_file');
+
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        const re_open = new Vault(storage_driver, vault.id);
+        await re_open.loadMetadata();
+        expect(await re_open.verify()).toBe(true);
+
+        const re_open_container = re_open.getOrCreateContainer(author, 'external_file', 'external_file');
+
+        try {
+            await re_open_container.decryptContents(author);
+            fail('Should not have decrypted empty external file');
+        } catch (_err) {
+            expect(_err).toEqual(new Error('Container contents empty'));
+        }
+    });
+
+    it(`can properly create/read empty external list containers`, async () => {
+        let author = Wallet.generate_entity();
+        let vault = new Vault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+
+        vault.getOrCreateContainer(author, 'external_list', 'external_list');
+
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        const re_open = new Vault(storage_driver, vault.id);
+        await re_open.loadMetadata();
+        expect(await re_open.verify()).toBe(true);
+
+        const re_open_container = re_open.getOrCreateContainer(author, 'external_list', 'external_list');
+
+        expect(await re_open_container.decryptContents(author)).toEqual([]);
+    });
+
     it(`can add a file container`, async () => {
         let author = Wallet.generate_entity();
 
