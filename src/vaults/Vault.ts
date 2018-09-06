@@ -307,7 +307,7 @@ export abstract class EmbeddedContainer extends Container {
     abstract getRawContents();
 
     async encryptContents() {
-        if(this.modified_raw_contents) {
+        if(this.modified_raw_contents || Object.keys(this.encrypted_contents).length === 0 ) {
             const unencrypted = this.getRawContents();
             this.encrypted_contents = {};
 
