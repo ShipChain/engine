@@ -313,9 +313,12 @@ export abstract class EmbeddedContainer extends Container {
 
             for (const idx in this.meta.roles) {
                 const role = this.meta.roles[idx];
-                // TODO: Try/Catch Encryption
-                const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
-                this.encrypted_contents[role] = _encrypted_data.to_string;
+                try {
+                    const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
+                    this.encrypted_contents[role] = _encrypted_data.to_string;
+                } catch (_err) {
+                    throw new Error('Unable to encrypt vault data (' + _err.message + ')');
+                }
             }
         }
 
@@ -467,9 +470,13 @@ export abstract class ExternalContainer extends Container {
 
         for (const idx in this.meta.roles) {
             const role = this.meta.roles[idx];
-            // TODO: Try/Catch Encryption
-            const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
-            this.encrypted_contents[role] = _encrypted_data.to_string;
+
+            try {
+                const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
+                this.encrypted_contents[role] = _encrypted_data.to_string;
+            } catch (_err) {
+                throw new Error('Unable to encrypt vault data (' + _err.message + ')');
+            }
         }
     }
 
