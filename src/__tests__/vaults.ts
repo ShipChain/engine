@@ -257,6 +257,7 @@ describe('Vaults', function() {
         // Put the second data point in the 2nd day's list
         mockDate('2018-01-02');
         await container.append(author, 'two');
+        await container.append(author, 'two-two');
 
         await vault.writeMetadata(author);
 
@@ -281,7 +282,7 @@ describe('Vaults', function() {
             '2018-01-02T00:00:00.000Z',
         );
 
-        expect(await vault_2_tracking.decryptContents(author)).toEqual(['one', 'two']);
+        expect(await vault_2_tracking.decryptContents(author)).toEqual(['one', 'two', 'two-two']);
 
         // Append to the 2nd day's list
         await vault_2_tracking.append(author, 'three');
@@ -299,7 +300,7 @@ describe('Vaults', function() {
 
         const vault_3_tracking = vault_3.getOrCreateContainer(author, 'tracking_external_daily', 'external_list_daily');
 
-        expect(await vault_3_tracking.decryptContents(author)).toEqual(['one', 'two', 'three']);
+        expect(await vault_3_tracking.decryptContents(author)).toEqual(['one', 'two', 'two-two', 'three']);
 
         expect(vault_3_meta.signed.at).toEqual('2018-01-03T00:00:00.000Z');
         expect(vault_3_meta.containers.tracking_external_daily['tracking_external_daily/20180101.json'].at).toEqual(
@@ -308,5 +309,82 @@ describe('Vaults', function() {
         expect(vault_3_meta.containers.tracking_external_daily['tracking_external_daily/20180102.json'].at).toEqual(
             '2018-01-03T00:00:00.000Z',
         );
+    });
+
+    it(`retains non-modified container data`, async () => {
+        let author = Wallet.generate_entity();
+
+        let vault = new Vault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+
+        const container_types = {
+            file: ['embedded_file', 'external_file'],
+            list: ['embedded_list', 'external_list', 'external_list_daily']
+        };
+
+        let container_refs = {};
+
+        // Create all containers
+        for (let type of [...container_types.file, ...container_types.list]){
+            container_refs[type] = vault.getOrCreateContainer(author, type, type);
+        }
+
+        // Set contents of File containers
+        for (let type of container_types.file){
+            await container_refs[type].setContents(author, type);
+        }
+
+        // Append type to List containers
+        for (let type of container_types.list){
+            await container_refs[type].append(author, type);
+        }
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        const original_vault_id = vault.id;
+        vault = null;
+
+        // Reopen the vault
+        let re_open = new Vault(storage_driver, original_vault_id);
+        await re_open.loadMetadata();
+        expect(await re_open.verify()).toBe(true);
+
+        container_refs = {};
+
+        for (let type of [...container_types.file, ...container_types.list]){
+            container_refs[type] = re_open.getOrCreateContainer(author, type, type);
+        }
+
+        // Set the contents of a single container
+        let test_container = re_open.getOrCreateContainer(author, 'test_container', 'embedded_file');
+        await test_container.setContents(author, 'test_container');
+
+        // Write out the changed content
+        await re_open.writeMetadata(author);
+        expect(await re_open.verify()).toBe(true);
+
+        // Reopen the vault
+        re_open = new Vault(storage_driver, original_vault_id);
+        await re_open.loadMetadata();
+
+        container_refs = {};
+
+        for (let type of [...container_types.file, ...container_types.list]){
+            container_refs[type] = re_open.getOrCreateContainer(author, type, type);
+        }
+
+        // Test the contents of all existing containers
+        test_container = re_open.getOrCreateContainer(author, 'test_container', 'embedded_file');
+        expect(await test_container.decryptContents(author)).toEqual('test_container');
+
+        for (let type of container_types.file){
+            expect(await container_refs[type].decryptContents(author)).toEqual(type)
+        }
+
+        for (let type of container_types.list){
+            expect(await container_refs[type].decryptContents(author)).toEqual([type])
+        }
     });
 });
