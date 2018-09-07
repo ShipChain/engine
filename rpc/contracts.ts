@@ -49,7 +49,7 @@ export class LoadedContracts {
         }
 
         if (this.contracts[project].hasOwnProperty(version)) {
-            throw new Error(`Contract '${project}' version '${version}' already loaded`);
+            throw new Error(`Contract '${project}' version '${version}' already registered`);
         }
 
         this.contracts[project][version] = {
@@ -60,7 +60,7 @@ export class LoadedContracts {
 
     public get(project: string, version?: string): BaseContract {
         if (!this.contracts.hasOwnProperty(project)) {
-            throw new Error(`Contract '${project}' not loaded`);
+            throw new Error(`Contract '${project}' not registered`);
         }
 
         if (version === null || version === undefined) {
@@ -74,7 +74,7 @@ export class LoadedContracts {
             throw new Error(`Contract '${project}' has no latest version specified`);
         } else {
             if (!this.contracts[project].hasOwnProperty(version)) {
-                throw new Error(`Contract '${project}' version '${version}' not loaded`);
+                throw new Error(`Contract '${project}' version '${version}' not registered`);
             }
 
             return this.contracts[project][version].contract;
@@ -139,7 +139,7 @@ async function registerPreviousLoadContracts(LOAD_CONTRACT: LoadContract) {
         const oldLoadContract: LoadContract = new LoadContract(currentContract.network.title, previousVersion.title);
         await oldLoadContract.Ready;
 
-        logger.info(`Loading previous '${currentContract.project.title}' contract version ${previousVersion.title}`);
+        logger.info(`Registering previous '${currentContract.project.title}' contract version ${previousVersion.title}`);
 
         loadedContracts.register(currentContract.project.title, oldLoadContract);
     }

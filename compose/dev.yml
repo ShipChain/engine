@@ -1,8 +1,15 @@
-version: '2'
+version: '2.1'
 services:
 
   geth-poa:
     image: shipchain/geth-poa
+    healthcheck:
+      test: "nc -z localhost 8545"
+      timeout: 10s
+      interval: 10s
+      retries: 3
+    volumes:
+    - /data/shipchain/engine/chain:/geth/chain
     expose:
       - '8545'
     environment:
@@ -16,6 +23,11 @@ services:
 
   psql:
     image: sameersbn/postgresql:9.6-2
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "engine"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
     ports:
     - "5431:5432"
     environment:
@@ -44,6 +56,11 @@ services:
       - psql
       - geth-poa
       - sftp
+    depends_on:
+      geth-poa:
+        condition: service_healthy
+      psql:
+        condition: service_healthy
     volumes:
       - ../:/app
     environment:

@@ -49,7 +49,7 @@
     "start": "nodemon -e 'ts' -x 'ts-node' rpc-server.ts",
     "clean": "rm -rf ./dist && find src -name '*.js' -name '*.js.map' ! -name 'testLoggingConfig.js' -delete",
     "prettier": "./node_modules/.bin/prettier --write 'src/**/*.ts' 'rpc/**/*.ts' ",
-    "typeorm": "tsc && ./node_modules/.bin/typeorm"
+    "typeorm": "ts-node ./node_modules/.bin/typeorm"
   },
   "jest-junit": {
     "output": "reports/junit.xml"

@@ -15,12 +15,12 @@
  */
 
 const entities = [__dirname + "/src/entity/*.ts"];
+const migrations = [__dirname + "/src/entity/migration/*.ts"];
 const subscribers = [__dirname + "/src/subscriber/*.ts"];
-const migrations = [__dirname + "/src/migration/*.ts"];
 
 const cli = {
   "entitiesDir": "src/entity",
-  "migrationsDir": "src/migration",
+  "migrationsDir": "src/entity/migration",
   "subscribersDir": "src/subscriber"
 };
 
@@ -30,7 +30,7 @@ module.exports = {
   "name": "default",
   "type": "postgres",
   "url": rdsUrl,
-  "synchronize": true,
+  "synchronize": false,
   "logging": false,
   "entities": entities,
   "subscribers": subscribers,
