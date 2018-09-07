@@ -1,4 +1,4 @@
 #!/bin/bash
 
-npm run typeorm -- migration:run
+npm run migrate
 exec "$@"

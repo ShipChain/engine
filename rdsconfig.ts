@@ -72,7 +72,7 @@ export async function getRDSconfig() {
             });
         }
         else {
-            logger.verbose(`Skipping AWS RDS Configuration for ${ENV}`);
+            logger.info(`Skipping AWS RDS Configuration for ${ENV}`);
             resolve({});
         }
 
