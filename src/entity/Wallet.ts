@@ -50,11 +50,11 @@ export class Wallet extends BaseEntity {
         return wallet;
     }
 
-    static async getByPrivateKey(private_key: string) {
+    static async getByAddress(address: string) {
         const DB = getConnection();
         const repository = DB.getRepository(Wallet);
 
-        let wallet = await repository.findOne({ private_key: private_key });
+        let wallet = await repository.findOne({ address: address });
 
         if (!wallet) {
             throw new Error('Wallet not found');
@@ -108,7 +108,9 @@ export class Wallet extends BaseEntity {
 
     static async import_entity(private_key) {
         try {
-            return await Wallet.getByPrivateKey(private_key);
+            const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
+            const address = EthCrypto.publicKey.toAddress(public_key);
+            return await Wallet.getByAddress(address);
         } catch (_err) {
             const wallet = new Wallet();
             // TODO: Validate private_key format
