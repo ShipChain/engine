@@ -22,7 +22,7 @@ import { buildSchemaValidators } from "./rpc/validators";
 import { loadContractFixtures } from "./rpc/contracts";
 import { RPCLoad } from "./rpc/load";
 import { RPCEvent, startEventSubscriptions } from "./rpc/event";
-import { RPCWallet } from "./rpc/wallet";
+import { RPCWallet, setupWalletEncryptionHandler } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
 import { RPCStorageCredentials } from "./rpc/storage_credentials";
 
@@ -105,6 +105,7 @@ server.expose("event", {
 // Start RPC Server
 // =======================
 async function startRpcServer() {
+    await setupWalletEncryptionHandler();
     await buildSchemaValidators();
 
     // read connection options from ormconfig file (or ENV variables)

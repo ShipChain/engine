@@ -14,30 +14,34 @@
  * limitations under the License.
  */
 
+import { DBFieldEncryption } from "../entity/Wallet";
 import { Logger, loggers } from "winston";
-import { getAwsSecret } from "./src/shipchain/utils";
 
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
 const ENV = process.env.ENV || "LOCAL";
 
+export class NoEncryptionDBFieldEncryption extends DBFieldEncryption {
 
-export async function getRDSconfig() {
-
-    if (ENV === "DEV" || ENV === "STAGE" || ENV === "PROD") {
-        let rdsCreds = await getAwsSecret("ENGINE_RDS_" + ENV);
-
-        const rdsUrl = `psql://${rdsCreds.username}:${rdsCreds.password}@${rdsCreds.host}:${rdsCreds.port}/${rdsCreds.dbname}`;
-
-        return {
-            type: "postgres",
-            url: rdsUrl
-        };
+    constructor(){
+        super();
+        logger.warn("Encryption is disabled for Wallet Private Keys!");
     }
 
-    else {
-        logger.info(`Skipping AWS RDS Configuration for ${ENV}`);
-        return {};
+    private static checkUsage(){
+        if(ENV !== "LOCAL"){
+            throw new Error("Invalid Encryption scheme for deployment!");
+        }
+    }
+
+    async decrypt(cipher_text: string): Promise<string> {
+        NoEncryptionDBFieldEncryption.checkUsage();
+        return cipher_text;
+    }
+
+    async encrypt(private_key: string): Promise<string> {
+        NoEncryptionDBFieldEncryption.checkUsage();
+        return private_key;
     }
 
 }
