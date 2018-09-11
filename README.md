@@ -117,6 +117,10 @@ Engine supports the reporting of application metrics to an InfluxDB instance. We
 Graphana to make a real-time dashboard of our application use. In order to use this, set:
  - `INFLUXDB_URL` - With the format `http://{host}:{port}/{database}`
 
+##### Private Key Encryption
+Engine encrypts the Wallet `private_key` fields utilizing the EthCrypto library with a Master Private Key.  That Master private key is pulled from AWS Secrets Manager in a deployed environment, but in a local development environment, you are required to specify your own by setting:
+ - `LOCAL_SECRET_KEY` - This needs to be a properly formatted Ethereum private key (beginning with `0x`).  The default value if none is specified is `0x0000000000000000000000000000000000000000000000000000000000000001`
+
 ## Running the tests
 
 Testing is handled through the Docker containers as well and can be invoked via the `bin/docker_tests` script.  This is the recommended way to run the tests.
