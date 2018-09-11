@@ -20,6 +20,7 @@ import 'mocha';
 import { createConnection } from 'typeorm';
 import { Vault } from '../vaults/Vault';
 import { Wallet } from '../entity/Wallet';
+import { PrivateKeyDBFieldEncryption } from "../encryption/PrivateKeyDBFieldEncryption";
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
@@ -42,6 +43,8 @@ describe('Vaults', function() {
             synchronize: true,
             entities: ['src/entity/**/*.ts'],
         });
+
+        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
     afterEach(async () => {
@@ -53,7 +56,7 @@ describe('Vaults', function() {
     });
 
     it(`can create or load an empty vault`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         /* New vault shouldn't exist yet */
         let vault = new Vault(storage_driver);
@@ -75,7 +78,7 @@ describe('Vaults', function() {
             }
         }
 
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         /* New vault should verify with cryptographic signatures */
         let vault = new Vault(storage_driver);
@@ -100,8 +103,8 @@ describe('Vaults', function() {
     });
 
     it(`creates an ownership key`, async () => {
-        let author = Wallet.generate_entity();
-        let stranger = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
+        let stranger = await Wallet.generate_entity();
 
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
@@ -140,7 +143,7 @@ describe('Vaults', function() {
     });
 
     it(`can properly create/read empty embedded file containers`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
 
@@ -164,7 +167,7 @@ describe('Vaults', function() {
     });
 
     it(`can properly create/read empty embedded list containers`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
 
@@ -183,7 +186,7 @@ describe('Vaults', function() {
     });
 
     it(`can properly create/read empty external file containers`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
 
@@ -207,7 +210,7 @@ describe('Vaults', function() {
     });
 
     it(`can properly create/read empty external list containers`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
 
@@ -226,7 +229,7 @@ describe('Vaults', function() {
     });
 
     it(`can add a file container`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
@@ -246,7 +249,7 @@ describe('Vaults', function() {
     });
 
     it(`can append to a container`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
@@ -271,7 +274,7 @@ describe('Vaults', function() {
     });
 
     it(`can add an external file container`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
@@ -291,7 +294,7 @@ describe('Vaults', function() {
     });
 
     it(`can append to an external container`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
@@ -323,7 +326,7 @@ describe('Vaults', function() {
     });
 
     it(`can append to an external daily container`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         // Initialize to the 1st
         mockDate('2018-01-01');
@@ -398,7 +401,7 @@ describe('Vaults', function() {
     });
 
     it(`retains non-modified container data`, async () => {
-        let author = Wallet.generate_entity();
+        let author = await Wallet.generate_entity();
 
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);

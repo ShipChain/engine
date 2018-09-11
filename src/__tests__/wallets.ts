@@ -19,6 +19,8 @@ require('./testLoggingConfig');
 import 'mocha';
 import { createConnection } from 'typeorm';
 import { Wallet } from '../entity/Wallet';
+import { PrivateKeyDBFieldEncryption } from "../encryption/PrivateKeyDBFieldEncryption";
+
 import EthCrypto from 'eth-crypto';
 
 describe('WalletEntity', function() {
@@ -28,6 +30,8 @@ describe('WalletEntity', function() {
             synchronize: true,
             entities: ['src/entity/**/*.ts'],
         });
+
+        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
     afterEach(async () => {
@@ -39,7 +43,7 @@ describe('WalletEntity', function() {
 
     it(`generates fresh wallets`, async () => {
         const entityRepository = this.connection.getRepository(Wallet);
-        const wallet = Wallet.generate_entity();
+        const wallet = await Wallet.generate_entity();
 
         await entityRepository.save(wallet);
 
@@ -66,13 +70,17 @@ describe('WalletEntity', function() {
         await entityRepository.save(wallet);
 
         expect(wallet.id).toHaveLength(36);
-        expect(wallet.private_key).toEqual(source_data.privateKey);
+
+        // Need to access the class-private field for the comparison
+        // @ts-ignore
+        expect(wallet.unlocked_private_key).toEqual(source_data.privateKey);
+
         expect(wallet.public_key).toEqual(source_data.publicKey);
         expect(wallet.address).toEqual(source_data.address);
     });
 
     it(`encrypts and decrypts messages`, async () => {
-        const wallet = Wallet.generate_entity();
+        const wallet = await Wallet.generate_entity();
 
         const encrypted = await Wallet.encrypt(wallet.public_key, 'SHIPtest');
 
@@ -80,7 +88,7 @@ describe('WalletEntity', function() {
     });
 
     it(`signs messages and recovers keys`, async () => {
-        const wallet = Wallet.generate_entity();
+        const wallet = await Wallet.generate_entity();
 
         const message = 'SHIPTest';
 
