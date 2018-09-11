@@ -100,9 +100,9 @@ export class Vault {
         if (this.meta.roles[role]) return false;
         else this.meta.roles[role] = {};
 
-        const role_identity = Wallet.generate_entity();
-        const encrypted_key = await Wallet.encrypt(author.public_key, role_identity.private_key);
-        this.meta.roles[role].public_key = role_identity.public_key;
+        const role_identity = await Wallet.generate_identity();
+        const encrypted_key = await Wallet.encrypt(author.public_key, role_identity.privateKey);
+        this.meta.roles[role].public_key = role_identity.publicKey;
 
         this.logAction(author, 'create_role', { role });
 
@@ -113,7 +113,7 @@ export class Vault {
         /* "owners" role is authorized for everything */
         if (this.meta.roles.owners && this.meta.roles.owners[public_key]) return true;
 
-        return this.meta.roles[role] && this.meta.roles[role][public_key] ? true : false;
+        return !!(this.meta.roles[role] && this.meta.roles[role][public_key]);
     }
 
     authorized_role(public_key: string) {
