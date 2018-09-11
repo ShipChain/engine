@@ -16,26 +16,46 @@
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import EthCrypto from 'eth-crypto';
+import { Logger, loggers } from "winston";
 
 const EthereumTx = require('ethereumjs-tx');
 const Web3 = require('web3');
 
+// @ts-ignore
+const logger: Logger = loggers.get('engine');
+
+export abstract class DBFieldEncryption {
+    protected constructor(){
+        logger.info(`Initializing DB Encryptor ${this.constructor.name}`)
+    }
+
+    abstract async encrypt(private_key: string): Promise<string>;
+    abstract async decrypt(cipher_text: string): Promise<string>;
+}
+
 @Entity()
 export class Wallet extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
-
     @CreateDateColumn() createdDate: Date;
-
-    @Column({ nullable: true })
-    title: string;
-
+    @Column({ nullable: true }) title: string;
     @Column('text') public_key: string;
-
     @Column('text') address: string;
-
-    // TODO: would be best to store this encrypted at rest
-    // and use a config-level encryption key to decrypt on demand
     @Column('text') private_key: string;
+
+    private unlocked_private_key: string;
+
+    private static _privateKeyEncryptionHandler: DBFieldEncryption = null;
+
+    static setPrivateKeyEncryptionHandler(handler: DBFieldEncryption){
+        this._privateKeyEncryptionHandler = handler;
+    }
+
+    private static get privateKeyEncryptor(){
+        if(!Wallet._privateKeyEncryptionHandler){
+            throw new Error("Private Key Encryption handler not set");
+        }
+        return Wallet._privateKeyEncryptionHandler;
+    }
 
     static async getById(id: string) {
         const DB = getConnection();
@@ -46,6 +66,8 @@ export class Wallet extends BaseEntity {
         if (!wallet) {
             throw new Error('Wallet not found');
         }
+
+        wallet.unlocked_private_key = await Wallet.privateKeyEncryptor.decrypt(wallet.private_key);
 
         return wallet;
     }
@@ -59,6 +81,8 @@ export class Wallet extends BaseEntity {
         if (!wallet) {
             throw new Error('Wallet not found');
         }
+
+        wallet.unlocked_private_key = await Wallet.privateKeyEncryptor.decrypt(wallet.private_key);
 
         return wallet;
     }
@@ -93,33 +117,42 @@ export class Wallet extends BaseEntity {
         return EthCrypto.createIdentity();
     }
 
-    static generate_entity() {
+    static async generate_entity() {
         const wallet = new Wallet();
         const identity = Wallet.generate_identity();
 
+        const encryptedPrivateKey = await Wallet.privateKeyEncryptor.encrypt(identity.privateKey);
+
         Object.assign(wallet, {
             public_key: identity.publicKey,
-            private_key: identity.privateKey,
+            private_key: encryptedPrivateKey,
             address: identity.address,
+            unlocked_private_key: identity.privateKey,
         });
 
         return wallet;
     }
 
     static async import_entity(private_key) {
+
+        // TODO: Validate private_key format
+
         try {
             const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
             const address = EthCrypto.publicKey.toAddress(public_key);
             return await Wallet.getByAddress(address);
         } catch (_err) {
             const wallet = new Wallet();
-            // TODO: Validate private_key format
             const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
             const address = EthCrypto.publicKey.toAddress(public_key);
+
+            const encryptedPrivateKey = await Wallet.privateKeyEncryptor.encrypt(private_key);
+
             Object.assign(wallet, {
                 public_key: public_key,
-                private_key: private_key,
+                private_key: encryptedPrivateKey,
                 address: address,
+                unlocked_private_key: private_key,
             });
 
             return wallet;
@@ -130,10 +163,6 @@ export class Wallet extends BaseEntity {
         const result = await EthCrypto.encryptWithPublicKey(public_key, message);
         result.to_string = EthCrypto.cipher.stringify(result);
         return result;
-    }
-
-    static async __unlock_encrypted_key(encrypted_private_key) {
-        // TODO always encrypt private keys at rest, and encourage encrypted keys over RPC
     }
 
     static async decrypt_with_raw_key(private_key, message) {
@@ -153,20 +182,27 @@ export class Wallet extends BaseEntity {
         return EthCrypto.recoverPublicKey(signature, hash);
     }
 
-    static async decrypt_with_safe_key(encrypted_private_key, message) {
-        return Wallet.decrypt_with_raw_key(Wallet.__unlock_encrypted_key(encrypted_private_key), message);
+    // static async decrypt_with_safe_key(encrypted_private_key, message) {
+    //     return Wallet.decrypt_with_raw_key(Wallet.__unlock_encrypted_key(encrypted_private_key), message);
+    // }
+    //
+    // static sign_hash_with_safe_key(encrypted_private_key, hash) {
+    //     return Wallet.sign_hash_with_raw_key(Wallet.__unlock_encrypted_key(encrypted_private_key), hash);
+    // }
+    //
+    // static async __unlock_encrypted_key(encrypted_private_key) {
+    //     // always encrypt private keys at rest, and encourage encrypted keys over RPC
+    // }
+
+    private __unlocked_key() {
+        if(!this.unlocked_private_key){
+            throw new Error("Wallet not initialized properly");
+        }
+
+        return this.unlocked_private_key;
     }
 
-    static sign_hash_with_safe_key(encrypted_private_key, hash) {
-        return Wallet.sign_hash_with_raw_key(Wallet.__unlock_encrypted_key(encrypted_private_key), hash);
-    }
-
-    __unlocked_key() {
-        // TODO always encrypt private keys at rest
-        return this.private_key;
-    }
-
-    __unlocked_key_buffer() {
+    private __unlocked_key_buffer() {
         return Buffer.from(this.__unlocked_key().slice(2), 'hex');
     }
 
