@@ -15,6 +15,7 @@
  */
 
 import { Logger, loggers } from "winston";
+import { getAwsSecret } from "./src/shipchain/utils";
 
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
@@ -23,58 +24,20 @@ const ENV = process.env.ENV || "LOCAL";
 
 export async function getRDSconfig() {
 
-    return new Promise((resolve, reject) => {
+    if (ENV === "DEV" || ENV === "STAGE" || ENV === "PROD") {
+        let rdsCreds = await getAwsSecret("ENGINE_RDS_" + ENV);
 
-        if (ENV === "DEV" || ENV === "STAGE" || ENV === "PROD") {
-            logger.verbose("Getting RDS Configuration from AWS");
+        const rdsUrl = `psql://${rdsCreds.username}:${rdsCreds.password}@${rdsCreds.host}:${rdsCreds.port}/${rdsCreds.dbname}`;
 
-            const AWS = require("aws-sdk");
-            const endpoint = "https://secretsmanager.us-east-1.amazonaws.com";
-            const region = "us-east-1";
-            const secretName = "ENGINE_RDS_" + ENV;
+        return {
+            type: "postgres",
+            url: rdsUrl
+        };
+    }
 
-            let secret = null;
+    else {
+        logger.info(`Skipping AWS RDS Configuration for ${ENV}`);
+        return {};
+    }
 
-            // Create a Secrets Manager client
-            const client = new AWS.SecretsManager({
-                apiVersion: "2017-10-17",
-                endpoint: endpoint,
-                region: region
-            });
-
-            client.getSecretValue({ SecretId: secretName }, function(err, data) {
-                if (err) {
-
-                    if (err.code === "ResourceNotFoundException") {
-                        logger.error(`The requested secret ${secretName} was not found`);
-                    }
-
-                    else if (err.code === "InvalidRequestException") {
-                        logger.error(`The request was invalid due to: ${err.message}`);
-                    }
-
-                    else if (err.code === "InvalidParameterException") {
-                        logger.error(`The request had invalid params: ${err.message}`);
-                    }
-
-                    reject("Unable to get RDS Credentials: " + err);
-                }
-
-                secret = data.SecretString;
-                const rdsCreds = JSON.parse(secret);
-                const rdsUrl = `psql://${rdsCreds.username}:${rdsCreds.password}@${rdsCreds.host}:${rdsCreds.port}/${rdsCreds.dbname}`;
-
-                resolve({
-                    type: "postgres",
-                    url: rdsUrl
-                });
-
-            });
-        }
-        else {
-            logger.info(`Skipping AWS RDS Configuration for ${ENV}`);
-            resolve({});
-        }
-
-    });
 }
