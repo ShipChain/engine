@@ -135,15 +135,16 @@ export class Wallet extends BaseEntity {
 
     static async import_entity(private_key) {
 
-        // TODO: Validate private_key format
+        // Validate private_key format, this throws if private_key format is not valid
+       const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
 
+        // Try to get existing wallet by address.
+        // Errors indicate Wallet does not exist and needs to be created
         try {
-            const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
             const address = EthCrypto.publicKey.toAddress(public_key);
             return await Wallet.getByAddress(address);
         } catch (_err) {
             const wallet = new Wallet();
-            const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
             const address = EthCrypto.publicKey.toAddress(public_key);
 
             const encryptedPrivateKey = await Wallet.privateKeyEncryptor.encrypt(private_key);
@@ -239,4 +240,17 @@ export class Wallet extends BaseEntity {
         let [txSigned, txHash] = this.sign_tx(txParams);
         return await network.send_tx(txSigned);
     }
+
+    /**
+     * Prevent unlocked_private_key from being serialized to JSON
+     */
+    toJSON() {
+        let result = {};
+        for (let x of Object.keys(this)) {
+            if (x !== "unlocked_private_key") {
+                result[x] = this[x];
+            }
+        }
+        return result;
+    };
 }
