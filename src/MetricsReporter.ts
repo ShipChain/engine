@@ -70,6 +70,12 @@ export class MetricsReporter {
         this.report('engine.method_failure', point);
     }
 
+    public methodTime(method: string, time: number, tags: any = {}) {
+        const point = MetricsReporter.buildPoint(Object.assign({ method: method }, tags), {time: time});
+
+        this.report('engine.method_time', point);
+    }
+
     public countAction(action: string, tags: any = {}) {
         const point = MetricsReporter.buildPoint(Object.assign({ action: action }, tags));
 
