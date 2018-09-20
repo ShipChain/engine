@@ -270,21 +270,26 @@ export class EventSubscription extends BaseEntity {
                                         if (response.statusCode != 200 && response.statusCode != 204) {
                                             logger.error(`Transaction Callback Failed with ${response.statusCode}`);
                                             await eventSubscription.failed();
+                                            resolve();
                                         } else {
                                             await eventSubscription.success(highestBlock);
+                                            resolve();
                                         }
                                     })
                                     .on('error', async function(err) {
                                         logger.error(`${err}`);
                                         await eventSubscription.failed();
+                                        resolve();
                                     });
                             } catch (_err) {
                                 logger.error(`Error posting events to ${eventSubscription.url} ${_err}`);
                                 await eventSubscription.failed();
+                                resolve();
                             }
+                        } else {
+                            resolve();
                         }
 
-                        resolve();
                     },
                 );
             });
