@@ -265,10 +265,11 @@ export class EventSubscription extends BaseEntity {
                                     .post({
                                         url: eventSubscription.url,
                                         json: events,
+                                        timeout: 60000,
                                     })
                                     .on('response', async function(response) {
                                         if (response.statusCode != 200 && response.statusCode != 204) {
-                                            logger.error(`Transaction Callback Failed with ${response.statusCode}`);
+                                            logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.url}]`);
                                             await eventSubscription.failed();
                                             resolve();
                                         } else {
@@ -277,7 +278,7 @@ export class EventSubscription extends BaseEntity {
                                         }
                                     })
                                     .on('error', async function(err) {
-                                        logger.error(`${err}`);
+                                        logger.error(`Event Subscription Failed with ${err} [${eventSubscription.url}]`);
                                         await eventSubscription.failed();
                                         resolve();
                                     });
