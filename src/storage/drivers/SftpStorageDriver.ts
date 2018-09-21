@@ -45,6 +45,7 @@ export class SftpStorageDriver extends StorageDriver {
     }
 
     async getFile(filePath: string, binary: boolean = false): Promise<any> {
+        const startTime = Date.now();
         metrics.countAction('storage_get_file', { driver_type: this.type });
         let encodingSftp = binary ? null : 'utf8';
         let encodingStream = binary ? 'buffer' : 'utf8';
@@ -57,15 +58,18 @@ export class SftpStorageDriver extends StorageDriver {
             let stream = await sftp.get(fullVaultPath, null, encodingSftp);
 
             let fileContents = await getStream(stream, { encoding: encodingStream }); // set encoding to 'buffer' for binary
-            sftp.end();
+            sftp.end()
+            metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
             return fileContents;
         } catch (err) {
             sftp.end();
+            metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
             throw new DriverError(DriverError.States.NotFoundError, err);
         }
     }
 
     async putFile(filePath: string, data: any, binary: boolean = false): Promise<any> {
+        const startTime = Date.now();
         metrics.countAction('storage_put_file', { driver_type: this.type });
         let encoding = binary ? null : 'utf8';
 
@@ -84,14 +88,17 @@ export class SftpStorageDriver extends StorageDriver {
         try {
             await sftp.put(data, this.getFullVaultPath(filePath));
             sftp.end();
+            metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
             return;
         } catch (err) {
             sftp.end();
+            metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
             throw new DriverError(DriverError.States.RequestError, err);
         }
     }
 
     async removeFile(filePath: string): Promise<any> {
+        const startTime = Date.now();
         metrics.countAction('storage_remove_file', { driver_type: this.type });
         let sftp = await this._connect();
 
@@ -100,17 +107,21 @@ export class SftpStorageDriver extends StorageDriver {
         try {
             await sftp.delete(fullVaultPath);
             sftp.end();
+            metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
             return;
         } catch (err) {
             sftp.end();
             if (err.message == 'No such file') {
+                metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
                 return;
             }
+            metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
             throw new DriverError(DriverError.States.RequestError, err);
         }
     }
 
     async fileExists(filePath: string): Promise<any> {
+        const startTime = Date.now();
         metrics.countAction('storage_file_exists', { driver_type: this.type });
         let sftp = await this._connect();
 
@@ -121,12 +132,15 @@ export class SftpStorageDriver extends StorageDriver {
             sftp.end();
             for (let file of listing) {
                 if (file.type === '-' && file.name === parsedPath.base) {
+                    metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
                     return true;
                 }
             }
+            metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
             return false;
         } catch (err) {
             sftp.end();
+            metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
             return false;
         }
     }
@@ -173,6 +187,7 @@ export class SftpStorageDriver extends StorageDriver {
     }
 
     async listDirectory(vaultDirectory: string, recursive: boolean = false): Promise<any> {
+        const startTime = Date.now();
         metrics.countAction('storage_list_directory', { driver_type: this.type });
         let sftp = await this._connect();
 
@@ -184,9 +199,11 @@ export class SftpStorageDriver extends StorageDriver {
         try {
             let fullListing = await this._listDirectoryImplementation(sftp, vaultSearchPath, recursive);
             sftp.end();
+            metrics.methodTime('storage_list_directory', Date.now() - startTime,{ driver_type: this.type });
             return fullListing;
         } catch (err) {
             sftp.end();
+            metrics.methodTime('storage_list_directory', Date.now() - startTime,{ driver_type: this.type });
             throw err;
         }
     }
