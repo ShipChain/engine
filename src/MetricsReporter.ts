@@ -70,8 +70,8 @@ export class MetricsReporter {
         this.report('engine.method_failure', point);
     }
 
-    public methodTime(method: string, time: number, tags: any = {}) {
-        const point = MetricsReporter.buildPoint(Object.assign({ method: method }, tags), {time: time});
+    public methodTime(method: string, time_delta: number, tags: any = {}) {
+        const point = MetricsReporter.buildPoint(Object.assign({ method: method }, tags), {time: time_delta});
 
         this.report('engine.method_time', point);
     }
