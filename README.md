@@ -156,23 +156,23 @@ info: RPC server listening on 2000
 
 As the smart contract methods are exposed via RPC, all requests should be made to the above URL as a POST using data following the [JSON RPC spec](https://www.jsonrpc.org/specification) for the request body.
 
-When calling an RPC method, the name of the method is provided as a string in place of `<rpc_method_name>` and the parameters to the method are provided _as a list_ in place of `<parameters>`.
+When calling an RPC method, the name of the method is provided as a string in place of `<rpc_method_name>` and the parameters to the method are provided _as an object_ in place of `<parameters>`.
 
 ```JS
 {
   "method": "<rpc_method_name>",
-  "params": [<parameters>],
+  "params": {<parameters>},
   "jsonrpc": "2.0",
   "id": 0
 }
 ```
 
-For example, the POST body for calling `sample_method` with 3 parameters: `1`, `"string"`, `{"property": "value"}` would look like this:
+For example, the POST body for calling `sample_method` with 3 parameters: `param1`: `1`, `param2`: `"string"`, `param3`: `{"property": "value"}` would look like this:
 
 ```JS
 {
   "method": "sample_method",
-  "params": [1, "string", {"property": "value"}],
+  "params": {"param1": 1, "param2": "string", "param3": {"property": "value"}},
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -189,7 +189,7 @@ Engine can generate a Wallet for you, including the public key, private key, and
 ```JS
 {
   "method": "wallet.create_hosted",
-  "params": [],
+  "params": {},
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -202,7 +202,9 @@ You can allowing Engine to safely store information to sign and send transaction
 ```JS
 {
   "method": "wallet.import_hosted",
-  "params": ["0x0000000000000000000000000000000000000000000000000000000000000001"],
+  "params": {
+      "privateKey": "0x0000000000000000000000000000000000000000000000000000000000000001"
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -215,7 +217,7 @@ List the IDs and Addresses of the Wallets hosted in Engine.  This does not retur
 ```JS
 {
   "method": "wallet.list",
-  "params": [],
+  "params": {},
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -228,7 +230,9 @@ Retrieve the current SHIP Token and Ether balance of a Wallet.
 ```JS
 {
   "method": "wallet.balance",
-  "params": ["0863ac87-bed7-4dbc-b7d6-01adae523913"],
+  "params": {
+      "wallet": "0863ac87-bed7-4dbc-b7d6-01adae523913"
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -260,12 +264,14 @@ These parameters are common to all Storage Credential creations:
   "params": [{
     "driver_type": "s3",
     "title": "My S3 Bucket",
-    "Bucket": "my-bucket",
-    "client": {
-      "accessKeyId": "MYACCESSID",
-      "secretAccessKey": "MySupERSecREt@Cce55KkeY"
+    "options": {
+        "Bucket": "my-bucket",
+        "client": {
+          "accessKeyId": "MYACCESSID",
+          "secretAccessKey": "MySupERSecREt@Cce55KkeY"
+        }
     }
-  }],
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -282,17 +288,19 @@ These parameters are common to all Storage Credential creations:
 ```JS
 {
   "method": "storage_credentials.create_hosted",
-  "params": [{
+  "params": {
     "driver_type": "sfstp",
     "title": "My SFTP Server",
     "base_path": "vaults",
-    "credentials": {
-      "host": "sftp.example.com",
-      "port": "22",
-      "username": "my_user",
-      "password": "correcthorsebatterystaple"
+    "options": {
+      "credentials": {
+        "host": "sftp.example.com",
+        "port": "22",
+        "username": "my_user",
+        "password": "correcthorsebatterystaple"
+      }
     }
-  }],
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -305,7 +313,7 @@ List the Title, Driver Type, and Base path of the Storage Credentials hosted in 
 ```JS
 {
   "method": "storage_credentials.list",
-  "params": [],
+  "params": {},
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -354,9 +362,9 @@ Signing a Transaction requires both an Engine Wallet ID and the Transaction obje
 ```
 {
   "method": "transaction.sign",
-  "params": [
-  	"92059e4c-0804-4a69-be0b-a86b46f47dc2",
-    {
+  "params": {
+  	"signerWallet": "92059e4c-0804-4a69-be0b-a86b46f47dc2",
+    "txUnsigned": {
       "nonce": "0x1",
       "chainId": 1,
       "to": "0x000000...0001",
@@ -365,7 +373,7 @@ Signing a Transaction requires both an Engine Wallet ID and the Transaction obje
       "value": "0x0",
       "data": "0x2147b6...80000"
     }
-  ],
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -378,9 +386,8 @@ The returned, signed Transaction from `transaction.sign` is the only parameter r
 ```
 {
   "method": "transaction.send",
-  "params": [
-  	"92059e4c-0804-4a69-be0b-a86b46f47dc2",
-    {
+  "params": {
+    "txSigned": {
       "nonce": "0x01",
       "gasPrice": "0x04a817c800",
       "gasLimit": "0x07a120",
@@ -391,7 +398,7 @@ The returned, signed Transaction from `transaction.sign` is the only parameter r
       "r": "0x000000...002142",
       "s": "0x000000...002453"
     }
-  ],
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -412,7 +419,7 @@ Create an Event Subscription entity in Engine.  This accepts a single JSON param
 ```JS
 {
   "method": "event.subscribe",
-  "params": [{
+  "params": {
     // Required - Endpoint that accepts the Events via a POST
     "url": "http://transmission.local/api/v1/contract/events/",
 
@@ -427,7 +434,7 @@ Create an Event Subscription entity in Engine.  This accepts a single JSON param
 
     // Optional - Default 0 (get every event in the first callback)
     "lastBlock": 100
-  }],
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
@@ -451,7 +458,9 @@ Remove an existing Event Subscription. The Event Subscription will no longer be 
 ```JS
 {
   "method": "event.unsubscribe",
-  "params": ["http://transmission.local/api/v1/contract/events/"],
+  "params": {
+    "url": "http://transmission.local/api/v1/contract/events/"
+  },
   "jsonrpc": "2.0",
   "id": 0
 }
