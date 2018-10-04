@@ -11,3 +11,4 @@ reports/
 /storage/
 .env
 .envrc
+.DS_Store
