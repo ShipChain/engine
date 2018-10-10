@@ -23,7 +23,7 @@ const logger: Logger = loggers.get('engine');
 const ETH = 10 ** 18;
 
 export async function setupLocalTestNetContracts(nodeUrl: string, wallets: Wallet[] = []) {
-    const ropsten_token = await Contract.getContractVersion('ShipToken', 'ropsten', '1.0');
+    const ropsten_token = await Contract.getContractVersion('ShipToken', 'ropsten', '1.0.0');
     const ropsten_load = await Contract.getContractVersion('LOAD', 'ropsten', '1.0.2');
 
     const local_token = await ropsten_token.version.deployToLocalTestNet(nodeUrl);

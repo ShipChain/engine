@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Wallet } from '../entity/Wallet';
-import { BaseContract } from '../contracts/BaseContract';
+import { Wallet } from '../../../../entity/Wallet';
+import { BaseContract } from '../../../../contracts/BaseContract';
 
 export class TokenContract extends BaseContract {
     constructor(network: string, version: string) {

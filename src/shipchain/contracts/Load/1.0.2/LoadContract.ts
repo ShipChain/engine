@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Wallet } from '../entity/Wallet';
-import { BaseContract } from '../contracts/BaseContract';
-import { TokenContract } from './TokenContract';
+import { Wallet } from '../../../../entity/Wallet';
+import { BaseContract } from '../../../../contracts/BaseContract';
+import { TokenContract } from '../../Token/1.0.0/TokenContract';
 
 enum EscrowStatus {
     CONTRACT_INITIATED = 1,

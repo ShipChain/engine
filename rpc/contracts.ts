@@ -18,8 +18,8 @@ import { BaseContract } from '../src/contracts/BaseContract';
 import { Logger, loggers } from 'winston';
 import { Project, Contract, Version } from '../src/entity/Contract';
 import { Wallet } from '../src/entity/Wallet';
-import { TokenContract } from '../src/shipchain/TokenContract';
-import { LoadContract } from '../src/shipchain/LoadContract';
+import { TokenContract } from '../src/shipchain/contracts/Token/1.0.0/TokenContract';
+import { LoadContract } from '../src/shipchain/contracts/Load/1.0.2/LoadContract';
 
 const typeorm = require('typeorm');
 const test_net_utils = require('../src/local-test-net-utils');
