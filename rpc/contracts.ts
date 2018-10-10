@@ -105,7 +105,7 @@ export async function loadContractFixtures() {
         LOAD_CONTRACT = new LoadContract(load.network.title, load.version.title);
     } else if (ENV === 'STAGE') {
         logger.info('Loading Contracts from Ropsten');
-        TOKEN_CONTRACT = new TokenContract('ropsten', '1.0');
+        TOKEN_CONTRACT = new TokenContract('ropsten', '1.0.0');
         LOAD_CONTRACT = new LoadContract('ropsten', '1.0.2');
     } else if (ENV === 'DEMO') {
         logger.info('Loading Contracts from Rinkeby');
@@ -113,7 +113,7 @@ export async function loadContractFixtures() {
         LOAD_CONTRACT = new LoadContract('rinkeby', '1.0.2');
     } else if (ENV === 'PROD') {
         logger.info('Loading Contracts from Main');
-        TOKEN_CONTRACT = new TokenContract('main', '1.0');
+        TOKEN_CONTRACT = new TokenContract('main', '1.0.0');
         LOAD_CONTRACT = new LoadContract('main', '1.0.2');
     } else {
         throw new Error('Unable to determine appropriate Ethereum Network!');
