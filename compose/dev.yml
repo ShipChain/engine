@@ -111,6 +111,7 @@ services:
       - LOCAL_SECRET_KEY
       - LOGGING_LEVEL
       - REDIS_URL
+        - CONTRACT_FIXTURES_URL
 
 networks:
   portal:

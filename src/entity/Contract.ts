@@ -29,6 +29,7 @@ import { Logger, loggers } from 'winston';
 const fs = require('fs');
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
+const rp = require('request-promise-native');
 
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
@@ -58,7 +59,7 @@ export class Project extends BaseEntity {
         return project;
     }
 
-    static async loadFixtures(fixture_path: string) {
+    static async loadFixturesFromDirectory(fixture_path: string) {
         const meta = JSON.parse(fs.readFileSync(fixture_path + '/index.json'));
         const networks = {};
         for (let title of Object.keys(meta.networks)) {
@@ -79,6 +80,79 @@ export class Project extends BaseEntity {
                 await Contract.getOrCreate(project, networks[network_title], version, dData.address);
             }
         }
+    }
+
+    static async loadFixturesFromUrl(fixture_url: string) {
+
+        return new Promise((resolve, reject) => {
+            const requestOptions = {
+                uri: fixture_url,
+                json: true,
+                timeout: 20000,
+            };
+
+            rp(requestOptions)
+                .then(async meta => {
+                    const networks = {};
+                    const contracts = {};
+
+                    try {
+                        // Parse defined Networks
+                        for (let networkName of Object.keys(meta.networks)) {
+                            const network = meta.networks[networkName];
+
+                            networks[networkName] = await Network.getOrCreate(networkName, network.public_address, network.description);
+                            logger.debug(`Fixture Network: ${networkName} ${network.public_address} ${network.description} [${networks[networkName].id}]`);
+                        }
+
+                        // Parse defined Contracts
+                        for (let contractName of Object.keys(meta.contracts)) {
+                            const versions = {};
+
+                            const contractData = meta.contracts[contractName];
+                            contracts[contractName] = contractData;
+
+                            // Create Project
+                            const project = await Project.getOrCreate(contractName, contractData.description);
+                            logger.debug(`Fixture Project: ${contractName} [${project.id}]`);
+
+                            // Create Versions using ABI and BIN of each Contract
+                            for (let versionName of Object.keys(contractData.versions)) {
+                                const versionData = contractData.versions[versionName];
+                                const parsedAbi = JSON.parse(versionData.abi);
+                                versions[versionName] = await Version.getOrCreate(project, versionName, parsedAbi, versionData.bin);
+                                logger.debug(`Fixture Version: ${project.title} ${versionName} [${versions[versionName].id}]`);
+
+                                // Remove abi/bin after Version is created so we don't return these large blobs
+                                delete versionData.abi;
+                                delete versionData.bin;
+                            }
+
+                            // Create Contract from Project, Network, and Version
+                            for (let networkName of Object.keys(contractData.deployed)) {
+                                const networkVersion = contractData.deployed[networkName];
+
+                                // Each Contract Network can have multiple historical versions
+                                for (let versionName of Object.keys(networkVersion)) {
+                                    const contractAddress = networkVersion[versionName];
+                                    const contract = await Contract.getOrCreate(project, networks[networkName], versions[versionName], contractAddress);
+                                    logger.debug(`Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${contract.id}]`);
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        logger.error(`Parsing Fixtures returned ${err}`);
+                        reject(err);
+                    }
+
+                    resolve(contracts);
+                })
+                .catch(err => {
+                    logger.error(`Retrieving Fixtures returned ${err}`);
+                    reject(err);
+                });
+        });
+
     }
 }
 

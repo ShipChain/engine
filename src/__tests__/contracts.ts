@@ -44,7 +44,7 @@ describe('ContractEntity', function() {
     });
 
     it(`loads contract fixtures`, async () => {
-        await Project.loadFixtures('/contracts');
+        await Project.loadFixturesFromDirectory('/contracts');
         expect(await Project.count()).toEqual(2);
         expect(await Network.count()).toEqual(3);
         expect(await Version.count()).toEqual(2);
@@ -54,7 +54,7 @@ describe('ContractEntity', function() {
     it(
         `can copy ShipToken to local test net`,
         async () => {
-            await Project.loadFixtures('/contracts');
+            await Project.loadFixturesFromDirectory('/contracts');
             const owner = await Wallet.generate_entity();
             const other = await Wallet.generate_entity();
 

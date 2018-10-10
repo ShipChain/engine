@@ -27,6 +27,7 @@ const test_net_utils = require('../src/local-test-net-utils');
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
 const ENV = process.env.ENV || 'LOCAL';
+const CONTRACT_FIXTURES_URL = process.env.CONTRACT_FIXTURES_URL || 'https://s3.amazonaws.com/shipchain-contracts/meta.json';
 
 export class LoadedContracts {
     private static _instance: LoadedContracts;
@@ -88,7 +89,7 @@ export async function loadContractFixtures() {
 
     const loadedContracts = LoadedContracts.Instance;
 
-    await Project.loadFixtures('/contracts');
+    const contractMetaData = await Project.loadFixturesFromUrl(CONTRACT_FIXTURES_URL);
 
     if (ENV === 'DEV' || ENV === 'LOCAL') {
         const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';
