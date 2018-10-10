@@ -82,7 +82,7 @@ export class Project extends BaseEntity {
         }
     }
 
-    static async loadFixturesFromUrl(fixture_url: string) {
+    static async loadFixturesFromUrl(fixture_url: string): Promise<any> {
 
         return new Promise((resolve, reject) => {
             const requestOptions = {
@@ -176,6 +176,17 @@ export class Version extends BaseEntity {
     @Column() abi: string;
     @Column({ nullable: true })
     bytecode: string;
+
+    static async getByProjectAndTitle(project_title, version: string) {
+        let project = await Project.findOne({ title: project_title });
+
+        if (!project) {
+            logger.error(`Unable to find existing ${project_title}:${version}`);
+            throw new Error(`${project_title} Version ${version} cannot be found`);
+        }
+
+        return await Version.findOne({ project: project, title: version });
+    }
 
     static async getOrCreate(project, title, abi, bytecode) {
         let version = await Version.findOne({ project, title });
