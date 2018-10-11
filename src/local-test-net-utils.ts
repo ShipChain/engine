@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Contract, Network } from './entity/Contract';
+import { Network, Version } from "./entity/Contract";
 import { Wallet } from './entity/Wallet';
 import { Logger, loggers } from 'winston';
 
@@ -22,12 +22,24 @@ import { Logger, loggers } from 'winston';
 const logger: Logger = loggers.get('engine');
 const ETH = 10 ** 18;
 
-export async function setupLocalTestNetContracts(nodeUrl: string, wallets: Wallet[] = []) {
-    const ropsten_token = await Contract.getContractVersion('ShipToken', 'ropsten', '1.0.0');
-    const ropsten_load = await Contract.getContractVersion('LOAD', 'ropsten', '1.0.2');
+class LatestContractFormat {
+    ShipToken: string;
+    LOAD: string;
+}
 
-    const local_token = await ropsten_token.version.deployToLocalTestNet(nodeUrl);
-    const local_load = await ropsten_load.version.deployToLocalTestNet(nodeUrl);
+export async function setupLocalTestNetContracts(nodeUrl: string, latest: LatestContractFormat, wallets: Wallet[] = []) {
+    const token_version: Version = await Version.getByProjectAndTitle("ShipToken", latest.ShipToken);
+    const load_version: Version = await Version.getByProjectAndTitle("LOAD", latest.LOAD);
+
+    if(!token_version) {
+        throw new Error("Token Version cannot be found");
+    }
+    if(!load_version) {
+        throw new Error("LOAD Version cannot be found");
+    }
+
+    const local_token = await token_version.deployToLocalTestNet(nodeUrl);
+    const local_load = await load_version.deployToLocalTestNet(nodeUrl);
 
     const token_driver = await local_token['getDriver']();
     const load_driver = await local_load['getDriver']();
@@ -38,17 +50,11 @@ export async function setupLocalTestNetContracts(nodeUrl: string, wallets: Walle
     const web3 = local_token['network'].getDriver();
 
     await new Promise(async (resolve, reject) => {
-        let linkedAddress = await load_driver.methods.getTokenContractAddress().call();
-        if (linkedAddress == local_token['address']) {
-            logger.info('Token Contract Address already set');
-            resolve();
-        } else {
-            load_driver.methods
-                .setTokenContractAddress(local_token['address'])
-                .send({ from: accounts[0] })
-                .on('receipt', resolve)
-                .on('error', reject);
-        }
+        load_driver.methods
+            .setShipTokenContractAddress(local_token['address'])
+            .send({ from: accounts[0] })
+            .on('receipt', resolve)
+            .on('error', resolve); // if it's already been set, ignore the revert
     });
 
     for (let wallet of wallets) {
@@ -92,5 +98,10 @@ export async function setupLocalTestNetContracts(nodeUrl: string, wallets: Walle
         logger.info(`${wallet.address} SHIP  Balance: ${current_ship_balance}`);
     }
 
-    return [web3, network, local_token, local_load];
+    return {
+        web3: web3,
+        network: network,
+        ShipToken: local_token,
+        LOAD: local_load
+    };
 }
