@@ -29,17 +29,6 @@ RUN npm install
 ENV NODE_PATH /app/node_modules
 ENV PATH $PATH:/app/node_modules/.bin
 
-RUN mkdir -p /contracts/contracts/LOAD/1.0/
-RUN mkdir -p /contracts/contracts/LOAD/1.0.2/
-RUN mkdir -p /contracts/contracts/ShipToken/1.0/
-WORKDIR /contracts
-RUN wget https://s3.amazonaws.com/shipchain-contracts/index.json
-RUN wget -O contracts/LOAD/1.0/compiled.bin https://s3.amazonaws.com/shipchain-contracts/contracts/LOAD/1.0/compiled.bin
-RUN wget -O contracts/LOAD/1.0.2/compiled.bin https://s3.amazonaws.com/shipchain-contracts/contracts/LOAD/1.0.2/compiled.bin
-RUN wget -O contracts/ShipToken/1.0/compiled.bin https://s3.amazonaws.com/shipchain-contracts/contracts/ShipToken/1.0/compiled.bin
-
-WORKDIR /app
-
 COPY . /app/
 
 COPY ./compose/scripts/*.sh /
