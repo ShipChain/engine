@@ -22,6 +22,7 @@ import { buildSchemaValidators } from "./rpc/validators";
 import { loadContractFixtures } from "./rpc/contracts";
 import { RPCVault } from "./rpc/vault";
 import { RPCLoad as RPCLoad_1_0_2 } from "./rpc/Load/1.0.2/RPCLoad";
+import { RPCLoad as RPCLoad_1_1_0 } from "./rpc/Load/1.1.0/RPCLoad";
 import { RPCEvent, startEventSubscriptions } from "./rpc/event";
 import { RPCWallet, setupWalletEncryptionHandler } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
@@ -77,6 +78,10 @@ server.expose("transaction", {
 
 server.expose("load", {
     "create_shipment_transaction": RPCLoad_1_0_2.CreateShipmentTx,
+});
+
+server.expose("load-1.1.0", {
+    "create_shipment_transaction": RPCLoad_1_1_0.CreateShipmentTx,
 });
 
 server.expose("load-1.0.2", {
