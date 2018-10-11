@@ -22,8 +22,10 @@ import { EscrowFundingType, LoadContract } from "../../../src/shipchain/contract
 import { TokenContract } from '../../../src/shipchain/contracts/Token/1.0.0/TokenContract';
 
 const loadedContracts = LoadedContracts.Instance;
+const PROJECT = "LOAD";
+const VERSION = "1.1.0";
 
-@RPCNamespace({ name: 'Load-1.1.0' })
+@RPCNamespace({ name: 'Load.1.1.0' })
 export class RPCLoad {
 
     @RPCMethod({
@@ -36,7 +38,7 @@ export class RPCLoad {
         const shipperWallet = await Wallet.getById(args.shipperWallet);
 
         // Creating a new Shipment always requires the latest version of the contract
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', "1.1.0");
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.createNewShipmentTransaction(
             shipperWallet,

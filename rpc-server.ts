@@ -80,11 +80,11 @@ server.expose("load", {
     "create_shipment_transaction": RPCLoad_1_0_2.CreateShipmentTx,
 });
 
-server.expose("load-1.1.0", {
+server.expose("load.1.1.0", {
     "create_shipment_transaction": RPCLoad_1_1_0.CreateShipmentTx,
 });
 
-server.expose("load-1.0.2", {
+server.expose("load.1.0.2", {
     "create_shipment_transaction": RPCLoad_1_0_2.CreateShipmentTx,
     "update_vault_hash_transaction": RPCLoad_1_0_2.UpdateVaultHashTx,
     "fund_eth_transaction": RPCLoad_1_0_2.FundEthTx,

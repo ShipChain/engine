@@ -22,8 +22,10 @@ import { LoadContract } from '../../../src/shipchain/contracts/Load/1.0.2/LoadCo
 import { TokenContract } from '../../../src/shipchain/contracts/Token/1.0.0/TokenContract';
 
 const loadedContracts = LoadedContracts.Instance;
+const PROJECT = "LOAD";
+const VERSION = "1.0.2";
 
-@RPCNamespace({ name: 'Load-1.0.2' })
+@RPCNamespace({ name: 'Load.1.0.2' })
 export class RPCLoad {
     @RPCMethod({
         require: ['shipperWallet', 'carrierWallet'],
@@ -36,7 +38,7 @@ export class RPCLoad {
         const carrierWallet = await Wallet.getById(args.carrierWallet);
 
         // Creating a new Shipment always requires the latest version of the contract
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', "1.0.2");
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.createNewShipmentTransaction(
             shipperWallet,
@@ -69,7 +71,7 @@ export class RPCLoad {
             throw new Error('Invalid vault hash format');
         }
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.updateVault(shipperWallet, args.shipmentId, args.url, args.hash);
 
@@ -88,7 +90,7 @@ export class RPCLoad {
     public static async FundEthTx(args) {
         const shipperWallet = await Wallet.getById(args.shipperWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.depositEthTransaction(
             shipperWallet,
@@ -111,7 +113,7 @@ export class RPCLoad {
     public static async FundCashTx(args) {
         const shipperWallet = await Wallet.getById(args.shipperWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.depositCashTransaction(
             shipperWallet,
@@ -134,7 +136,7 @@ export class RPCLoad {
     public static async FundShipTx(args) {
         const shipperWallet = await Wallet.getById(args.shipperWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
         const TOKEN_CONTRACT: TokenContract = <TokenContract>loadedContracts.get('Token');
 
         const txUnsigned = await LOAD_CONTRACT.depositShipTransaction(
@@ -159,7 +161,7 @@ export class RPCLoad {
     public static async CommitToShipmentTx(args) {
         const carrierWallet = await Wallet.getById(args.carrierWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.commitToShipmentContract(carrierWallet, args.shipmentId);
 
@@ -178,7 +180,7 @@ export class RPCLoad {
     public static async ShipmentInTransitTx(args) {
         const carrierWallet = await Wallet.getById(args.carrierWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.inTransitByCarrier(carrierWallet, args.shipmentId);
 
@@ -197,7 +199,7 @@ export class RPCLoad {
     public static async CarrierCompleteTx(args) {
         const carrierWallet = await Wallet.getById(args.carrierWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.contractCompletedByCarrier(carrierWallet, args.shipmentId);
 
@@ -216,7 +218,7 @@ export class RPCLoad {
     public static async ShipperAcceptTx(args) {
         const shipperWallet = await Wallet.getById(args.shipperWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.contractAcceptedByShipper(shipperWallet, args.shipmentId);
 
@@ -235,7 +237,7 @@ export class RPCLoad {
     public static async ShipperCancelTx(args) {
         const shipperWallet = await Wallet.getById(args.shipperWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.contractCancelledByShipper(shipperWallet, args.shipmentId);
 
@@ -254,7 +256,7 @@ export class RPCLoad {
     public static async PayOutTx(args) {
         const carrierWallet = await Wallet.getById(args.carrierWallet);
 
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         const txUnsigned = await LOAD_CONTRACT.payOut(carrierWallet, args.shipmentId);
 
@@ -266,7 +268,7 @@ export class RPCLoad {
 
     @RPCMethod({ require: ['shipmentId'] })
     public static async GetShipmentDetails(args) {
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         return {
             success: true,
@@ -276,7 +278,7 @@ export class RPCLoad {
 
     @RPCMethod({ require: ['shipmentId'] })
     public static async GetShipmentDetailsContinued(args) {
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         return {
             success: true,
@@ -286,7 +288,7 @@ export class RPCLoad {
 
     @RPCMethod({ require: ['shipmentId'] })
     public static async GetEscrowStatus(args) {
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         return {
             success: true,
@@ -296,7 +298,7 @@ export class RPCLoad {
 
     @RPCMethod({ require: ['shipmentId'] })
     public static async GetContractFlags(args) {
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get('LOAD', args.contractVersion);
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
         return {
             success: true,
