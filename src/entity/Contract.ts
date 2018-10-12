@@ -58,27 +58,71 @@ export class Project extends BaseEntity {
         return project;
     }
 
-    static async loadFixturesFromDirectory(fixture_path: string) {
-        const meta = JSON.parse(fs.readFileSync(fixture_path + '/index.json'));
+    static async loadFixtureMetaData(meta: any): Promise<any> {
         const networks = {};
-        for (let title of Object.keys(meta.networks)) {
-            const nData = meta.networks[title];
-            networks[title] = await Network.getOrCreate(title, nData.public_address, nData.description);
-        }
+        const contracts = {};
 
-        for (let title of Object.keys(meta.contracts)) {
-            const cData = meta.contracts[title];
-            const project = await Project.getOrCreate(title, cData.description);
-            const versions = {};
-            for (let network_title of Object.keys(cData.deployed)) {
-                const dData = cData.deployed[network_title];
-                const version_path = `${fixture_path}/contracts/${title}/${dData.version}`;
-                const bytecode = '0x' + fs.readFileSync(`${version_path}/compiled.bin`);
-                const version = await Version.getOrCreate(project, dData.version, dData.abi, bytecode);
-                versions[dData.version] = version;
-                await Contract.getOrCreate(project, networks[network_title], version, dData.address);
+        return new Promise(async (resolve, reject) => {
+
+            try {
+                // Parse defined Networks
+                for (let networkName of Object.keys(meta.networks)) {
+                    const network = meta.networks[networkName];
+
+                    networks[networkName] = await Network.getOrCreate(networkName, network.public_address, network.description);
+                    logger.debug(`Fixture Network: ${networkName} ${network.public_address} ${network.description} [${networks[networkName].id}]`);
+                }
+
+                // Parse defined Contracts
+                for (let contractName of Object.keys(meta.contracts)) {
+                    const versions = {};
+
+                    const contractData = meta.contracts[contractName];
+                    contracts[contractName] = contractData;
+
+                    // Create Project
+                    const project = await
+                    Project.getOrCreate(contractName, contractData.description);
+                    logger.debug(`Fixture Project: ${contractName} [${project.id}]`);
+
+                    // Create Versions using ABI and BIN of each Contract
+                    for (let versionName of Object.keys(contractData.versions)) {
+                        const versionData = contractData.versions[versionName];
+                        const parsedAbi = JSON.parse(versionData.abi);
+                        versions[versionName] = await
+                        Version.getOrCreate(project, versionName, parsedAbi, versionData.bin);
+                        logger.debug(`Fixture Version: ${project.title} ${versionName} [${versions[versionName].id}]`);
+
+                        // Remove abi/bin after Version is created so we don't return these large blobs
+                        delete versionData.abi;
+                        delete versionData.bin;
+                    }
+
+                    // Create Contract from Project, Network, and Version
+                    for (let networkName of Object.keys(contractData.deployed)) {
+                        const networkVersion = contractData.deployed[networkName];
+
+                        // Each Contract Network can have multiple historical versions
+                        for (let versionName of Object.keys(networkVersion)) {
+                            const contractAddress = networkVersion[versionName];
+                            const contract = await
+                            Contract.getOrCreate(project, networks[networkName], versions[versionName], contractAddress);
+                            logger.debug(`Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${contract.id}]`);
+                        }
+                    }
+                }
+
+                resolve(contracts);
+            } catch (err) {
+                logger.error(`Parsing Fixtures returned ${err}`);
+                reject(err);
             }
-        }
+        });
+    }
+
+    static async loadFixturesFromFile(fixture_file: string): Promise<any> {
+        const meta = JSON.parse(fs.readFileSync(fixture_file));
+        return await Project.loadFixtureMetaData(meta);
     }
 
     static async loadFixturesFromUrl(fixture_url: string): Promise<any> {
@@ -92,59 +136,7 @@ export class Project extends BaseEntity {
 
             rp(requestOptions)
                 .then(async meta => {
-                    const networks = {};
-                    const contracts = {};
-
-                    try {
-                        // Parse defined Networks
-                        for (let networkName of Object.keys(meta.networks)) {
-                            const network = meta.networks[networkName];
-
-                            networks[networkName] = await Network.getOrCreate(networkName, network.public_address, network.description);
-                            logger.debug(`Fixture Network: ${networkName} ${network.public_address} ${network.description} [${networks[networkName].id}]`);
-                        }
-
-                        // Parse defined Contracts
-                        for (let contractName of Object.keys(meta.contracts)) {
-                            const versions = {};
-
-                            const contractData = meta.contracts[contractName];
-                            contracts[contractName] = contractData;
-
-                            // Create Project
-                            const project = await Project.getOrCreate(contractName, contractData.description);
-                            logger.debug(`Fixture Project: ${contractName} [${project.id}]`);
-
-                            // Create Versions using ABI and BIN of each Contract
-                            for (let versionName of Object.keys(contractData.versions)) {
-                                const versionData = contractData.versions[versionName];
-                                const parsedAbi = JSON.parse(versionData.abi);
-                                versions[versionName] = await Version.getOrCreate(project, versionName, parsedAbi, versionData.bin);
-                                logger.debug(`Fixture Version: ${project.title} ${versionName} [${versions[versionName].id}]`);
-
-                                // Remove abi/bin after Version is created so we don't return these large blobs
-                                delete versionData.abi;
-                                delete versionData.bin;
-                            }
-
-                            // Create Contract from Project, Network, and Version
-                            for (let networkName of Object.keys(contractData.deployed)) {
-                                const networkVersion = contractData.deployed[networkName];
-
-                                // Each Contract Network can have multiple historical versions
-                                for (let versionName of Object.keys(networkVersion)) {
-                                    const contractAddress = networkVersion[versionName];
-                                    const contract = await Contract.getOrCreate(project, networks[networkName], versions[versionName], contractAddress);
-                                    logger.debug(`Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${contract.id}]`);
-                                }
-                            }
-                        }
-                    } catch (err) {
-                        logger.error(`Parsing Fixtures returned ${err}`);
-                        reject(err);
-                    }
-
-                    resolve(contracts);
+                    resolve(await Project.loadFixtureMetaData(meta));
                 })
                 .catch(err => {
                     logger.error(`Retrieving Fixtures returned ${err}`);
