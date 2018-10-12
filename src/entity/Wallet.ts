@@ -21,7 +21,6 @@ import { Logger, loggers } from "winston";
 const EthereumTx = require('ethereumjs-tx');
 const Web3 = require('web3');
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 export abstract class DBFieldEncryption {

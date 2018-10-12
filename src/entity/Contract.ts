@@ -31,7 +31,6 @@ const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
 const rp = require('request-promise-native');
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 @Entity()

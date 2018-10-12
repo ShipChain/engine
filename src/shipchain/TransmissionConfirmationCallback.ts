@@ -18,7 +18,6 @@ import { ContractCallback } from '../contracts/ContractCallback';
 import { getRequestOptions } from '../request-options';
 import { Logger, loggers } from 'winston';
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 const request = require('request');
 

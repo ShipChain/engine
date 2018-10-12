@@ -17,7 +17,6 @@
 import { Logger, loggers } from "winston";
 import { getAwsSecret } from "./src/shipchain/utils";
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 const ENV = process.env.ENV || "LOCAL";
 

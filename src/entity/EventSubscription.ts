@@ -22,7 +22,6 @@ import { getRequestOptions } from '../request-options';
 
 const request = require('request');
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 const SECONDS = 1000;

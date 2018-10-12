@@ -18,7 +18,6 @@ import { Network, Version } from "./entity/Contract";
 import { Wallet } from './entity/Wallet';
 import { Logger, loggers } from 'winston';
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 const ETH = 10 ** 18;
 

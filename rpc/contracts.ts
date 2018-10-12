@@ -23,7 +23,6 @@ import { Wallet } from '../src/entity/Wallet';
 const typeorm = require('typeorm');
 const test_net_utils = require('../src/local-test-net-utils');
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 const ENV = process.env.ENV || 'LOCAL';
 const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';

@@ -20,7 +20,6 @@ import { Logger, loggers } from 'winston';
 
 const rpc = require('json-rpc2');
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 const metrics = MetricsReporter.Instance;
 
