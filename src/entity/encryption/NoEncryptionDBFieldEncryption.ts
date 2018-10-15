@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { DBFieldEncryption } from "../entity/Wallet";
+import { DBFieldEncryption } from "../Wallet";
 import { Logger, loggers } from "winston";
 
 const logger: Logger = loggers.get('engine');
