@@ -19,7 +19,7 @@ import { Wallet } from '../../../src/entity/Wallet';
 import { RPCMethod, RPCNamespace } from '../../decorators';
 import { LoadedContracts } from '../../contracts';
 import { LoadContract } from '../../../src/shipchain/contracts/Load/1.0.2/LoadContract';
-import { TokenContract } from '../../../src/shipchain/contracts/Token/1.0.0/TokenContract';
+import { ShipTokenContract } from '../../../src/shipchain/contracts/ShipToken/1.0.0/ShipTokenContract';
 
 const loadedContracts = LoadedContracts.Instance;
 const PROJECT = "LOAD";
@@ -137,7 +137,7 @@ export class RPCLoad {
         const shipperWallet = await Wallet.getById(args.shipperWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
-        const TOKEN_CONTRACT: TokenContract = <TokenContract>loadedContracts.get('Token');
+        const TOKEN_CONTRACT: ShipTokenContract = <ShipTokenContract>loadedContracts.get('ShipToken');
 
         const txUnsigned = await LOAD_CONTRACT.depositShipTransaction(
             TOKEN_CONTRACT,

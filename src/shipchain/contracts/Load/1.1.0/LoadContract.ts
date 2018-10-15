@@ -16,7 +16,7 @@
 
 import { Wallet } from '../../../../entity/Wallet';
 import { BaseContract } from '../../../../contracts/BaseContract';
-import { TokenContract } from '../../Token/1.0.0/TokenContract';
+import { ShipTokenContract } from '../../ShipToken/1.0.0/ShipTokenContract';
 
 export enum EscrowFundingType {
     NO_FUNDING = 0,
@@ -138,7 +138,7 @@ export class LoadContract extends BaseContract {
     }
 
     async fundEscrowTx(
-        tokenContract: TokenContract,
+        tokenContract: ShipTokenContract,
         senderWallet: Wallet,
         shipmentUuid: string,
         depositAmount: number,
@@ -177,7 +177,7 @@ export class LoadContract extends BaseContract {
     }
 
     async fundEscrowShipTx(
-        tokenContract: TokenContract,
+        tokenContract: ShipTokenContract,
         senderWallet: Wallet,
         shipmentUuid: string,
         depositAmount: number,

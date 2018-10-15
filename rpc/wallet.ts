@@ -99,7 +99,7 @@ export class RPCWallet {
     public static async Balance(args) {
         const wallet = await Wallet.getById(args.wallet);
 
-        const TOKEN_CONTRACT: BaseContract = loadedContracts.get('Token');
+        const TOKEN_CONTRACT: BaseContract = loadedContracts.get('ShipToken');
         const EthDriver = TOKEN_CONTRACT.getEthDriver();
 
         const eth_balance = await EthDriver.getBalance(wallet.address);

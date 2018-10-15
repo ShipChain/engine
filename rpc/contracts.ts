@@ -149,7 +149,7 @@ export async function loadContractFixtures() {
     logger.info(`Loading Contracts from ${network}`);
 
     // The `LATEST_*` constants are hardcoded in the source.  There is no risk of external manipulation of these values
-    const TokenContract = (await import(`../src/shipchain/contracts/Token/${LATEST_SHIPTOKEN}/TokenContract`)).TokenContract;
+    const TokenContract = (await import(`../src/shipchain/contracts/ShipToken/${LATEST_SHIPTOKEN}/ShipTokenContract`)).ShipTokenContract;
     const LoadContract = (await import(`../src/shipchain/contracts/Load/${LATEST_LOAD}/LoadContract`)).LoadContract;
 
     const TOKEN_CONTRACT = new TokenContract(network, LATEST_SHIPTOKEN);
@@ -159,7 +159,7 @@ export async function loadContractFixtures() {
     await LOAD_CONTRACT.Ready;
 
     loadedContracts.register('LOAD', LOAD_CONTRACT, true);
-    loadedContracts.register('Token', TOKEN_CONTRACT, true);
+    loadedContracts.register('ShipToken', TOKEN_CONTRACT, true);
 
     await registerPreviousLoadContracts(contractMetaData.LOAD.deployed[network], LOAD_CONTRACT);
 }

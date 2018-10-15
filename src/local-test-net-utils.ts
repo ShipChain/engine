@@ -31,7 +31,7 @@ export async function setupLocalTestNetContracts(nodeUrl: string, latest: Latest
     const load_version: Version = await Version.getByProjectAndTitle("LOAD", latest.LOAD);
 
     if(!token_version) {
-        throw new Error("Token Version cannot be found");
+        throw new Error("ShipToken Version cannot be found");
     }
     if(!load_version) {
         throw new Error("LOAD Version cannot be found");
