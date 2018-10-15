@@ -46,13 +46,13 @@ for (schema of schemas) {
     if (!error && response.statusCode === 200) {
 
       // Capture the schema for building validators
-      fs.writeFileSync("src/primitives/" + schema + ".json", schemaString);
+      fs.writeFileSync("rpc/primitives/" + schema + ".json", schemaString);
 
       // Compile the schema to TypeScript interface
       let schemaJSON = JSON.parse(schemaString);
       json2ts.compile(schemaJSON, schema, { "bannerComment": interfaceComment }).then(
         ts => {
-          fs.writeFileSync("src/primitives/" + schema + ".d.ts", ts);
+          fs.writeFileSync("rpc/primitives/" + schema + ".d.ts", ts);
         }
       );
     }

@@ -18,7 +18,6 @@ module.exports = {
         "src/**/*.ts",
         "!<rootDir>/src/__tests__/*",
         "!<rootDir>/src/entity/migration/*",
-        "!<rootDir>/src/primitives/*",
         "!<rootDir>/src/shipchain/contracts/**/*"
     ],
     "coverageReporters": [
