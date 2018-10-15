@@ -75,11 +75,28 @@ server.expose("transaction", {
 });
 
 server.expose("load", {
-    "create_shipment_transaction": RPCLoad_1_0_2.CreateShipmentTx,
+    "create_shipment_tx": RPCLoad_1_1_0.CreateShipmentTx,
 });
 
 server.expose("load.1.1.0", {
-    "create_shipment_transaction": RPCLoad_1_1_0.CreateShipmentTx,
+    // Transactional methods
+    "create_shipment_tx": RPCLoad_1_1_0.CreateShipmentTx,
+    "set_vault_uri_tx": RPCLoad_1_1_0.SetVaultUriTx,
+    "set_vault_hash_tx": RPCLoad_1_1_0.SetVaultHashTx,
+    "set_carrier_tx": RPCLoad_1_1_0.SetCarrierTx,
+    "set_moderator_tx": RPCLoad_1_1_0.SetModeratorTx,
+    "set_in_progress_tx": RPCLoad_1_1_0.SetInProgressTx,
+    "set_complete_tx": RPCLoad_1_1_0.SetCompleteTx,
+    "set_canceled_tx": RPCLoad_1_1_0.SetCanceledTx,
+    "fund_escrow_tx": RPCLoad_1_1_0.FundEscrowTx,
+    "fund_escrow_ether_tx": RPCLoad_1_1_0.FundEscrowEtherTx,
+    "fund_escrow_ship_tx": RPCLoad_1_1_0.FundEscrowShipTx,
+    "release_escrow_tx": RPCLoad_1_1_0.ReleaseEscrowTx,
+    "withdraw_escrow_tx": RPCLoad_1_1_0.WithdrawEscrowTx,
+    "refund_escrow_tx": RPCLoad_1_1_0.RefundEscrowTx,
+    // View methods
+    "get_shipment_data": RPCLoad_1_1_0.GetShipmentData,
+    "get_escrow_data": RPCLoad_1_1_0.GetEscrowData,
 });
 
 server.expose("load.1.0.2", {
@@ -101,11 +118,11 @@ server.expose("load.1.0.2", {
 });
 
 server.expose("vault", {
-    "create_vault": RPCVault.CreateVault,
-    "get_tracking_data": RPCVault.GetTrackingData,
-    "add_tracking_data": RPCVault.AddTrackingData,
-    "get_shipment_data": RPCVault.GetShipmentData,
-    "add_shipment_data": RPCVault.AddShipmentData,
+    "create": RPCVault.CreateVault,
+    "get_tracking": RPCVault.GetTrackingData,
+    "add_tracking": RPCVault.AddTrackingData,
+    "get_shipment": RPCVault.GetShipmentData,
+    "add_shipment": RPCVault.AddShipmentData,
     "get_document": RPCVault.GetDocument,
     "add_document": RPCVault.AddDocument,
     "list_documents": RPCVault.ListDocuments,

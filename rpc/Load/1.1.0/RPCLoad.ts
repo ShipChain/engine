@@ -18,7 +18,7 @@ import { Wallet } from '../../../src/entity/Wallet';
 
 import { RPCMethod, RPCNamespace } from '../../decorators';
 import { LoadedContracts } from '../../contracts';
-import { EscrowFundingType, LoadContract } from "../../../src/shipchain/contracts/Load/1.1.0/LoadContract";
+import { LoadContract } from "../../../src/shipchain/contracts/Load/1.1.0/LoadContract";
 import { TokenContract } from '../../../src/shipchain/contracts/Token/1.0.0/TokenContract';
 
 const loadedContracts = LoadedContracts.Instance;
@@ -29,19 +29,19 @@ const VERSION = "1.1.0";
 export class RPCLoad {
 
     @RPCMethod({
-        require: ['shipmentUuid', 'shipperWallet'],
+        require: ['shipmentUuid', 'senderWallet'],
         validate: {
-            uuid: ['shipmentUuid', 'shipperWallet'],
+            uuid: ['shipmentUuid', 'senderWallet'],
         },
     })
     public static async CreateShipmentTx(args) {
-        const shipperWallet = await Wallet.getById(args.shipperWallet);
+        const senderWallet = await Wallet.getById(args.senderWallet);
 
         // Creating a new Shipment always requires the latest version of the contract
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
-        const txUnsigned = await LOAD_CONTRACT.createNewShipmentTransaction(
-            shipperWallet,
+        const txUnsigned = await LOAD_CONTRACT.createNewShipmentTx(
+            senderWallet,
             args.shipmentUuid,
             args.fundingType,
             args.contractedAmount,
@@ -51,6 +51,311 @@ export class RPCLoad {
             success: true,
             contractVersion: LOAD_CONTRACT.getContractVersion(),
             transaction: txUnsigned,
+        };
+    }
+
+    // Transactional Methods
+    // =====================
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet', 'uri'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async SetVaultUriTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        if (args.uri.length > 2000) {
+            throw new Error('URI too long');
+        }
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.setVaultUriTx(senderWallet, args.shipmentUuid, args.uri);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet', 'hash'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async SetVaultHashTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        if (args.hash.length != 66 || !args.hash.startsWith('0x')) {
+            throw new Error('Invalid vault hash format');
+        }
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.setVaultHashTx(senderWallet, args.shipmentUuid, args.hash);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet', 'carrierWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet', 'carrierWallet'],
+        },
+    })
+    public static async SetCarrierTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+        const carrierWallet = await Wallet.getById(args.carrierWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.setCarrierTx(senderWallet, args.shipmentUuid, carrierWallet.address);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet', 'moderatorWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet', 'moderatorWallet'],
+        },
+    })
+    public static async SetModeratorTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+        const moderatorWallet = await Wallet.getById(args.moderatorWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.setModeratorTx(senderWallet, args.shipmentUuid, moderatorWallet.address);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async SetInProgressTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.setInProgressTx(senderWallet, args.shipmentUuid);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async SetCompleteTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.setCompleteTx(senderWallet, args.shipmentUuid);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async SetCanceledTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.setCanceledTx(senderWallet, args.shipmentUuid);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet', 'depositAmount'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async FundEscrowTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+        const TOKEN_CONTRACT: TokenContract = <TokenContract>loadedContracts.get('Token');
+
+        const txUnsigned = await LOAD_CONTRACT.fundEscrowTx(
+            TOKEN_CONTRACT,
+            senderWallet,
+            args.shipmentUuid,
+            args.depositAmount,
+        );
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet', 'depositAmount'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async FundEscrowEtherTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.fundEscrowEtherTx(senderWallet, args.shipmentUuid, args.depositAmount);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet', 'depositAmount'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async FundEscrowShipTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+        const TOKEN_CONTRACT: TokenContract = <TokenContract>loadedContracts.get('Token');
+
+        const txUnsigned = await LOAD_CONTRACT.fundEscrowShipTx(
+            TOKEN_CONTRACT,
+            senderWallet,
+            args.shipmentUuid,
+            args.depositAmount,
+        );
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async ReleaseEscrowTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.releaseEscrowTx(senderWallet, args.shipmentUuid);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async WithdrawEscrowTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.withdrawEscrowTx(senderWallet, args.shipmentUuid);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid', 'senderWallet'],
+        validate: {
+            uuid: ['shipmentUuid', 'senderWallet'],
+        },
+    })
+    public static async RefundEscrowTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await LOAD_CONTRACT.refundEscrowTx(senderWallet, args.shipmentUuid);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    // View Methods
+    // ============
+
+    @RPCMethod({
+        require: ['shipmentUuid'],
+        validate: {
+            uuid: ['shipmentUuid'],
+        },
+    })
+    public static async GetShipmentData(args) {
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        return {
+            success: true,
+            shipmentData: await LOAD_CONTRACT.getShipmentData(args.shipmentUuid),
+        };
+    }
+
+    @RPCMethod({
+        require: ['shipmentUuid'],
+        validate: {
+            uuid: ['shipmentUuid'],
+        },
+    })
+    public static async GetEscrowData(args) {
+        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
+
+        return {
+            success: true,
+            escrowData: await LOAD_CONTRACT.getEscrowData(args.shipmentUuid),
         };
     }
 
