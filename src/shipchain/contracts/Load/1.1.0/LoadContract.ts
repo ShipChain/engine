@@ -123,7 +123,7 @@ export class LoadContract extends BaseContract {
         senderWallet: Wallet,
         shipmentUuid: string,
     ) {
-        return await this.buildTransactionForWallet(senderWallet, 'setInProgress', [
+        return await this.buildTransactionForWallet(senderWallet, 'setComplete', [
             LoadContract.convertShipmentUuidToBytes16(shipmentUuid),
         ]);
     }
