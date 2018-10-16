@@ -182,14 +182,11 @@ export class LoadContract extends BaseContract {
         shipmentUuid: string,
         depositAmount: number,
     ) {
-        const shipmentId = LoadContract.convertShipmentUuidToBytes16(shipmentUuid);
-        const asciiToHexShipmentUuid = this._utils.asciiToHex('' + shipmentId);
-
         return await tokenContract.approveAndCallTransaction(
             senderWallet,
             this._contract.address,
             depositAmount,
-            asciiToHexShipmentUuid,
+            LoadContract.convertShipmentUuidToBytes16(shipmentUuid),
         );
     }
 
