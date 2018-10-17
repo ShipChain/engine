@@ -5,7 +5,7 @@ LABEL maintainer="Lucas Clay <lclay@shipchain.io>"
 ENV LANG C.UTF-8
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update -y && apt-get install -y libgmp3-dev libstdc++6
+RUN apt-get update -y && apt-get install -y libgmp3-dev libstdc++6 jq
 
 # SUPPORT SSH FOR IAM USERS #
 RUN apt-get update && apt-get -y install openssh-server python3-pip
@@ -17,6 +17,8 @@ RUN keymaker install
 RUN echo "AllowAgentForwarding yes" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 # ------------------------- #
+
+RUN pip3 install awscli
 
 RUN mkdir /app
 WORKDIR /app

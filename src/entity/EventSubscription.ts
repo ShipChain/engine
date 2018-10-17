@@ -18,6 +18,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, getConnection, PrimaryCol
 import { Contract } from './Contract';
 import { EventEmitter } from 'events';
 import { Logger, loggers } from 'winston';
+import { getRequestOptions } from '../request-options';
 
 const request = require('request');
 
@@ -261,12 +262,15 @@ export class EventSubscription extends BaseEntity {
                             );
 
                             try {
+                                let options = {
+                                    url: eventSubscription.url,
+                                    json: events,
+                                    timeout: 60000,
+                                }
+                                options = Object.assign(options, getRequestOptions());
+
                                 request
-                                    .post({
-                                        url: eventSubscription.url,
-                                        json: events,
-                                        timeout: 60000,
-                                    })
+                                    .post(options)
                                     .on('response', async function(response) {
                                         if (response.statusCode != 200 && response.statusCode != 204) {
                                             logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.url}]`);
