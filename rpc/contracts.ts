@@ -106,6 +106,10 @@ export async function loadContractFixtures() {
         logger.info('Loading Contracts from Ropsten');
         TOKEN_CONTRACT = new TokenContract('ropsten', '1.0');
         LOAD_CONTRACT = new LoadContract('ropsten', '1.0.2');
+    } else if (ENV === 'DEMO') {
+        logger.info('Loading Contracts from Rinkeby');
+        TOKEN_CONTRACT = new TokenContract('rinkeby', '1.0');
+        LOAD_CONTRACT = new LoadContract('rinkeby', '1.0.2');
     } else if (ENV === 'PROD') {
         logger.info('Loading Contracts from Main');
         TOKEN_CONTRACT = new TokenContract('main', '1.0');

@@ -92,6 +92,7 @@ The environment that Engine is deployed to changes certain aspects of how Engine
  - `ENV`
    - `DEV` uses a local GETH Node included in the Docker stack
    - `STAGE` uses Ropsten
+   - `DEMO` uses Rinkeby
    - `PROD` uses Mainnet
 
 ##### AWS
@@ -107,7 +108,7 @@ Engine utilizes Winston for log handling.  By default all messages  that are `IN
  - `LOGGING_LEVEL`
  	- Valid values: `error`, `warn`, `info`, `verbose`, `debug`, `silly`.  Default is `info`
 
-If you want to also log messages to ElasticSearch, add the following variable pointing to your logging server (This is currently only used when `ENV` is set to `DEV`, `STAGE`, or `PROD`)
+If you want to also log messages to ElasticSearch, add the following variable pointing to your logging server (This is currently only used when `ENV` is set to `DEV`, `STAGE`, `DEMO`, or `PROD`)
  - `ELASTICSEARCH_URL`
  - `ELASTICSEARCH_LEVEL`
  	- Defaults to the value set in `LOGGING_LEVEL`
