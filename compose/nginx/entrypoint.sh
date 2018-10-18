@@ -38,7 +38,7 @@ echo "Copying certificate to nginx"
 echo $CERT_JSON | jq -r '.Certificate' >> /etc/nginx/certs/$SUBDOMAIN.crt
 echo $CERT_JSON | jq -r '.CertificateChain' >> /etc/nginx/certs/$SUBDOMAIN.crt
 echo $CERT_JSON | jq -r '.PrivateKey' > /etc/nginx/certs/$SUBDOMAIN.encrypted.key
-echo $CA_CERT_JSON | jq -r '.Certificate' >> //etc/nginx/certs/ca-bundle.crt
+echo $CA_CERT_JSON | jq -r '.Certificate' >> /etc/nginx/certs/ca-bundle.crt
 echo $CA_CERT_JSON | jq -r '.CertificateChain' >> /etc/nginx/certs/ca-bundle.crt
 # Decrypt key
 openssl rsa -passin pass:$CERT_PASS -in /etc/nginx/certs/$SUBDOMAIN.encrypted.key -out /etc/nginx/certs/$SUBDOMAIN.key

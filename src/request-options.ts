@@ -34,7 +34,7 @@ export async function getRequestOptions() {
         options = {
           cert: fs.readFileSync(certFile),
           key: fs.readFileSync(keyFile),
-          ca: fs.readFileSync(caFile)
+          ca: [ fs.readFileSync(caFile) ]
         }
       }
       return options;
