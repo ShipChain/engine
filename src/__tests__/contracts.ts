@@ -46,9 +46,9 @@ describe('ContractEntity', function() {
     it(`loads contract fixtures`, async () => {
         await Project.loadFixtures('/contracts');
         expect(await Project.count()).toEqual(2);
-        expect(await Network.count()).toEqual(2);
+        expect(await Network.count()).toEqual(3);
         expect(await Version.count()).toEqual(2);
-        expect(await Contract.count()).toEqual(4);
+        expect(await Contract.count()).toEqual(6);
     });
 
     it(
