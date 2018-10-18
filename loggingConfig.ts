@@ -40,7 +40,7 @@ engine_transports.push(
 );
 
 // Add ElasticSearch if we're running in a deployed environment
-if ((ENV === "DEV" || ENV === "STAGE" || ENV === "PROD") &&
+if ((ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") &&
     ELASTICSEARCH_URL != null) {
 
     const ElasticSearch = require("winston-elasticsearch");

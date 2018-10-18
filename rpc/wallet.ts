@@ -27,7 +27,7 @@ const metrics = MetricsReporter.Instance;
 const ENV = process.env.ENV || "LOCAL";
 
 export async function setupWalletEncryptionHandler() {
-    if (ENV === "DEV" || ENV === "STAGE" || ENV === "PROD") {
+    if (ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") {
         Wallet.setPrivateKeyEncryptionHandler(await AwsPrivateKeyDBFieldEncryption.getInstance());
     } else {
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
