@@ -294,6 +294,16 @@ export abstract class Container {
     }
 }
 
+interface ListContentContainer {
+    append(author: Wallet, blob: any);
+}
+interface SingleContentContainer {
+    setContents(author: Wallet, blob: any);
+}
+interface MultiContentContainer {
+    setSingleContent(author: Wallet, fileName: string, blob: any);
+}
+
 export abstract class EmbeddedContainer extends Container {
     public container_type: string;
     public raw_contents: any = null;
@@ -364,7 +374,7 @@ export abstract class EmbeddedContainer extends Container {
     }
 }
 
-export class EmbeddedFileContainer extends EmbeddedContainer {
+export class EmbeddedFileContainer extends EmbeddedContainer implements SingleContentContainer {
     public container_type: string = 'embedded_file';
 
     constructor(vault: Vault, name: string, meta?) {
@@ -388,7 +398,7 @@ export class EmbeddedFileContainer extends EmbeddedContainer {
     }
 }
 
-export class EmbeddedListContainer extends EmbeddedContainer {
+export class EmbeddedListContainer extends EmbeddedContainer implements ListContentContainer {
     public container_type: string = 'embedded_list';
 
     constructor(vault: Vault, name: string, meta?) {
@@ -579,7 +589,7 @@ export abstract class ExternalContainer extends Container {
     }
 }
 
-export class ExternalFileContainer extends ExternalContainer {
+export class ExternalFileContainer extends ExternalContainer implements SingleContentContainer  {
     public container_type: string = 'external_file';
 
     setContents(author: Wallet, blob: any) {
@@ -594,7 +604,7 @@ export class ExternalFileContainer extends ExternalContainer {
     }
 }
 
-export class ExternalListContainer extends ExternalContainer {
+export class ExternalListContainer extends ExternalContainer implements ListContentContainer {
     public container_type: string = 'external_list';
 
     async append(author: Wallet, blob) {
@@ -690,7 +700,7 @@ export abstract class ExternalDirectoryContainer extends ExternalContainer {
     }
 }
 
-export class ExternalListDailyContainer extends ExternalDirectoryContainer {
+export class ExternalListDailyContainer extends ExternalDirectoryContainer implements ListContentContainer {
     public container_type: string = 'external_list_daily';
 
     static getCurrentDayProperty(): string {
