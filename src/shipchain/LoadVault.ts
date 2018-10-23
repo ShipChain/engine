@@ -26,25 +26,39 @@ export class LoadVault extends Vault {
         await super.initializeMetadata(author);
         this.getOrCreateContainer(author, 'tracking', 'embedded_list');
         this.getOrCreateContainer(author, 'shipment', 'embedded_file');
+        this.getOrCreateContainer(author, 'documents', 'external_file_multi');
         return this.meta;
     }
 
-    async addTrackingData(author, payload) {
+    async addTrackingData(author: Wallet, payload) {
         await this.containers.tracking.append(author, payload);
     }
 
-    async getTrackingData(author) {
+    async getTrackingData(author: Wallet) {
         await this.loadMetadata();
         return await this.containers.tracking.decryptContents(author);
     }
 
-    async addShipmentData(author, shipment) {
+    async addShipmentData(author: Wallet, shipment) {
         await this.containers.shipment.setContents(author, JSON.stringify(shipment));
     }
 
-    async getShipmentData(author) {
+    async getShipmentData(author: Wallet) {
         await this.loadMetadata();
         const contents = await this.containers.shipment.decryptContents(author);
         return JSON.parse(contents);
+    }
+
+    async addDocument(author: Wallet, name: string, document: any) {
+        await this.containers.documents.setSingleContent(author, name, document);
+    }
+
+    async getDocument(author: Wallet, name: string) {
+        await this.loadMetadata();
+        return await this.containers.documents.decryptContents(author, name);
+    }
+
+    async listDocuments() {
+        return await this.containers.documents.listFiles();
     }
 }

@@ -92,7 +92,11 @@ server.expose("load", {
     "get_tracking_data": RPCLoad.GetTrackingData,
     "add_tracking_data": RPCLoad.AddTrackingData,
     "get_shipment_data": RPCLoad.GetShipmentData,
-    "add_shipment_data": RPCLoad.AddShipmentData
+    "add_shipment_data": RPCLoad.AddShipmentData,
+    "get_document": RPCLoad.GetDocument,
+    "add_document": RPCLoad.AddDocument,
+    "list_documents": RPCLoad.ListDocuments,
+    "verify_vault": RPCLoad.VerifyVault,
 });
 
 server.expose("event", {

@@ -425,4 +425,89 @@ export class RPCLoad {
             vault_signed: signature,
         };
     }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async GetDocument(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+        const contents = await load.getDocument(wallet, args.documentName);
+
+        return {
+            success: true,
+            wallet_id: wallet.id,
+            load_id: args.vault,
+            document: contents,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'documentContent'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async AddDocument(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+
+        await load.getOrCreateMetadata(wallet);
+        await load.addDocument(wallet, args.documentName, args.documentContent);
+        const signature = await load.writeMetadata(wallet);
+
+        return {
+            success: true,
+            vault_signed: signature,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async ListDocuments(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+
+        await load.getOrCreateMetadata(wallet);
+        const list = await load.listDocuments();
+
+        return {
+            success: true,
+            documents: list,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async VerifyVault(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+
+        await load.getOrCreateMetadata(wallet);
+        const verified = await load.verify();
+
+        return {
+            success: true,
+            verified: verified,
+        };
+    }
 }

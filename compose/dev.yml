@@ -73,6 +73,7 @@ services:
       - ELASTICSEARCH_URL
       - INFLUXDB_URL
       - LOCAL_SECRET_KEY
+      - LOGGING_LEVEL
 
 networks:
   portal:
