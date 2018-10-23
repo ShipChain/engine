@@ -100,7 +100,7 @@ export class EventSubscription extends BaseEntity {
 
     static SECONDS = 1000;
     static DEFAULT_INTERVAL = 30 * EventSubscription.SECONDS;
-    static ERROR_THRESHOLD = 3;
+    static ERROR_THRESHOLD = 30;
 
     private static activeSubscriptions: EventSubscription[] = [];
 
