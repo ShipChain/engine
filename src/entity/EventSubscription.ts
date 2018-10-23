@@ -98,8 +98,7 @@ export class EventSubscription extends BaseEntity {
     private contractDriver: any;
     private asyncPolls: AsyncPoll[] = [];
 
-    static SECONDS = 1000;
-    static DEFAULT_INTERVAL = 30 * EventSubscription.SECONDS;
+    static DEFAULT_INTERVAL = 30 * SECONDS;
     static ERROR_THRESHOLD = 30;
 
     private static activeSubscriptions: EventSubscription[] = [];
@@ -264,7 +263,7 @@ export class EventSubscription extends BaseEntity {
                                 let options = {
                                     url: eventSubscription.url,
                                     json: events,
-                                    timeout: 60000,
+                                    timeout: 60 * SECONDS,
                                 };
                                 options = Object.assign(options, await getRequestOptions());
 
