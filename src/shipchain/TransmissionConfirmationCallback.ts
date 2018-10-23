@@ -47,7 +47,7 @@ export class TransmissionConfirmationCallback extends ContractCallback {
                 url: this.url,
                 json: body,
             }
-            options = Object.assign(options, getRequestOptions());
+            options = Object.assign(options, await getRequestOptions());
 
             request
                 .post(options)

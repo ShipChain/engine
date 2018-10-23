@@ -267,7 +267,7 @@ export class EventSubscription extends BaseEntity {
                                     json: events,
                                     timeout: 60000,
                                 }
-                                options = Object.assign(options, getRequestOptions());
+                                options = Object.assign(options, await getRequestOptions());
 
                                 request
                                     .post(options)
