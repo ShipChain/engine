@@ -58,7 +58,7 @@ export class AsyncPoll extends EventEmitter {
             this.activeTimeout = setTimeout(() => {
                 // If the interval fires but we've triggered a stop, make sure we don't emit
                 if (!this.stopPolling) {
-                    logger.debug(`Emitting poll for ${this.name}`);
+                    logger.silly(`Emitting poll for ${this.name}`);
                     this.emit('poll');
                 }
             }, this.interval);
@@ -119,7 +119,7 @@ export class EventSubscription extends BaseEntity {
             eventSubscriber.lastBlock = attrs.lastBlock || eventSubscriber.lastBlock;
             eventSubscriber.interval = attrs.interval || eventSubscriber.interval;
             eventSubscriber.errorCount = 0;
-            logger.debug(`Updating existing Subscription ${eventSubscriber}`);
+            logger.debug(`Updating existing Subscription ${JSON.stringify(eventSubscriber)}`);
         } catch (error) {
             eventSubscriber = new EventSubscription();
             eventSubscriber.url = attrs.url;
@@ -128,7 +128,7 @@ export class EventSubscription extends BaseEntity {
             eventSubscriber.lastBlock = attrs.lastBlock || 0;
             eventSubscriber.interval = attrs.interval || EventSubscription.DEFAULT_INTERVAL;
             eventSubscriber.errorCount = 0;
-            logger.debug(`Creating new Subscription ${eventSubscriber}`);
+            logger.debug(`Creating new Subscription ${JSON.stringify(eventSubscriber)}`);
         }
 
         EventSubscription.activeSubscriptions[attrs.url] = eventSubscriber;
@@ -236,7 +236,7 @@ export class EventSubscription extends BaseEntity {
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {
         async function pollMethod() {
             return new Promise((resolve, reject) => {
-                logger.debug(
+                logger.silly(
                     `Searching for Events fromBlock ${
                         eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0
                     }`,
@@ -253,9 +253,8 @@ export class EventSubscription extends BaseEntity {
                             reject(error);
                         }
 
-                        logger.debug(`Found ${events.length} Events`);
-
                         if (events.length) {
+                            logger.info(`Found ${events.length} Events`);
                             let highestBlock = EventSubscription.findHighestBlockInEvents(
                                 events,
                                 eventSubscription.lastBlock,
@@ -266,7 +265,7 @@ export class EventSubscription extends BaseEntity {
                                     url: eventSubscription.url,
                                     json: events,
                                     timeout: 60000,
-                                }
+                                };
                                 options = Object.assign(options, await getRequestOptions());
 
                                 request
@@ -292,6 +291,7 @@ export class EventSubscription extends BaseEntity {
                                 resolve();
                             }
                         } else {
+                            logger.silly(`Found ${events.length} Events`);
                             resolve();
                         }
 
