@@ -15,6 +15,7 @@
  */
 
 import { ContractCallback } from '../contracts/ContractCallback';
+import { getRequestOptions } from '../request-options';
 import { Logger, loggers } from 'winston';
 
 // @ts-ignore
@@ -42,11 +43,14 @@ export class TransmissionConfirmationCallback extends ContractCallback {
 
     private async postData(body: any) {
         try {
+            let options = {
+                url: this.url,
+                json: body,
+            }
+            options = Object.assign(options, await getRequestOptions());
+
             request
-                .post({
-                    url: this.url,
-                    json: body,
-                })
+                .post(options)
                 .on('response', function(response) {
                     if (response.statusCode != 204) {
                         logger.error(`Transaction Callback Failed with ${response.statusCode}`);
