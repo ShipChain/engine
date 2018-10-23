@@ -29,7 +29,7 @@ let options = null;
 
 export async function getRequestOptions() {
 
-    if (ENV === "DEV" || ENV === "STAGE" || ENV === "PROD") {
+    if (ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") {
       if (!options) {
         options = {
           cert: fs.readFileSync(certFile),
