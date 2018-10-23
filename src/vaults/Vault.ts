@@ -232,6 +232,10 @@ export class Vault {
         await this.driver.removeFile(filePath);
     }
 
+    async listDirectory(vaultDirectory: string, recursive?: boolean) {
+        return await this.driver.listDirectory(vaultDirectory, recursive);
+    }
+
     getOrCreateContainer(author: Wallet, name: string, container_type?: string) {
         if (this.containers[name] instanceof Container) return this.containers[name];
         this.logAction(author, 'create_container', { name, container_type });
@@ -261,6 +265,7 @@ export abstract class Container {
         if (container_type == 'embedded_list') return new EmbeddedListContainer(vault, name, meta);
 
         if (container_type == 'external_file') return new ExternalFileContainer(vault, name, meta);
+        if (container_type == 'external_file_multi') return new ExternalFileMultiContainer(vault, name, meta);
         if (container_type == 'external_list') return new ExternalListContainer(vault, name, meta);
         if (container_type == 'external_list_daily') return new ExternalListDailyContainer(vault, name, meta);
 
@@ -687,8 +692,8 @@ export abstract class ExternalDirectoryContainer extends ExternalContainer {
                 // Remove the container name from the property
                 let desiredItem = property.split(path.sep)[1];
 
-                // Remove the file extension form the property
-                desiredItem = desiredItem.split('.')[0];
+                // Remove the file extension from the property
+                desiredItem = desiredItem.slice(0, desiredItem.lastIndexOf('.'));
 
                 if (!(await super.verify(desiredItem))) {
                     all_verified = false;
@@ -762,14 +767,42 @@ export class ExternalListDailyContainer extends ExternalDirectoryContainer imple
 
         for (let property in this.meta) {
             if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
+                // Remove the container name from the property
                 let desired_day = property.split(path.sep)[1];
-                desired_day = desired_day.split('.')[0];
+
+                // Remove the file extension from the property
+                desired_day = desired_day.slice(0, desired_day.lastIndexOf('.'));
+
                 let day_data = await this.decryptDayContents(user, desired_day);
                 all_contents = all_contents.concat(day_data);
             }
         }
 
         return all_contents;
+    }
+
+}
+
+export class ExternalFileMultiContainer extends ExternalDirectoryContainer implements MultiContentContainer {
+    public container_type: string = 'external_file_multi';
+
+    setSingleContent(author: Wallet, fileName: string, blob: any) {
+        if (blob === null || blob === undefined || blob === '') {
+            throw new Error('New Content cannot be empty');
+        }
+
+        this.raw_contents[fileName] = blob;
+        this.modified_items.push(fileName);
+        const hash = utils.objectHash(blob);
+        this.logAction(author, 'setSingleContent', {fileName: fileName}, { hash });
+    }
+
+    async listFiles() {
+        const fileList = (await this.vault.listDirectory(this.name)).files;
+        for (let file of fileList){
+            file.name = file.name.replace(/.json$/, "");
+        }
+        return fileList;
     }
 
 }

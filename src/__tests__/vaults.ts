@@ -293,6 +293,39 @@ describe('Vaults', function() {
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
+    it(`can add an external multi file container`, async () => {
+        let author = await Wallet.generate_entity();
+
+        let vault = new Vault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+        const container = vault.getOrCreateContainer(author, 'test_external_file_multi', 'external_file_multi');
+
+        container.setSingleContent(author, 'file_01.txt', 'TEST External 1');
+        container.setSingleContent(author, 'file_02.txt', 'TEST External 2');
+
+        expect(await vault.fileExists('test_external_file_multi/file_01.txt.json')).toBeFalsy();
+        expect(await vault.fileExists('test_external_file_multi/file_02.txt.json')).toBeFalsy();
+
+        await vault.writeMetadata(author);
+
+        expect(await container.listFiles()).toEqual([
+            {"name": "file_01.txt"},
+            {"name": "file_02.txt"},
+        ]);
+
+        expect(await vault.verify()).toBe(true);
+
+        expect(await vault.fileExists('test_external_file_multi/file_01.txt.json')).toBeTruthy();
+        expect(await vault.fileExists('test_external_file_multi/file_02.txt.json')).toBeTruthy();
+
+        expect(await container.decryptContents(author, 'file_01.txt')).toBe('TEST External 1');
+        expect(await container.decryptContents(author, 'file_02.txt')).toBe('TEST External 2');
+
+        /* And delete it to clean up */
+        await vault.deleteMetadata();
+        expect(await vault.metadataFileExists()).toBe(false);
+    });
+
     it(`can append to an external container`, async () => {
         let author = await Wallet.generate_entity();
 
@@ -408,13 +441,14 @@ describe('Vaults', function() {
 
         const container_types = {
             file: ['embedded_file', 'external_file'],
-            list: ['embedded_list', 'external_list', 'external_list_daily']
+            list: ['embedded_list', 'external_list', 'external_list_daily'],
+            fileMulti: ['external_file_multi'],
         };
 
         let container_refs = {};
 
         // Create all containers
-        for (let type of [...container_types.file, ...container_types.list]){
+        for (let type of [...container_types.file, ...container_types.list, ...container_types.fileMulti]){
             container_refs[type] = vault.getOrCreateContainer(author, type, type);
         }
 
@@ -426,6 +460,11 @@ describe('Vaults', function() {
         // Append type to List containers
         for (let type of container_types.list){
             await container_refs[type].append(author, type);
+        }
+
+        // Set single content of Multi File containers
+        for (let type of container_types.fileMulti){
+            await container_refs[type].setSingleContent(author, type, type);
         }
 
         // Write out the contents of all containers
@@ -442,7 +481,7 @@ describe('Vaults', function() {
 
         container_refs = {};
 
-        for (let type of [...container_types.file, ...container_types.list]){
+        for (let type of [...container_types.file, ...container_types.list, ...container_types.fileMulti]){
             container_refs[type] = re_open.getOrCreateContainer(author, type, type);
         }
 
@@ -460,7 +499,7 @@ describe('Vaults', function() {
 
         container_refs = {};
 
-        for (let type of [...container_types.file, ...container_types.list]){
+        for (let type of [...container_types.file, ...container_types.list, ...container_types.fileMulti]){
             container_refs[type] = re_open.getOrCreateContainer(author, type, type);
         }
 
@@ -474,6 +513,10 @@ describe('Vaults', function() {
 
         for (let type of container_types.list){
             expect(await container_refs[type].decryptContents(author)).toEqual([type])
+        }
+
+        for (let type of container_types.fileMulti){
+            expect(await container_refs[type].decryptContents(author, type)).toEqual(type)
         }
     });
 });
