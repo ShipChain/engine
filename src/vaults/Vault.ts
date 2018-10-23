@@ -19,6 +19,10 @@ import { DriverError, StorageDriver } from '../storage/StorageDriver';
 import { Wallet } from '../entity/Wallet';
 import * as path from 'path';
 import * as utils from '../utils';
+import { Logger, loggers } from "winston";
+
+// @ts-ignore
+const logger: Logger = loggers.get('engine');
 
 export class Vault {
     protected driver: StorageDriver;
@@ -38,13 +42,17 @@ export class Vault {
         };
 
         this.driver = StorageDriverFactory.create(this.auth);
+
+        logger.info(`Instantiating Vault ${this.id} using ${auth.driver_type} driver`);
     }
 
     async getOrCreateMetadata(author: Wallet) {
         if (await this.metadataFileExists()) {
+            logger.debug(`Returning existing metadata`);
             return await this.loadMetadata();
         }
 
+        logger.debug(`Creating new metadata`);
         await this.initializeMetadata(author);
         await this.writeMetadata(author);
         return this.meta;
@@ -78,21 +86,33 @@ export class Vault {
     }
 
     async verify() {
+        logger.info(`Verifying Vault ${this.id}`);
         for (const name in this.meta.containers) {
             if (this.containers.hasOwnProperty(name)) {
                 const container: Container = this.containers[name];
+                logger.info(`Verifying Vault ${this.id} Container ${name}`);
                 if (!(await container.verify())) {
+                    logger.error(`Verifying Vault ${this.id} Container ${name} Failed`);
                     return false;
                 }
             }
         }
-        return utils.verifyHash(this.meta) && utils.verifySignature(this.meta.signed);
+        const signatureVerification = utils.verifyHash(this.meta) && utils.verifySignature(this.meta.signed);
+
+        if(!signatureVerification) {
+            logger.error(`Verifying Vault ${this.id} Signature Failed`);
+        } else {
+            logger.info(`Verifying Vault ${this.id} Successful`);
+        }
+
+        return signatureVerification;
     }
 
     logAction(author: Wallet, action: string, params?: any, output?: any) {
         const payload = { action, params, output };
         const signed_payload = utils.signObject(author, payload);
         this.meta.actions.push(signed_payload);
+        logger.info(`Vault ${this.id} Action ${action}`);
         return signed_payload;
     }
 
@@ -196,6 +216,7 @@ export class Vault {
     }
 
     async writeMetadata(author: Wallet) {
+        logger.info(`Writing Vault ${this.id} Metadata`);
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
         await this.putFile(Vault.METADATA_FILE_NAME, utils.stringify(this.meta));
@@ -203,6 +224,7 @@ export class Vault {
     }
 
     async deleteMetadata() {
+        logger.info(`Deleting Vault ${this.id}`);
         return await this.removeFile(Vault.METADATA_FILE_NAME);
     }
 
@@ -342,6 +364,8 @@ export abstract class EmbeddedContainer extends Container {
 
     async decryptContents(user: Wallet) {
         const role = this.vault.authorized_role(user.public_key);
+
+        logger.debug(`Vault ${this.vault.id} Decrypting Container ${this.name} with role ${role}`);
 
         if (role && this.encrypted_contents[role]) {
             let decrypted_contents;
@@ -540,6 +564,8 @@ export abstract class ExternalContainer extends Container {
 
         await this.loadEncryptedFileContents(subFile);
         const encrypted = this.getEncryptedContents(subFile);
+
+        logger.debug(`Vault ${this.vault.id} Decrypting Ext Container ${this.name} with role ${role} [${subFile}]`);
 
         if (role && encrypted && encrypted[role]) {
             let decrypted_contents;
