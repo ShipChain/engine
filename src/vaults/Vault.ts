@@ -627,15 +627,71 @@ export class ExternalListContainer extends ExternalContainer {
     }
 }
 
-export class ExternalListDailyContainer extends ExternalContainer {
-    public container_type: string = 'external_list_daily';
-    private modified_days: string[] = [];
+export abstract class ExternalDirectoryContainer extends ExternalContainer {
+    protected modified_items: string[] = [];
 
     constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
         this.encrypted_contents = null;
         this.raw_contents = {};
     }
+
+    async encryptContents() {
+        for (let property of this.modified_items) {
+            if (this.raw_contents.hasOwnProperty(property)) {
+                await super.encryptContents(property);
+            }
+        }
+    }
+
+    async decryptContents(user: Wallet, fileName: string) {
+        const decrypted = await super.decryptContents(user, fileName);
+        return (this.raw_contents[fileName] = decrypted);
+    }
+
+    async buildMetadata(author: Wallet) {
+        await this.encryptContents();
+
+        let external_file_signatures = {};
+
+        for (let property of this.modified_items) {
+            let container_key = this.getExternalFilename(property);
+            external_file_signatures[container_key] = await this.writeEncryptedFileContents(author, property);
+        }
+
+        let metadata = {
+            ...this.meta,
+            ...external_file_signatures,
+        };
+
+        metadata.container_type = this.container_type;
+
+        return metadata;
+    }
+
+    async verify() {
+        let all_verified = true;
+
+        for (let property in this.meta) {
+            if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
+                // Remove the container name from the property
+                let desiredItem = property.split(path.sep)[1];
+
+                // Remove the file extension form the property
+                desiredItem = desiredItem.split('.')[0];
+
+                if (!(await super.verify(desiredItem))) {
+                    all_verified = false;
+                }
+            }
+        }
+
+        return all_verified;
+    }
+}
+
+export class ExternalListDailyContainer extends ExternalDirectoryContainer {
+    public container_type: string = 'external_list_daily';
 
     static getCurrentDayProperty(): string {
         let today = new Date();
@@ -665,20 +721,12 @@ export class ExternalListDailyContainer extends ExternalContainer {
         }
 
         this.raw_contents[todaysProperty].push(blob);
-        this.modified_days.push(todaysProperty);
+        this.modified_items.push(todaysProperty);
         this.logAction(author, 'append', null, { hash });
     }
 
     getRawContents(subFile?: string) {
         return utils.stringify(super.getRawContents(subFile));
-    }
-
-    async encryptContents() {
-        for (let property of this.modified_days) {
-            if (this.raw_contents.hasOwnProperty(property)) {
-                await super.encryptContents(property);
-            }
-        }
     }
 
     async decryptContents(user: Wallet, day?: string) {
@@ -714,39 +762,4 @@ export class ExternalListDailyContainer extends ExternalContainer {
         return all_contents;
     }
 
-    async buildMetadata(author: Wallet) {
-        await this.encryptContents();
-
-        let external_file_signatures = {};
-
-        for (let property of this.modified_days) {
-            let container_key = this.getExternalFilename(property);
-            external_file_signatures[container_key] = await this.writeEncryptedFileContents(author, property);
-        }
-
-        let metadata = {
-            ...this.meta,
-            ...external_file_signatures,
-        };
-
-        metadata.container_type = this.container_type;
-
-        return metadata;
-    }
-
-    async verify() {
-        let all_verified = true;
-
-        for (let property in this.meta) {
-            if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
-                let desired_day = property.split(path.sep)[1];
-                desired_day = desired_day.split('.')[0];
-                if (!(await super.verify(desired_day))) {
-                    all_verified = false;
-                }
-            }
-        }
-
-        return all_verified;
-    }
 }
