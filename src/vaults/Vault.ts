@@ -438,58 +438,99 @@ export abstract class ExternalContainer extends Container {
         this.raw_contents = [];
     }
 
-    getRawContents() {
+    getRawContents(contentIndex?: string) {
+        if(contentIndex){
+            return this.raw_contents[contentIndex];
+        }
         return this.raw_contents;
     }
 
-    protected getExternalFilename() {
+    getEncryptedContents(contentIndex?: string) {
+        if(contentIndex){
+            return this.encrypted_contents[contentIndex];
+        }
+        return this.encrypted_contents;
+    }
+
+    setEncryptedContents(contents: any, subFile?: string){
+        if(subFile){
+            if(!this.encrypted_contents){
+                this.encrypted_contents = {};
+            }
+            this.encrypted_contents[subFile] = contents;
+        } else {
+            this.encrypted_contents = contents;
+        }
+    }
+
+    protected getExternalFilename(subFile?: string) {
+        if(subFile){
+            return path.join(this.name, subFile + '.json');
+        }
         return this.name + '.json';
     }
 
-    async loadEncryptedFileContents() {
+    async loadEncryptedFileContents(subFile?: string) {
+        let contentsLoaded: boolean = false;
+
         // Only load encrypted contents from the file if we don't have it already. `vault.getFile` can be expensive
-        if (!this.encrypted_contents) {
+        if(this.encrypted_contents){
+            contentsLoaded = true;
+        }
+
+        if(contentsLoaded && subFile){
+            contentsLoaded = this.encrypted_contents[subFile];
+        }
+
+        if (!contentsLoaded) {
             try {
-                let file_contents = await this.vault.getFile(this.getExternalFilename());
-                this.encrypted_contents = JSON.parse(file_contents);
+                let file_contents = await this.vault.getFile(this.getExternalFilename(subFile));
+                this.setEncryptedContents(JSON.parse(file_contents), subFile);
             } catch (_err) {
-                this.encrypted_contents = {};
+                this.setEncryptedContents({}, subFile);
             }
         }
     }
 
-    protected async writeEncryptedFileContents(author: Wallet) {
-        let file_contents = JSON.stringify(this.encrypted_contents);
-        await this.vault.putFile(this.getExternalFilename(), file_contents);
+    protected async writeEncryptedFileContents(author: Wallet, subFile?: string) {
+        let file_contents = JSON.stringify(this.getEncryptedContents(subFile));
+        await this.vault.putFile(this.getExternalFilename(subFile), file_contents);
         return utils.objectSignature(author, file_contents);
     }
 
-    async encryptContents() {
-        const unencrypted = this.getRawContents();
-        this.encrypted_contents = {};
+    async encryptContents(subFile?: string) {
+        const unencrypted = this.getRawContents(subFile);
+
+        this.setEncryptedContents({}, subFile);
 
         for (const idx in this.meta.roles) {
             const role = this.meta.roles[idx];
 
             try {
                 const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
-                this.encrypted_contents[role] = _encrypted_data.to_string;
+                
+                if(subFile){
+                    this.encrypted_contents[subFile][role] = _encrypted_data.to_string;
+                } else {
+                    this.encrypted_contents[role] = _encrypted_data.to_string;
+                }
             } catch (_err) {
                 throw new Error('Unable to encrypt vault data (' + _err.message + ')');
             }
         }
     }
 
-    async decryptContents(user: Wallet) {
+    async decryptContents(user: Wallet, subFile?: string) {
         const role = this.vault.authorized_role(user.public_key);
 
-        await this.loadEncryptedFileContents();
+        await this.loadEncryptedFileContents(subFile);
+        const encrypted = this.getEncryptedContents(subFile);
 
-        if (role && this.encrypted_contents[role]) {
+        if (role && encrypted && encrypted[role]) {
             let decrypted_contents;
 
             try {
-                decrypted_contents = await this.vault.decryptWithRoleKey(user, role, this.encrypted_contents[role]);
+                decrypted_contents = await this.vault.decryptWithRoleKey(user, role, encrypted[role]);
             } catch (_err) {
                 throw new Error('Unable to decrypt vault data (' + _err.message + ')');
             }
@@ -508,8 +549,8 @@ export abstract class ExternalContainer extends Container {
         }
     }
 
-    async verify() {
-        const external_file_name = this.getExternalFilename();
+    async verify(subFile?: string) {
+        const external_file_name = this.getExternalFilename(subFile);
         const file_contents = await this.vault.getFile(external_file_name);
 
         const container_meta = this.vault.getContainerMetadata(this.name);
@@ -520,16 +561,16 @@ export abstract class ExternalContainer extends Container {
         return utils.verifyHash(rebuilt_object) && utils.verifySignature(container_signature);
     }
 
-    async buildMetadata(author: Wallet) {
-        // Only build metadata if we've modified the contents of if this is a new vault.
+    async buildMetadata(author: Wallet, subFile?: string) {
+        // Only build metadata if we've modified the contents or if this is a new vault.
         // check fileExists last to prevent it from being called if we DO modify data
-        if(this.modified_raw_contents || !(await this.vault.fileExists(this.getExternalFilename())) ) {
-            const containerKey = this.getExternalFilename();
-            await this.encryptContents();
+        if(this.modified_raw_contents || !(await this.vault.fileExists(this.getExternalFilename(subFile))) ) {
+            const containerKey = this.getExternalFilename(subFile);
+            await this.encryptContents(subFile);
 
             let metadata = this.meta;
             metadata.container_type = this.container_type;
-            metadata[containerKey] = await this.writeEncryptedFileContents(author);
+            metadata[containerKey] = await this.writeEncryptedFileContents(author, subFile);
 
             return metadata;
         } else {
@@ -589,7 +630,6 @@ export class ExternalListContainer extends ExternalContainer {
 export class ExternalListDailyContainer extends ExternalContainer {
     public container_type: string = 'external_list_daily';
     private modified_days: string[] = [];
-    private desired_day: string = ExternalListDailyContainer.getCurrentDayProperty();
 
     constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
@@ -604,29 +644,18 @@ export class ExternalListDailyContainer extends ExternalContainer {
         );
     }
 
-    protected getExternalFilename() {
-        return path.join(this.name, this.desired_day + '.json');
-    }
-
-    protected async writeEncryptedFileContents(author: Wallet) {
-        let file_contents = JSON.stringify(this.encrypted_contents[this.desired_day]);
-        await this.vault.putFile(this.getExternalFilename(), file_contents);
-        return utils.objectSignature(author, file_contents);
-    }
-
     async append(author: Wallet, blob) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
         }
 
         let todaysProperty = ExternalListDailyContainer.getCurrentDayProperty();
-        this.desired_day = todaysProperty;
 
         const hash = utils.objectHash(blob);
 
         if (
             !this.raw_contents.hasOwnProperty(todaysProperty) &&
-            this.meta[this.getExternalFilename()]
+            this.meta[this.getExternalFilename(todaysProperty)]
         ) {
             await this.decryptContents(author, todaysProperty);
         }
@@ -640,22 +669,16 @@ export class ExternalListDailyContainer extends ExternalContainer {
         this.logAction(author, 'append', null, { hash });
     }
 
-    getRawContents() {
-        return utils.stringify(this.raw_contents[this.desired_day]);
+    getRawContents(subFile?: string) {
+        return utils.stringify(super.getRawContents(subFile));
     }
 
     async encryptContents() {
-        let all_contents = {};
-
         for (let property of this.modified_days) {
             if (this.raw_contents.hasOwnProperty(property)) {
-                this.desired_day = property;
-                await super.encryptContents();
-                all_contents[property] = this.encrypted_contents;
+                await super.encryptContents(property);
             }
         }
-
-        this.encrypted_contents = all_contents;
     }
 
     async decryptContents(user: Wallet, day?: string) {
@@ -667,9 +690,7 @@ export class ExternalListDailyContainer extends ExternalContainer {
     }
 
     async decryptDayContents(user: Wallet, day: string) {
-        this.desired_day = day;
-
-        const decrypted = await super.decryptContents(user);
+        const decrypted = await super.decryptContents(user, day);
 
         try {
             return (this.raw_contents[day] = JSON.parse(decrypted));
@@ -685,7 +706,6 @@ export class ExternalListDailyContainer extends ExternalContainer {
             if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
                 let desired_day = property.split(path.sep)[1];
                 desired_day = desired_day.split('.')[0];
-                this.encrypted_contents = null;
                 let day_data = await this.decryptDayContents(user, desired_day);
                 all_contents = all_contents.concat(day_data);
             }
@@ -700,9 +720,8 @@ export class ExternalListDailyContainer extends ExternalContainer {
         let external_file_signatures = {};
 
         for (let property of this.modified_days) {
-            this.desired_day = property;
-            let container_key = this.getExternalFilename();
-            external_file_signatures[container_key] = await this.writeEncryptedFileContents(author);
+            let container_key = this.getExternalFilename(property);
+            external_file_signatures[container_key] = await this.writeEncryptedFileContents(author, property);
         }
 
         let metadata = {
@@ -721,8 +740,8 @@ export class ExternalListDailyContainer extends ExternalContainer {
         for (let property in this.meta) {
             if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
                 let desired_day = property.split(path.sep)[1];
-                this.desired_day = desired_day.split('.')[0];
-                if (!(await super.verify())) {
+                desired_day = desired_day.split('.')[0];
+                if (!(await super.verify(desired_day))) {
                     all_verified = false;
                 }
             }
