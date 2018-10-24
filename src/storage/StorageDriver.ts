@@ -42,6 +42,10 @@ export abstract class StorageDriver {
         }
     }
 
+    getVaultMetaFileUri(relativeFilePath: string){
+        return this.type + '://' + this.getFullVaultPath(relativeFilePath);
+    }
+
     protected parseFullVaultPath(relativeFilePath: string) {
         let fullFilePath = this.getFullVaultPath(relativeFilePath);
         return path.parse(fullFilePath);

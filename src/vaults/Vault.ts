@@ -81,6 +81,10 @@ export class Vault {
         return utils.objectHash(this.meta);
     }
 
+    getVaultMetaFileUri(){
+        return this.driver.getVaultMetaFileUri(Vault.METADATA_FILE_NAME);
+    }
+
     getContainerMetadata(container: string) {
         return this.meta.containers[container] || {};
     }
