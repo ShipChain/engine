@@ -560,7 +560,7 @@ For example, when retrieving Shipment Data for Load Contraction version 1.1.0, i
 
 ##### Multiple Requests Needed
 
-Until this point, most actions in Engine required a single RPC Method invocation.  When interacting with the Smart Contracts you will need to perform _three_ separate requests for most actions.  Any Load RPC method that ends with `_tx` will only generate the _transaction_ for the request.  You will still need to Sign and Send this transaction via the [Transaction](#transaction) RPC Namespace methods.
+Until this point, most actions in Engine required a single RPC Method invocation.  When interacting with the Smart Contracts you will need to perform _three_ separate requests for most actions.  Any Load RPC method that ends with `_tx` will only generate the _transaction_ for the request.  You will still need to Sign and Send this transaction via the [Transaction](#transactions) RPC Namespace methods.
 
 ##### Escrow Funding Types
 

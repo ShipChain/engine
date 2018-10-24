@@ -174,12 +174,12 @@ async function registerPreviousLoadContracts(LoadMetaData, LOAD_CONTRACT: BaseCo
         versionId: typeorm.Not(currentContract.versionId),
     });
 
-    logger.debug(`Found ${previousContracts.length} previous Load contracts`);
+    logger.debug(`Found ${previousContracts.length} previous Load contracts in DB`);
 
     for (let previousContract of previousContracts) {
         const previousVersion: Version = await Version.findOne({ id: previousContract.versionId });
 
-        if(LoadMetaData[previousVersion.title]) {
+        if(LoadMetaData && LoadMetaData[previousVersion.title]) {
             logger.info(`Registering previous '${currentContract.project.title}' contract version ${previousVersion.title}`);
 
             const LoadContract = (await import(`../src/shipchain/contracts/Load/${previousVersion.title}/LoadContract`)).LoadContract;
