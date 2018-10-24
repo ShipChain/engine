@@ -35,12 +35,36 @@ You will also need to create a new directory tree `/data/shipchain/engine/postgr
 
 Note:  Depending on OS settings, some users may encounter permission errors when running Engine.  This is commonly due to missing [Shared Drives](https://docs.docker.com/docker-for-windows/#shared-drives) on Windows or [File Sharing](https://docs.docker.com/docker-for-mac/#file-sharing) on Mac.  Be sure these are setup to allow access to the `/data` directory you created.
 
+#### Windows 10 Users
+
+It is **strongly encouraged** that you utilize Windows Subsystem for Linux (WSL) when using Docker for Windows.  Without this you are very likely to encounter issues with volume mapping permissions in later steps.
+
+##### Install WSL
+
+Follow Microsoft's procedures for installing [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10).  We recommend using [Ubuntu](https://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6) as your Linux distribution.
+
+##### Configure WSL with Docker for Windows
+
+Nick Janetakis has a [fantastic article](https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly) on the steps required to get Docker for Windows and WSL working flawlessly.  Pay special attention to the Ensure Volume Mounts Work step.  Without that your images will not properly build.
+
+##### Appropriate Directories
+
+After following the steps above, in the Ubuntu Bash prompt you should be able to see the your Windows drives mounted at the root level.
+
+```
+/c
+/c/Users
+/d
+```
+
+After cloning the repo (in the below [Installing](#installing) step, you will need to navigate to the appropriate directory in your Windows mount where you clone the Engine repository prior to executing any of the `bin/` commands.
+
 ### Installing
 
 Clone the repository:
 
 ```
-git clone git@github.com:ShipChain/engine.git shipchain-engine
+git clone https://github.com/ShipChain/engine.git shipchain-engine
 ```
 
 In the cloned repository there are scripts provided in the `bin` directory for Docker container management.  Using these to interact with npm will ensure you are using the correct version of Node.js (This was developed using LTS v8.11.2).
