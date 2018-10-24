@@ -430,12 +430,33 @@ A vault's location is defined within the context of a Storage Driver. When defin
   "method": "vault.create",
   "params": {
     "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
-    "shipperWallet": "77777777-25fe-465e-8458-0e9f8ffa2cdd"
+    "shipperWallet": "eea40c56-7674-43a5-8612-30abd98cf58b"
   },
   "jsonrpc": "2.0",
   "id": 0
 }
 ```
+
+The object returned will include the newly created `vault_id`.  This value will need to be provided as the `vault` parameter to all remaining interactions with the Vault (as seen in the examples below).
+
+#### Verify
+
+A vault's contents can be verified against the embedded, signed hash to ensure that there has been no unauthorized modifications to the vault since the last update.
+
+```JS
+{
+  "method": "vault.verify",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+The object returned will include the newly created `vault_id`.  This value will need to be provided as the `vault` parameter to all remaining interactions with the Vault (as seen in the examples below).
 
 #### Tracking Data Container
 
@@ -519,6 +540,64 @@ Retrieving the Shipment Data in this container is performed via:
 ```JS
 {
   "method": "vault.get_shipment",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### Documents Container
+
+One container in the vault is for storing files/documents related to a shipment.
+
+##### Add
+
+Adding a file in this container is an overwrite action, not an append, of any content already stored by that `documentName`.  The contents of the document should be provided as a string.  The format of this string is up to the user; a base64 encoded string is a recommended approach. This is performed via:
+
+```JS
+{
+  "method": "vault.add_document",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "documentName": "example.png",
+    "documentContent": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mN8U+T4nYEIwDiqkL4KAZKnGefMCAbPAAAAAElFTkSuQmCC"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### Retrieve
+
+Retrieving one of the existing documents in this container is performed via:
+
+```JS
+{
+  "method": "vault.get_document",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "documentName": "example.png"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### List
+
+Listing the files included in this container is performed via:
+
+```JS
+{
+  "method": "vault.list_documents",
   "params": {
     "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
     "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",

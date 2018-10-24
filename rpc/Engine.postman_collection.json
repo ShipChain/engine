@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d3f33436-1b71-4549-8d4d-c8f237b0761b",
+		"_postman_id": "0795753f-2a9a-4185-9d33-22ed74ccfa59",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -395,7 +395,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"vault.create_vault\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"shipperWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"vault.create\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"shipperWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -423,7 +423,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"vault.add_shipment_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"shipment\": {\n\t\t  \"id\": \"14D6A86b-b52e-4CBE-93AE-CEA5bA90fAcb\",\n\t\t  \"carrier_scac\": \"F49S\"\n\t\t}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"vault.add_shipment\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"shipment\": {\n\t\t  \"id\": \"14D6A86b-b52e-4CBE-93AE-CEA5bA90fAcb\",\n\t\t  \"carrier_scac\": \"F49S\"\n\t\t}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -451,7 +451,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"method\": \"vault.get_shipment_data\",\n  \"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\"\n  },\n  \"jsonrpc\": \"2.0\",\n  \"id\": 0\n}"
+							"raw": "{\n  \"method\": \"vault.get_shipment\",\n  \"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\"\n  },\n  \"jsonrpc\": \"2.0\",\n  \"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -479,7 +479,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"vault.add_tracking_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t    \"payload\": {\n\t      \"position\": {\n\t        \"latitude\": -82.398967,\n\t        \"longitude\": 34.850731,\n\t        \"altitude\": 924,\n\t        \"source\": \"gps\",\n\t        \"certainty\": 95,\n\t        \"speed\": 14\n\t      },\n\t      \"version\": \"1.0.0\",\n\t      \"device_id\": \"a3b7c510-aac2-401e-9fdc-19b0b059cc37\"\n\t    }\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"vault.add_tracking\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t    \"payload\": {\n\t      \"position\": {\n\t        \"latitude\": -82.398967,\n\t        \"longitude\": 34.850731,\n\t        \"altitude\": 924,\n\t        \"source\": \"gps\",\n\t        \"certainty\": 95,\n\t        \"speed\": 14\n\t      },\n\t      \"version\": \"1.0.0\",\n\t      \"device_id\": \"a3b7c510-aac2-401e-9fdc-19b0b059cc37\"\n\t    }\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -507,7 +507,119 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"vault.get_tracking_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"vault.get_tracking\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.add_document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.add_document\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t    \"documentName\": \"example.png\",\n\t    \"documentContent\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mN8U+T4nYEIwDiqkL4KAZKnGefMCAbPAAAAAElFTkSuQmCC\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.get_document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.get_document\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t    \"documentName\": \"example.png\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.list_documents",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.list_documents\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.verify",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.verify\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
