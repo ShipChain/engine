@@ -96,6 +96,7 @@ export class StorageCredential extends BaseEntity {
             ...this.options,
             driver_type: this.driver_type,
             base_path: this.base_path,
+            __id: this.id,
         };
     }
 }

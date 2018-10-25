@@ -82,7 +82,7 @@ export class Vault {
     }
 
     getVaultMetaFileUri(){
-        return this.driver.getVaultMetaFileUri(Vault.METADATA_FILE_NAME);
+        return 'engine://' + path.join(this.auth.__id, this.id, Vault.METADATA_FILE_NAME);
     }
 
     getContainerMetadata(container: string) {

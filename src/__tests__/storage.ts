@@ -344,16 +344,6 @@ describe('StorageDriver ', function() {
                         expect(result).toBeUndefined();
                     }),
                 );
-
-                it(
-                    `Returns the uri for each file ${fileConfig.file}`,
-                    mochaAsync(  () => {
-                      let result = storageDriver.getVaultMetaFileUri(fileConfig.file);
-                      let arrayResults = result.split('//');
-                      expect(arrayResults).toBeTruthy();
-                      expect(arrayResults[0].slice(0,-1)).toEqual(storageConfig.driver_type);
-                    }),
-                );
             });
         });
     });

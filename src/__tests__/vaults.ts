@@ -519,4 +519,17 @@ describe('Vaults', function() {
             expect(await container_refs[type].decryptContents(author, type)).toEqual(type)
         }
     });
+
+    it('Check the vault uri', async () => {
+        let storageWithId = {
+            ...storage_driver,
+            __id: '123ABCxyz',
+        };
+        let vault = new Vault(storageWithId);
+
+        let uri = vault.getVaultMetaFileUri();
+        let arrayUri = uri.split('/');
+
+        expect(arrayUri[2]).toEqual(storageWithId.__id);
+    });
 });
