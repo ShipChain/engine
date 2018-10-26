@@ -524,12 +524,14 @@ describe('Vaults', function() {
         let storageWithId = {
             ...storage_driver,
             __id: '123ABCxyz',
+            id: 'my-Custom-Id-123'
         };
-        let vault = new Vault(storageWithId);
+        let vault = new Vault(storageWithId, storageWithId.id);
 
         let uri = vault.getVaultMetaFileUri();
         let arrayUri = uri.split('/');
 
         expect(arrayUri[2]).toEqual(storageWithId.__id);
+        expect(arrayUri[3]).toEqual(storageWithId.id);
     });
 });
