@@ -20,10 +20,22 @@ import { MetricsReporter } from '../src/MetricsReporter';
 
 const metrics = MetricsReporter.Instance;
 
+const ENV = process.env.ENV || 'LOCAL';
+
+const driverType = ['s3', 'sftp', 'local'];
+
 @RPCNamespace({ name: 'StorageCredentials' })
 export class RPCStorageCredentials {
     @RPCMethod({ require: ['title', 'driver_type'] })
     public static async Create(args) {
+
+        // Local driver type is disabled in environment other than LOCAL
+        // and storage credentials creation is disabled for unrecognizable driver type
+        const notAllowedStorage = (ENV != 'LOCAL' && args.driver_type === 'local') || driverType.indexOf(args.driver_type) < 0;
+        if (notAllowedStorage){
+            throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
+        }
+
         const credentials = StorageCredential.generate_entity(args);
 
         await credentials.save();
