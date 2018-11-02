@@ -256,7 +256,7 @@ export class Vault {
     }
 
     async listDirectory(vaultDirectory: string, recursive?: boolean) {
-        return await this.driver.listDirectory(vaultDirectory, recursive);
+        return await ResourceLock(this.id, this.driver, "listDirectory", [vaultDirectory, recursive]);
     }
 
     getOrCreateContainer(author: Wallet, name: string, container_type?: string) {
