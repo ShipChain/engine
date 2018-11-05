@@ -17,6 +17,7 @@
 import { StorageDriverFactory } from '../storage/StorageDriverFactory';
 import { DriverError, StorageDriver } from '../storage/StorageDriver';
 import { Wallet } from '../entity/Wallet';
+import { ResourceLock } from "../redis";
 import * as path from 'path';
 import * as utils from '../utils';
 import { Logger, loggers } from "winston";
@@ -239,23 +240,23 @@ export class Vault {
     }
 
     async fileExists(filePath: string) {
-        return await this.driver.fileExists(filePath);
+        return await ResourceLock(this.id, this.driver, "fileExists", [filePath]);
     }
 
     async getFile(filePath: string) {
-        return await this.driver.getFile(filePath);
+        return await ResourceLock(this.id, this.driver, "getFile", [filePath]);
     }
 
     async putFile(filePath: string, fileData: any) {
-        await this.driver.putFile(filePath, fileData);
+        return await ResourceLock(this.id, this.driver, "putFile", [filePath, fileData]);
     }
 
     async removeFile(filePath: string) {
-        await this.driver.removeFile(filePath);
+        return await ResourceLock(this.id, this.driver, "removeFile", [filePath]);
     }
 
     async listDirectory(vaultDirectory: string, recursive?: boolean) {
-        return await this.driver.listDirectory(vaultDirectory, recursive);
+        return await ResourceLock(this.id, this.driver, "listDirectory", [vaultDirectory, recursive]);
     }
 
     getOrCreateContainer(author: Wallet, name: string, container_type?: string) {
