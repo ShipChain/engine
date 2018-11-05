@@ -82,6 +82,10 @@ export class Vault {
         return utils.objectHash(this.meta);
     }
 
+    getVaultMetaFileUri(){
+        return 'engine://' + path.join(this.auth.__id, this.id, Vault.METADATA_FILE_NAME);
+    }
+
     getContainerMetadata(container: string) {
         return this.meta.containers[container] || {};
     }
