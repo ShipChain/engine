@@ -1,6 +1,15 @@
 version: '2.1'
 services:
 
+  redis_db:
+    image: redis
+    expose:
+    - '6379'
+    volumes:
+    - /data/shipchain/engine/redis:/data
+    command: >
+      --requirepass redis_pass --appendonly yes
+
   geth-poa:
     image: shipchain/geth-poa
     healthcheck:
@@ -62,3 +71,4 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - LOCAL_SECRET_KEY
+      - REDIS_URL

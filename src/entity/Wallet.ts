@@ -137,15 +137,14 @@ export class Wallet extends BaseEntity {
 
         // Validate private_key format, this throws if private_key format is not valid
        const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
+       const address = EthCrypto.publicKey.toAddress(public_key);
 
         // Try to get existing wallet by address.
         // Errors indicate Wallet does not exist and needs to be created
         try {
-            const address = EthCrypto.publicKey.toAddress(public_key);
             return await Wallet.getByAddress(address);
         } catch (_err) {
             const wallet = new Wallet();
-            const address = EthCrypto.publicKey.toAddress(public_key);
 
             const encryptedPrivateKey = await Wallet.privateKeyEncryptor.encrypt(private_key);
 
