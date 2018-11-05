@@ -117,6 +117,10 @@ If you want to also log messages to ElasticSearch, add the following variable po
 Engine supports the reporting of application metrics to an InfluxDB instance. We use this internally in combination with
 Graphana to make a real-time dashboard of our application use. In order to use this, set:
  - `INFLUXDB_URL` - With the format `http://{host}:{port}/{database}`
+ 
+##### Redis Locking
+Engine supports the locking of vaults using redis with default connection string `redis://:redis_pass@redis_db:6379/1`. We use this when interating with vaults to ensure that changes don't overlap. In order to use this, set:
+ - `REDIS_URL` - With the format `redis://[:password@]host[:port][/db-number][?option=value]`
 
 ##### Private Key Encryption
 Engine encrypts the Wallet `private_key` fields utilizing the EthCrypto library with a Master Private Key.  That Master private key is pulled from AWS Secrets Manager in a deployed environment, but in a local development environment, you are required to specify your own by setting:
