@@ -52,7 +52,7 @@ describe('ContractEntity', function() {
         await Project.loadFixturesFromFile('/meta.json');
         expect(await Project.count()).toEqual(2);
         expect(await Network.count()).toEqual(3);
-        expect(await Version.count()).toEqual(2);
+        expect(await Version.count()).toEqual(3);
         expect(await Contract.count()).toEqual(6);
     });
 
