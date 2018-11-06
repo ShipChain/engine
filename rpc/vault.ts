@@ -48,6 +48,7 @@ export class RPCVault {
             success: true,
             vault_id: vault.id,
             vault_signed: signature,
+            vault_uri: vault.getVaultMetaFileUri(),
         };
     }
 
