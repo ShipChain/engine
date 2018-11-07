@@ -66,7 +66,7 @@ export class Vault {
             created: new Date(),
             roles: roles || {},
             containers: {},
-            actions: [],
+            // actions: [],
         };
 
         this.containers = {};
@@ -74,6 +74,9 @@ export class Vault {
         this.logAction(author, 'initialize', { roles });
 
         await this.createRole(author, 'owners');
+        await this.createRole(author, 'ledger');
+
+        this.getOrCreateLedger(author);
 
         return this.meta;
     }
@@ -88,6 +91,15 @@ export class Vault {
 
     getContainerMetadata(container: string) {
         return this.meta.containers[container] || {};
+    }
+
+    getOrCreateLedger(author: Wallet) {
+        return this.getOrCreateContainer(
+            author,
+            'ledger',
+            'embedded_list',
+            {roles: ['ledger']}
+        );
     }
 
     async verify() {
@@ -116,9 +128,15 @@ export class Vault {
     logAction(author: Wallet, action: string, params?: any, output?: any) {
         const payload = { action, params, output };
         const signed_payload = utils.signObject(author, payload);
-        this.meta.actions.push(signed_payload);
+        // this.meta.actions.push(signed_payload);
         logger.info(`Vault ${this.id} Action ${action}`);
         return signed_payload;
+    }
+
+    async updateLedger(author: Wallet, payload: any) {
+        const ledger = this.getOrCreateLedger(author);
+        logger.debug(`Adding to Ledger: ${JSON.stringify(payload)}`)
+        await ledger.append(author, payload);
     }
 
     async createRole(author: Wallet, role: string) {
@@ -336,12 +354,18 @@ export abstract class Container {
 
     abstract async verify();
 
-    logAction(author: Wallet, action: string, params?: any, output?: any) {
-        return this.vault.logAction(
+    async updateLedger(author: Wallet, action: string, params?: any, output?: any) {
+        if(this.name === "ledger"){
+            return;
+        }
+        return await this.vault.updateLedger(
             author,
-            'container.' + this.container_type + '.' + action,
-            { name: this.name, ...params },
-            output,
+            {
+                action: 'container.' + this.container_type + '.' + action,
+                name: this.name,
+                params,
+                output
+            }
         );
     }
 }
@@ -449,7 +473,7 @@ export class EmbeddedFileContainer extends EmbeddedContainer implements SingleCo
         this.raw_contents = blob;
         this.modified_raw_contents = true;
         const hash = utils.objectHash(blob);
-        this.logAction(author, 'setcontents', null, { hash });
+        await this.updateLedger(author, 'setcontents', blob, { hash });
     }
 
     getRawContents() {
@@ -476,7 +500,7 @@ export class EmbeddedListContainer extends EmbeddedContainer implements ListCont
         }
         this.raw_contents.push(blob);
         this.modified_raw_contents = true;
-        this.logAction(author, 'append', null, { hash });
+        await this.updateLedger(author, 'append', blob, { hash });
     }
 
     getRawContents() {
@@ -665,7 +689,7 @@ export class ExternalFileContainer extends ExternalContainer implements SingleCo
         this.raw_contents = blob;
         this.modified_raw_contents = true;
         const hash = utils.objectHash(blob);
-        this.logAction(author, 'setcontents', null, { hash });
+        await this.updateLedger(author, 'setcontents', blob, { hash });
     }
 }
 
@@ -684,7 +708,7 @@ export class ExternalListContainer extends ExternalContainer implements ListCont
 
         this.raw_contents.push(blob);
         this.modified_raw_contents = true;
-        this.logAction(author, 'append', null, { hash });
+        await this.updateLedger(author, 'append', blob, { hash });
     }
 
     getRawContents() {
@@ -797,7 +821,7 @@ export class ExternalListDailyContainer extends ExternalDirectoryContainer imple
 
         this.raw_contents[todaysProperty].push(blob);
         this.modified_items.push(todaysProperty);
-        this.logAction(author, 'append', null, { hash });
+        await this.updateLedger(author, 'append', blob, { hash });
     }
 
     getRawContents(subFile?: string) {
@@ -854,7 +878,7 @@ export class ExternalFileMultiContainer extends ExternalDirectoryContainer imple
         this.raw_contents[fileName] = blob;
         this.modified_items.push(fileName);
         const hash = utils.objectHash(blob);
-        this.logAction(author, 'setSingleContent', {fileName: fileName}, { hash });
+        await this.updateLedger(author, 'setSingleContent', {fileName: fileName, blob: blob}, { hash });
     }
 
     async listFiles() {
