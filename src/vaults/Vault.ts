@@ -441,7 +441,7 @@ export class EmbeddedFileContainer extends EmbeddedContainer implements SingleCo
         this.raw_contents = [];
     }
 
-    setContents(author: Wallet, blob: any) {
+    async setContents(author: Wallet, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
         }
@@ -507,21 +507,21 @@ export abstract class ExternalContainer extends Container {
         this.raw_contents = [];
     }
 
-    getRawContents(contentIndex?: string) {
+    protected getRawContents(contentIndex?: string) {
         if(contentIndex){
             return this.raw_contents[contentIndex];
         }
         return this.raw_contents;
     }
 
-    getEncryptedContents(contentIndex?: string) {
+    protected getEncryptedContents(contentIndex?: string) {
         if(contentIndex){
             return this.encrypted_contents[contentIndex];
         }
         return this.encrypted_contents;
     }
 
-    setEncryptedContents(contents: any, subFile?: string){
+    protected setEncryptedContents(contents: any, subFile?: string){
         if(subFile){
             if(!this.encrypted_contents){
                 this.encrypted_contents = {};
@@ -657,7 +657,7 @@ export abstract class ExternalContainer extends Container {
 export class ExternalFileContainer extends ExternalContainer implements SingleContentContainer  {
     public container_type: string = 'external_file';
 
-    setContents(author: Wallet, blob: any) {
+    async setContents(author: Wallet, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
         }
@@ -846,7 +846,7 @@ export class ExternalListDailyContainer extends ExternalDirectoryContainer imple
 export class ExternalFileMultiContainer extends ExternalDirectoryContainer implements MultiContentContainer {
     public container_type: string = 'external_file_multi';
 
-    setSingleContent(author: Wallet, fileName: string, blob: any) {
+    async setSingleContent(author: Wallet, fileName: string, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
         }
