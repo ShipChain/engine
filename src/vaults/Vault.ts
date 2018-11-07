@@ -141,15 +141,22 @@ export class Vault {
         return !!(this.meta.roles[role] && this.meta.roles[role][public_key]);
     }
 
-    authorized_role(public_key: string) {
+    authorized_roles(public_key: string) {
+        const roles = [];
+
         /* return "owners" first if we're an owner" */
-        if (this.meta.roles.owners && this.meta.roles.owners[public_key]) return 'owners';
+        if (this.meta.roles.owners && this.meta.roles.owners[public_key]) {
+            roles.push('owner');
+        }
 
         /* or return the first role we are authorized for... */
         for (const role in this.meta.roles) {
-            if (this.meta.roles[role][public_key]) return role;
+            if (this.meta.roles[role][public_key]){
+                roles.push(role);
+            }
         }
-        return false;
+
+        return roles;
     }
 
     protected async __loadRoleKey(wallet: Wallet, role: string) {
@@ -164,9 +171,22 @@ export class Vault {
     }
 
     async decryptMessage(wallet: Wallet, message: any) {
-        const role = this.authorized_role(wallet.public_key);
-        if (!role) throw new Error('Wallet has no access to contents');
-        return await this.decryptWithRoleKey(wallet, role, message);
+        const roles = this.authorized_roles(wallet.public_key);
+
+        if (roles.length == 0) {
+            throw new Error('Wallet has no access to contents');
+        }
+
+        for(const role of roles) {
+            try {
+                return await this.decryptWithRoleKey(wallet, role, message);
+            }
+            catch(err){
+                logger.debug(`Message decryption failed with role ${role}`);
+            }
+        }
+
+        throw new Error('Wallet has no access to contents');
     }
 
     async encryptForRole(role: string, message: any) {
@@ -300,7 +320,7 @@ export abstract class Container {
     }
 
     authorize_role(author: Wallet, role: string) {
-        this.meta.roles.append(role);
+        this.meta.roles.push(role);
         this.vault.logAction(author, 'container.authorize_role', {
             role,
             container_type: this.container_type,
@@ -368,31 +388,36 @@ export abstract class EmbeddedContainer extends Container {
     }
 
     async decryptContents(user: Wallet) {
-        const role = this.vault.authorized_role(user.public_key);
+        const roles = this.vault.authorized_roles(user.public_key);
 
-        logger.debug(`Vault ${this.vault.id} Decrypting Container ${this.name} with role ${role}`);
 
-        if (role && this.encrypted_contents[role]) {
-            let decrypted_contents;
+        for(const role of roles){
+            if (role && this.encrypted_contents[role]) {
+                logger.debug(`Vault ${this.vault.id} Decrypting Container ${this.name} with role ${role}`);
 
-            try {
-                decrypted_contents = await this.vault.decryptWithRoleKey(user, role, this.encrypted_contents[role]);
-            } catch (_err) {
-                throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                let decrypted_contents;
+
+                try {
+                    decrypted_contents = await this.vault.decryptWithRoleKey(user, role, this.encrypted_contents[role]);
+                } catch (_err) {
+                    throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                }
+
+                if (
+                    decrypted_contents === null ||
+                    decrypted_contents === undefined ||
+                    decrypted_contents == [] ||
+                    decrypted_contents == {}
+                ) {
+                    throw new Error('Container contents empty');
+                }
+                return decrypted_contents;
+            } else {
+                logger.debug(`Vault ${this.vault.id} Decrypting Container ${this.name} has no content for role ${role}`);
             }
-
-            if (
-                decrypted_contents === null ||
-                decrypted_contents === undefined ||
-                decrypted_contents == [] ||
-                decrypted_contents == {}
-            ) {
-                throw new Error('Container contents empty');
-            }
-            return decrypted_contents;
-        } else {
-            throw new Error('Unauthorized access to vault contents');
         }
+
+        throw new Error('Unauthorized access to vault contents');
     }
 
     async verify() {
@@ -565,34 +590,38 @@ export abstract class ExternalContainer extends Container {
     }
 
     async decryptContents(user: Wallet, subFile?: string) {
-        const role = this.vault.authorized_role(user.public_key);
+        const roles = this.vault.authorized_roles(user.public_key);
 
         await this.loadEncryptedFileContents(subFile);
         const encrypted = this.getEncryptedContents(subFile);
 
-        logger.debug(`Vault ${this.vault.id} Decrypting Ext Container ${this.name} with role ${role} [${subFile}]`);
 
-        if (role && encrypted && encrypted[role]) {
-            let decrypted_contents;
+        for(const role of roles) {
+            if (role && encrypted && encrypted[role]) {
+                logger.debug(`Vault ${this.vault.id} Decrypting Ext Container ${this.name} with role ${role} [${subFile}]`);
+                let decrypted_contents;
 
-            try {
-                decrypted_contents = await this.vault.decryptWithRoleKey(user, role, encrypted[role]);
-            } catch (_err) {
-                throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                try {
+                    decrypted_contents = await this.vault.decryptWithRoleKey(user, role, encrypted[role]);
+                } catch (_err) {
+                    throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                }
+
+                if (
+                    decrypted_contents === null ||
+                    decrypted_contents === undefined ||
+                    decrypted_contents == [] ||
+                    decrypted_contents == {}
+                ) {
+                    throw new Error('Container contents empty');
+                }
+                return decrypted_contents;
+            } else {
+                logger.debug(`Vault ${this.vault.id} Decrypting Ext Container ${this.name} has no content for role ${role} [${subFile}]`);
             }
-
-            if (
-                decrypted_contents === null ||
-                decrypted_contents === undefined ||
-                decrypted_contents == [] ||
-                decrypted_contents == {}
-            ) {
-                throw new Error('Container contents empty');
-            }
-            return decrypted_contents;
-        } else {
-            throw new Error('Unauthorized access to vault contents');
         }
+
+        throw new Error('Unauthorized access to vault contents');
     }
 
     async verify(subFile?: string) {
