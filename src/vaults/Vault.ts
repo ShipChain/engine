@@ -263,10 +263,10 @@ export class Vault {
         return await ResourceLock(this.id, this.driver, "listDirectory", [vaultDirectory, recursive]);
     }
 
-    getOrCreateContainer(author: Wallet, name: string, container_type?: string) {
+    getOrCreateContainer(author: Wallet, name: string, container_type?: string, meta?: any) {
         if (this.containers[name] instanceof Container) return this.containers[name];
         this.logAction(author, 'create_container', { name, container_type });
-        const container = Container.typeFactory(container_type || 'embedded_file', this, name);
+        const container = Container.typeFactory(container_type || 'embedded_file', this, name, meta);
         this.containers[name] = container;
         return container;
     }
@@ -343,7 +343,7 @@ export abstract class EmbeddedContainer extends Container {
 
     constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
-        this.encrypted_contents = meta ? meta.encrypted_contents : {};
+        this.encrypted_contents = (meta && meta.encrypted_contents) ? meta.encrypted_contents : {};
     }
 
     abstract getRawContents();
