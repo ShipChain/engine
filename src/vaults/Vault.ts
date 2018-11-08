@@ -22,6 +22,11 @@ import * as path from 'path';
 import * as utils from '../utils';
 import { Logger, loggers } from "winston";
 
+// Import Moment Typings and Functions
+import { Moment } from 'moment';
+import * as moment from 'moment';
+
+
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
 
@@ -66,7 +71,6 @@ export class Vault {
             created: new Date(),
             roles: roles || {},
             containers: {},
-            // actions: [],
         };
 
         this.containers = {};
@@ -93,11 +97,11 @@ export class Vault {
         return this.meta.containers[container] || {};
     }
 
-    getOrCreateLedger(author: Wallet) {
+    private getOrCreateLedger(author: Wallet) {
         return this.getOrCreateContainer(
             author,
             'ledger',
-            'embedded_list',
+            'external_file_ledger',
             {roles: ['ledger']}
         );
     }
@@ -128,15 +132,17 @@ export class Vault {
     logAction(author: Wallet, action: string, params?: any, output?: any) {
         const payload = { action, params, output };
         const signed_payload = utils.signObject(author, payload);
-        // this.meta.actions.push(signed_payload);
         logger.info(`Vault ${this.id} Action ${action}`);
         return signed_payload;
     }
 
     async updateLedger(author: Wallet, payload: any) {
         const ledger = this.getOrCreateLedger(author);
-        logger.debug(`Adding to Ledger: ${JSON.stringify(payload)}`)
-        await ledger.append(author, payload);
+        await ledger.addIndexedEntry(author, payload);
+    }
+
+    async getHistoricalData(author: Wallet, container: string = null, date: string, subFile?: string){
+        return await this.containers.ledger.decryptToDate(author, container, date, subFile);
     }
 
     async createRole(author: Wallet, role: string) {
@@ -326,13 +332,21 @@ export abstract class Container {
     }
 
     static typeFactory(container_type: string, vault: Vault, name: string, meta?: any) {
+
+        // Embedded
         if (container_type == 'embedded_file') return new EmbeddedFileContainer(vault, name, meta);
         if (container_type == 'embedded_list') return new EmbeddedListContainer(vault, name, meta);
 
+        // External Files
         if (container_type == 'external_file') return new ExternalFileContainer(vault, name, meta);
         if (container_type == 'external_file_multi') return new ExternalFileMultiContainer(vault, name, meta);
+
+        // External Lists
         if (container_type == 'external_list') return new ExternalListContainer(vault, name, meta);
         if (container_type == 'external_list_daily') return new ExternalListDailyContainer(vault, name, meta);
+
+        // External Ledger
+        if (container_type == 'external_file_ledger') return new ExternalFileLedgerContainer(vault, name, meta);
 
         throw new Error("Unknown Container type: '" + container_type + "'");
     }
@@ -878,7 +892,7 @@ export class ExternalFileMultiContainer extends ExternalDirectoryContainer imple
         this.raw_contents[fileName] = blob;
         this.modified_items.push(fileName);
         const hash = utils.objectHash(blob);
-        await this.updateLedger(author, 'setSingleContent', {fileName: fileName, blob: blob}, { hash });
+        await this.updateLedger(author, 'setsinglecontent', {fileName: fileName, blob: blob}, { hash });
     }
 
     async listFiles() {
@@ -887,6 +901,158 @@ export class ExternalFileMultiContainer extends ExternalDirectoryContainer imple
             file.name = file.name.replace(/.json$/, "");
         }
         return fileList;
+    }
+
+}
+
+export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
+    public container_type: string = 'external_file_ledger';
+    private nextIndex: number;
+    private static readonly INDEX_PADDING: number = 7;
+    private static readonly MOMENT_FORMAT: string = "YYYY-MM-DDTHH:mm:ss.SSSZ";
+
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+        this.nextIndex = meta && meta.nextIndex ? meta.nextIndex : 1;
+    }
+
+    private paddedIndex(index: number = this.nextIndex): string {
+        let paddedIndex: string = index + "";
+        while (paddedIndex.length < ExternalFileLedgerContainer.INDEX_PADDING) {
+            paddedIndex = "0" + paddedIndex;
+        }
+        return paddedIndex;
+    }
+
+    async addIndexedEntry(author: Wallet, blob: any) {
+        await super.setSingleContent(author, this.paddedIndex(), JSON.stringify(blob));
+        this.nextIndex = this.nextIndex + 1;
+    }
+
+    async decryptToIndex(user: Wallet, container: string = null, index: number = (this.nextIndex - 1), subFile?: string) {
+        let foundApplicableData: boolean = false;
+        let decryptedContainers = {};
+
+        for (let desiredIndex = 1; desiredIndex <= index && desiredIndex < this.nextIndex; desiredIndex++) {
+
+            let indexData = await this.decryptContents(user, this.paddedIndex(+desiredIndex));
+            indexData = JSON.parse(indexData);
+            const containerName = indexData.name;
+
+            if(!container || containerName === container){
+                const action = indexData.action.split('.');
+                const containerType = action[1];
+                const containerAction = action[2];
+
+                // Rebuild File containers
+                if(containerType.indexOf('_file') != -1) {
+
+                    // Multi-file containers
+                    if(containerType.indexOf('_multi') != -1){
+                        if(containerAction.indexOf('setsinglecontent') != -1) {
+
+                            if(!decryptedContainers[containerName]){
+                                decryptedContainers[containerName] = {};
+                            }
+
+                            if(subFile){
+                                if(subFile === indexData.params.fileName) {
+                                    decryptedContainers[containerName][subFile] = indexData.params.blob;
+                                    foundApplicableData = true;
+                                }
+                            }
+
+                            else {
+                                decryptedContainers[containerName][indexData.params.fileName] = indexData.params.blob;
+                                foundApplicableData = true;
+                            }
+                        }
+                    }
+
+                    // Single-file containers
+                    else {
+                        if (containerAction.indexOf('setcontents') != -1) {
+                            decryptedContainers[containerName] = JSON.parse(indexData.params);
+                            foundApplicableData = true;
+                        }
+                    }
+
+                }
+
+                // Rebuild List containers
+                else if(containerType.indexOf('_list') != -1) {
+
+                    if(!decryptedContainers[containerName]){
+                        decryptedContainers[containerName] = [];
+                    }
+                    if(containerAction.indexOf('append') != -1) {
+                        decryptedContainers[containerName].push(indexData.params);
+                        foundApplicableData = true;
+                    }
+                }
+            }
+        }
+
+        if(!foundApplicableData){
+            throw new Error(`No data found for date`);
+        }
+
+        return decryptedContainers;
+    }
+
+    async decryptToDate(user: Wallet, container: string = null, date: string, subFile?: string) {
+        const toDate: Moment = moment(date,
+            [ExternalFileLedgerContainer.MOMENT_FORMAT, moment.ISO_8601],
+            true
+        ).add("ms", 1);
+
+        if(!toDate.isValid()){
+            throw new Error(`Invalid Date '${date}' not in format '${ExternalFileLedgerContainer.MOMENT_FORMAT}'`);
+        }
+
+        let toIndex = -1;
+        let onDate: string;
+
+        // Find the latest Ledger index before our toDate
+        for (let property in this.meta) {
+            if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
+                const checkDate: Moment = moment(this.meta[property].at,
+                    [ExternalFileLedgerContainer.MOMENT_FORMAT, moment.ISO_8601],
+                    true);
+
+                if(!checkDate.isValid()){
+                    throw new Error(`Vault Ledger data is invalid! [${container}.${property}]`);
+                }
+
+                if(checkDate.isBefore(toDate)){
+                    // Remove the container name from the property
+                    let thisIndex = property.split(path.sep)[1];
+
+                    // Remove the file extension from the property
+                    thisIndex = thisIndex.slice(0, thisIndex.lastIndexOf('.'));
+
+                    toIndex = +thisIndex;
+                    onDate = this.meta[property].at;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if(toIndex != -1){
+            return {
+                on_date: onDate,
+                ...await this.decryptToIndex(user, container, toIndex, subFile)
+            };
+        }
+
+        throw new Error("No data found for date");
+    }
+
+    async buildMetadata(author: Wallet) {
+        const metadata = await super.buildMetadata(author);
+        metadata.nextIndex = this.nextIndex;
+        return metadata;
     }
 
 }
