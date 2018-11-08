@@ -351,14 +351,15 @@ export abstract class Container {
         throw new Error("Unknown Container type: '" + container_type + "'");
     }
 
-    authorize_role(author: Wallet, role: string) {
-        this.meta.roles.push(role);
-        this.vault.logAction(author, 'container.authorize_role', {
-            role,
-            container_type: this.container_type,
-            name: this.name,
-        });
-    }
+    // authorize_role(author: Wallet, role: string) {
+    //     this.meta.roles.push(role);
+    //     // Adding a role to a Container will need to re-encrypt the data for the new key
+    //     this.vault.logAction(author, 'container.authorize_role', {
+    //         role,
+    //         container_type: this.container_type,
+    //         name: this.name,
+    //     });
+    // }
 
     abstract async encryptContents();
 
@@ -1021,7 +1022,7 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
         const toDate: Moment = moment(date,
             [ExternalFileLedgerContainer.MOMENT_FORMAT, moment.ISO_8601],
             true
-        ).add("ms", 1);
+        ).add(1, "ms");
 
         if(!toDate.isValid()){
             throw new Error(`Invalid Date '${date}' not in format '${ExternalFileLedgerContainer.MOMENT_FORMAT}'`);
@@ -1033,15 +1034,14 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
         // Find the latest Ledger index before our toDate
         for (let property in this.meta) {
             if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
-                const checkDate: Moment = moment(this.meta[property].at,
+                const indexDate: Moment = moment(this.meta[property].at,
                     [ExternalFileLedgerContainer.MOMENT_FORMAT, moment.ISO_8601],
                     true);
-
-                if(!checkDate.isValid()){
+                if(!indexDate.isValid()){
                     throw new Error(`Vault Ledger data is invalid! [${container}.${property}]`);
                 }
 
-                if(checkDate.isBefore(toDate)){
+                if(indexDate.isBefore(toDate)){
                     // Remove the container name from the property
                     let thisIndex = property.split(path.sep)[1];
 
