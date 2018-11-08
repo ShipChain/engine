@@ -66,4 +66,19 @@ export class LoadVault extends Vault {
     async listDocuments() {
         return await this.containers[LoadVault.DOCUMENTS].listFiles();
     }
+
+    async getHistoricalShipment(author: Wallet, date: string){
+        await this.loadMetadata();
+        return await this.getHistoricalData(author, LoadVault.SHIPMENT, date)
+    }
+
+    async getHistoricalTracking(author: Wallet, date: string){
+        await this.loadMetadata();
+        return await this.getHistoricalData(author, LoadVault.TRACKING, date)
+    }
+
+    async getHistoricalDocument(author: Wallet, date: string, documentName: string){
+        await this.loadMetadata();
+        return await this.getHistoricalData(author, LoadVault.DOCUMENTS, date, documentName)
+    }
 }
