@@ -989,7 +989,7 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
                     // Single-file containers
                     else {
                         if (containerAction.indexOf('setcontents') != -1) {
-                            decryptedContainers[containerName] = JSON.parse(indexData.params);
+                            decryptedContainers[containerName] = indexData.params;
                             foundApplicableData = true;
                         }
                     }
