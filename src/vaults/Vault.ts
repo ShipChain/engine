@@ -323,7 +323,7 @@ export abstract class Container {
     public container_type: string;
     protected modified_raw_contents: boolean = false;
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         this.vault = vault;
         this.name = name;
         this.meta = meta || {
@@ -392,6 +392,7 @@ interface SingleContentContainer {
 }
 interface MultiContentContainer {
     setSingleContent(author: Wallet, fileName: string, blob: any);
+    listFiles();
 }
 
 export abstract class EmbeddedContainer extends Container {
@@ -399,7 +400,7 @@ export abstract class EmbeddedContainer extends Container {
     public raw_contents: any = null;
     public encrypted_contents: any = null;
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
         this.encrypted_contents = (meta && meta.encrypted_contents) ? meta.encrypted_contents : {};
     }
@@ -539,7 +540,7 @@ export abstract class ExternalContainer extends Container {
     public raw_contents: any = null;
     public encrypted_contents: any = null;
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
         this.encrypted_contents = null;
         this.raw_contents = [];
@@ -695,6 +696,10 @@ export abstract class ExternalContainer extends Container {
 export class ExternalFileContainer extends ExternalContainer implements SingleContentContainer  {
     public container_type: string = 'external_file';
 
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
+
     async setContents(author: Wallet, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
@@ -709,6 +714,10 @@ export class ExternalFileContainer extends ExternalContainer implements SingleCo
 
 export class ExternalListContainer extends ExternalContainer implements ListContentContainer {
     public container_type: string = 'external_list';
+
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
 
     async append(author: Wallet, blob) {
         if (blob === null || blob === undefined || blob === '') {
@@ -743,7 +752,7 @@ export class ExternalListContainer extends ExternalContainer implements ListCont
 export abstract class ExternalDirectoryContainer extends ExternalContainer {
     protected modified_items: string[] = [];
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
         this.encrypted_contents = null;
         this.raw_contents = {};
@@ -805,6 +814,10 @@ export abstract class ExternalDirectoryContainer extends ExternalContainer {
 
 export class ExternalListDailyContainer extends ExternalDirectoryContainer implements ListContentContainer {
     public container_type: string = 'external_list_daily';
+
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
 
     static getCurrentDayProperty(): string {
         let today = new Date();
@@ -883,6 +896,10 @@ export class ExternalListDailyContainer extends ExternalDirectoryContainer imple
 
 export class ExternalFileMultiContainer extends ExternalDirectoryContainer implements MultiContentContainer {
     public container_type: string = 'external_file_multi';
+
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
 
     async setSingleContent(author: Wallet, fileName: string, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
