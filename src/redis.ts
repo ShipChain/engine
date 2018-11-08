@@ -53,17 +53,17 @@ const redlock = new Redlock(
 export default redlock;
 
 export async function ResourceLock(key: string, base_obj: any, method_to_lock: string, params: any = [], ttl: number = 5000): Promise<any> {
-    logger.debug(`Obtaining lock using key ${key} for duration of ${ttl} ms, using method ${method_to_lock}.`);
+    logger.silly(`Obtaining lock using key ${key} for duration of ${ttl} ms, using method ${method_to_lock}.`);
 
     return new Promise((resolve, reject) => {
         const lockAttemptTime = Date.now();
         redlock.lock(key, ttl).then(async function(lock) {
             const lockObtainTime = Date.now();
             metrics.methodTime("ResourceLock", lockObtainTime - lockAttemptTime);
-            logger.debug(`Locked using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
+            logger.silly(`Locked using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
 
             const method_return = await (base_obj[method_to_lock])(...params);
-            logger.debug(`Unlocking using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
+            logger.silly(`Unlocking using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
 
             lock.unlock();
 
