@@ -70,7 +70,8 @@ export class LoadVault extends Vault {
     async getHistoricalShipment(author: Wallet, date: string){
         await this.loadMetadata();
         const contents =  await this.getHistoricalData(author, LoadVault.SHIPMENT, date);
-        return JSON.parse(contents);
+        contents.shipment = JSON.parse(contents.shipment);
+        return contents;
     }
 
     async getHistoricalTracking(author: Wallet, date: string){
