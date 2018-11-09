@@ -240,7 +240,7 @@ describe('Vaults', function() {
         await vault.getOrCreateMetadata(author);
         const container = vault.getOrCreateContainer(author, 'file_01.txt');
 
-        container.setContents(author, 'TEST EMBED');
+        await container.setContents(author, 'TEST EMBED');
 
         await vault.writeMetadata(author);
 
@@ -285,7 +285,7 @@ describe('Vaults', function() {
         await vault.getOrCreateMetadata(author);
         const container = vault.getOrCreateContainer(author, 'test_external', 'external_file');
 
-        container.setContents(author, 'TEST External');
+        await container.setContents(author, 'TEST External');
 
         await vault.writeMetadata(author);
 
@@ -305,8 +305,8 @@ describe('Vaults', function() {
         await vault.getOrCreateMetadata(author);
         const container = vault.getOrCreateContainer(author, 'test_external_file_multi', 'external_file_multi');
 
-        container.setSingleContent(author, 'file_01.txt', 'TEST External 1');
-        container.setSingleContent(author, 'file_02.txt', 'TEST External 2');
+        await container.setSingleContent(author, 'file_01.txt', 'TEST External 1');
+        await container.setSingleContent(author, 'file_02.txt', 'TEST External 2');
 
         expect(await vault.fileExists('test_external_file_multi/file_01.txt.json')).toBeFalsy();
         expect(await vault.fileExists('test_external_file_multi/file_02.txt.json')).toBeFalsy();
