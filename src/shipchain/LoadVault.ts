@@ -27,7 +27,7 @@ export class LoadVault extends Vault {
         super(storage_driver, id);
     }
 
-    async initializeMetadata(author: Wallet) {
+    protected async initializeMetadata(author: Wallet) {
         await super.initializeMetadata(author);
         this.getOrCreateContainer(author, LoadVault.TRACKING, 'embedded_list');
         this.getOrCreateContainer(author, LoadVault.SHIPMENT, 'embedded_file');

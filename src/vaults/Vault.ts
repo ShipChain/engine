@@ -64,7 +64,7 @@ export class Vault {
         return this.meta;
     }
 
-    async initializeMetadata(author: Wallet, roles?) {
+    protected async initializeMetadata(author: Wallet, roles?) {
         this.meta = {
             id: this.id,
             version: '0.0.1',
