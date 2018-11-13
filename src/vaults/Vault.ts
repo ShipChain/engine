@@ -730,7 +730,9 @@ export class ExternalListContainer extends ExternalContainer implements ListCont
         }
 
         const hash = utils.objectHash(blob);
-        if (!this.raw_contents.length && (this.encrypted_contents && Object.keys(this.encrypted_contents).length)) {
+        if (!this.raw_contents.length &&
+            this.meta[this.getExternalFilename()]
+        ) {
             await this.decryptContents(author);
         }
 
