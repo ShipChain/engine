@@ -114,20 +114,20 @@ describe('Vaults', function() {
         let vault = new Vault(storage_driver);
         await vault.getOrCreateMetadata(author);
 
-        expect(await vault.createRole(author, 'owners')).toBe(false);
+        expect(await vault.createRole(author, Vault.OWNERS_ROLE)).toBe(false);
 
-        expect(vault.authorized_for_role(author.public_key, 'owners')).toBe(true);
-        expect(vault.authorized_for_role(stranger.public_key, 'owners')).toBe(false);
+        expect(vault.authorized_for_role(author.public_key, Vault.OWNERS_ROLE)).toBe(true);
+        expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(false);
 
         /* Anyone should be able to sign messages for owners */
-        const encrypted = (await vault.encryptForRole('owners', 'TeST')).to_string;
+        const encrypted = (await vault.encryptForRole(Vault.OWNERS_ROLE, 'TeST')).to_string;
 
         /* Only Author be able to read messages for owners */
         expect(await vault.decryptMessage(author, encrypted)).toBe('TeST');
 
         /* This stranger can't authorize himself... */
-        expect(await vault.authorize(stranger, 'owners', stranger.public_key)).toBe(false);
-        expect(vault.authorized_for_role(stranger.public_key, 'owners')).toBe(false);
+        expect(await vault.authorize(stranger, Vault.OWNERS_ROLE, stranger.public_key)).toBe(false);
+        expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(false);
         try {
             await vault.decryptMessage(stranger, encrypted);
             fail('Should not have decrypted message');
@@ -136,8 +136,8 @@ describe('Vaults', function() {
         }
 
         /* But if the author lets him in... */
-        expect(await vault.authorize(author, 'owners', stranger.public_key)).toBe(true);
-        expect(vault.authorized_for_role(stranger.public_key, 'owners')).toBe(true);
+        expect(await vault.authorize(author, Vault.OWNERS_ROLE, stranger.public_key)).toBe(true);
+        expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(true);
 
         /* He can read the data! */
         expect(await vault.decryptMessage(stranger, encrypted)).toBe('TeST');

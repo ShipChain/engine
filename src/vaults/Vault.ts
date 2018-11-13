@@ -30,6 +30,7 @@ import * as moment from 'moment';
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
 
+
 export class Vault {
     protected driver: StorageDriver;
     protected auth;
@@ -38,6 +39,9 @@ export class Vault {
     protected meta;
 
     private static readonly METADATA_FILE_NAME = 'meta.json';
+    static readonly OWNERS_ROLE = 'owners';
+    static readonly LEDGER_ROLE = 'ledger';
+    static readonly LEDGER_CONTAINER = 'ledger';
 
     constructor(auth: any, id?: string) {
         this.id = id || utils.uuidv4();
@@ -77,8 +81,8 @@ export class Vault {
 
         this.logAction(author, 'initialize', { roles });
 
-        await this.createRole(author, 'owners');
-        await this.createRole(author, 'ledger');
+        await this.createRole(author, Vault.OWNERS_ROLE);
+        await this.createRole(author, Vault.LEDGER_ROLE);
 
         this.getOrCreateLedger(author);
 
@@ -100,9 +104,9 @@ export class Vault {
     private getOrCreateLedger(author: Wallet) {
         return this.getOrCreateContainer(
             author,
-            'ledger',
+            Vault.LEDGER_CONTAINER,
             'external_file_ledger',
-            {roles: ['ledger']}
+            {roles: [Vault.LEDGER_ROLE]}
         );
     }
 
@@ -142,7 +146,7 @@ export class Vault {
     }
 
     async getHistoricalData(author: Wallet, container: string = null, date: string, subFile?: string){
-        return await this.containers.ledger.decryptToDate(author, container, date, subFile);
+        return await this.containers[Vault.LEDGER_CONTAINER].decryptToDate(author, container, date, subFile);
     }
 
     async createRole(author: Wallet, role: string) {
@@ -159,8 +163,8 @@ export class Vault {
     }
 
     authorized_for_role(public_key: string, role: string) {
-        /* "owners" role is authorized for everything */
-        if (this.meta.roles.owners && this.meta.roles.owners[public_key]) return true;
+        /* OWNERS_ROLE role is authorized for everything */
+        if (this.meta.roles[Vault.OWNERS_ROLE] && this.meta.roles[Vault.OWNERS_ROLE][public_key]) return true;
 
         return !!(this.meta.roles[role] && this.meta.roles[role][public_key]);
     }
@@ -168,14 +172,14 @@ export class Vault {
     authorized_roles(public_key: string) {
         const roles = [];
 
-        /* return "owners" first if we're an owner" */
-        if (this.meta.roles.owners && this.meta.roles.owners[public_key]) {
-            roles.push('owner');
+        /* return OWNERS_ROLE first if we're an owner" */
+        if (this.meta.roles[Vault.OWNERS_ROLE] && this.meta.roles[Vault.OWNERS_ROLE][public_key]) {
+            roles.push(Vault.OWNERS_ROLE);
         }
 
         /* or return the first role we are authorized for... */
         for (const role in this.meta.roles) {
-            if (this.meta.roles[role][public_key]){
+            if (role != Vault.OWNERS_ROLE && this.meta.roles[role][public_key]){
                 roles.push(role);
             }
         }
@@ -327,7 +331,7 @@ export abstract class Container {
         this.vault = vault;
         this.name = name;
         this.meta = meta || {
-            roles: ['owners'],
+            roles: [Vault.OWNERS_ROLE],
         };
     }
 
@@ -370,7 +374,7 @@ export abstract class Container {
     abstract async verify();
 
     async updateLedger(author: Wallet, action: string, params?: any, output?: any) {
-        if(this.name === "ledger"){
+        if(this.name === Vault.LEDGER_CONTAINER){
             return;
         }
         return await this.vault.updateLedger(
