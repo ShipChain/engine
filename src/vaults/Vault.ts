@@ -172,12 +172,12 @@ export class Vault {
     authorized_roles(public_key: string) {
         const roles = [];
 
-        /* return OWNERS_ROLE first if we're an owner" */
+        // append OWNERS_ROLE first if we're an owner
         if (this.meta.roles[Vault.OWNERS_ROLE] && this.meta.roles[Vault.OWNERS_ROLE][public_key]) {
             roles.push(Vault.OWNERS_ROLE);
         }
 
-        /* or return the first role we are authorized for... */
+        // append remaining roles we are authorized for
         for (const role in this.meta.roles) {
             if (role != Vault.OWNERS_ROLE && this.meta.roles[role][public_key]){
                 roles.push(role);
