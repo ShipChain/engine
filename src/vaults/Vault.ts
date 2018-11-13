@@ -22,8 +22,14 @@ import * as path from 'path';
 import * as utils from '../utils';
 import { Logger, loggers } from "winston";
 
+// Import Moment Typings and Functions
+import { Moment } from 'moment';
+import * as moment from 'moment';
+
+
 // @ts-ignore
 const logger: Logger = loggers.get('engine');
+
 
 export class Vault {
     protected driver: StorageDriver;
@@ -33,6 +39,9 @@ export class Vault {
     protected meta;
 
     private static readonly METADATA_FILE_NAME = 'meta.json';
+    static readonly OWNERS_ROLE = 'owners';
+    static readonly LEDGER_ROLE = 'ledger';
+    static readonly LEDGER_CONTAINER = 'ledger';
 
     constructor(auth: any, id?: string) {
         this.id = id || utils.uuidv4();
@@ -59,21 +68,23 @@ export class Vault {
         return this.meta;
     }
 
-    async initializeMetadata(author: Wallet, roles?) {
+    protected async initializeMetadata(author: Wallet, roles?) {
         this.meta = {
             id: this.id,
             version: '0.0.1',
             created: new Date(),
             roles: roles || {},
             containers: {},
-            actions: [],
         };
 
         this.containers = {};
 
         this.logAction(author, 'initialize', { roles });
 
-        await this.createRole(author, 'owners');
+        await this.createRole(author, Vault.OWNERS_ROLE);
+        await this.createRole(author, Vault.LEDGER_ROLE);
+
+        this.getOrCreateLedger(author);
 
         return this.meta;
     }
@@ -88,6 +99,15 @@ export class Vault {
 
     getContainerMetadata(container: string) {
         return this.meta.containers[container] || {};
+    }
+
+    private getOrCreateLedger(author: Wallet) {
+        return this.getOrCreateContainer(
+            author,
+            Vault.LEDGER_CONTAINER,
+            'external_file_ledger',
+            {roles: [Vault.LEDGER_ROLE]}
+        );
     }
 
     async verify() {
@@ -116,9 +136,17 @@ export class Vault {
     logAction(author: Wallet, action: string, params?: any, output?: any) {
         const payload = { action, params, output };
         const signed_payload = utils.signObject(author, payload);
-        this.meta.actions.push(signed_payload);
         logger.info(`Vault ${this.id} Action ${action}`);
         return signed_payload;
+    }
+
+    async updateLedger(author: Wallet, payload: any) {
+        const ledger = this.getOrCreateLedger(author);
+        await ledger.addIndexedEntry(author, payload);
+    }
+
+    async getHistoricalData(author: Wallet, container: string = null, date: string, subFile?: string){
+        return await this.containers[Vault.LEDGER_CONTAINER].decryptToDate(author, container, date, subFile);
     }
 
     async createRole(author: Wallet, role: string) {
@@ -135,21 +163,28 @@ export class Vault {
     }
 
     authorized_for_role(public_key: string, role: string) {
-        /* "owners" role is authorized for everything */
-        if (this.meta.roles.owners && this.meta.roles.owners[public_key]) return true;
+        /* OWNERS_ROLE role is authorized for everything */
+        if (this.meta.roles[Vault.OWNERS_ROLE] && this.meta.roles[Vault.OWNERS_ROLE][public_key]) return true;
 
         return !!(this.meta.roles[role] && this.meta.roles[role][public_key]);
     }
 
-    authorized_role(public_key: string) {
-        /* return "owners" first if we're an owner" */
-        if (this.meta.roles.owners && this.meta.roles.owners[public_key]) return 'owners';
+    authorized_roles(public_key: string) {
+        const roles = [];
 
-        /* or return the first role we are authorized for... */
-        for (const role in this.meta.roles) {
-            if (this.meta.roles[role][public_key]) return role;
+        // append OWNERS_ROLE first if we're an owner
+        if (this.meta.roles[Vault.OWNERS_ROLE] && this.meta.roles[Vault.OWNERS_ROLE][public_key]) {
+            roles.push(Vault.OWNERS_ROLE);
         }
-        return false;
+
+        // append remaining roles we are authorized for
+        for (const role in this.meta.roles) {
+            if (role != Vault.OWNERS_ROLE && this.meta.roles[role][public_key]){
+                roles.push(role);
+            }
+        }
+
+        return roles;
     }
 
     protected async __loadRoleKey(wallet: Wallet, role: string) {
@@ -164,9 +199,22 @@ export class Vault {
     }
 
     async decryptMessage(wallet: Wallet, message: any) {
-        const role = this.authorized_role(wallet.public_key);
-        if (!role) throw new Error('Wallet has no access to contents');
-        return await this.decryptWithRoleKey(wallet, role, message);
+        const roles = this.authorized_roles(wallet.public_key);
+
+        if (roles.length == 0) {
+            throw new Error('Wallet has no access to contents');
+        }
+
+        for(const role of roles) {
+            try {
+                return await this.decryptWithRoleKey(wallet, role, message);
+            }
+            catch(err){
+                logger.debug(`Message decryption failed with role ${role} (${err.message})`);
+            }
+        }
+
+        throw new Error('Wallet has no access to contents');
     }
 
     async encryptForRole(role: string, message: any) {
@@ -263,10 +311,10 @@ export class Vault {
         return await ResourceLock(this.id, this.driver, "listDirectory", [vaultDirectory, recursive]);
     }
 
-    getOrCreateContainer(author: Wallet, name: string, container_type?: string) {
+    getOrCreateContainer(author: Wallet, name: string, container_type?: string, meta?: any) {
         if (this.containers[name] instanceof Container) return this.containers[name];
         this.logAction(author, 'create_container', { name, container_type });
-        const container = Container.typeFactory(container_type || 'embedded_file', this, name);
+        const container = Container.typeFactory(container_type || 'embedded_file', this, name, meta);
         this.containers[name] = container;
         return container;
     }
@@ -279,34 +327,43 @@ export abstract class Container {
     public container_type: string;
     protected modified_raw_contents: boolean = false;
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         this.vault = vault;
         this.name = name;
         this.meta = meta || {
-            roles: ['owners'],
+            roles: [Vault.OWNERS_ROLE],
         };
     }
 
     static typeFactory(container_type: string, vault: Vault, name: string, meta?: any) {
+
+        // Embedded
         if (container_type == 'embedded_file') return new EmbeddedFileContainer(vault, name, meta);
         if (container_type == 'embedded_list') return new EmbeddedListContainer(vault, name, meta);
 
+        // External Files
         if (container_type == 'external_file') return new ExternalFileContainer(vault, name, meta);
         if (container_type == 'external_file_multi') return new ExternalFileMultiContainer(vault, name, meta);
+
+        // External Lists
         if (container_type == 'external_list') return new ExternalListContainer(vault, name, meta);
         if (container_type == 'external_list_daily') return new ExternalListDailyContainer(vault, name, meta);
+
+        // External Ledger
+        if (container_type == 'external_file_ledger') return new ExternalFileLedgerContainer(vault, name, meta);
 
         throw new Error("Unknown Container type: '" + container_type + "'");
     }
 
-    authorize_role(author: Wallet, role: string) {
-        this.meta.roles.append(role);
-        this.vault.logAction(author, 'container.authorize_role', {
-            role,
-            container_type: this.container_type,
-            name: this.name,
-        });
-    }
+    // authorize_role(author: Wallet, role: string) {
+    //     this.meta.roles.push(role);
+    //     // Adding a role to a Container will need to re-encrypt the data for the new key
+    //     this.vault.logAction(author, 'container.authorize_role', {
+    //         role,
+    //         container_type: this.container_type,
+    //         name: this.name,
+    //     });
+    // }
 
     abstract async encryptContents();
 
@@ -316,12 +373,18 @@ export abstract class Container {
 
     abstract async verify();
 
-    logAction(author: Wallet, action: string, params?: any, output?: any) {
-        return this.vault.logAction(
+    async updateLedger(author: Wallet, action: string, params?: any, output?: any) {
+        if(this.name === Vault.LEDGER_CONTAINER){
+            return;
+        }
+        return await this.vault.updateLedger(
             author,
-            'container.' + this.container_type + '.' + action,
-            { name: this.name, ...params },
-            output,
+            {
+                action: 'container.' + this.container_type + '.' + action,
+                name: this.name,
+                params,
+                output
+            }
         );
     }
 }
@@ -334,6 +397,7 @@ interface SingleContentContainer {
 }
 interface MultiContentContainer {
     setSingleContent(author: Wallet, fileName: string, blob: any);
+    listFiles();
 }
 
 export abstract class EmbeddedContainer extends Container {
@@ -341,9 +405,9 @@ export abstract class EmbeddedContainer extends Container {
     public raw_contents: any = null;
     public encrypted_contents: any = null;
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
-        this.encrypted_contents = meta ? meta.encrypted_contents : {};
+        this.encrypted_contents = (meta && meta.encrypted_contents) ? meta.encrypted_contents : {};
     }
 
     abstract getRawContents();
@@ -368,31 +432,36 @@ export abstract class EmbeddedContainer extends Container {
     }
 
     async decryptContents(user: Wallet) {
-        const role = this.vault.authorized_role(user.public_key);
+        const roles = this.vault.authorized_roles(user.public_key);
 
-        logger.debug(`Vault ${this.vault.id} Decrypting Container ${this.name} with role ${role}`);
 
-        if (role && this.encrypted_contents[role]) {
-            let decrypted_contents;
+        for(const role of roles){
+            if (role && this.encrypted_contents[role]) {
+                logger.debug(`Vault ${this.vault.id} Decrypting Container ${this.name} with role ${role}`);
 
-            try {
-                decrypted_contents = await this.vault.decryptWithRoleKey(user, role, this.encrypted_contents[role]);
-            } catch (_err) {
-                throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                let decrypted_contents;
+
+                try {
+                    decrypted_contents = await this.vault.decryptWithRoleKey(user, role, this.encrypted_contents[role]);
+                } catch (_err) {
+                    throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                }
+
+                if (
+                    decrypted_contents === null ||
+                    decrypted_contents === undefined ||
+                    decrypted_contents == [] ||
+                    decrypted_contents == {}
+                ) {
+                    throw new Error('Container contents empty');
+                }
+                return decrypted_contents;
+            } else {
+                logger.debug(`Vault ${this.vault.id} Decrypting Container ${this.name} has no content for role ${role}`);
             }
-
-            if (
-                decrypted_contents === null ||
-                decrypted_contents === undefined ||
-                decrypted_contents == [] ||
-                decrypted_contents == {}
-            ) {
-                throw new Error('Container contents empty');
-            }
-            return decrypted_contents;
-        } else {
-            throw new Error('Unauthorized access to vault contents');
         }
+
+        throw new Error('Unauthorized access to vault contents');
     }
 
     async verify() {
@@ -416,7 +485,7 @@ export class EmbeddedFileContainer extends EmbeddedContainer implements SingleCo
         this.raw_contents = [];
     }
 
-    setContents(author: Wallet, blob: any) {
+    async setContents(author: Wallet, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
         }
@@ -424,7 +493,7 @@ export class EmbeddedFileContainer extends EmbeddedContainer implements SingleCo
         this.raw_contents = blob;
         this.modified_raw_contents = true;
         const hash = utils.objectHash(blob);
-        this.logAction(author, 'setcontents', null, { hash });
+        await this.updateLedger(author, 'setcontents', blob, { hash });
     }
 
     getRawContents() {
@@ -451,7 +520,7 @@ export class EmbeddedListContainer extends EmbeddedContainer implements ListCont
         }
         this.raw_contents.push(blob);
         this.modified_raw_contents = true;
-        this.logAction(author, 'append', null, { hash });
+        await this.updateLedger(author, 'append', blob, { hash });
     }
 
     getRawContents() {
@@ -476,27 +545,27 @@ export abstract class ExternalContainer extends Container {
     public raw_contents: any = null;
     public encrypted_contents: any = null;
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
         this.encrypted_contents = null;
         this.raw_contents = [];
     }
 
-    getRawContents(contentIndex?: string) {
+    protected getRawContents(contentIndex?: string) {
         if(contentIndex){
             return this.raw_contents[contentIndex];
         }
         return this.raw_contents;
     }
 
-    getEncryptedContents(contentIndex?: string) {
+    protected getEncryptedContents(contentIndex?: string) {
         if(contentIndex){
             return this.encrypted_contents[contentIndex];
         }
         return this.encrypted_contents;
     }
 
-    setEncryptedContents(contents: any, subFile?: string){
+    protected setEncryptedContents(contents: any, subFile?: string){
         if(subFile){
             if(!this.encrypted_contents){
                 this.encrypted_contents = {};
@@ -565,34 +634,38 @@ export abstract class ExternalContainer extends Container {
     }
 
     async decryptContents(user: Wallet, subFile?: string) {
-        const role = this.vault.authorized_role(user.public_key);
+        const roles = this.vault.authorized_roles(user.public_key);
 
         await this.loadEncryptedFileContents(subFile);
         const encrypted = this.getEncryptedContents(subFile);
 
-        logger.debug(`Vault ${this.vault.id} Decrypting Ext Container ${this.name} with role ${role} [${subFile}]`);
 
-        if (role && encrypted && encrypted[role]) {
-            let decrypted_contents;
+        for(const role of roles) {
+            if (role && encrypted && encrypted[role]) {
+                logger.debug(`Vault ${this.vault.id} Decrypting Ext Container ${this.name} with role ${role} [${subFile}]`);
+                let decrypted_contents;
 
-            try {
-                decrypted_contents = await this.vault.decryptWithRoleKey(user, role, encrypted[role]);
-            } catch (_err) {
-                throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                try {
+                    decrypted_contents = await this.vault.decryptWithRoleKey(user, role, encrypted[role]);
+                } catch (_err) {
+                    throw new Error('Unable to decrypt vault data (' + _err.message + ')');
+                }
+
+                if (
+                    decrypted_contents === null ||
+                    decrypted_contents === undefined ||
+                    decrypted_contents == [] ||
+                    decrypted_contents == {}
+                ) {
+                    throw new Error('Container contents empty');
+                }
+                return decrypted_contents;
+            } else {
+                logger.debug(`Vault ${this.vault.id} Decrypting Ext Container ${this.name} has no content for role ${role} [${subFile}]`);
             }
-
-            if (
-                decrypted_contents === null ||
-                decrypted_contents === undefined ||
-                decrypted_contents == [] ||
-                decrypted_contents == {}
-            ) {
-                throw new Error('Container contents empty');
-            }
-            return decrypted_contents;
-        } else {
-            throw new Error('Unauthorized access to vault contents');
         }
+
+        throw new Error('Unauthorized access to vault contents');
     }
 
     async verify(subFile?: string) {
@@ -628,7 +701,11 @@ export abstract class ExternalContainer extends Container {
 export class ExternalFileContainer extends ExternalContainer implements SingleContentContainer  {
     public container_type: string = 'external_file';
 
-    setContents(author: Wallet, blob: any) {
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
+
+    async setContents(author: Wallet, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
         }
@@ -636,12 +713,16 @@ export class ExternalFileContainer extends ExternalContainer implements SingleCo
         this.raw_contents = blob;
         this.modified_raw_contents = true;
         const hash = utils.objectHash(blob);
-        this.logAction(author, 'setcontents', null, { hash });
+        await this.updateLedger(author, 'setcontents', blob, { hash });
     }
 }
 
 export class ExternalListContainer extends ExternalContainer implements ListContentContainer {
     public container_type: string = 'external_list';
+
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
 
     async append(author: Wallet, blob) {
         if (blob === null || blob === undefined || blob === '') {
@@ -649,13 +730,15 @@ export class ExternalListContainer extends ExternalContainer implements ListCont
         }
 
         const hash = utils.objectHash(blob);
-        if (!this.raw_contents.length && (this.encrypted_contents && Object.keys(this.encrypted_contents).length)) {
+        if (!this.raw_contents.length &&
+            this.meta[this.getExternalFilename()]
+        ) {
             await this.decryptContents(author);
         }
 
         this.raw_contents.push(blob);
         this.modified_raw_contents = true;
-        this.logAction(author, 'append', null, { hash });
+        await this.updateLedger(author, 'append', blob, { hash });
     }
 
     getRawContents() {
@@ -676,7 +759,7 @@ export class ExternalListContainer extends ExternalContainer implements ListCont
 export abstract class ExternalDirectoryContainer extends ExternalContainer {
     protected modified_items: string[] = [];
 
-    constructor(vault: Vault, name: string, meta?: any) {
+    protected constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
         this.encrypted_contents = null;
         this.raw_contents = {};
@@ -739,6 +822,10 @@ export abstract class ExternalDirectoryContainer extends ExternalContainer {
 export class ExternalListDailyContainer extends ExternalDirectoryContainer implements ListContentContainer {
     public container_type: string = 'external_list_daily';
 
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
+
     static getCurrentDayProperty(): string {
         let today = new Date();
         return (
@@ -768,7 +855,7 @@ export class ExternalListDailyContainer extends ExternalDirectoryContainer imple
 
         this.raw_contents[todaysProperty].push(blob);
         this.modified_items.push(todaysProperty);
-        this.logAction(author, 'append', null, { hash });
+        await this.updateLedger(author, 'append', blob, { hash });
     }
 
     getRawContents(subFile?: string) {
@@ -817,7 +904,11 @@ export class ExternalListDailyContainer extends ExternalDirectoryContainer imple
 export class ExternalFileMultiContainer extends ExternalDirectoryContainer implements MultiContentContainer {
     public container_type: string = 'external_file_multi';
 
-    setSingleContent(author: Wallet, fileName: string, blob: any) {
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+    }
+
+    async setSingleContent(author: Wallet, fileName: string, blob: any) {
         if (blob === null || blob === undefined || blob === '') {
             throw new Error('New Content cannot be empty');
         }
@@ -825,7 +916,7 @@ export class ExternalFileMultiContainer extends ExternalDirectoryContainer imple
         this.raw_contents[fileName] = blob;
         this.modified_items.push(fileName);
         const hash = utils.objectHash(blob);
-        this.logAction(author, 'setSingleContent', {fileName: fileName}, { hash });
+        await this.updateLedger(author, 'setsinglecontent', {fileName: fileName, blob: blob}, { hash });
     }
 
     async listFiles() {
@@ -834,6 +925,157 @@ export class ExternalFileMultiContainer extends ExternalDirectoryContainer imple
             file.name = file.name.replace(/.json$/, "");
         }
         return fileList;
+    }
+
+}
+
+export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
+    public container_type: string = 'external_file_ledger';
+    private nextIndex: number;
+    private static readonly INDEX_PADDING: number = 7;
+    private static readonly MOMENT_FORMAT: string = "YYYY-MM-DDTHH:mm:ss.SSSZ";
+
+    constructor(vault: Vault, name: string, meta?: any) {
+        super(vault, name, meta);
+        this.nextIndex = meta && meta.nextIndex ? meta.nextIndex : 1;
+    }
+
+    private paddedIndex(index: number = this.nextIndex): string {
+        let paddedIndex: string = index + "";
+        while (paddedIndex.length < ExternalFileLedgerContainer.INDEX_PADDING) {
+            paddedIndex = "0" + paddedIndex;
+        }
+        return paddedIndex;
+    }
+
+    async addIndexedEntry(author: Wallet, blob: any) {
+        await super.setSingleContent(author, this.paddedIndex(), JSON.stringify(blob));
+        this.nextIndex = this.nextIndex + 1;
+    }
+
+    async decryptToIndex(user: Wallet, container: string = null, index: number = (this.nextIndex - 1), subFile?: string) {
+        let foundApplicableData: boolean = false;
+        let decryptedContainers = {};
+
+        for (let desiredIndex = 1; desiredIndex <= index && desiredIndex < this.nextIndex; desiredIndex++) {
+
+            let indexData = await this.decryptContents(user, this.paddedIndex(+desiredIndex));
+            indexData = JSON.parse(indexData);
+            const containerName = indexData.name;
+
+            if(!container || containerName === container){
+                const action = indexData.action.split('.');
+                const containerType = action[1];
+                const containerAction = action[2];
+
+                // Rebuild File containers
+                if(containerType.indexOf('_file') != -1) {
+
+                    // Multi-file containers
+                    if(containerType.indexOf('_multi') != -1){
+                        if(containerAction.indexOf('setsinglecontent') != -1) {
+
+                            if(!decryptedContainers[containerName]){
+                                decryptedContainers[containerName] = {};
+                            }
+
+                            if(subFile){
+                                if(subFile === indexData.params.fileName) {
+                                    decryptedContainers[containerName][subFile] = indexData.params.blob;
+                                    foundApplicableData = true;
+                                }
+                            }
+
+                            else {
+                                decryptedContainers[containerName][indexData.params.fileName] = indexData.params.blob;
+                                foundApplicableData = true;
+                            }
+                        }
+                    }
+
+                    // Single-file containers
+                    else {
+                        if (containerAction.indexOf('setcontents') != -1) {
+                            decryptedContainers[containerName] = indexData.params;
+                            foundApplicableData = true;
+                        }
+                    }
+
+                }
+
+                // Rebuild List containers
+                else if(containerType.indexOf('_list') != -1) {
+
+                    if(!decryptedContainers[containerName]){
+                        decryptedContainers[containerName] = [];
+                    }
+                    if(containerAction.indexOf('append') != -1) {
+                        decryptedContainers[containerName].push(indexData.params);
+                        foundApplicableData = true;
+                    }
+                }
+            }
+        }
+
+        if(!foundApplicableData){
+            throw new Error(`No data found for date`);
+        }
+
+        return decryptedContainers;
+    }
+
+    async decryptToDate(user: Wallet, container: string = null, date: string, subFile?: string) {
+        const toDate: Moment = moment(date,
+            [ExternalFileLedgerContainer.MOMENT_FORMAT, moment.ISO_8601],
+            true
+        ).add(1, "ms");
+
+        if(!toDate.isValid()){
+            throw new Error(`Invalid Date '${date}' not in format '${ExternalFileLedgerContainer.MOMENT_FORMAT}'`);
+        }
+
+        let toIndex = -1;
+        let onDate: string;
+
+        // Find the latest Ledger index before our toDate
+        for (let property in this.meta) {
+            if (this.meta.hasOwnProperty(property) && property.indexOf(this.name) !== -1) {
+                const indexDate: Moment = moment(this.meta[property].at,
+                    [ExternalFileLedgerContainer.MOMENT_FORMAT, moment.ISO_8601],
+                    true);
+                if(!indexDate.isValid()){
+                    throw new Error(`Vault Ledger data is invalid! [${container}.${property}]`);
+                }
+
+                if(indexDate.isBefore(toDate)){
+                    // Remove the container name from the property
+                    let thisIndex = property.split(path.sep)[1];
+
+                    // Remove the file extension from the property
+                    thisIndex = thisIndex.slice(0, thisIndex.lastIndexOf('.'));
+
+                    toIndex = +thisIndex;
+                    onDate = this.meta[property].at;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if(toIndex != -1){
+            return {
+                on_date: onDate,
+                ...await this.decryptToIndex(user, container, toIndex, subFile)
+            };
+        }
+
+        throw new Error("No data found for date");
+    }
+
+    async buildMetadata(author: Wallet) {
+        const metadata = await super.buildMetadata(author);
+        metadata.nextIndex = this.nextIndex;
+        return metadata;
     }
 
 }

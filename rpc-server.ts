@@ -97,6 +97,10 @@ server.expose("load", {
     "add_document": RPCLoad.AddDocument,
     "list_documents": RPCLoad.ListDocuments,
     "verify_vault": RPCLoad.VerifyVault,
+
+    "get_historical_shipment_data": RPCLoad.GetHistoricalShipmentData,
+    "get_historical_tracking_data": RPCLoad.GetHistoricalTrackingData,
+    "get_historical_document": RPCLoad.GetHistoricalDocument,
 });
 
 server.expose("event", {

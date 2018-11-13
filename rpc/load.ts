@@ -43,7 +43,7 @@ export class RPCLoad {
 
         if (args.carrierWallet) {
             const carrierWallet = await Wallet.getById(args.carrierWallet);
-            await vault.authorize(shipperWallet, 'owners', carrierWallet.public_key);
+            await vault.authorize(shipperWallet, LoadVault.OWNERS_ROLE, carrierWallet.public_key);
         }
 
         const signature = await vault.writeMetadata(shipperWallet);
@@ -509,6 +509,69 @@ export class RPCLoad {
         return {
             success: true,
             verified: verified,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async GetHistoricalShipmentData(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+        const contents = await load.getHistoricalShipment(wallet, args.date);
+
+        return {
+            success: true,
+            wallet_id: wallet.id,
+            load_id: args.vault,
+            historical_data: contents,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async GetHistoricalTrackingData(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+        const contents = await load.getHistoricalTracking(wallet, args.date);
+
+        return {
+            success: true,
+            wallet_id: wallet.id,
+            load_id: args.vault,
+            historical_data: contents,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async GetHistoricalDocument(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+        const contents = await load.getHistoricalDocument(wallet, args.date, args.documentName);
+
+        return {
+            success: true,
+            wallet_id: wallet.id,
+            load_id: args.vault,
+            historical_data: contents,
         };
     }
 }
