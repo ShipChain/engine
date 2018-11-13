@@ -210,7 +210,7 @@ export class Vault {
                 return await this.decryptWithRoleKey(wallet, role, message);
             }
             catch(err){
-                logger.debug(`Message decryption failed with role ${role}`);
+                logger.debug(`Message decryption failed with role ${role} (${err.message})`);
             }
         }
 
