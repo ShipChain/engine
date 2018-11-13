@@ -23,6 +23,15 @@ import { Wallet } from '../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../encryption/PrivateKeyDBFieldEncryption";
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
+const CONTAINER = 'test2';
+const FILE_1 = "file01.txt";
+const FILE_2 = "file02.txt";
+const DATE_0 = '2018-01-01T01:00:00.000Z';
+const DATE_1 = '2018-01-01T01:00:01.000Z';
+const DATE_2 = '2018-01-01T01:00:02.000Z';
+const DATE_3 = '2018-01-01T01:00:03.000Z';
+const DATE_4 = '2018-01-01T01:00:04.000Z';
+const DATE_5 = '2018-01-01T01:00:05.000Z';
 
 describe('Vaults', function() {
     const RealDate = Date;
@@ -40,6 +49,17 @@ describe('Vaults', function() {
     function resetDate() {
         // @ts-ignore
         global.Date = RealDate;
+    }
+
+    async function writeAndReopen(author, storage_driver, date, vault, type, containerName = CONTAINER){
+        mockDate(date);
+        await vault.writeMetadata(author);
+
+        const new_vault = new Vault(storage_driver, vault.id);
+        await new_vault.loadMetadata();
+        const container = new_vault.getOrCreateContainer(author, containerName, type);
+
+        return [new_vault, container];
     }
 
     beforeEach(async () => {
@@ -541,46 +561,32 @@ describe('Vaults', function() {
     });
 
     it(`can view historical Embedded List content`, async () => {
-        const CONTAINER = 'test';
-        const DATE_0 = '2018-01-01T01:00:00.000Z';
-        const DATE_1 = '2018-01-01T01:00:01.000Z';
-        const DATE_2 = '2018-01-01T01:00:02.000Z';
-        const DATE_3 = '2018-01-01T01:00:03.000Z';
-        const DATE_4 = '2018-01-01T01:00:04.000Z';
-        const DATE_5 = '2018-01-01T01:00:05.000Z';
-
-        async function writeAndReopen(author, storage_driver, date, vault){
-            mockDate(date);
-            await vault.writeMetadata(author);
-
-            vault = new Vault(storage_driver, vault.id);
-            await vault.loadMetadata();
-            let container = vault.getOrCreateContainer(author, CONTAINER, 'embedded_list');
-
-            return [vault, container];
-        }
+        const type = 'embedded_list';
 
         let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         let container;
         await vault.getOrCreateMetadata(author);
-        vault.getOrCreateContainer(author, CONTAINER, 'embedded_list');
+        vault.getOrCreateContainer(author, CONTAINER, type);
 
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault, type);
 
         await container.append(author, {minute: 2});
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault, type);
 
         await container.append(author, {minute: 4});
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault, type);
 
         expect(await vault.verify()).toBe(true);
 
         resetDate();
+
+        let test_0 = await container.decryptContents(author);
+        expect(test_0).toEqual([{minute: 2}, {minute: 4}]);
 
         try {
             let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
@@ -595,46 +601,34 @@ describe('Vaults', function() {
     });
 
     it(`can view historical External List content`, async () => {
-        const CONTAINER = 'test';
-        const DATE_0 = '2018-01-01T01:00:00.000Z';
-        const DATE_1 = '2018-01-01T01:00:01.000Z';
-        const DATE_2 = '2018-01-01T01:00:02.000Z';
-        const DATE_3 = '2018-01-01T01:00:03.000Z';
-        const DATE_4 = '2018-01-01T01:00:04.000Z';
-        const DATE_5 = '2018-01-01T01:00:05.000Z';
+        const type = 'external_list';
 
-        async function writeAndReopen(author, storage_driver, date, vault){
-            mockDate(date);
-            await vault.writeMetadata(author);
-
-            vault = new Vault(storage_driver, vault.id);
-            await vault.loadMetadata();
-            let container = vault.getOrCreateContainer(author, CONTAINER, 'external_list');
-
-            return [vault, container];
-        }
+        let CONTAINER = 'test';
 
         let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         let container;
         await vault.getOrCreateMetadata(author);
-        vault.getOrCreateContainer(author, CONTAINER, 'external_list');
+        vault.getOrCreateContainer(author, CONTAINER, type);
 
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault, type, CONTAINER);
 
         await container.append(author, {minute: 2});
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault, type, CONTAINER);
 
         await container.append(author, {minute: 4});
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault, type, CONTAINER);
 
         expect(await vault.verify()).toBe(true);
 
         resetDate();
+
+        let test_0 = await container.decryptContents(author);
+        expect(test_0).toEqual([{minute: 2}, {minute: 4}]);
 
         try {
             let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
@@ -649,48 +643,34 @@ describe('Vaults', function() {
     });
 
     it(`can view historical External List Daily content`, async () => {
-        const CONTAINER = 'test';
-        const DATE_0 = '2018-01-01T01:00:00.000Z';
-        const DATE_1 = '2018-01-01T01:00:01.000Z';
-        const DATE_2 = '2018-01-01T01:00:02.000Z';
-        const DATE_3 = '2018-01-01T01:00:03.000Z';
-        const DATE_4 = '2018-01-01T01:00:04.000Z';
-        const DATE_5 = '2018-01-01T01:00:05.000Z';
-
-        async function writeAndReopen(author, storage_driver, date, vault){
-            mockDate(date);
-            await vault.writeMetadata(author);
-
-            vault = new Vault(storage_driver, vault.id);
-            await vault.loadMetadata();
-            let container = vault.getOrCreateContainer(author, CONTAINER, 'external_list_daily');
-
-            return [vault, container];
-        }
+        const type = 'external_list_daily';
 
         let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         let container;
         await vault.getOrCreateMetadata(author);
-        vault.getOrCreateContainer(author, CONTAINER, 'external_list_daily');
+        vault.getOrCreateContainer(author, CONTAINER, type);
 
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault, type);
 
         mockDate(DATE_2);
         await container.append(author, {minute: 2});
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault, type);
 
         mockDate(DATE_4);
         await container.append(author, {minute: 4});
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault, type);
 
         expect(await vault.verify()).toBe(true);
 
         resetDate();
+
+        let test_0 = await container.decryptContents(author);
+        expect(test_0).toEqual([{minute: 2}, {minute: 4}]);
 
         try {
             let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
@@ -705,46 +685,32 @@ describe('Vaults', function() {
     });
 
     it(`can view historical Embedded File content`, async () => {
-        const CONTAINER = 'test';
-        const DATE_0 = '2018-01-01T01:00:00.000Z';
-        const DATE_1 = '2018-01-01T01:00:01.000Z';
-        const DATE_2 = '2018-01-01T01:00:02.000Z';
-        const DATE_3 = '2018-01-01T01:00:03.000Z';
-        const DATE_4 = '2018-01-01T01:00:04.000Z';
-        const DATE_5 = '2018-01-01T01:00:05.000Z';
-
-        async function writeAndReopen(author, storage_driver, date, vault){
-            mockDate(date);
-            await vault.writeMetadata(author);
-
-            vault = new Vault(storage_driver, vault.id);
-            await vault.loadMetadata();
-            let container = vault.getOrCreateContainer(author, CONTAINER, 'embedded_file');
-
-            return [vault, container];
-        }
+        const type = 'embedded_file';
 
         let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         let container;
         await vault.getOrCreateMetadata(author);
-        vault.getOrCreateContainer(author, CONTAINER, 'embedded_file');
+        vault.getOrCreateContainer(author, CONTAINER, type);
 
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault, type);
 
         await container.setContents(author, "2");
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault, type);
 
         await container.setContents(author, "4");
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault, type);
 
         expect(await vault.verify()).toBe(true);
 
         resetDate();
+
+        let test_0 = await container.decryptContents(author);
+        expect(test_0).toEqual("4");
 
         try {
             let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
@@ -759,46 +725,32 @@ describe('Vaults', function() {
     });
 
     it(`can view historical External File content`, async () => {
-        const CONTAINER = 'test';
-        const DATE_0 = '2018-01-01T01:00:00.000Z';
-        const DATE_1 = '2018-01-01T01:00:01.000Z';
-        const DATE_2 = '2018-01-01T01:00:02.000Z';
-        const DATE_3 = '2018-01-01T01:00:03.000Z';
-        const DATE_4 = '2018-01-01T01:00:04.000Z';
-        const DATE_5 = '2018-01-01T01:00:05.000Z';
-
-        async function writeAndReopen(author, storage_driver, date, vault){
-            mockDate(date);
-            await vault.writeMetadata(author);
-
-            vault = new Vault(storage_driver, vault.id);
-            await vault.loadMetadata();
-            let container = vault.getOrCreateContainer(author, CONTAINER, 'external_file');
-
-            return [vault, container];
-        }
+        const type = 'external_file';
 
         let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         let container;
         await vault.getOrCreateMetadata(author);
-        vault.getOrCreateContainer(author, CONTAINER, 'external_file');
+        vault.getOrCreateContainer(author, CONTAINER, type);
 
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault, type);
 
         await container.setContents(author, "2");
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault, type);
 
         await container.setContents(author, "4");
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault, type);
 
         expect(await vault.verify()).toBe(true);
 
         resetDate();
+
+        let test_0 = await container.decryptContents(author);
+        expect(test_0).toEqual("4");
 
         try {
             let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
@@ -813,50 +765,37 @@ describe('Vaults', function() {
     });
 
     it(`can view historical External File Multi content`, async () => {
-        const CONTAINER = 'test';
-        const FILE_1 = "file01.txt";
-        const FILE_2 = "file02.txt";
-        const DATE_0 = '2018-01-01T01:00:00.000Z';
-        const DATE_1 = '2018-01-01T01:00:01.000Z';
-        const DATE_2 = '2018-01-01T01:00:02.000Z';
-        const DATE_3 = '2018-01-01T01:00:03.000Z';
-        const DATE_4 = '2018-01-01T01:00:04.000Z';
-        const DATE_5 = '2018-01-01T01:00:05.000Z';
-
-        async function writeAndReopen(author, storage_driver, date, vault){
-            mockDate(date);
-            await vault.writeMetadata(author);
-
-            vault = new Vault(storage_driver, vault.id);
-            await vault.loadMetadata();
-            let container = vault.getOrCreateContainer(author, CONTAINER, 'external_file_multi');
-
-            return [vault, container];
-        }
+        const type = 'external_file_multi';
 
         let author = await Wallet.generate_entity();
         let vault = new Vault(storage_driver);
         let container;
         await vault.getOrCreateMetadata(author);
-        vault.getOrCreateContainer(author, CONTAINER, 'external_file_multi');
+        vault.getOrCreateContainer(author, CONTAINER, type);
 
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_0, vault, type);
 
         await container.setSingleContent(author, FILE_1, "1-2");
         await container.setSingleContent(author, FILE_2, "2-2");
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_2, vault, type);
 
         await container.setSingleContent(author, FILE_1, "1-4");
         await container.setSingleContent(author, FILE_2, "2-4");
 
         // Write and ReOpen to solidify signature times
-        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault);
+        [vault, container] = await writeAndReopen(author, storage_driver, DATE_4, vault, type);
 
         expect(await vault.verify()).toBe(true);
 
         resetDate();
+
+        let test_0 = await container.decryptContents(author, FILE_1);
+        expect(test_0).toEqual("1-4");
+
+        test_0 = await container.decryptContents(author, FILE_2);
+        expect(test_0).toEqual("2-4");
 
         try {
             let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1, FILE_1);
