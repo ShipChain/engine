@@ -59,17 +59,18 @@ server.expose("wallet", {
     "create_hosted": RPCWallet.Create,
     "import_hosted": RPCWallet.Import,
     "list": RPCWallet.List,
-    "balance": RPCWallet.Balance
+    "balance": RPCWallet.Balance,
 });
 
 server.expose("storage_credentials", {
     "create_hosted": RPCStorageCredentials.Create,
-    "list": RPCStorageCredentials.List
+    "list": RPCStorageCredentials.List,
+    "test": RPCStorageCredentials.TestConnectivity,
 });
 
 server.expose("transaction", {
     "sign": RPCTransaction.Sign,
-    "send": RPCTransaction.Send
+    "send": RPCTransaction.Send,
 });
 
 server.expose("load", {
@@ -105,7 +106,7 @@ server.expose("load", {
 
 server.expose("event", {
     "subscribe": RPCEvent.Subscribe,
-    "unsubscribe": RPCEvent.Unsubscribe
+    "unsubscribe": RPCEvent.Unsubscribe,
 });
 
 // Build Schema Validators

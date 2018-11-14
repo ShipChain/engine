@@ -17,6 +17,8 @@
 import { RPCMethod, RPCNamespace } from './decorators';
 import { StorageCredential } from '../src/entity/StorageCredential';
 import { MetricsReporter } from '../src/MetricsReporter';
+import * as path from "path";
+import { StorageDriverFactory } from "../src/storage/StorageDriverFactory";
 
 const metrics = MetricsReporter.Instance;
 
@@ -64,6 +66,69 @@ export class RPCStorageCredentials {
         return {
             success: true,
             credentials: storageCredentials,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials'],
+        validate: {
+            uuid: ['storageCredentials'],
+        },
+    })
+    public static async TestConnectivity(args) {
+        const testDirectory = `TestConnectivity_${new Date().getTime()}`;
+        const testFileName = "TestConnectivity.txt";
+        const testContent = 'Hello, World! Привет мир! 你好，世界！';
+
+        let valid: boolean;
+        let message: string = undefined;
+
+        try {
+            const testOptions = await StorageCredential.getOptionsById(args.storageCredentials);
+
+            const auth = {
+                ...testOptions,
+                base_path: path.join(testOptions.base_path || './', testDirectory),
+            };
+
+            const driver = StorageDriverFactory.create(auth);
+            await driver.putFile(testFileName, testContent);
+
+            if(!(await driver.fileExists(testFileName))){
+                throw new Error("Created file does not exist");
+            }
+
+            const retrievedContent = await driver.getFile(testFileName);
+            if(retrievedContent != testContent){
+                throw new Error("Stored content does not match retrieved content");
+            }
+
+            await driver.removeFile(testFileName);
+
+            valid = true;
+        }
+
+        catch (err) {
+            valid = false;
+
+            if(err.message) {
+                message = err.message;
+            } else {
+                message = err;
+            }
+
+            if(err.wrappedError){
+                if(err.wrappedError.message) {
+                    message = message + ". " + err.wrappedError.message;
+                } else {
+                    message = message + ". " + err.wrappedError
+                }
+            }
+        }
+
+        return {
+            valid: valid,
+            message
         };
     }
 }
