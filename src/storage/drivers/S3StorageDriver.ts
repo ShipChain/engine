@@ -60,6 +60,27 @@ export class S3StorageDriver extends StorageDriver {
         }
     }
 
+    private async _validateBucket(): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            this.s3.createBucket(
+                {
+                    Bucket: this.bucket,
+                },
+                (err, data) => {
+                    if (err) {
+                        if(err.code == "BucketAlreadyOwnedByYou" || err.code == "BucketAlreadyExists") {
+                            resolve(true);
+                        } else {
+                            reject(false);
+                        }
+                    } else {
+                        resolve(true);
+                    }
+                },
+            );
+        });
+    }
+
     async getFile(filePath: string, binary: boolean = false): Promise<any> {
         const startTime = Date.now();
         metrics.countAction('storage_get_file', { driver_type: this.type });
@@ -94,6 +115,8 @@ export class S3StorageDriver extends StorageDriver {
         const startTime = Date.now();
         metrics.countAction('storage_put_file', { driver_type: this.type });
         let fullVaultPath = this.getFullVaultPath(filePath);
+
+        await this._validateBucket();
 
         return new Promise((resolve, reject) => {
             try {
@@ -215,7 +238,7 @@ export class S3StorageDriver extends StorageDriver {
         return new Promise((resolve, reject) => {
             this.s3.listObjectsV2(listParams, async (err, data) => {
                 if (err) {
-                    if (!vaultDirectory && err.code == 'NoSuchKey') {
+                    if (!vaultDirectory && (err.code == 'NoSuchKey' || err.code == 'NoSuchBucket')) {
                         resolve(new DirectoryListing('.'));
                     } else if (vaultDirectory && err.code == 'NoSuchKey') {
                         reject(new DriverError(DriverError.States.NotFoundError, err));
