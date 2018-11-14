@@ -350,6 +350,23 @@ List the Title, Driver Type, and Base path of the Storage Credentials hosted in 
 }
 ```
 
+#### Test
+
+After creating a StorageCredential, you may want to test connectivity prior to utilizing it for storing Vaults.  To do this, use the following method with the ID of the created Storage Credential.
+
+```JS
+{
+  "method": "storage_credentials.test",
+  "params": {
+    "storageCredentials": "7cc34443-64af-4d48-b9f2-0bcdf488f1e3"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+The return from this method will include a `"valid": true` if a files was successfully created with the storage driver, or `"valid": false` and potentially a `"message": <reason>` indicating what went wrong.
+
 ### Load Contract
 
 _Documentation in progress..._
