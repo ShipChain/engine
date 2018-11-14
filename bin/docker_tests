@@ -7,7 +7,6 @@ set -e
 # thanks to it we can just enter `./bin/docker_tests`
 cd "${0%/*}/.."
 
-# let's fake failing test for now
 echo "Running tests"
 
 export ROLE=circleci
