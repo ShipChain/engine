@@ -45,9 +45,12 @@ const SFTP_PORT = process.env.SFTP_PORT || '2222';
 const SFTP_USER = process.env.SFTP_USER || 'shipchain_user';
 const SFTP_PASS = process.env.SFTP_PASS || 'shipchain_password';
 
-// S3 Configuration.  When run with `bin/docker_tests` this pulls environment variables from circleci.yml
-// You need to be authenticated with aws-cli locally before enabling the S3 tests
+// S3 Configuration.  When run with `bin/docker_tests` this pulls environment variables from circleci.yml, or
+// uses defaults for the Minio service started via `bin/dc up sftp`
+const S3_ENDPOINT = process.env.S3_ENDPOINT || 'http://localhost:9099';
 const S3_BUCKET = process.env.S3_BUCKET || 'my-test-bucket';
+const S3_ACCESSKEY = process.env.S3_ACCESSKEY || 'myMinioAccessKey';
+const S3_SECRETKEY = process.env.S3_SECRETKEY || 'myMinioSecretKey';
 
 const epochDirectory = new Date().getTime().toString();
 const utf8HelloWorld = 'Hello, World! Привет мир! 你好，世界！';
@@ -82,6 +85,13 @@ const storageConfigs = {
         root: {
             driver_type: 's3',
             Bucket: S3_BUCKET,
+            client: {
+                endpoint: S3_ENDPOINT,
+                accessKeyId: S3_ACCESSKEY,
+                secretAccessKey: S3_SECRETKEY,
+                s3ForcePathStyle: true,
+                signatureVersion: "v4"
+            },
             base_path: '',
             acl: 'public-read',
             variant: 'root',
@@ -89,6 +99,13 @@ const storageConfigs = {
         sub: {
             driver_type: 's3',
             Bucket: S3_BUCKET,
+            client: {
+                endpoint: S3_ENDPOINT,
+                accessKeyId: S3_ACCESSKEY,
+                secretAccessKey: S3_SECRETKEY,
+                s3ForcePathStyle: true,
+                signatureVersion: "v4"
+            },
             base_path: epochDirectory + '/multi/level',
             acl: 'public-read',
             variant: 'sub',

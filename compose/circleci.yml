@@ -5,8 +5,11 @@ services:
     image: redis
     expose:
     - '6379'
-    volumes:
-    - /data/shipchain/engine/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     command: >
       --requirepass redis_pass --appendonly yes
 
@@ -26,6 +29,20 @@ services:
       - '22'
     command: shipchain_user:shipchain_password:::upload
 
+  minio:
+    image: minio/minio
+    command: server /data
+    expose:
+      - "9000"
+    healthcheck:
+      test: "nc -z localhost 9000"
+      timeout: 10s
+      interval: 10s
+      retries: 3
+    environment:
+      MINIO_ACCESS_KEY: myMinioAccessKey
+      MINIO_SECRET_KEY: myMinioSecretKey
+
   psql:
     image: sameersbn/postgresql:9.6-2
     healthcheck:
@@ -40,8 +57,6 @@ services:
     - DB_PASS=engine
     - DB_USER=engine
     - DB_EXTENSION="uuid-ossp"
-    volumes:
-    - /data/shipchain/engine/postgresql:/var/lib/postgresql
 
   rpc:
     extends:
@@ -49,11 +64,17 @@ services:
       file: build.yml
     command: sleep infinity
     links:
+      - redis_db
       - geth-poa
-      - psql
       - sftp
+      - minio
+      - psql
     depends_on:
+      redis_db:
+        condition: service_healthy
       geth-poa:
+        condition: service_healthy
+      minio:
         condition: service_healthy
       psql:
         condition: service_healthy
@@ -67,8 +88,9 @@ services:
       - SFTP_USER=shipchain_user
       - SFTP_PASS=shipchain_password
       - S3_DRIVER_TESTS
-      - S3_BUCKET
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
+      - S3_BUCKET=my-test-bucket
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESSKEY=myMinioAccessKey
+      - S3_SECRETKEY=myMinioSecretKey
       - LOCAL_SECRET_KEY
       - REDIS_URL
