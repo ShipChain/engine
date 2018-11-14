@@ -134,9 +134,9 @@ Testing is handled through the Docker containers as well and can be invoked via 
 
 By default the unit tests will use only the local directory for Storage Driver testing (used when managing Vaults).  However, advanced parameters are allowed which will enable either SFTP backed or S3 backed Storage Driver testing.
 
-In the `.env` file, include the following to enable SFTP tests using the bundled SFTP service in the Docker Compose file: `S3_DRIVER_TESTS=1`.
+In the `.env` file, include the following to enable SFTP tests using the bundled SFTP service in the Docker Compose file: `SFTP_DRIVER_TESTS=1`.
 
-If you want to test with your personal S3 Bucket, ensure you have the AWS credentials defined in your `.env` file (see Configuration section) and also include the following two variables `S3_DRIVER_TESTS=1` and `S3_BUCKET=<your_bucket>`.
+In the `.env` file, include the following to enable S3 tests using the bundled [Minio](https://www.minio.io/docker.html) S3 compatible service in the Docker Compose file: `S3_DRIVER_TESTS=1`.
 
 Run the unit tests via the provided script
 ```
@@ -281,6 +281,32 @@ These parameters are common to all Storage Credential creations:
   "id": 0
 }
 ```
+
+During local development, if you do not have or do not wish to use your own AWS S3 Buckets for storage, you can utilize the provided S3 compatible Minio service as a storage provider, use the following options:
+
+```JS
+{
+	"method": "storage_credentials.create_hosted",
+	"params": {
+		"title": "Test Minio",
+		"driver_type": "s3",
+		"options": {
+			"Bucket": "test-bucket.mycompany.com",
+			"client": {
+				"endpoint": "http://minio:9000",
+				"accessKeyId": "myMinioAccessKey",
+				"secretAccessKey": "myMinioSecretKey",
+				"s3ForcePathStyle": true,
+				"signatureVersion": "v4"
+			}
+		}
+	},
+	"jsonrpc": "2.0",
+	"id": 0
+}
+```
+
+To view the Minio interface to the Buckets containing the vault files, navigate to [http://localhost:9099](http://localhost:9099) when you have the services running.
 
 ##### SFTP
 
