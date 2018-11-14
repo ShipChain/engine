@@ -71,7 +71,7 @@ export class S3StorageDriver extends StorageDriver {
                         if(err.code == "BucketAlreadyOwnedByYou" || err.code == "BucketAlreadyExists") {
                             resolve(true);
                         } else {
-                            reject(false);
+                            reject(err);
                         }
                     } else {
                         resolve(true);
