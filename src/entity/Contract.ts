@@ -29,8 +29,8 @@ import { Logger, loggers } from 'winston';
 const fs = require('fs');
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
+const rp = require('request-promise-native');
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 @Entity()
@@ -58,27 +58,92 @@ export class Project extends BaseEntity {
         return project;
     }
 
-    static async loadFixtures(fixture_path: string) {
-        const meta = JSON.parse(fs.readFileSync(fixture_path + '/index.json'));
+    static async loadFixtureMetaData(meta: any): Promise<any> {
         const networks = {};
-        for (let title of Object.keys(meta.networks)) {
-            const nData = meta.networks[title];
-            networks[title] = await Network.getOrCreate(title, nData.public_address, nData.description);
-        }
+        const contracts = {};
 
-        for (let title of Object.keys(meta.contracts)) {
-            const cData = meta.contracts[title];
-            const project = await Project.getOrCreate(title, cData.description);
-            const versions = {};
-            for (let network_title of Object.keys(cData.deployed)) {
-                const dData = cData.deployed[network_title];
-                const version_path = `${fixture_path}/contracts/${title}/${dData.version}`;
-                const bytecode = '0x' + fs.readFileSync(`${version_path}/compiled.bin`);
-                const version = await Version.getOrCreate(project, dData.version, dData.abi, bytecode);
-                versions[dData.version] = version;
-                await Contract.getOrCreate(project, networks[network_title], version, dData.address);
+        return new Promise(async (resolve, reject) => {
+
+            try {
+                // Parse defined Networks
+                for (let networkName of Object.keys(meta.networks)) {
+                    const network = meta.networks[networkName];
+
+                    networks[networkName] = await Network.getOrCreate(networkName, network.public_address, network.description);
+                    logger.debug(`Fixture Network: ${networkName} ${network.public_address} ${network.description} [${networks[networkName].id}]`);
+                }
+
+                // Parse defined Contracts
+                for (let contractName of Object.keys(meta.contracts)) {
+                    const versions = {};
+
+                    const contractData = meta.contracts[contractName];
+                    contracts[contractName] = contractData;
+
+                    // Create Project
+                    const project = await
+                    Project.getOrCreate(contractName, contractData.description);
+                    logger.debug(`Fixture Project: ${contractName} [${project.id}]`);
+
+                    // Create Versions using ABI and BIN of each Contract
+                    for (let versionName of Object.keys(contractData.versions)) {
+                        const versionData = contractData.versions[versionName];
+                        const parsedAbi = JSON.parse(versionData.abi);
+                        versions[versionName] = await
+                        Version.getOrCreate(project, versionName, parsedAbi, versionData.bin);
+                        logger.debug(`Fixture Version: ${project.title} ${versionName} [${versions[versionName].id}]`);
+
+                        // Remove abi/bin after Version is created so we don't return these large blobs
+                        delete versionData.abi;
+                        delete versionData.bin;
+                    }
+
+                    // Create Contract from Project, Network, and Version
+                    for (let networkName of Object.keys(contractData.deployed)) {
+                        const networkVersion = contractData.deployed[networkName];
+
+                        // Each Contract Network can have multiple historical versions
+                        for (let versionName of Object.keys(networkVersion)) {
+                            const contractAddress = networkVersion[versionName];
+                            const contract = await
+                            Contract.getOrCreate(project, networks[networkName], versions[versionName], contractAddress);
+                            logger.debug(`Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${contract.id}]`);
+                        }
+                    }
+                }
+
+                resolve(contracts);
+            } catch (err) {
+                logger.error(`Parsing Fixtures returned ${err}`);
+                reject(err);
             }
-        }
+        });
+    }
+
+    static async loadFixturesFromFile(fixture_file: string): Promise<any> {
+        const meta = JSON.parse(fs.readFileSync(fixture_file));
+        return await Project.loadFixtureMetaData(meta);
+    }
+
+    static async loadFixturesFromUrl(fixture_url: string): Promise<any> {
+
+        return new Promise((resolve, reject) => {
+            const requestOptions = {
+                uri: fixture_url,
+                json: true,
+                timeout: 20000,
+            };
+
+            rp(requestOptions)
+                .then(async meta => {
+                    resolve(await Project.loadFixtureMetaData(meta));
+                })
+                .catch(err => {
+                    logger.error(`Retrieving Fixtures returned ${err}`);
+                    reject(err);
+                });
+        });
+
     }
 }
 
@@ -102,6 +167,17 @@ export class Version extends BaseEntity {
     @Column() abi: string;
     @Column({ nullable: true })
     bytecode: string;
+
+    static async getByProjectAndTitle(project_title, version: string) {
+        let project = await Project.findOne({ title: project_title });
+
+        if (!project) {
+            logger.error(`Unable to find existing ${project_title}:${version}`);
+            throw new Error(`${project_title} Version ${version} cannot be found`);
+        }
+
+        return await Version.findOne({ project: project, title: version });
+    }
 
     static async getOrCreate(project, title, abi, bytecode) {
         let version = await Version.findOne({ project, title });

@@ -22,7 +22,6 @@ import * as process from "process";
 import { getRDSconfig } from "./rdsconfig";
 import { Connection, createConnection, getConnectionOptions } from "typeorm";
 
-// @ts-ignore
 const logger: Logger = loggers.get("engine");
 
 /**

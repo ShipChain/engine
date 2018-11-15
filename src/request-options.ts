@@ -21,7 +21,6 @@ var fs = require('fs')
 
 import { Logger, loggers } from "winston";
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 const ENV = process.env.ENV || "LOCAL";
 

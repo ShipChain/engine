@@ -17,7 +17,6 @@
 import { GenericCallback } from '../entity/Contract';
 import { Logger, loggers } from 'winston';
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 export class ContractCallback extends GenericCallback {

@@ -94,3 +94,4 @@ services:
       - S3_SECRETKEY=myMinioSecretKey
       - LOCAL_SECRET_KEY
       - REDIS_URL
+      - CONTRACT_FIXTURES_URL

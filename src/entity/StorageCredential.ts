@@ -17,7 +17,6 @@
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import { Logger, loggers } from 'winston';
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 class StorageCredentialAttrs {

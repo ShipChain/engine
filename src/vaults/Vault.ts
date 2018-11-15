@@ -27,7 +27,6 @@ import { Moment } from 'moment';
 import * as moment from 'moment';
 
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 

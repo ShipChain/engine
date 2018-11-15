@@ -20,7 +20,7 @@ import { MetricsReporter } from '../src/MetricsReporter';
 import { LoadedContracts } from './contracts';
 import { RPCMethod, RPCNamespace } from './decorators';
 import { AwsPrivateKeyDBFieldEncryption } from "../src/shipchain/AwsPrivateKeyDBFieldEncryption";
-import { PrivateKeyDBFieldEncryption } from "../src/encryption/PrivateKeyDBFieldEncryption";
+import { PrivateKeyDBFieldEncryption } from "../src/entity/encryption/PrivateKeyDBFieldEncryption";
 
 const loadedContracts = LoadedContracts.Instance;
 const metrics = MetricsReporter.Instance;
@@ -99,7 +99,7 @@ export class RPCWallet {
     public static async Balance(args) {
         const wallet = await Wallet.getById(args.wallet);
 
-        const TOKEN_CONTRACT: BaseContract = loadedContracts.get('Token');
+        const TOKEN_CONTRACT: BaseContract = loadedContracts.get('ShipToken');
         const EthDriver = TOKEN_CONTRACT.getEthDriver();
 
         const eth_balance = await EthDriver.getBalance(wallet.address);

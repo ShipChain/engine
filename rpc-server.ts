@@ -20,7 +20,9 @@ import { Logger, loggers } from "winston";
 
 import { buildSchemaValidators } from "./rpc/validators";
 import { loadContractFixtures } from "./rpc/contracts";
-import { RPCLoad } from "./rpc/load";
+import { RPCVault } from "./rpc/vault";
+import { RPCLoad as RPCLoad_1_0_2 } from "./rpc/Load/1.0.2/RPCLoad";
+import { RPCLoad as RPCLoad_1_1_0 } from "./rpc/Load/1.1.0/RPCLoad";
 import { RPCEvent, startEventSubscriptions } from "./rpc/event";
 import { RPCWallet, setupWalletEncryptionHandler } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
@@ -34,8 +36,6 @@ const rpc = require("json-rpc2");
 const process = require("process");
 
 
-// We need to ignore the TSError here until this is released: https://github.com/winstonjs/winston/pull/1362
-// @ts-ignore
 const logger: Logger = loggers.get("engine");
 const metrics = MetricsReporter.Instance;
 const PORT = process.env.PORT || 2000;
@@ -75,34 +75,61 @@ server.expose("transaction", {
 });
 
 server.expose("load", {
-    "create_vault": RPCLoad.CreateVault,
-    "create_shipment_transaction": RPCLoad.CreateShipmentTx,
-    "update_vault_hash_transaction": RPCLoad.UpdateVaultHashTx,
-    "fund_eth_transaction": RPCLoad.FundEthTx,
-    "fund_cash_transaction": RPCLoad.FundCashTx,
-    "fund_ship_transaction": RPCLoad.FundShipTx,
-    "commit_to_shipment_transaction": RPCLoad.CommitToShipmentTx,
-    "shipment_in_transit_transaction": RPCLoad.ShipmentInTransitTx,
-    "carrier_complete_transaction": RPCLoad.CarrierCompleteTx,
-    "shipper_accept_transaction": RPCLoad.ShipperAcceptTx,
-    "shipper_cancel_transaction": RPCLoad.ShipperCancelTx,
-    "pay_out_transaction": RPCLoad.PayOutTx,
-    "get_shipment_details": RPCLoad.GetShipmentDetails,
-    "get_shipment_details_continued": RPCLoad.GetShipmentDetailsContinued,
-    "get_escrow_status": RPCLoad.GetEscrowStatus,
-    "get_contract_flags": RPCLoad.GetContractFlags,
-    "get_tracking_data": RPCLoad.GetTrackingData,
-    "add_tracking_data": RPCLoad.AddTrackingData,
-    "get_shipment_data": RPCLoad.GetShipmentData,
-    "add_shipment_data": RPCLoad.AddShipmentData,
-    "get_document": RPCLoad.GetDocument,
-    "add_document": RPCLoad.AddDocument,
-    "list_documents": RPCLoad.ListDocuments,
-    "verify_vault": RPCLoad.VerifyVault,
+    "create_shipment_tx": RPCLoad_1_1_0.CreateShipmentTx,
+});
 
-    "get_historical_shipment_data": RPCLoad.GetHistoricalShipmentData,
-    "get_historical_tracking_data": RPCLoad.GetHistoricalTrackingData,
-    "get_historical_document": RPCLoad.GetHistoricalDocument,
+server.expose("load.1.1.0", {
+    // Transactional methods
+    "create_shipment_tx": RPCLoad_1_1_0.CreateShipmentTx,
+    "set_vault_uri_tx": RPCLoad_1_1_0.SetVaultUriTx,
+    "set_vault_hash_tx": RPCLoad_1_1_0.SetVaultHashTx,
+    "set_carrier_tx": RPCLoad_1_1_0.SetCarrierTx,
+    "set_moderator_tx": RPCLoad_1_1_0.SetModeratorTx,
+    "set_in_progress_tx": RPCLoad_1_1_0.SetInProgressTx,
+    "set_complete_tx": RPCLoad_1_1_0.SetCompleteTx,
+    "set_canceled_tx": RPCLoad_1_1_0.SetCanceledTx,
+    "fund_escrow_tx": RPCLoad_1_1_0.FundEscrowTx,
+    "fund_escrow_ether_tx": RPCLoad_1_1_0.FundEscrowEtherTx,
+    "fund_escrow_ship_tx": RPCLoad_1_1_0.FundEscrowShipTx,
+    "release_escrow_tx": RPCLoad_1_1_0.ReleaseEscrowTx,
+    "withdraw_escrow_tx": RPCLoad_1_1_0.WithdrawEscrowTx,
+    "refund_escrow_tx": RPCLoad_1_1_0.RefundEscrowTx,
+    // View methods
+    "get_shipment_data": RPCLoad_1_1_0.GetShipmentData,
+    "get_escrow_data": RPCLoad_1_1_0.GetEscrowData,
+});
+
+server.expose("load.1.0.2", {
+    "create_shipment_transaction": RPCLoad_1_0_2.CreateShipmentTx,
+    "update_vault_hash_transaction": RPCLoad_1_0_2.UpdateVaultHashTx,
+    "fund_eth_transaction": RPCLoad_1_0_2.FundEthTx,
+    "fund_cash_transaction": RPCLoad_1_0_2.FundCashTx,
+    "fund_ship_transaction": RPCLoad_1_0_2.FundShipTx,
+    "commit_to_shipment_transaction": RPCLoad_1_0_2.CommitToShipmentTx,
+    "shipment_in_transit_transaction": RPCLoad_1_0_2.ShipmentInTransitTx,
+    "carrier_complete_transaction": RPCLoad_1_0_2.CarrierCompleteTx,
+    "shipper_accept_transaction": RPCLoad_1_0_2.ShipperAcceptTx,
+    "shipper_cancel_transaction": RPCLoad_1_0_2.ShipperCancelTx,
+    "pay_out_transaction": RPCLoad_1_0_2.PayOutTx,
+    "get_shipment_details": RPCLoad_1_0_2.GetShipmentDetails,
+    "get_shipment_details_continued": RPCLoad_1_0_2.GetShipmentDetailsContinued,
+    "get_escrow_status": RPCLoad_1_0_2.GetEscrowStatus,
+    "get_contract_flags": RPCLoad_1_0_2.GetContractFlags,
+});
+
+server.expose("vault", {
+    "create": RPCVault.CreateVault,
+    "get_tracking": RPCVault.GetTrackingData,
+    "add_tracking": RPCVault.AddTrackingData,
+    "get_shipment": RPCVault.GetShipmentData,
+    "add_shipment": RPCVault.AddShipmentData,
+    "get_document": RPCVault.GetDocument,
+    "add_document": RPCVault.AddDocument,
+    "list_documents": RPCVault.ListDocuments,
+    "verify": RPCVault.VerifyVault,
+    "get_historical_shipment_data": RPCVault.GetHistoricalShipmentData,
+    "get_historical_tracking_data": RPCVault.GetHistoricalTrackingData,
+    "get_historical_document": RPCVault.GetHistoricalDocument,
 });
 
 server.expose("event", {

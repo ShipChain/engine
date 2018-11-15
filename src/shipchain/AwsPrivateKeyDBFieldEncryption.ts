@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { PrivateKeyDBFieldEncryption } from "../encryption/PrivateKeyDBFieldEncryption";
+import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 import { DBFieldEncryption } from "../entity/Wallet";
 import EthCrypto from "eth-crypto";
 import { getAwsSecret } from "./utils";

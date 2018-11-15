@@ -19,7 +19,7 @@ require('./testLoggingConfig');
 import 'mocha';
 import { createConnection } from 'typeorm';
 import { Wallet } from '../entity/Wallet';
-import { PrivateKeyDBFieldEncryption } from "../encryption/PrivateKeyDBFieldEncryption";
+import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 
 import EthCrypto from 'eth-crypto';
 

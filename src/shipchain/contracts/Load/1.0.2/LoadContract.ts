@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Wallet } from '../entity/Wallet';
-import { BaseContract } from '../contracts/BaseContract';
-import { TokenContract } from './TokenContract';
+import { Wallet } from '../../../../entity/Wallet';
+import { BaseContract } from '../../../../contracts/BaseContract';
+import { ShipTokenContract } from '../../ShipToken/1.0.0/ShipTokenContract';
 
 enum EscrowStatus {
     CONTRACT_INITIATED = 1,
@@ -66,7 +66,7 @@ export class LoadContract extends BaseContract {
     }
 
     async depositShipTransaction(
-        tokenContract: TokenContract,
+        tokenContract: ShipTokenContract,
         shipperWallet: Wallet,
         shipmentId: number,
         value: number,

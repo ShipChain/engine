@@ -35,12 +35,36 @@ You will also need to create a new directory tree `/data/shipchain/engine/postgr
 
 Note:  Depending on OS settings, some users may encounter permission errors when running Engine.  This is commonly due to missing [Shared Drives](https://docs.docker.com/docker-for-windows/#shared-drives) on Windows or [File Sharing](https://docs.docker.com/docker-for-mac/#file-sharing) on Mac.  Be sure these are setup to allow access to the `/data` directory you created.
 
+#### Windows 10 Users
+
+It is **strongly encouraged** that you utilize Windows Subsystem for Linux (WSL) when using Docker for Windows.  Without this you are very likely to encounter issues with volume mapping permissions in later steps.
+
+##### Install WSL
+
+Follow Microsoft's procedures for installing [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10).  We recommend using [Ubuntu](https://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6) as your Linux distribution.
+
+##### Configure WSL with Docker for Windows
+
+Nick Janetakis has a [fantastic article](https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly) on the steps required to get Docker for Windows and WSL working flawlessly.  Pay special attention to the Ensure Volume Mounts Work step.  Without that your images will not properly build.
+
+##### Appropriate Directories
+
+After following the steps above, in the Ubuntu Bash prompt you should be able to see the your Windows drives mounted at the root level.
+
+```
+/c
+/c/Users
+/d
+```
+
+After cloning the repo (in the below [Installing](#installing) step, you will need to navigate to the appropriate directory in your Windows mount where you clone the Engine repository prior to executing any of the `bin/` commands.
+
 ### Installing
 
 Clone the repository:
 
 ```
-git clone git@github.com:ShipChain/engine.git shipchain-engine
+git clone https://github.com/ShipChain/engine.git shipchain-engine
 ```
 
 In the cloned repository there are scripts provided in the `bin` directory for Docker container management.  Using these to interact with npm will ensure you are using the correct version of Node.js (This was developed using LTS v8.11.2).
@@ -72,7 +96,7 @@ Before you can begin using Engine, you may need to do some configuration dependi
 
 #### Smart Contracts
 
-Building the main Engine Node.js Docker service with `bin/dc build` will download the latest version of ShipChain's smart contract compiled binaries.  These are loaded during the initialization stage of the RPC service.  There should be no further steps if you are using ShipChain's smart contracts.
+When the main Engine RPC server starts, it will download the latest version of ShipChain's smart contract metadata from a [public URL](https://s3.amazonaws.com/shipchain-contracts/meta.json).  This metadata contains the deployed contract addresses for public Ethereum networks as well as the ABI and compiled binary data.  All relevant information will be parsed and loaded in to Engine's included Postgres database for later use.  There should be no further steps if you are using ShipChain's smart contracts.
 
 #### Environment Variables
 
@@ -183,6 +207,32 @@ For example, the POST body for calling `sample_method` with 3 parameters: `param
 }
 ```
 
+Requests that are executed successfully will return an object that follows this structure:
+
+```JS
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "success": true,
+        ...
+    },
+    "id": 0
+}
+```
+
+Requests that generate an error during execution will return an object that follows this structure:
+
+```JS
+{
+    "jsonrpc": "2.0",
+    "error": {
+        "code": ...,
+        "message": "..."
+    },
+    "id": 0
+}
+```
+
 ### Wallet Management
 
 Most Engine requests will require the ID of a Wallet that is hosted within Engine.  Engine provides the ability to generate a new Wallet or you may import one by private key.
@@ -245,7 +295,7 @@ Retrieve the current SHIP Token and Ether balance of a Wallet.
 
 ### Storage Credentials
 
-Part of ShipChain's Load Contract is the secured external Vault for storing any documents or tracking data related to a shipment.  Engine manages the information in these Vaults and will require credentials to connect to the location where the vault files are stored.
+Part of ShipChain's Load Contract is the secured external [Vault](#vaults) for storing any documents or tracking data related to a shipment.  Engine manages the information in these Vaults and will require credentials to connect to the location where the vault files are stored.
 
 #### Create
 
@@ -362,6 +412,8 @@ Modify the Title or Options of an existing Storage Credentials hosted in Engine.
     "title": "Optional Updated Title",
     "options": {
       "credentials": {
+        "host": "sftp.example.com",
+        "port": "22",
         "username": "rmunroe",
         "password": "correcthorsebatterystaple"
       }
@@ -389,36 +441,392 @@ After creating a StorageCredential, you may want to test connectivity prior to u
 
 The return from this method will include a `"valid": true` if a files was successfully created with the storage driver, or `"valid": false` and potentially a `"message": <reason>` indicating what went wrong.
 
+### Vaults
+
+Many types of documents and data points need to be tied to a Shipment.  However, storing large amounts of data on the blockchain is prohibitively expensive.  To combat the high cost of data storage while maintaining the guarantee of data integrity for a shipment's related data, Engine has Vaults.
+
+A Vault is a JSON datastore with embedded, encrypted content held within container sub-objects, role-based access to those containers, a log of the previous actions, and a signed hash of the full vault.  The vault's hash is generated via the keccak256 hashing algorithm and is stored in the blockchain to allow 3rd party validation that both the encrypted data within a vault has not been tampered with and the hash was generated by the owner of that vault (or other Wallet with appropriate role-based access).
+
+#### Create
+
+A vault's location is defined within the context of a Storage Driver. When defining a vault, you must provide an ID of a [Storage Credential](#storage-credentials) as well as the Owner of the vault (the Shipper)
+
+```JS
+{
+  "method": "vault.create",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "shipperWallet": "eea40c56-7674-43a5-8612-30abd98cf58b"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+The object returned will include the newly created `vault_id`.  This value will need to be provided as the `vault` parameter to all remaining interactions with the Vault (as seen in the examples below).
+
+#### Verify
+
+A vault's contents can be verified against the embedded, signed hash to ensure that there has been no unauthorized modifications to the vault since the last update.
+
+```JS
+{
+  "method": "vault.verify",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+The object returned will include the newly created `vault_id`.  This value will need to be provided as the `vault` parameter to all remaining interactions with the Vault (as seen in the examples below).
+
+#### Tracking Data Container
+
+One container in the vault is for logging the GPS coordinates and sensor status over the length of the shipment.
+
+##### Add
+
+Appending new data points in this container is performed via:
+
+```JS
+{
+  "method": "vault.add_tracking",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "payload": {
+      "position": {
+        "latitude": -81.048253,
+        "longitude": 34.628643,
+        "altitude": 924,
+        "source": "gps",
+        "certainty": 95,
+        "speed": 34
+      },
+      "version": "1.0.0",
+      "device_id": "{{device_id}}"
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### Retrieve
+
+Retrieving the existing data points in this container is performed via:
+
+```JS
+{
+  "method": "vault.get_tracking",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### Shipment Data Container
+
+One container in the vault is for storing the associated [Shipment Primitive data](https://docs.shipchain.io/docs/shipment.html).
+
+##### Add
+
+Setting the Shipment data in this container is an overwrite action, not an append action.  This is performed via:
+
+```JS
+{
+  "method": "vault.add_shipment",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "shipment": {
+      "id": "14D6A86b-b52e-4CBE-93AE-CEA5bA90fAcb",
+      "carrier_scac": "F49S"
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### Retrieve
+
+Retrieving the Shipment Data in this container is performed via:
+
+```JS
+{
+  "method": "vault.get_shipment",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### Documents Container
+
+One container in the vault is for storing files/documents related to a shipment.
+
+##### Add
+
+Adding a file in this container is an overwrite action, not an append, of any content already stored by that `documentName`.  The contents of the document should be provided as a string.  The format of this string is up to the user; a base64 encoded string is a recommended approach. This is performed via:
+
+```JS
+{
+  "method": "vault.add_document",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "documentName": "example.png",
+    "documentContent": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mN8U+T4nYEIwDiqkL4KAZKnGefMCAbPAAAAAElFTkSuQmCC"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### Retrieve
+
+Retrieving one of the existing documents in this container is performed via:
+
+```JS
+{
+  "method": "vault.get_document",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "documentName": "example.png"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### List
+
+Listing the files included in this container is performed via:
+
+```JS
+{
+  "method": "vault.list_documents",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### Historical Retrieval
+
+An Engine Vault contains a running Ledger of all actions taken in each Container.  This data is encrypted with a special role and is viewable by users in that Ledger role only; by default the Shipper is included in this role.  This provides the ability to generate Vault data that was present at any previous date by replaying previous actions up to the specified date.
+
+Each of the above containers (shipment, tracking, documents) support this historical retrieval and getting this prior data is handled via new RPC methods.
+
+ - `get_historical_shipment_data`
+ - `get_historical_tracking_data`
+ - `get_historical_document`
+
+These are called the same as their non-historical counterparts, except they require an additional parameter `date`. This new parameter is the date (UTC) at which you wish to view the contents. If no contents existed before the date you specify, you will receive an error indicating this. The format of this new date field follows the ISO8601 standard `YYYY-MM-DDTHH:mm:ss.SSSZ`.
+
+For example, to retrieve the contents of the file `example.png` as it existed in the vault as of 2:00 pm UTC on November 1st, 2018 use the following request:
+
+```JS
+{
+  "method": "vault.get_document",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "documentName": "example.png",
+    "date": "2018-11-01T14:00:00.000Z"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
 ### Load Contract
 
-_Documentation in progress..._
+The Load Contract is versioned using [SemVer](https://semver.org/).  The latest supported version in Engine is `1.1.0`.  However, Engine supports interacting with multiple versions of the Load Contract via different RPC Namespaces.
+
+Every call to interact with a Shipment via the Load Contract will need to provide a ShipmentUUID.  This is currently managed via Transmission for ShipChain's instance of Engine.  This UUID will be transformed in to the byte16 lookup in to the Shipment Mapping in the contract.
+
+NOTE: The methods outlined below are for the latest `1.1.0` version only.
+
+#### Helpful Information
+
+During interaction with ShipChain's Load Contract, you will need to know the following.  Additional information will be available when the contract's source is released.
+
+<!-- TODO: Include link to smart-contracts -->
+
+##### Contract Version
+
+In the response from creating a new Shipment, the Load Contract version is returned (`contractVersion`).  This will be used in interacting with the created shipment through the course of the shipment's lifetime.  Append the `contractVersion` to the RPC Namespace `load` prior to specifying the RPC Method.
+
+For example, when retrieving Shipment Data for Load Contraction version 1.1.0, instead of calling `load.get_shipment_data`, you will need to use the contract specific version `load.1.1.0.get_shipment_data`
+
+```JS
+{
+  "method": "load.1.1.0.get_shipment_data",
+  "params": {...},
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### Multiple Requests Needed
+
+Until this point, most actions in Engine required a single RPC Method invocation.  When interacting with the Smart Contracts you will need to perform _three_ separate requests for most actions.  Any Load RPC method that ends with `_tx` will only generate the _transaction_ for the request.  You will still need to Sign and Send this transaction via the [Transaction](#transactions) RPC Namespace methods.
+
+##### Escrow Funding Types
+
+When creating a Shipment, you will need to specify the type of Escrow you desire.  NO_FUNDING will prevent funds from being sent to the Escrow for a Shipment.  SHIP and ETHER will require the Escrow to be funded with only SHIP or ETH, respectively.
+
+```JS
+export enum EscrowFundingType {
+    NO_FUNDING = 0,
+    SHIP = 1,
+    ETHER = 2,
+}
+```
+
+##### Shipment States
+
+The state of the Basic Shipment.
+
+```JS
+export enum ShipmentState {
+    NOT_CREATED = 0,
+    CREATED = 1,
+    IN_PROGRESS = 2,
+    COMPLETE = 3,
+    CANCELED = 4,
+}
+```
+
+##### Escrow States
+
+The state of the Escrow _within_ the Shipment.  This is tightly coupled with the Shipment State.  I.E. Funds in an Escrow cannot be distributed if the Shipment is IN_PROGRESS.
+
+```JS
+export enum EscrowState {
+    NOT_CREATED = 0,
+    CREATED = 1,
+    FUNDED = 2,
+    RELEASED = 3,
+    REFUNDED = 4,
+    WITHDRAWN = 5,
+}
+```
+
+#### Create
+
+Creating a new Shipment is performed via the non-versioned RPC Namespace.  Previous versions of the load contract are not guaranteed to support creating new Shipments once newer versions are released, but the non-versioned method will _always_ create shipments against the latest supported version of the contract.
+
+```JS
+{
+  "method": "load.create_shipment_tx",
+  "params": {
+    "shipmentUuid": "77777777-25fe-465e-8458-0e9f8ffa2cdd",
+    "senderWallet": "a245bf61-6669-4d5a-b305-e8a6c39993e7",
+    "fundingType": 1,
+    "contractedAmount": 1000000000000000000
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+A successful response will follow this structure.  Note the `contractVersion` included in the response.  This will be used in generating the `method` names for **all remaining interactions with this shipment**.  The `transaction` object in the response will need to be passed to the `transaction.sign` method outlined in the [Transactions](#transactions) section
+
+```JS
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "success": true,
+    "contractVersion": "1.1.0",
+    "transaction": {
+      "nonce": "0xc4",
+      "chainId": 1337,
+      "to": "0xeB6FAce10d2e9ebeEf55f42Cb78834908D5B8a2B",
+      "gasPrice": "0x4a817c800",
+      "gasLimit": "0x7a120",
+      "value": "0x0",
+      "data": "0xb5a42b877777777725fe465e84580e9f8ffa2cdd0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000de0b6b3a7640000"
+    }
+  },
+  "id": 0
+}
+```
+
+#### Get Data
+
+There are two types of data stored within the Shipment on the Load Contract.
+
+##### Shipment Data
+
+The basic Shipment data (including the Wallet address of the Shipper, Carrier, and optional Moderator, as well as the current State of the Shipment).
+
+```JS
+{
+  "method": "load.1.1.0.get_shipment_data",
+  "params": {
+  	"shipmentUuid": "77777777-25fe-465e-8458-0e9f8ffa2cdd"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### Escrow Data
+
+The Shipment's Escrow data (including the contractedAmount, fundedAmount, createdAt Time, fundingType, refundAddress, and the current State of the Escrow).
+
+```JS
+{
+  "method": "load.1.1.0.get_escrow_data",
+  "params": {
+  	"shipmentUuid": "77777777-25fe-465e-8458-0e9f8ffa2cdd"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### _Documentation in progress..._
 
 ```
-#### Create Shipment
-#### Create Vault
-#### Manage Tracking Data
-##### Add
-##### Retrieve
-#### Manage Shipment Fields
-##### Add
-##### Retrieve
-#### Update Contract Vault Hash
-#### Status
-##### Details
-##### Details Continued
-##### Escrow
-##### Flags
-#### Funding
-##### SHIPToken
-##### Ether
-##### Cash
-#### Carrier Progress
-##### Commit
-##### In Transit
-##### Complete
-#### Shipper Accept
-#### Carrier Payment
-#### Shipper Cancel
+set_vault_uri_tx
+set_vault_hash_tx
+set_carrier_tx
+set_moderator_tx
+set_in_progress_tx
+set_complete_tx
+set_canceled_tx
+fund_escrow_tx
+fund_escrow_ether_tx
+fund_escrow_ship_tx
+release_escrow_tx
+withdraw_escrow_tx
+refund_escrow_tx
 ```
 
 ### Transactions

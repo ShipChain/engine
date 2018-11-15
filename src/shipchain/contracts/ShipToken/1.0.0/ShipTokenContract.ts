@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Wallet } from '../entity/Wallet';
-import { BaseContract } from '../contracts/BaseContract';
+import { Wallet } from '../../../../entity/Wallet';
+import { BaseContract } from '../../../../contracts/BaseContract';
 
-export class TokenContract extends BaseContract {
+export class ShipTokenContract extends BaseContract {
     constructor(network: string, version: string) {
         super('ShipToken', network, version);
     }
@@ -26,7 +26,7 @@ export class TokenContract extends BaseContract {
         shipperWallet: Wallet,
         contractAddress: string,
         tokenAmount: number,
-        callbackArguments: number[],
+        callbackArguments: any,
     ) {
         const txMethod = await this.buildTransaction('approveAndCall', [
             contractAddress,

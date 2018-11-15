@@ -16,7 +16,6 @@
 
 import { Logger, loggers } from "winston";
 
-// @ts-ignore
 const logger: Logger = loggers.get('engine');
 
 export async function getAwsSecret(secretName: string): Promise<any>{
