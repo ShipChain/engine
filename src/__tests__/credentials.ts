@@ -55,4 +55,29 @@ describe('StorageCredentialEntity', function() {
 
         expect(credential.getDriverOptions()).toEqual(options_from_id);
     });
+
+    it(`can update storage credentials`, async () => {
+        const attrs = {
+            title: 'My Driver',
+            driver_type: 'local',
+            base_path: './storage/credential-test',
+            options: { foo: 'bar' },
+        };
+
+        const newTitle = "New Title";
+        const newOptions = {setting: "New!"};
+
+        const credential = StorageCredential.generate_entity(attrs);
+        await credential.save();
+
+        // Update Title
+        await credential.update(newTitle);
+        expect(credential.title).toEqual(newTitle);
+        expect(credential.options).toEqual(attrs.options);
+
+        // Update Options
+        await credential.update(null, newOptions);
+        expect(credential.title).toEqual(newTitle);
+        expect(credential.options).toEqual(newOptions);
+    });
 });
