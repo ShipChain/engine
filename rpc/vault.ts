@@ -39,7 +39,7 @@ export class RPCVault {
 
         if (args.carrierWallet) {
             const carrierWallet = await Wallet.getById(args.carrierWallet);
-            await vault.authorize(shipperWallet, 'owners', carrierWallet.public_key);
+            await vault.authorize(shipperWallet, LoadVault.OWNERS_ROLE, carrierWallet.public_key);
         }
 
         const signature = await vault.writeMetadata(shipperWallet);
