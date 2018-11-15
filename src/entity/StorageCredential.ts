@@ -78,7 +78,7 @@ export class StorageCredential extends BaseEntity {
         return count[0]['cnt'];
     }
 
-    static async getOptionsById(id: string) {
+    static async getById(id: string) {
         const DB = getConnection();
         const repository = DB.getRepository(StorageCredential);
 
@@ -88,7 +88,24 @@ export class StorageCredential extends BaseEntity {
             throw new Error('StorageCredentials not found');
         }
 
-        return storageCredential.getDriverOptions();
+        return storageCredential;
+    }
+
+    static async getOptionsById(id: string) {
+        return (await StorageCredential.getById(id)).getDriverOptions();
+    }
+
+    async update(title?: string, options?: any) {
+
+        if(title){
+            this.title = title;
+        }
+
+        if(options){
+            this.options = options;
+        }
+
+        await this.save();
     }
 
     getDriverOptions() {

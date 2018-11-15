@@ -327,8 +327,8 @@ To view the Minio interface to the Buckets containing the vault files, navigate 
       "credentials": {
         "host": "sftp.example.com",
         "port": "22",
-        "username": "my_user",
-        "password": "correcthorsebatterystaple"
+        "username": "rmunroe",
+        "password": "Tr0ub4dor&3"
       }
     }
   },
@@ -349,6 +349,45 @@ List the Title, Driver Type, and Base path of the Storage Credentials hosted in 
   "id": 0
 }
 ```
+
+#### Update
+
+Modify the Title or Options of an existing Storage Credentials hosted in Engine.  The `base_path` and `driver_type` of a saved StorageCredentials can not be updated as that change would likely make existing Vaults accessed with the StorageCredentials unreachable.
+
+```JS
+{
+  "method": "storage_credentials.update",
+  "params": {
+    "storageCredentials": "7cc34443-64af-4d48-b9f2-0bcdf488f1e3",
+    "title": "Optional Updated Title",
+    "options": {
+      "credentials": {
+        "username": "rmunroe",
+        "password": "correcthorsebatterystaple"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### Test
+
+After creating a StorageCredential, you may want to test connectivity prior to utilizing it for storing Vaults.  To do this, use the following method with the ID of the created Storage Credential.
+
+```JS
+{
+  "method": "storage_credentials.test",
+  "params": {
+    "storageCredentials": "7cc34443-64af-4d48-b9f2-0bcdf488f1e3"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+The return from this method will include a `"valid": true` if a files was successfully created with the storage driver, or `"valid": false` and potentially a `"message": <reason>` indicating what went wrong.
 
 ### Load Contract
 
