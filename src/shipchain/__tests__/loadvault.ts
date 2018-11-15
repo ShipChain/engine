@@ -20,7 +20,7 @@ import 'mocha';
 import { createConnection } from 'typeorm';
 import { LoadVault } from '../LoadVault';
 import { Wallet } from '../../entity/Wallet';
-import { PrivateKeyDBFieldEncryption } from "../../encryption/PrivateKeyDBFieldEncryption";
+import { PrivateKeyDBFieldEncryption } from "../../entity/encryption/PrivateKeyDBFieldEncryption";
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
