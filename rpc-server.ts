@@ -66,6 +66,7 @@ server.expose("storage_credentials", {
     "create_hosted": RPCStorageCredentials.Create,
     "list": RPCStorageCredentials.List,
     "test": RPCStorageCredentials.TestConnectivity,
+    "update": RPCStorageCredentials.Update,
 });
 
 server.expose("transaction", {

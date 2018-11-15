@@ -131,4 +131,20 @@ export class RPCStorageCredentials {
             message
         };
     }
+
+    @RPCMethod({
+        require: ['storageCredentials'],
+        validate: {
+            uuid: ['storageCredentials'],
+        },
+    })
+    public static async Update(args) {
+        const storage = await StorageCredential.getById(args.storageCredentials);
+
+        await storage.update(args.title, args.options);
+
+        return {
+            updated: true
+        }
+    }
 }
