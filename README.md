@@ -412,6 +412,8 @@ Modify the Title or Options of an existing Storage Credentials hosted in Engine.
     "title": "Optional Updated Title",
     "options": {
       "credentials": {
+        "host": "sftp.example.com",
+        "port": "22",
         "username": "rmunroe",
         "password": "correcthorsebatterystaple"
       }
@@ -626,6 +628,35 @@ Listing the files included in this container is performed via:
     "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
     "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
     "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### Historical Retrieval
+
+An Engine Vault contains a running Ledger of all actions taken in each Container.  This data is encrypted with a special role and is viewable by users in that Ledger role only; by default the Shipper is included in this role.  This provides the ability to generate Vault data that was present at any previous date by replaying previous actions up to the specified date.
+
+Each of the above containers (shipment, tracking, documents) support this historical retrieval and getting this prior data is handled via new RPC methods.
+
+ - `get_historical_shipment_data`
+ - `get_historical_tracking_data`
+ - `get_historical_document`
+
+These are called the same as their non-historical counterparts, except they require an additional parameter `date`. This new parameter is the date (UTC) at which you wish to view the contents. If no contents existed before the date you specify, you will receive an error indicating this. The format of this new date field follows the ISO8601 standard `YYYY-MM-DDTHH:mm:ss.SSSZ`.
+
+For example, to retrieve the contents of the file `example.png` as it existed in the vault as of 2:00 pm UTC on November 1st, 2018 use the following request:
+
+```JS
+{
+  "method": "vault.get_document",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "documentName": "example.png",
+    "date": "2018-11-01T14:00:00.000Z"
   },
   "jsonrpc": "2.0",
   "id": 0

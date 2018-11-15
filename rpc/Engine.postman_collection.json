@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0795753f-2a9a-4185-9d33-22ed74ccfa59",
+		"_postman_id": "66be1186-0160-46f1-ac3d-f0e4d14ed896",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -229,7 +229,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"storage_credentials.create_hosted\",\n\t\"params\": {\n\t\t\"title\": \"Test SFTP\",\n\t\t\"driver_type\": \"sftp\",\n\t\t\"options\": {\n\t\t\t\"credentials\": {\n\t\t\t\t\"host\": \"localhost\",\n\t\t\t\t\"port\": \"22\",\n\t\t\t\t\"username\": \"xkcd\",\n\t\t\t\t\"password\": \"correcthorsebatterstaple\"\n\t\t\t}\n\t\t}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"storage_credentials.create_hosted\",\n\t\"params\": {\n\t\t\"title\": \"Test SFTP\",\n\t\t\"driver_type\": \"sftp\",\n\t\t\"options\": {\n\t\t\t\"credentials\": {\n\t\t\t\t\"host\": \"localhost\",\n\t\t\t\t\"port\": \"22\",\n\t\t\t\t\"username\": \"xkcd\",\n\t\t\t\t\"password\": \"Tr0ub4dor&3\"\n\t\t\t}\n\t\t}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -286,6 +286,62 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\t\"method\": \"storage_credentials.list\",\n\t\"params\": {},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "storage_credentials.test",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"storage_credentials.test\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"7cc34443-64af-4d48-b9f2-0bcdf488f1e3\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "storage_credentials.update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"storage_credentials.update\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"options\": {\n\t\t\t\"credentials\": {\n\t\t\t\t\"host\": \"localhost\",\n\t\t\t\t\"port\": \"22\",\n\t\t\t\t\"username\": \"xkcd\",\n\t\t\t\t\"password\": \"correcthorsebatterstaple\"\n\t\t\t}\n\t\t}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -620,6 +676,90 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\t\"method\": \"vault.verify\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.get_historical_document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"load.get_historical_document\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\",\n\t\t\"documentName\": \"example.png\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.get_historical_tracking_data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"load.get_historical_tracking_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.get_historical_shipment_data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"load.get_historical_shipment_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
