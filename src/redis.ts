@@ -62,12 +62,15 @@ export async function ResourceLock(key: string, base_obj: any, method_to_lock: s
             metrics.methodTime("ResourceLock", lockObtainTime - lockAttemptTime);
             logger.silly(`Locked using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
 
-            const method_return = await (base_obj[method_to_lock])(...params);
-            logger.silly(`Unlocking using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
-
-            lock.unlock();
-
-            resolve(method_return);
+            try {
+                const method_return = await (base_obj[method_to_lock])(...params);
+                resolve(method_return);
+            } catch (err) {
+                reject(err);
+            } finally {
+                logger.silly(`Unlocking using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
+                lock.unlock();
+            }
 
         }).catch(function(err) {
             // we weren't able to reach redis; your lock will eventually
