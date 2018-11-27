@@ -254,49 +254,49 @@ export class EventSubscription extends BaseEntity {
                             logger.error(`Error retrieving Events: ${error}`);
                             reject(error);
                         }
+                        else {
+                            if (events.length) {
+                                logger.info(`Found ${events.length} Events`);
+                                let highestBlock = EventSubscription.findHighestBlockInEvents(
+                                    events,
+                                    eventSubscription.lastBlock,
+                                );
 
-                        if (events.length) {
-                            logger.info(`Found ${events.length} Events`);
-                            let highestBlock = EventSubscription.findHighestBlockInEvents(
-                                events,
-                                eventSubscription.lastBlock,
-                            );
+                                try {
+                                    let options = {
+                                        url: eventSubscription.url,
+                                        json: events,
+                                        timeout: 60 * SECONDS,
+                                    };
+                                    options = Object.assign(options, await getRequestOptions());
 
-                            try {
-                                let options = {
-                                    url: eventSubscription.url,
-                                    json: events,
-                                    timeout: 60 * SECONDS,
-                                };
-                                options = Object.assign(options, await getRequestOptions());
-
-                                request
-                                    .post(options)
-                                    .on('response', async function(response) {
-                                        if (response.statusCode != 200 && response.statusCode != 204) {
-                                            logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.url}]`);
+                                    request
+                                        .post(options)
+                                        .on('response', async function(response) {
+                                            if (response.statusCode != 200 && response.statusCode != 204) {
+                                                logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.url}]`);
+                                                await eventSubscription.failed();
+                                                resolve();
+                                            } else {
+                                                await eventSubscription.success(highestBlock);
+                                                resolve();
+                                            }
+                                        })
+                                        .on('error', async function(err) {
+                                            logger.error(`Event Subscription Failed with ${err} [${eventSubscription.url}]`);
                                             await eventSubscription.failed();
                                             resolve();
-                                        } else {
-                                            await eventSubscription.success(highestBlock);
-                                            resolve();
-                                        }
-                                    })
-                                    .on('error', async function(err) {
-                                        logger.error(`Event Subscription Failed with ${err} [${eventSubscription.url}]`);
-                                        await eventSubscription.failed();
-                                        resolve();
-                                    });
-                            } catch (_err) {
-                                logger.error(`Error posting events to ${eventSubscription.url} ${_err}`);
-                                await eventSubscription.failed();
+                                        });
+                                } catch (_err) {
+                                    logger.error(`Error posting events to ${eventSubscription.url} ${_err}`);
+                                    await eventSubscription.failed();
+                                    resolve();
+                                }
+                            } else {
+                                logger.silly(`Found ${events.length} Events`);
                                 resolve();
                             }
-                        } else {
-                            logger.silly(`Found ${events.length} Events`);
-                            resolve();
                         }
-
                     },
                 );
             });
