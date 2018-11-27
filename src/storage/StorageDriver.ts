@@ -64,7 +64,7 @@ enum DriverErrorStates {
     NotFoundError = 'File Not Found',
     ParameterError = 'Error in Parameters',
     RequestError = 'Error in Request',
-    UnknownError = 'Unknown Error from Storage Driver',
+    UnknownError = 'Error from Storage Driver',
 }
 
 export class DriverError extends Error {
@@ -77,16 +77,32 @@ export class DriverError extends Error {
     constructor(errorState: DriverErrorStates, wrappedError: Error, reason?: string) {
         super(errorState);
 
+        this.name = 'DriverError';
+
         // Set the prototype explicitly.
         Object.setPrototypeOf(this, DriverError.prototype);
 
         this.errorState = errorState;
         this.wrappedError = wrappedError;
 
-        if (typeof reason == undefined) {
+        if (typeof reason == undefined && wrappedError) {
             this.reason = wrappedError.message;
         } else {
             this.reason = reason;
+        }
+
+        if(wrappedError) {
+            // Cleanup the wrapped error properties to force a better string output when `Error.prototype.toString()` is used
+            if (!wrappedError.name || wrappedError.name === "Error") {
+                wrappedError.name = '';
+            }
+
+            if (!wrappedError.message) {
+                wrappedError.message = '';
+            }
+
+            // Generate the user friendly message
+            this.message = `${errorState} [${wrappedError}]`;
         }
     }
 }
