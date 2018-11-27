@@ -53,7 +53,7 @@ describe('ContractEntity', function() {
         expect(await Project.count()).toEqual(2);
         expect(await Network.count()).toEqual(3);
         expect(await Version.count()).toEqual(3);
-        expect(await Contract.count()).toEqual(6);
+        expect(await Contract.count()).toEqual(9);
     });
 
     it(

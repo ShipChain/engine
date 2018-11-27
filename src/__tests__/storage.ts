@@ -198,7 +198,7 @@ describe('StorageDriver ', function() {
                         caughtError = err;
                     }
 
-                    expect(caughtError.message).toEqual(DriverError.States.NotFoundError);
+                    expect(caughtError.message).toMatch(DriverError.States.NotFoundError);
                 }),
             );
 
@@ -290,7 +290,7 @@ describe('StorageDriver ', function() {
                             caughtError = err;
                         }
 
-                        expect(caughtError.message).toEqual(DriverError.States.NotFoundError);
+                        expect(caughtError.message).toMatch(DriverError.States.NotFoundError);
                     }),
                 );
 
@@ -305,7 +305,7 @@ describe('StorageDriver ', function() {
                             caughtError = err;
                         }
 
-                        expect(caughtError.message).toEqual(DriverError.States.ParameterError);
+                        expect(caughtError.message).toMatch(DriverError.States.ParameterError);
                     }),
                 );
 
@@ -320,7 +320,7 @@ describe('StorageDriver ', function() {
                             caughtError = err;
                         }
 
-                        expect(caughtError.message).toEqual(DriverError.States.ParameterError);
+                        expect(caughtError.message).toMatch(DriverError.States.ParameterError);
                     }),
                 );
 
@@ -335,7 +335,7 @@ describe('StorageDriver ', function() {
                             caughtError = err;
                         }
 
-                        expect(caughtError.message).toEqual(DriverError.States.ParameterError);
+                        expect(caughtError.message).toMatch(DriverError.States.ParameterError);
                     }),
                 );
 
@@ -350,7 +350,7 @@ describe('StorageDriver ', function() {
                             caughtError = err;
                         }
 
-                        expect(caughtError.message).toEqual(DriverError.States.ParameterError);
+                        expect(caughtError.message).toMatch(DriverError.States.ParameterError);
                     }),
                 );
 
