@@ -42,7 +42,11 @@ export class AsyncPoll extends EventEmitter {
 
     static wrapCallback(self: AsyncPoll, callback: any, once?: boolean) {
         async function execute() {
-            await callback();
+            try {
+                await callback();
+            } catch (err) {
+                logger.error(`Error Executing AsyncPoll ${err}`);
+            }
             if (!once) {
                 self.start();
             }
