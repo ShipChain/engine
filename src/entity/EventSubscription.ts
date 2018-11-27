@@ -109,50 +109,54 @@ export class EventSubscription extends BaseEntity {
     @CreateDateColumn() createdDate: Date;
 
     private contractDriver: any;
-    private asyncPolls: AsyncPoll[] = [];
+    private asyncPolls: any = {};
 
     static DEFAULT_INTERVAL = 30 * SECONDS;
     static ERROR_THRESHOLD = 30;
 
-    private static activeSubscriptions: EventSubscription[] = [];
+    private static activeSubscriptions: any = {};
 
     static async getOrCreate(attrs: EventSubscriberAttrs): Promise<EventSubscription> {
         let eventSubscriber: EventSubscription;
 
-        if (EventSubscription.activeSubscriptions[attrs.url]) {
-            logger.debug(`Removing active Subscription to ${attrs.url}`);
-            EventSubscription.activeSubscriptions[attrs.url].stop();
-            delete EventSubscription.activeSubscriptions[attrs.url];
-        }
-
         try {
-            eventSubscriber = await EventSubscription.getByUrl(attrs.url);
+            eventSubscriber = await EventSubscription.getByUrlAndProject(attrs.url, attrs.project);
+
+            if (EventSubscription.activeSubscriptions[eventSubscriber.id]) {
+                logger.debug(`Removing active Subscription to [${eventSubscriber.id}] ${attrs.project}_${attrs.url}`);
+                EventSubscription.activeSubscriptions[eventSubscriber.id].stop();
+                delete EventSubscription.activeSubscriptions[eventSubscriber.id];
+            }
+
+
             eventSubscriber.eventNames = attrs.eventNames || eventSubscriber.eventNames;
             eventSubscriber.lastBlock = attrs.lastBlock || eventSubscriber.lastBlock;
             eventSubscriber.interval = attrs.interval || eventSubscriber.interval;
             eventSubscriber.errorCount = 0;
             logger.debug(`Updating existing Subscription ${JSON.stringify(eventSubscriber)}`);
+            await eventSubscriber.save();
         } catch (error) {
-            eventSubscriber = new EventSubscription();
-            eventSubscriber.url = attrs.url;
-            eventSubscriber.project = attrs.project;
-            eventSubscriber.eventNames = attrs.eventNames || ['allEvents'];
-            eventSubscriber.lastBlock = attrs.lastBlock || 0;
-            eventSubscriber.interval = attrs.interval || EventSubscription.DEFAULT_INTERVAL;
-            eventSubscriber.errorCount = 0;
+            const newSubscriber = new EventSubscription();
+            newSubscriber.url = attrs.url;
+            newSubscriber.project = attrs.project;
+            newSubscriber.eventNames = attrs.eventNames || ['allEvents'];
+            newSubscriber.lastBlock = attrs.lastBlock || 0;
+            newSubscriber.interval = attrs.interval || EventSubscription.DEFAULT_INTERVAL;
+            newSubscriber.errorCount = 0;
+            eventSubscriber = await newSubscriber.save();
             logger.debug(`Creating new Subscription ${JSON.stringify(eventSubscriber)}`);
         }
 
-        EventSubscription.activeSubscriptions[attrs.url] = eventSubscriber;
+        EventSubscription.activeSubscriptions[eventSubscriber.id] = eventSubscriber;
 
-        return await eventSubscriber.save();
+        return eventSubscriber;
     }
 
-    static async getByUrl(url: string): Promise<EventSubscription> {
+    static async getByUrlAndProject(url: string, project: string): Promise<EventSubscription> {
         const DB = getConnection();
         const repository = DB.getRepository(EventSubscription);
 
-        let eventSubscriber = await repository.findOne({ url: url });
+        let eventSubscriber = await repository.findOne({ url: url, project: project});
 
         if (!eventSubscriber) {
             throw new Error('EventSubscription not found');
@@ -173,20 +177,24 @@ export class EventSubscription extends BaseEntity {
         const repository = DB.getRepository(EventSubscription);
 
         const count = await repository
-            .createQueryBuilder('eventSubscription')
-            .select('COUNT(eventSubscription.url) AS cnt')
+            .createQueryBuilder()
+            .from('EventSubscription', 'es')
+            .select('COUNT(*) AS cnt')
+            .groupBy('es.url, es.project')
             .getRawMany();
 
         return count[0]['cnt'];
     }
 
-    static async unsubscribe(url: string) {
-        if (EventSubscription.activeSubscriptions[url]) {
-            let eventSubscription = EventSubscription.activeSubscriptions[url];
-            eventSubscription.stop();
-            eventSubscription.remove();
-            delete EventSubscription.activeSubscriptions[url];
-            return eventSubscription;
+    static async unsubscribe(url: string, project: string) {
+        let subscriptionObject = await EventSubscription.getByUrlAndProject(url, project);
+
+        if (EventSubscription.activeSubscriptions[subscriptionObject.id]) {
+            const activeSubscription = EventSubscription.activeSubscriptions[subscriptionObject.id];
+            activeSubscription.stop();
+            await activeSubscription.remove();
+            delete EventSubscription.activeSubscriptions[subscriptionObject.id];
+            return subscriptionObject;
         }
         throw new Error('Unable to find Subscription');
     }
@@ -210,7 +218,7 @@ export class EventSubscription extends BaseEntity {
     }
 
     async start(contract: Contract) {
-        EventSubscription.activeSubscriptions[this.url] = this;
+        EventSubscription.activeSubscriptions[this.id] = this;
 
         this.contractDriver = await contract.getDriver();
 
@@ -284,7 +292,7 @@ export class EventSubscription extends BaseEntity {
                                         .post(options)
                                         .on('response', async function(response) {
                                             if (response.statusCode != 200 && response.statusCode != 204) {
-                                                logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.url}]`);
+                                                logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`);
                                                 await eventSubscription.failed();
                                                 resolve();
                                             } else {
@@ -293,12 +301,12 @@ export class EventSubscription extends BaseEntity {
                                             }
                                         })
                                         .on('error', async function(err) {
-                                            logger.error(`Event Subscription Failed with ${err} [${eventSubscription.url}]`);
+                                            logger.error(`Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`);
                                             await eventSubscription.failed();
                                             resolve();
                                         });
                                 } catch (_err) {
-                                    logger.error(`Error posting events to ${eventSubscription.url} ${_err}`);
+                                    logger.error(`Error posting events to ${eventSubscription.project}_${eventSubscription.url} ${_err}`);
                                     await eventSubscription.failed();
                                     resolve();
                                 }
