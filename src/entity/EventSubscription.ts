@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-import { BaseEntity, Column, CreateDateColumn, Entity, getConnection, PrimaryColumn } from 'typeorm';
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    getConnection,
+    Index,
+    PrimaryGeneratedColumn
+} from "typeorm";
 import { Contract } from './Contract';
 import { EventEmitter } from 'events';
 import { Logger, loggers } from 'winston';
@@ -89,8 +97,10 @@ class EventSubscriberAttrs {
 }
 
 @Entity()
+@Index("URL_PROJECT_INDEX", ["url", "project"], { unique: true })
 export class EventSubscription extends BaseEntity {
-    @PrimaryColumn() url: string;
+    @PrimaryGeneratedColumn('uuid') id: string;
+    @Column() url: string;
     @Column() project: string;
     @Column('simple-array') eventNames: string[];
     @Column('bigint') lastBlock: number;

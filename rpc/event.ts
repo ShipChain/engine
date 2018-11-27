@@ -48,9 +48,9 @@ export class RPCEvent {
         };
     }
 
-    @RPCMethod({ require: ['url'] })
+    @RPCMethod({ require: ['url', 'project'] })
     public static async Unsubscribe(args) {
-        const eventSubscription = await EventSubscription.unsubscribe(args.url);
+        const eventSubscription = await EventSubscription.unsubscribe(args.url, args.project);
 
         return {
             success: true,
