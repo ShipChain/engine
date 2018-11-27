@@ -931,13 +931,14 @@ At any point the subscriber may re-subscribe with the same callback URL and new 
 
 #### Unsubscribe
 
-Remove an existing Event Subscription. The Event Subscription will no longer be restarted when Engine restarts. The only parameter is the URL of an existing Subscription.
+Remove an existing Event Subscription. The Event Subscription will no longer be restarted when Engine restarts. The only parameters are the specific Project and the URL of an existing Subscription.
 
 ```JS
 {
   "method": "event.unsubscribe",
   "params": {
-    "url": "http://transmission.local/api/v1/contract/events/"
+    "url": "http://transmission.local/api/v1/contract/events/",
+    "project": "LOAD"
   },
   "jsonrpc": "2.0",
   "id": 0
