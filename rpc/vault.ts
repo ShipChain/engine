@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+import S3 = require('aws-sdk/clients/s3');
+
 import { Wallet } from '../src/entity/Wallet';
 import { LoadVault } from '../src/shipchain/LoadVault';
 import { StorageCredential } from '../src/entity/StorageCredential';
+import { DriverError } from "../src/storage/StorageDriver";
 
 import { RPCMethod, RPCNamespace } from './decorators';
 import { validateShipmentArgs } from './validators';
@@ -89,7 +92,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         await load.addTrackingData(wallet, args.payload);
         const signature = await load.writeMetadata(wallet);
 
@@ -134,7 +136,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         await load.addShipmentData(wallet, args.shipment);
         const signature = await load.writeMetadata(wallet);
 
@@ -177,7 +178,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         await load.addDocument(wallet, args.documentName, args.documentContent);
         const signature = await load.writeMetadata(wallet);
 
@@ -188,18 +188,73 @@ export class RPCVault {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'key', 'bucket'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
         },
     })
-    public static async ListDocuments(args) {
+    public static async AddDocumentFromS3(args) {
+
+        const documentContent = await RPCVault.getFileFromS3(args.bucket, args.key);
+
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
+        await load.addDocument(wallet, args.documentName, documentContent);
+        const signature = await load.writeMetadata(wallet);
+
+        return {
+            success: true,
+            vault_signed: signature,
+        };
+    }
+
+    static async getFileFromS3(bucket: string, objectKey: string): Promise<string> {
+        let s3_options = { apiVersion: '2006-03-01' };
+        const s3 = new S3(s3_options);
+
+        return new Promise<string>((resolve, reject) => {
+            s3.getObject(
+                {
+                    Key: objectKey,
+                    Bucket: bucket,
+                },
+                (err, data) => {
+                    if (err) {
+                        reject(new DriverError(DriverError.States.NotFoundError, err));
+                    } else {
+                        let document;
+
+                        // Ignore the error for providing a parameter to `toString`.  This is valid for the Buffer type.
+                        //@ts-ignore
+                        const base64 = data.Body.toString('base64');
+
+                        if(data.ContentType) {
+                            document = `data:${data.ContentType};base64,${base64}`;
+                        } else {
+                            document = `data:application/octet-stream;base64,${base64}`;
+                        }
+
+                        resolve(document);
+                    }
+                },
+            );
+        });
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vault'],
+        validate: {
+            uuid: ['storageCredentials', 'vault'],
+        },
+    })
+    public static async ListDocuments(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+
+        const load = new LoadVault(storage, args.vault);
+
         const list = await load.listDocuments();
 
         return {
@@ -209,18 +264,16 @@ export class RPCVault {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        require: ['storageCredentials', 'vault'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            uuid: ['storageCredentials', 'vault'],
         },
     })
     public static async VerifyVault(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
-        const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         const verified = await load.verify();
 
         return {

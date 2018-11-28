@@ -120,6 +120,8 @@ describe('Vaults', function() {
 
         /* and modifying the signature date invalidates it */
         new_vault.changeSignatureTime();
+        // Override loadMetadata() as we want to force invalid timestamps instead of reloading this from disk.
+        new_vault.loadMetadata = function(): Promise<any> {return new Promise<any>((resolve, reject) => {resolve();});};
         expect(await new_vault.verify()).toBe(false);
 
         /* And delete it to clean up */

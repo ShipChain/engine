@@ -125,6 +125,7 @@ server.expose("vault", {
     "add_shipment": RPCVault.AddShipmentData,
     "get_document": RPCVault.GetDocument,
     "add_document": RPCVault.AddDocument,
+    "add_document_from_s3": RPCVault.AddDocumentFromS3,
     "list_documents": RPCVault.ListDocuments,
     "verify": RPCVault.VerifyVault,
     "get_historical_shipment_data": RPCVault.GetHistoricalShipmentData,
