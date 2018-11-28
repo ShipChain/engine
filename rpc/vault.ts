@@ -245,14 +245,13 @@ export class RPCVault {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        require: ['storageCredentials', 'vault'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            uuid: ['storageCredentials', 'vault'],
         },
     })
     public static async ListDocuments(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
-        const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
 
@@ -265,14 +264,13 @@ export class RPCVault {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        require: ['storageCredentials', 'vault'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            uuid: ['storageCredentials', 'vault'],
         },
     })
     public static async VerifyVault(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
-        const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
 

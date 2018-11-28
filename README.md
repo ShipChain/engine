@@ -474,7 +474,6 @@ A vault's contents can be verified against the embedded, signed hash to ensure t
   "method": "vault.verify",
   "params": {
     "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
-    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
     "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
   },
   "jsonrpc": "2.0",
@@ -626,7 +625,6 @@ Listing the files included in this container is performed via:
   "method": "vault.list_documents",
   "params": {
     "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
-    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
     "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
   },
   "jsonrpc": "2.0",
