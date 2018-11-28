@@ -92,7 +92,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         await load.addTrackingData(wallet, args.payload);
         const signature = await load.writeMetadata(wallet);
 
@@ -137,7 +136,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         await load.addShipmentData(wallet, args.shipment);
         const signature = await load.writeMetadata(wallet);
 
@@ -180,7 +178,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         await load.addDocument(wallet, args.documentName, args.documentContent);
         const signature = await load.writeMetadata(wallet);
 
@@ -205,7 +202,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         await load.addDocument(wallet, args.documentName, documentContent);
         const signature = await load.writeMetadata(wallet);
 
@@ -260,7 +256,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         const list = await load.listDocuments();
 
         return {
@@ -281,7 +276,6 @@ export class RPCVault {
 
         const load = new LoadVault(storage, args.vault);
 
-        await load.getOrCreateMetadata(wallet);
         const verified = await load.verify();
 
         return {

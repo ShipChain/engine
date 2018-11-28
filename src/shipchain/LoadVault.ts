@@ -36,6 +36,7 @@ export class LoadVault extends Vault {
     }
 
     async addTrackingData(author: Wallet, payload) {
+        await this.loadMetadata();
         await this.containers[LoadVault.TRACKING].append(author, payload);
     }
 
@@ -45,6 +46,7 @@ export class LoadVault extends Vault {
     }
 
     async addShipmentData(author: Wallet, shipment) {
+        await this.loadMetadata();
         await this.containers[LoadVault.SHIPMENT].setContents(author, JSON.stringify(shipment));
     }
 
@@ -55,6 +57,7 @@ export class LoadVault extends Vault {
     }
 
     async addDocument(author: Wallet, name: string, document: any) {
+        await this.loadMetadata();
         await this.containers[LoadVault.DOCUMENTS].setSingleContent(author, name, document);
     }
 
@@ -64,6 +67,7 @@ export class LoadVault extends Vault {
     }
 
     async listDocuments() {
+        await this.loadMetadata();
         return await this.containers[LoadVault.DOCUMENTS].listFiles();
     }
 

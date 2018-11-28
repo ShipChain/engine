@@ -110,6 +110,7 @@ export class Vault {
     }
 
     async verify() {
+        await this.loadMetadata();
         logger.info(`Verifying Vault ${this.id}`);
         for (const name in this.meta.containers) {
             if (this.containers.hasOwnProperty(name)) {
