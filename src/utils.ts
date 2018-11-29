@@ -18,28 +18,61 @@ import EthCrypto from 'eth-crypto';
 import { Wallet } from './entity/Wallet';
 
 export const uuidv4 = require('uuid/v4');
-export const stringify = require('json-stable-stringify');
+export const stringify = require('fast-json-stable-stringify');
+const crypto = require('crypto');
 
-export function stringHash(value) {
-    return EthCrypto.hash.keccak256(value);
+const DEFAULT_HASH_ALG = 'sha256';
+
+
+export function stringHash(value: string, alg?: string) {
+
+    if(!alg){
+        alg = DEFAULT_HASH_ALG;
+    }
+
+    switch(alg){
+
+        case "sha256":
+            const hash = crypto.createHash('sha256');
+            hash.update(value);
+            return hash.digest('hex');
+
+        case "keccak256":
+            return EthCrypto.hash.keccak256([{value:value, type:'string'}]);
+
+        default:
+            throw new Error(`Invalid hashing algorithm ${alg}`);
+    }
 }
 
-export function objectHash(obj: any, at?: Date) {
-    /* If the object has a signed property, ignore it */
-    let cleaned = { ...obj };
-    delete cleaned.signed;
-    return stringHash(stringify(cleaned) + stringify(at));
+export function objectHash(obj: any, at?: Date, alg?: string) {
+    let s_cleaned;
+
+    if(typeof obj === 'string'){
+        s_cleaned = obj;
+    }
+
+    else {
+        /* If the object has a signed property, ignore it */
+        let cleaned = { ...obj };
+        delete cleaned.signed;
+        s_cleaned = stringify(cleaned);
+    }
+
+    const s_at = stringify(at);
+    return stringHash(s_cleaned + s_at, alg);
 }
 
 export function objectSignature(author, obj, at?) {
     at = at || new Date();
-    const hash = objectHash(obj, at);
+    const hash = objectHash(obj, at, (obj.signature && obj.signed.alg ? obj.signed.alg : DEFAULT_HASH_ALG));
 
     return {
         author: author.public_key,
         hash: hash,
         at: at,
         signature: author.sign_hash(hash),
+        alg: (obj.signed && obj.signed.alg ? obj.signed.alg : DEFAULT_HASH_ALG)
     };
 }
 
@@ -52,5 +85,5 @@ export function verifySignature(signed) {
 }
 
 export function verifyHash(obj) {
-    return objectHash(obj, obj.signed.at) == obj.signed.hash;
+    return objectHash(obj, obj.signed.at, obj.signed.alg) == obj.signed.hash;
 }

@@ -674,7 +674,7 @@ export abstract class ExternalContainer extends Container {
         const container_meta = this.vault.getContainerMetadata(this.name);
         const container_signature = container_meta[external_file_name];
 
-        const rebuilt_object = { ...file_contents, signed: container_signature };
+        const rebuilt_object = { ...JSON.parse(file_contents), signed: container_signature };
 
         return utils.verifyHash(rebuilt_object) && utils.verifySignature(container_signature);
     }
