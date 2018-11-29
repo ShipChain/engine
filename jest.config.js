@@ -33,5 +33,8 @@ module.exports = {
         }
     },
     "coverageDirectory": "<rootDir>/reports/",
-    "testResultsProcessor": "<rootDir>/node_modules/jest-junit"
+    "reporters": [
+        "default",
+        "jest-junit"
+    ]
 };
