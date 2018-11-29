@@ -6,5 +6,5 @@ then
 fi
 
 # Run migrations
-npm run migrate
+yarn run migrate
 exec "$@"

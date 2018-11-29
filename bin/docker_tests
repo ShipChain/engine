@@ -18,6 +18,6 @@ bin/dc build
 
 bin/dc up -d
 
-bin/dc exec -T rpc npm run test
+bin/dc exec -T rpc yarn run test
 
 bin/dc down

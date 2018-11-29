@@ -67,12 +67,12 @@ Clone the repository:
 git clone https://github.com/ShipChain/engine.git shipchain-engine
 ```
 
-In the cloned repository there are scripts provided in the `bin` directory for Docker container management.  Using these to interact with npm will ensure you are using the correct version of Node.js (This was developed using LTS v8.11.2).
+In the cloned repository there are scripts provided in the `bin` directory for Docker container management.  Using these to interact with yarn will ensure you are using the correct version of Node.js (This was developed using LTS v10.14.0).
 
 Install the required Node packages:
 
 ```
-bin/ddo npm install
+bin/ddo yarn
 ```
 
 Build the Docker image:
@@ -86,7 +86,7 @@ bin/dc build
 The scripts provided in the `bin` directory allow for easier interaction with the Docker compose services and containers.  By default, these scripts use the `dev.yml` compose file.  This can be changed to any configuration file by setting the `ROLE` environment variable.  For example if you want to use `my_settings.yml` with the scripts provided, you would only need to set `ROLE=my_settings` in your environment.
 
  - `bin/dc` Shorthand for running `docker-compose -p shipchain-engine -f compose/dev.yml $*`.  Use this script when you need to build the Engine container or bring the stack up and down.
- - `bin/ddo` Run a command _inside_ the Engine RPC container.  This is useful for `npm install` or running unit tests (described below).
+ - `bin/ddo` Run a command _inside_ the Engine RPC container.  This is useful for `yarn` or running unit tests (described below).
  - `bin/dcleanup` Single command to kill, remove, restart, and tail the new logs of a container.
  - `bin/docker_tests` This executes the unit tests with the `circleci.yml` configuration file.  The RPC service is launched using `sleep infinity` to prevent the full server from launching for the tests.
 
@@ -975,7 +975,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 All Typescript source files are run through Prettier to maintain a consistent style.  This can be executed via Docker by running the command
 
 ```
-bin/ddo npm run prettier
+bin/ddo yarn run prettier
 ```
 -->
 

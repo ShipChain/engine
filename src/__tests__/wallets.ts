@@ -84,7 +84,7 @@ describe('WalletEntity', function() {
 
         const encrypted = await Wallet.encrypt(wallet.public_key, 'SHIPtest');
 
-        expect(await wallet.decrypt_message(encrypted.to_string)).toEqual('SHIPtest');
+        expect(await wallet.decrypt_message(encrypted)).toEqual('SHIPtest');
     });
 
     it(`signs messages and recovers keys`, async () => {
@@ -92,7 +92,9 @@ describe('WalletEntity', function() {
 
         const message = 'SHIPTest';
 
-        const hash = EthCrypto.hash.keccak256(message);
+        const hash = EthCrypto.hash.keccak256([{value: message, type: 'string'}]);
+
+        expect(hash).toEqual("0x6eba83aa272e398b5cddf2055bb404f84c3fd8e42dd96e80edb204f64bff73ab");
 
         const signed = wallet.sign_hash(hash);
 
