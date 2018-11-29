@@ -1,11 +1,9 @@
-FROM node:8.11.2-stretch
+FROM node:10.14.0-stretch
 
 LABEL maintainer="Lucas Clay <lclay@shipchain.io>"
 
 ENV LANG C.UTF-8
 ENV PYTHONUNBUFFERED 1
-
-RUN apt-get update -y && apt-get install -y libgmp3-dev libstdc++6 jq
 
 # SUPPORT SSH FOR IAM USERS #
 RUN apt-get update && apt-get -y install openssh-server python3-pip
@@ -24,10 +22,8 @@ RUN mkdir /app
 WORKDIR /app
 
 ADD ./package.json /app/
-ADD ./package-lock.json /app/
-RUN npm install
-ENV NODE_PATH /app/node_modules
-ENV PATH $PATH:/app/node_modules/.bin
+ADD ./yarn.lock /app/
+RUN yarn
 
 COPY . /app/
 
