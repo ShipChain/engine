@@ -142,7 +142,7 @@ describe('Vaults', function() {
         expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(false);
 
         /* Anyone should be able to sign messages for owners */
-        const encrypted = (await vault.encryptForRole(Vault.OWNERS_ROLE, 'TeST')).to_string;
+        const encrypted = await vault.encryptForRole(Vault.OWNERS_ROLE, 'TeST');
 
         /* Only Author be able to read messages for owners */
         expect(await vault.decryptMessage(author, encrypted)).toBe('TeST');

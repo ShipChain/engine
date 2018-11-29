@@ -154,12 +154,12 @@ export class Vault {
         else this.meta.roles[role] = {};
 
         const role_identity = await Wallet.generate_identity();
-        const encrypted_key = await Wallet.encrypt(author.public_key, role_identity.privateKey);
+        const encrypted_key = await Wallet.encrypt_to_string(author.public_key, role_identity.privateKey);
         this.meta.roles[role].public_key = role_identity.publicKey;
 
         this.logAction(author, 'create_role', { role });
 
-        this.meta.roles[role][author.public_key] = encrypted_key.to_string;
+        this.meta.roles[role][author.public_key] = encrypted_key;
     }
 
     authorized_for_role(public_key: string, role: string) {
@@ -219,7 +219,7 @@ export class Vault {
 
     async encryptForRole(role: string, message: any) {
         const public_key = this.meta.roles[role].public_key;
-        return await Wallet.encrypt(public_key, message);
+        return await Wallet.encrypt_to_string(public_key, message);
     }
 
     async authorize(author: Wallet, role: string, public_key: string, force_key?: string) {
@@ -227,7 +227,7 @@ export class Vault {
         if (!force_key && !this.authorized_for_role(auth_pub, role) && !this.authorized_for_role(auth_pub, role))
             return false;
 
-        const encrypted_key = (await Wallet.encrypt(public_key, await this.__loadRoleKey(author, role))).to_string;
+        const encrypted_key = await Wallet.encrypt_to_string(public_key, await this.__loadRoleKey(author, role));
 
         this.meta.roles[role][public_key] = encrypted_key;
 
@@ -420,8 +420,7 @@ export abstract class EmbeddedContainer extends Container {
             for (const idx in this.meta.roles) {
                 const role = this.meta.roles[idx];
                 try {
-                    const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
-                    this.encrypted_contents[role] = _encrypted_data.to_string;
+                    this.encrypted_contents[role] = await this.vault.encryptForRole(role, unencrypted);
                 } catch (_err) {
                     throw new Error('Unable to encrypt vault data (' + _err.message + ')');
                 }
@@ -623,9 +622,9 @@ export abstract class ExternalContainer extends Container {
                 const _encrypted_data = await this.vault.encryptForRole(role, unencrypted);
                 
                 if(subFile){
-                    this.encrypted_contents[subFile][role] = _encrypted_data.to_string;
+                    this.encrypted_contents[subFile][role] = _encrypted_data;
                 } else {
-                    this.encrypted_contents[role] = _encrypted_data.to_string;
+                    this.encrypted_contents[role] = _encrypted_data;
                 }
             } catch (_err) {
                 throw new Error('Unable to encrypt vault data (' + _err.message + ')');

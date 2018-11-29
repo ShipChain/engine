@@ -135,8 +135,8 @@ export class Wallet extends BaseEntity {
     static async import_entity(private_key) {
 
         // Validate private_key format, this throws if private_key format is not valid
-       const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
-       const address = EthCrypto.publicKey.toAddress(public_key);
+        const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
+        const address = EthCrypto.publicKey.toAddress(public_key);
 
         // Try to get existing wallet by address.
         // Errors indicate Wallet does not exist and needs to be created
@@ -159,9 +159,12 @@ export class Wallet extends BaseEntity {
     }
 
     static async encrypt(public_key, message) {
-        const result = await EthCrypto.encryptWithPublicKey(public_key, message);
-        result.to_string = EthCrypto.cipher.stringify(result);
-        return result;
+        return await EthCrypto.encryptWithPublicKey(public_key, message);
+    }
+
+    static async encrypt_to_string(public_key, message) {
+        const result = await Wallet.encrypt(public_key, message);
+        return EthCrypto.cipher.stringify(result);
     }
 
     static async decrypt_with_raw_key(private_key, message) {
