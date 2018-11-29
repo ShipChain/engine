@@ -6,7 +6,7 @@ ENV LANG C.UTF-8
 ENV PYTHONUNBUFFERED 1
 
 # SUPPORT SSH FOR IAM USERS #
-RUN apt-get update && apt-get -y install openssh-server python3-pip
+RUN apt-get update && apt-get -y install openssh-server python3-pip jq
 RUN mkdir /var/run/sshd /etc/cron.d
 RUN pip3 install keymaker
 RUN keymaker install
