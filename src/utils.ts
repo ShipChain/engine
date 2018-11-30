@@ -35,7 +35,7 @@ export function stringHash(value: string, alg?: string) {
         case "sha256":
             const hash = crypto.createHash('sha256');
             hash.update(value);
-            return hash.digest('hex');
+            return "0x" + hash.digest('hex');
 
         case "keccak256":
             return EthCrypto.hash.keccak256([{value:value, type:'string'}]);
