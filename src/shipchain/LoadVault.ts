@@ -29,7 +29,7 @@ export class LoadVault extends Vault {
 
     protected async initializeMetadata(author: Wallet) {
         await super.initializeMetadata(author);
-        this.getOrCreateContainer(author, LoadVault.TRACKING, 'embedded_list');
+        this.getOrCreateContainer(author, LoadVault.TRACKING, 'external_list_daily');
         this.getOrCreateContainer(author, LoadVault.SHIPMENT, 'embedded_file');
         this.getOrCreateContainer(author, LoadVault.DOCUMENTS, 'external_file_multi');
         return this.meta;
