@@ -25,6 +25,7 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Logger, loggers } from 'winston';
+import { MetricsReporter } from "../MetricsReporter";
 
 const fs = require('fs');
 const Web3 = require('web3');
@@ -32,6 +33,7 @@ const EthereumTx = require('ethereumjs-tx');
 const rp = require('request-promise-native');
 
 const logger: Logger = loggers.get('engine');
+const metrics = MetricsReporter.Instance;
 
 @Entity()
 export class Project extends BaseEntity {
@@ -308,10 +310,12 @@ export class Network extends BaseEntity {
         signed_tx = new EthereumTx(signed_tx);
         const raw = '0x' + signed_tx.serialize().toString('hex');
         const driver = this.getDriver();
+        const startTime = Date.now();
         return new Promise((resolve, reject) =>
             driver.eth
                 .sendSignedTransaction(raw)
                 .on('receipt', receipt => {
+                    metrics.methodTime('send_tx_receipt', Date.now() - startTime,{web3: true});
                     resolve(receipt);
                 })
                 .on('confirmation', (num, obj) => {
@@ -412,7 +416,10 @@ export class Contract extends BaseEntity {
 
     async call_static(method: string, args: any[]) {
         const driver = await this.getDriver();
-        return await driver.methods[method](...args).call();
+        const startTime = Date.now();
+        const response = await driver.methods[method](...args).call();
+        metrics.methodTime('call_static', Date.now() - startTime,{contract_method: method, web3: true});
+        return response;
     }
 
     async build_transaction(methodName: string, args: any[], options?: any) {
