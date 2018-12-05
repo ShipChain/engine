@@ -27,10 +27,12 @@ import { Contract } from './Contract';
 import { EventEmitter } from 'events';
 import { Logger, loggers } from 'winston';
 import { getRequestOptions } from '../request-options';
+import { MetricsReporter } from "../MetricsReporter";
 
 const request = require('request');
 
 const logger: Logger = loggers.get('engine');
+const metrics = MetricsReporter.Instance;
 
 const SECONDS = 1000;
 
@@ -261,6 +263,7 @@ export class EventSubscription extends BaseEntity {
                         eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0
                     }`,
                 );
+                const startTime = Date.now();
                 eventSubscription.contractDriver.getPastEvents(
                     eventName,
                     {
@@ -274,6 +277,7 @@ export class EventSubscription extends BaseEntity {
                         }
                         else {
                             if (events.length) {
+                                metrics.methodTime('getPastEvents', Date.now() - startTime,{eventName: eventName, web3: true});
                                 logger.info(`Found ${events.length} Events`);
                                 let highestBlock = EventSubscription.findHighestBlockInEvents(
                                     events,

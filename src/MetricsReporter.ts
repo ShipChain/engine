@@ -70,7 +70,7 @@ export class MetricsReporter {
     }
 
     public methodTime(method: string, time_delta: number, tags: any = {}) {
-        const point = MetricsReporter.buildPoint(Object.assign({ method: method }, tags), {time: time_delta});
+        const point = MetricsReporter.buildPoint(Object.assign({ method: method }, tags), {time_delta: time_delta});
 
         this.report('engine.method_time', point);
     }
