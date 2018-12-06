@@ -120,6 +120,29 @@ export class SftpStorageDriver extends StorageDriver {
         }
     }
 
+    async removeDirectory(directoryPath: string, recursive: boolean = false): Promise<any> {
+        let fullVaultPath = this.getFullVaultPath(directoryPath, true);
+
+        const startTime = Date.now();
+        metrics.countAction('storage_remove_directory', { driver_type: this.type });
+        let sftp = await this._connect();
+
+        try {
+            await sftp.rmdir(fullVaultPath, recursive);
+            sftp.end();
+            metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
+            return;
+        } catch (err) {
+            sftp.end();
+            if (err.message == 'No such file') {
+                metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
+                return;
+            }
+            metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
+            throw new DriverError(DriverError.States.RequestError, err);
+        }
+    }
+
     async fileExists(filePath: string): Promise<any> {
         const startTime = Date.now();
         metrics.countAction('storage_file_exists', { driver_type: this.type });

@@ -179,6 +179,34 @@ export class S3StorageDriver extends StorageDriver {
         });
     }
 
+    async removeDirectory(directoryPath: string, recursive: boolean = false): Promise<any> {
+        let fullVaultPath = this.getFullVaultPath(directoryPath, true);
+
+        const listParams = {
+            Bucket: this.bucket,
+            Prefix: fullVaultPath
+        };
+
+        const listedObjects = await this.s3.listObjectsV2(listParams).promise();
+
+        if (listedObjects.Contents.length === 0) return;
+
+        if (!recursive) throw new DriverError(DriverError.States.RequestError, null, "Directory not empty");
+
+        const deleteParams = {
+            Bucket: this.bucket,
+            Delete: { Objects: [] }
+        };
+
+        listedObjects.Contents.forEach(({ Key }) => {
+            deleteParams.Delete.Objects.push({ Key });
+        });
+
+        await this.s3.deleteObjects(deleteParams).promise();
+
+        if (listedObjects.IsTruncated) await this.removeDirectory(fullVaultPath, recursive);
+    }
+
     async fileExists(filePath: string): Promise<any> {
         const startTime = Date.now();
         metrics.countAction('storage_file_exists', { driver_type: this.type });

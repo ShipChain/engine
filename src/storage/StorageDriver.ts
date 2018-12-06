@@ -30,8 +30,11 @@ export abstract class StorageDriver {
         this.type = type;
     }
 
-    protected getFullVaultPath(relativeFilePath: string) {
+    protected getFullVaultPath(relativeFilePath: string, allowOnlyBasePath?: boolean) {
         if (!relativeFilePath) {
+            if (allowOnlyBasePath) {
+                return this.base_path;
+            }
             throw new DriverError(DriverError.States.ParameterError, null, 'Missing filename from request');
         }
 
@@ -52,6 +55,8 @@ export abstract class StorageDriver {
     abstract async putFile(filePath: string, data: any, binary?: boolean): Promise<any>;
 
     abstract async removeFile(filePath: string): Promise<any>;
+
+    abstract async removeDirectory(directoryPath: string, recursive?: boolean): Promise<any>;
 
     abstract async fileExists(filePath: string): Promise<any>;
 
@@ -103,6 +108,8 @@ export class DriverError extends Error {
 
             // Generate the user friendly message
             this.message = `${errorState} [${wrappedError}]`;
+        } else {
+            this.message = `${errorState} [${this.reason}]`
         }
     }
 }

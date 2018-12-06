@@ -276,9 +276,8 @@ export class Vault {
         return this.meta.signed;
     }
 
-    async deleteMetadata() {
-        logger.info(`Deleting Vault ${this.id}`);
-        return await this.removeFile(Vault.METADATA_FILE_NAME);
+    async deleteEverything() {
+        await this.removeDirectory(null, true);
     }
 
     async updateContainerMetadata(author: Wallet) {
@@ -305,6 +304,10 @@ export class Vault {
 
     async removeFile(filePath: string) {
         return await ResourceLock(this.id, this.driver, "removeFile", [filePath]);
+    }
+
+    async removeDirectory(directoryPath: string, recursive?: boolean) {
+        return await ResourceLock(this.id, this.driver, "removeDirectory", [directoryPath, recursive]);
     }
 
     async listDirectory(vaultDirectory: string, recursive?: boolean) {

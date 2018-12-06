@@ -92,7 +92,7 @@ describe('Vaults', function() {
         expect(await vault.metadataFileExists()).toBe(true);
 
         /* And delete it to clean up */
-        await vault.deleteMetadata();
+        await vault.deleteEverything();
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
@@ -125,7 +125,7 @@ describe('Vaults', function() {
         expect(await new_vault.verify()).toBe(false);
 
         /* And delete it to clean up */
-        await vault.deleteMetadata();
+        await vault.deleteEverything();
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
@@ -165,7 +165,7 @@ describe('Vaults', function() {
         expect(await vault.decryptMessage(stranger, encrypted)).toBe('TeST');
 
         /* And delete it to clean up */
-        await vault.deleteMetadata();
+        await vault.deleteEverything();
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
@@ -271,7 +271,7 @@ describe('Vaults', function() {
         expect(await container.decryptContents(author)).toBe('TEST EMBED');
 
         /* And delete it to clean up */
-        await vault.deleteMetadata();
+        await vault.deleteEverything();
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
@@ -316,7 +316,7 @@ describe('Vaults', function() {
         expect(await container.decryptContents(author)).toBe('TEST External');
 
         /* And delete it to clean up */
-        await vault.deleteMetadata();
+        await vault.deleteEverything();
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
@@ -349,7 +349,7 @@ describe('Vaults', function() {
         expect(await container.decryptContents(author, 'file_02.txt')).toBe('TEST External 2');
 
         /* And delete it to clean up */
-        await vault.deleteMetadata();
+        await vault.deleteEverything();
         expect(await vault.metadataFileExists()).toBe(false);
     });
 
