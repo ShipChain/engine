@@ -103,7 +103,7 @@ export class RPCStorageCredentials {
                 throw new Error("Stored content does not match retrieved content");
             }
 
-            await driver.removeFile(testFileName);
+            await driver.removeDirectory(null, true);
 
             valid = true;
         }

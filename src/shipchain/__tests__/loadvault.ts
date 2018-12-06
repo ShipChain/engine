@@ -73,7 +73,7 @@ describe('LoadVault', function() {
         expect(await vault.metadataFileExists()).toBe(true);
 
         /* And delete it to clean up */
-        await vault.deleteMetadata();
+        await vault.deleteEverything();
         expect(await vault.metadataFileExists()).toBe(false);
     });
 

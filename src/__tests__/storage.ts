@@ -361,6 +361,35 @@ describe('StorageDriver ', function() {
                         expect(result).toBeUndefined();
                     }),
                 );
+
+                it(
+                    `throws when deleting a non-empty ${fileConfig.variant} ${fileConfig.type} directory`,
+                    mochaAsync(async () => {
+                        let caughtError;
+
+                        let result = await storageDriver.putFile(fileConfig.file, fileConfig.data, fileConfig.binary);
+                        expect(result).toBeUndefined();
+
+                        try {
+                            await storageDriver.removeDirectory(null, false);
+                        } catch (err) {
+                            caughtError = err;
+                        }
+
+                        expect(caughtError.message).toMatch(DriverError.States.RequestError);
+                    }),
+                );
+
+                it(
+                    `does not throws when recursively deleting a non-empty ${fileConfig.variant} ${fileConfig.type} directory`,
+                    mochaAsync(async () => {
+                        let result = await storageDriver.putFile(fileConfig.file, fileConfig.data, fileConfig.binary);
+                        expect(result).toBeUndefined();
+
+                        result = await storageDriver.removeDirectory(null, true);
+                        expect(result).toBeUndefined();
+                    }),
+                );
             });
         });
     });
