@@ -21,6 +21,7 @@ const fs = require('fs');
 const util = require('util');
 const path = require('path');
 const _mkdirp = require('mkdirp');
+const rimraf = require('rimraf');
 
 // Convert mkdirp into Promise version of same
 const mkdirp = util.promisify(_mkdirp);
@@ -114,6 +115,30 @@ export class LocalStorageDriver extends StorageDriver {
                 }
             });
         });
+    }
+
+    async removeDirectory(directoryPath: string, recursive: boolean = false): Promise<any> {
+        let fullVaultPath = this.getFullVaultPath(directoryPath, true);
+
+        const startTime = Date.now();
+        metrics.countAction('storage_remove_directory', { driver_type: this.type });
+        return new Promise((resolve, reject) => {
+            let rmdirMethod = fs.rmdir;
+
+            if(recursive) {
+                rmdirMethod = rimraf;
+            }
+
+            rmdirMethod(fullVaultPath, (err, data) => {
+                if (err) {
+                    metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
+                    reject(new DriverError(DriverError.States.RequestError, err));
+                } else {
+                    metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
+                    resolve();
+                }
+            });
+        })
     }
 
     async fileExists(filePath: string): Promise<any> {

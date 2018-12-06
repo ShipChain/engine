@@ -21,6 +21,7 @@
     "redlock": "^3.1.2",
     "request": "^2.34",
     "request-promise-native": "^1.0.5",
+    "rimraf": "^2.6.2",
     "sql.js": "^0.5.0",
     "sqlite3": "^4.0.4",
     "ssh2-sftp-client": "^2.4.2",
