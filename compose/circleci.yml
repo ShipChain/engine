@@ -58,6 +58,14 @@ services:
     - DB_USER=engine
     - DB_EXTENSION="uuid-ossp"
 
+  elasticsearch:
+    image: sebp/elk
+    expose:
+      - "9200"
+    environment:
+      - ES_HEAP_SIZE=2g
+      - SERVICE=engine-elasticsearch
+
   rpc:
     extends:
       service: engine-node
@@ -69,6 +77,8 @@ services:
       - sftp
       - minio
       - psql
+      - elasticsearch
+
     depends_on:
       redis_db:
         condition: service_healthy
@@ -81,6 +91,7 @@ services:
     environment:
       - ENV
       - GETH_NODE
+      - ES_NODE=http://elasticsearch:9200
       - SERVICE=engine-app
       - SFTP_DRIVER_TESTS
       - SFTP_HOST=sftp
