@@ -7,6 +7,9 @@ jobs:
   build:
     docker:
       - image: docker/compose:1.19.0
+      - environment:
+        transport.host: localhost
+
 
     working_directory: ~/repo
 
