@@ -64,6 +64,7 @@ services:
       - "9200"
     environment:
       - ES_HEAP_SIZE=2g
+      - MAX_MAP_COUNT=262144
       - SERVICE=engine-elasticsearch
 
   rpc:

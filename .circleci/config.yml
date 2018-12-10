@@ -31,7 +31,6 @@ jobs:
           name: Launch the docker containers
           command: |
             $(aws ecr get-login --no-include-email)
-            sysctl -w vm.max_map_count=262144
             docker-compose -f compose/circleci.yml up -d
 
       - run:
