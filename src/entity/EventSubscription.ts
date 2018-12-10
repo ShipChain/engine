@@ -121,6 +121,7 @@ export class EventSubscription extends BaseEntity {
     @CreateDateColumn() createdDate: Date;
 
     private contractDriver: any;
+    private contract: Contract;
     private asyncPolls: any = {};
 
     static DEFAULT_INTERVAL = 30 * SECONDS;
@@ -234,6 +235,7 @@ export class EventSubscription extends BaseEntity {
     async pollOnce(contract: Contract) {
         EventSubscription.activeSubscriptions[this.id] = this;
 
+        this.contract = contract;
         this.contractDriver = await contract.getDriver();
 
         for (let eventName of this.eventNames) {
@@ -245,6 +247,7 @@ export class EventSubscription extends BaseEntity {
     async start(contract: Contract) {
         EventSubscription.activeSubscriptions[this.id] = this;
 
+        this.contract = contract;
         this.contractDriver = await contract.getDriver();
 
         for (let eventName of this.eventNames) {
@@ -320,7 +323,15 @@ export class EventSubscription extends BaseEntity {
             for (let event of events) {
                 let options = {
                     url: eventSubscription.url + '/events/_doc',
-                    json: event,
+                    json: {
+                        network_id: eventSubscription.contract.network.id,
+                        network_title: eventSubscription.contract.network.title,
+                        project_id: eventSubscription.contract.project.id,
+                        project_title: eventSubscription.contract.project.title,
+                        version_id: eventSubscription.contract.version.id,
+                        version_title: eventSubscription.contract.version.title,
+                        ...event,
+                    },
                     timeout: 1 * SECONDS,
                 };
                 request
