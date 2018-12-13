@@ -1,5 +1,5 @@
 {
-  "$id": "http://schema.shipchain.io/1.0.1/shipment.json",
+  "$id": "http://schema.shipchain.io/1.1.0/shipment.json",
   "type": "object",
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -17,22 +17,22 @@
       "title": "Shipment UUID",
       "description": "The ID of the Shipment"
     },
-    "carrier_scac": {
-      "$id": "/properties/carrier_scac",
+    "carriers_scac": {
+      "$id": "/properties/carriers_scac",
       "type": "string",
       "title": "Carrier's SCAC",
-      "description": "SCAC code of the carrier.",
+      "description": "Standard Carrier Alpha code used for the carrier",
       "default": "",
       "examples": [
         "USPS"
       ],
       "maxLength": 255
     },
-    "forwarder_scac": {
-      "$id": "/properties/forwarder_scac",
+    "forwarders_scac": {
+      "$id": "/properties/forwarders_scac",
       "type": "string",
       "title": "Forwarder's SCAC",
-      "description": "SCAC code of the frieght forwarder.",
+      "description": "Standard Carrier Alpha code used for the forwarder",
       "default": "",
       "examples": [
         "USPS"
@@ -43,17 +43,17 @@
       "$id": "/properties/nvocc_scac",
       "type": "string",
       "title": "NVOCC's SCAC",
-      "description": "SCAC code of the Non-Vessel Operating Common Carrier.",
+      "description": "Standard Carrier Alpha code used for the Non-Vessel Operating Common Carrier (NVOCC)",
       "default": "",
       "examples": [
         "USPS"
       ],
       "maxLength": 255
     },
-    "shipper_reference": {
-      "$id": "/properties/shipper_reference",
+    "shippers_reference": {
+      "$id": "/properties/shippers_reference",
       "type": "string",
-      "title": "Shipper's reference number",
+      "title": "The shippers_reference number Schema",
       "description": "Reference number of this shipment assigned by the Shipper",
       "default": "",
       "examples": [
@@ -61,10 +61,10 @@
       ],
       "maxLength": 255
     },
-    "forwarder_reference": {
-      "$id": "/properties/forwarder_reference",
+    "forwarders_reference": {
+      "$id": "/properties/forwarders_reference",
       "type": "string",
-      "title": "Forwarder's reference number",
+      "title": "The forwarders_reference number Schema",
       "description": "Reference number of this shipment assigned by the Forwarder",
       "default": "",
       "examples": [
@@ -95,14 +95,14 @@
     },
     "final_destination_location": {
       "$ref": "http://schema.shipchain.io/1.0.1/location.json",
-      "title": "Shipment Final Destination",
+      "title": "Shipment final destination",
       "description": "The Shipment's Final Destination address"
     },
-    "carrier_instructions": {
-      "$id": "/properties/carrier_instructions",
+    "carriers_instructions": {
+      "$id": "/properties/carriers_instructions",
       "type": "string",
-      "title": "Special Instructions",
-      "description": "Shipper's instructions to the carrier",
+      "title": "The carriers_instructions Schema",
+      "description": "Instructions for Carrier",
       "default": "",
       "examples": [
         "Do not ignite"
@@ -112,52 +112,52 @@
     "pro_number": {
       "$id": "/properties/pro_number",
       "type": "string",
-      "title": "PRO number for Truck shipment",
-      "description": "Progressive Number for shipment tracking",
+      "title": "The pro_number Schema",
+      "description": "PRO number for LTL shipments",
       "default": "",
       "examples": [
         "8124598752"
       ],
       "maxLength": 255
     },
-    "master_bill": {
-      "$id": "/properties/master_bill",
+    "bill_master": {
+      "$id": "/properties/bill_master",
       "type": "string",
-      "title": "Master Bill of Lading Number",
-      "description": "The master Bill of Lading Number",
+      "title": "The bill_master Schema",
+      "description": "Master bill number",
       "default": "",
       "examples": [
         "82863513"
       ],
       "maxLength": 255
     },
-    "house_bill": {
-      "$id": "/properties/house_bill",
+    "bill_house": {
+      "$id": "/properties/bill_house",
       "type": "string",
-      "title": "House Bill of Lading Number",
-      "description": "The House Bill of Lading Number",
+      "title": "The bill_house Schema",
+      "description": "House bill number",
       "default": "",
       "examples": [
         "8124598751"
       ],
       "maxLength": 255
     },
-    "subhouse_bill": {
-      "$id": "/properties/subhouse_bill",
+    "bill_subhouse": {
+      "$id": "/properties/bill_subhouse",
       "type": "string",
-      "title": "Sub-House Bill of Lading Number",
-      "description": "The Sub-House Bill of Lading Number",
+      "title": "The bill_subhouse Schema",
+      "description": "Sub-House bill number",
       "default": "",
       "examples": [
         "8124598753"
       ],
       "maxLength": 255
     },
-    "freight_payment_terms": {
-      "$id": "/properties/freight_payment_terms",
+    "payment_terms": {
+      "$id": "/properties/payment_terms",
       "type": "string",
-      "title": "Payment Terms",
-      "description": "The payment terms for the Shipment",
+      "title": "The payment_terms Schema",
+      "description": "Shipment payment terms",
       "default": "",
       "examples": [
         "Prepaid"
@@ -167,8 +167,8 @@
     "vessel_name": {
       "$id": "/properties/vessel_name",
       "type": "string",
-      "title": "The Vessel_name Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The vessel_name Schema",
+      "description": "Vessel or ship name carrying shipment",
       "default": "",
       "examples": [
         "SITC YANTAI"
@@ -178,356 +178,360 @@
     "voyage_number": {
       "$id": "/properties/voyage_number",
       "type": "string",
-      "title": "The Voyage_number Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The voyage_number Schema",
+      "description": "Unique voyage number",
       "default": "",
       "examples": [
         "1419E"
       ],
       "maxLength": 255
     },
-    "mode": {
-      "$id": "/properties/mode",
+    "mode_of_transport_code": {
+      "$id": "/properties/mode_of_transport_code",
       "type": "string",
-      "title": "The Mode Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The mode_of_transport_code Schema",
+      "description": "Type of transport shipment will be using",
       "default": "",
       "examples": [
         "TRUCK"
       ],
       "maxLength": 255
     },
-    "number_of_packages": {
-      "$id": "/properties/number_of_packages",
+    "package_qty": {
+      "$id": "/properties/package_qty",
       "type": "integer",
-      "title": "The Number_of_packages Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The package_qty Schema",
+      "description": "Number of packages in shipment",
       "default": 0,
       "examples": [
         50
       ]
     },
-    "gross_weight_kgs": {
-      "$id": "/properties/gross_weight_kgs",
+    "weight_gross": {
+      "$id": "/properties/weight_gross",
       "type": "number",
-      "title": "The Gross_weight_kgs Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The weight_gross Schema",
+      "description": "Gross weight in Kilograms",
       "default": 0,
+      "minimum": 0,
       "examples": [
         75
       ]
     },
-    "volume_cbms": {
-      "$id": "/properties/volume_cbms",
+    "volume": {
+      "$id": "/properties/volume",
       "type": "number",
-      "title": "The Volume_cbms Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The volume Schema",
+      "description": "Volume in cubic meters",
+      "minimum": 0,
       "default": 0,
       "examples": [
         7
       ]
     },
-    "container_count": {
-      "$id": "/properties/container_count",
+    "container_qty": {
+      "$id": "/properties/container_qty",
       "type": "integer",
-      "title": "The Container_count Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The container_qty Schema",
+      "description": "Number of containers in the shipment",
+      "minimum": 0,
       "default": 0,
       "examples": [
         1
       ]
     },
-    "dimensional_weight": {
-      "$id": "/properties/dimensional_weight",
+    "weight_dim": {
+      "$id": "/properties/weight_dim",
       "type": "number",
-      "title": "The Dimensional_weight Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The weight_dim Schema",
+      "description": "Estimated weight that is calculated from the length, width and height of shipment",
       "default": 0,
       "examples": [
         700
       ]
     },
-    "chargeable_weight": {
-      "$id": "/properties/chargeable_weight",
+    "weight_chargeable": {
+      "$id": "/properties/weight_chargeable",
       "type": "number",
-      "title": "The Chargeable_weight Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The weight_chargeable Schema",
+      "description": "Weight of the shipment used for billing",
+      "minimum": 0,
       "default": 0,
       "examples": [
         700
       ]
     },
-    "docs_received_actual": {
+    "docs_received_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/docs_received_actual",
-      "title": "The Docs_received_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/docs_received_act",
+      "title": "The docs_received_act Schema",
+      "description": "Timestamp of when the transporter received the shipment"
     },
-    "docs_approved_actual": {
+    "docs_approved_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/docs_approved_actual",
-      "title": "The Docs_approved_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/docs_approved_act",
+      "title": "The docs_approved_act Schema",
+      "description": "Timestamp of when the transporter confirmed the shipment's details were complete and valid"
     },
-    "pickup_appointment_actual": {
+    "pickup_appt": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/pickup_appointment_actual",
-      "title": "The Pickup_appointment_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/pickup_appt",
+      "title": "The pickup_appt Schema",
+      "description": "Appointment timestamp for pickup from origin"
     },
-    "pickup_estimated": {
+    "pickup_est": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/pickup_estimated",
-      "title": "The Pickup_estimated Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/pickup_est",
+      "title": "The pickup_est Schema",
+      "description": "Estimated timestamp for pickup from origin"
     },
-    "pickup_actual": {
+    "pickup_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/pickup_actual",
-      "title": "The Pickup_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/pickup_act",
+      "title": "The pickup_act Schema",
+      "description": "Actual timestamp pickup occured at point of origin"
     },
-    "loading_estimated": {
+    "loading_est": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/loading_estimated",
-      "title": "The Loading_estimated Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/loading_est",
+      "title": "The loading_est Schema",
+      "description": "Estimated timestamp for loading to begin"
     },
-    "loading_actual": {
+    "loading_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/loading_actual",
-      "title": "The Loading_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/loading_act",
+      "title": "The loading_act Schema",
+      "description": "Actual timestamp that loading began"
     },
-    "departure_estimated": {
+    "departure_est": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/departure_estimated",
-      "title": "The Departure_estimated Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/departure_est",
+      "title": "The departure_est Schema",
+      "description": "Estimated timestamp of departure"
     },
-    "departure_actual": {
+    "departure_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/departure_actual",
-      "title": "The Departure_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/departure_act",
+      "title": "The departure_act Schema",
+      "description": "Actual timestamp of departure"
     },
-    "delivery_appointment_actual": {
+    "delivery_appt": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/delivery_appointment_actual",
-      "title": "The Delivery_appointment_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/delivery_appt",
+      "title": "The delivery_appt Schema",
+      "description": "Delivery appointment timestamp"
     },
-    "arrival_port_estimated": {
+    "arrival_port_est": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/arrival_port_estimated",
-      "title": "The Arrival_port_estimated Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/arrival_port_est",
+      "title": "The arrival_port_est Schema",
+      "description": "Estimated timestamp of arrival at destination port"
     },
-    "arrival_port_actual": {
+    "arrival_port_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/arrival_port_actual",
-      "title": "The Arrival_port_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/arrival_port_act",
+      "title": "The arrival_port_act Schema",
+      "description": "Timestamp of actual arrival at destination port"
     },
-    "delivery_estimated": {
+    "delivery_est": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/delivery_estimated",
-      "title": "The Delivery_estimated Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/delivery_est",
+      "title": "The delivery_est Schema",
+      "description": "Estimated timestamp of delivery"
     },
-    "delivery_actual": {
+    "delivery_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/delivery_actual",
-      "title": "The Delivery_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/delivery_act",
+      "title": "The delivery_act Schema",
+      "description": "Actual timestamp of delivery"
     },
-    "last_attempted_delivery_actual": {
+    "delivery_attempt": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/last_attempted_delivery_actual",
-      "title": "The Last_attempted_delivery_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/delivery_attempt",
+      "title": "The delivery_attempt Schema",
+      "description": "Timestamp of last attempted delivery"
     },
-    "cancel_requested_date_actual": {
+    "cancel_requested_date_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/cancel_requested_date_actual",
-      "title": "The Cancel_requested_date_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/cancel_requested_date_act",
+      "title": "The cancel_requested_date_act Schema",
+      "description": "Timestamp for cancellation request"
     },
-    "cancel_confirmed_date_actual": {
+    "cancel_confirmed_date_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/cancel_confirmed_date_actual",
-      "title": "The Cancel_confirmed_date_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/cancel_confirmed_date_act",
+      "title": "The cancel_confirmed_date_act Schema",
+      "description": "Timestamp for cancellation confirmation"
     },
-    "customs_filed_date_actual": {
+    "customs_filed_date_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/customs_filed_date_actual",
-      "title": "The Customs_filed_date_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/customs_filed_date_act",
+      "title": "The customs_filed_date_act Schema",
+      "description": "Timestamp of actual customs filed date"
     },
-    "customs_hold_date_actual": {
+    "customs_hold_date_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/customs_hold_date_actual",
-      "title": "The Customs_hold_date_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/customs_hold_date_act",
+      "title": "The customs_hold_date_act Schema",
+      "description": "Timestamp of hold by customs"
     },
-    "customs_release_date_actual": {
+    "customs_release_date_act": {
       "type": "string",
       "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
       "examples": [
         "2010-02-18T16:23.33+0600"
       ],
-      "$id": "/properties/customs_release_date_actual",
-      "title": "The Customs_release_date_actual Schema",
-      "description": "An explanation about the purpose of this instance."
+      "$id": "/properties/customs_release_date_act",
+      "title": "The customs_release_date_act Schema",
+      "description": "Timestamp of release by customs"
     },
-    "containerization_type": {
-      "$id": "/properties/containerization_type",
+    "container_type": {
+      "$id": "/properties/container_type",
       "type": "string",
-      "title": "The Containerization_type Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The container_type Schema",
+      "description": "Type of container being used for the shipment",
       "default": "",
       "examples": [
         "LCL"
       ],
       "maxLength": 255
     },
-    "arrival_unlocode": {
-      "$id": "/properties/arrival_unlocode",
+    "arrival_locode": {
+      "$id": "/properties/arrival_locode",
       "type": "string",
-      "title": "The Arrival_unlocode Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The arrival_locode Schema",
+      "description": "UN/LOCODE for destination port",
       "default": "",
       "examples": [
         "US NYC"
       ],
       "maxLength": 255
     },
-    "final_port_unlocode": {
-      "$id": "/properties/final_port_unlocode",
+    "final_port_locode": {
+      "$id": "/properties/final_port_locode",
       "type": "string",
-      "title": "The Final_port_unlocode Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The final_port_locode Schema",
+      "description": "UN/LOCODE for final destination port",
       "default": "",
       "examples": [
         "US NYC"
       ],
       "maxLength": 255
     },
-    "import_unlocode": {
-      "$id": "/properties/import_unlocode",
+    "import_locode": {
+      "$id": "/properties/import_locode",
       "type": "string",
-      "title": "The Import_unlocode Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The import_locode Schema",
+      "description": "UN/LOCODE for import",
       "default": "",
       "examples": [
         "US NYC"
       ],
       "maxLength": 255
     },
-    "lading_unlocode": {
-      "$id": "/properties/lading_unlocode",
+    "lading_locode": {
+      "$id": "/properties/lading_locode",
       "type": "string",
-      "title": "The Lading_unlocode Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The lading_locode Schema",
+      "description": "UN/LOCODE for lading",
       "default": "",
       "examples": [
         "US NYC"
       ],
       "maxLength": 255
     },
-    "origin_unlocode": {
-      "$id": "/properties/origin_unlocode",
+    "origin_locode": {
+      "$id": "/properties/origin_locode",
       "type": "string",
-      "title": "The Origin_unlocode Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The origin_locode Schema",
+      "description": "UN/LOCODE for the origin",
       "default": "",
       "examples": [
         "US NYC"
       ],
       "maxLength": 255
     },
-    "us_routed_export": {
-      "$id": "/properties/us_routed_export",
+    "us_routed": {
+      "$id": "/properties/us_routed",
       "type": "boolean",
-      "title": "The Us_routed_export Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The us_routed Schema",
+      "description": "Whether the US export is routed",
       "default": false,
       "examples": [
         true
@@ -536,33 +540,22 @@
     "import_customs_mode": {
       "$id": "/properties/import_customs_mode",
       "type": "string",
-      "title": "The Import_customs_mode Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The import_customs_mode Schema",
+      "description": "Mode of Transportation code used by the customs authority for the country where the shipment's import declaration will be filed",
       "default": "",
       "examples": [
         "30"
       ],
       "maxLength": 255
     },
-    "us_customs_export_port": {
-      "$id": "/properties/us_customs_export_port",
+    "us_export_port": {
+      "$id": "/properties/us_export_port",
       "type": "string",
-      "title": "The Us_customs_export_port Schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The us_export_port Schema",
+      "description": "US Customs code for port of export",
       "default": "",
       "examples": [
         "4670"
-      ],
-      "maxLength": 255
-    },
-    "us_customs_import_port": {
-      "$id": "/properties/us_customs_import_port",
-      "type": "string",
-      "title": "The Us_customs_import_port Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": "",
-      "examples": [
-        "1001"
       ],
       "maxLength": 255
     },
@@ -573,8 +566,8 @@
         "2010-02-18T16:23.33+0600"
       ],
       "$id": "/properties/updated_at",
-      "title": "The Updated_at Schema",
-      "description": "An explanation about the purpose of this instance."
+      "title": "The updated_at Schema",
+      "description": "Timestamp of resource update"
     },
     "created_at": {
       "type": "string",
@@ -583,16 +576,29 @@
         "2010-02-18T16:23.33+0600"
       ],
       "$id": "/properties/created_at",
-      "title": "The Created_at Schema",
-      "description": "An explanation about the purpose of this instance."
+      "title": "The created_at Schema",
+      "description": "Timestamp of resource creation"
     },
     "customer_fields": {
       "$id": "/properties/customer_fields",
       "type": "object",
+      "title": "The customer_fields Schema",
+      "description": "An arbitrary JSON payload containing customer-specific fields",
       "additionalProperties": true
+    },
+    "version": {
+      "$id": "/properties/version",
+      "type": "string",
+      "pattern": "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$",
+      "title": "Version",
+      "description": "Version of shipment data format",
+      "examples": [
+        "1.1.0"
+      ]
     }
   },
   "required": [
-    "id"
+    "id",
+    "version"
   ]
 }
