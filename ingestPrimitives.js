@@ -29,7 +29,7 @@ const interfaceComment =
 
 // Setup the source URL for the Primitive JSONSchema
 const schemaBaseUrl = "http://schema.shipchain.io/";
-const schemaVersion = "1.0.1";
+const schemaVersion = "1.1.0";
 const schemas = [
   "shipment"
 ];

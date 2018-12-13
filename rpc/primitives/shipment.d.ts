@@ -7,35 +7,35 @@
 /**
  * The ID of the Shipment
  */
-export type ShipmentUuid = string;
+export type ShipmentUUID = string;
 /**
- * SCAC code of the carrier.
+ * Standard Carrier Alpha code used for the carrier
  */
-export type CarriersScac = string;
+export type CarrierSSCAC = string;
 /**
- * SCAC code of the frieght forwarder.
+ * Standard Carrier Alpha code used for the forwarder
  */
-export type ForwardersScac = string;
+export type ForwarderSSCAC = string;
 /**
- * SCAC code of the Non-Vessel Operating Common Carrier.
+ * Standard Carrier Alpha code used for the Non-Vessel Operating Common Carrier (NVOCC)
  */
-export type NvocCsScac = string;
+export type NVOCCSSCAC = string;
 /**
  * Reference number of this shipment assigned by the Shipper
  */
-export type ShippersReferenceNumber = string;
+export type TheShippersReferenceNumberSchema = string;
 /**
  * Reference number of this shipment assigned by the Forwarder
  */
-export type ForwardersReferenceNumber = string;
+export type TheForwardersReferenceNumberSchema = string;
 /**
  * ID of the Shipper assigned by the Forwarder
  */
-export type ForwardersIdAssignedToTheShipper = string;
+export type ForwarderSIdAssignedToTheShipper = string;
 /**
  * The ID of the Location
  */
-export type LocationUuid = string;
+export type LocationUUID = string;
 /**
  * The name of the Location
  */
@@ -81,304 +81,308 @@ export type UpdatedAt = string;
  */
 export type CreatedAt = string;
 /**
- * Shipper's instructions to the carrier
+ * Instructions for Carrier
  */
-export type SpecialInstructions = string;
+export type TheCarriersInstructionsSchema = string;
 /**
- * Progressive Number for shipment tracking
+ * PRO number for LTL shipments
  */
-export type ProNumberForTruckShipment = string;
+export type TheProNumberSchema = string;
 /**
- * The master Bill of Lading Number
+ * Master bill number
  */
-export type MasterBillOfLadingNumber = string;
+export type TheBillMasterSchema = string;
 /**
- * The House Bill of Lading Number
+ * House bill number
  */
-export type HouseBillOfLadingNumber = string;
+export type TheBillHouseSchema = string;
 /**
- * The Sub-House Bill of Lading Number
+ * Sub-House bill number
  */
-export type SubHouseBillOfLadingNumber = string;
+export type TheBillSubhouseSchema = string;
 /**
- * The payment terms for the Shipment
+ * Shipment payment terms
  */
-export type PaymentTerms = string;
+export type ThePaymentTermsSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Vessel or ship name carrying shipment
  */
 export type TheVesselNameSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Unique voyage number
  */
 export type TheVoyageNumberSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Type of transport shipment will be using
  */
-export type TheModeSchema = string;
+export type TheModeOfTransportCodeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Number of packages in shipment
  */
-export type TheNumberOfPackagesSchema = number;
+export type ThePackageQtySchema = number;
 /**
- * An explanation about the purpose of this instance.
+ * Gross weight in Kilograms
  */
-export type TheGrossWeightKgsSchema = number;
+export type TheWeightGrossSchema = number;
 /**
- * An explanation about the purpose of this instance.
+ * Volume in cubic meters
  */
-export type TheVolumeCbmsSchema = number;
+export type TheVolumeSchema = number;
 /**
- * An explanation about the purpose of this instance.
+ * Number of containers in the shipment
  */
-export type TheContainerCountSchema = number;
+export type TheContainerQtySchema = number;
 /**
- * An explanation about the purpose of this instance.
+ * Estimated weight that is calculated from the length, width and height of shipment
  */
-export type TheDimensionalWeightSchema = number;
+export type TheWeightDimSchema = number;
 /**
- * An explanation about the purpose of this instance.
+ * Weight of the shipment used for billing
  */
-export type TheChargeableWeightSchema = number;
+export type TheWeightChargeableSchema = number;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of when the transporter received the shipment
  */
-export type TheDocsReceivedActualSchema = string;
+export type TheDocsReceivedActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of when the transporter confirmed the shipment's details were complete and valid
  */
-export type TheDocsApprovedActualSchema = string;
+export type TheDocsApprovedActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Appointment timestamp for pickup from origin
  */
-export type ThePickupAppointmentActualSchema = string;
+export type ThePickupApptSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Estimated timestamp for pickup from origin
  */
-export type ThePickupEstimatedSchema = string;
+export type ThePickupEstSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Actual timestamp pickup occured at point of origin
  */
-export type ThePickupActualSchema = string;
+export type ThePickupActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Estimated timestamp for loading to begin
  */
-export type TheLoadingEstimatedSchema = string;
+export type TheLoadingEstSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Actual timestamp that loading began
  */
-export type TheLoadingActualSchema = string;
+export type TheLoadingActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Estimated timestamp of departure
  */
-export type TheDepartureEstimatedSchema = string;
+export type TheDepartureEstSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Actual timestamp of departure
  */
-export type TheDepartureActualSchema = string;
+export type TheDepartureActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Delivery appointment timestamp
  */
-export type TheDeliveryAppointmentActualSchema = string;
+export type TheDeliveryApptSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Estimated timestamp of arrival at destination port
  */
-export type TheArrivalPortEstimatedSchema = string;
+export type TheArrivalPortEstSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of actual arrival at destination port
  */
-export type TheArrivalPortActualSchema = string;
+export type TheArrivalPortActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Estimated timestamp of delivery
  */
-export type TheDeliveryEstimatedSchema = string;
+export type TheDeliveryEstSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Actual timestamp of delivery
  */
-export type TheDeliveryActualSchema = string;
+export type TheDeliveryActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of last attempted delivery
  */
-export type TheLastAttemptedDeliveryActualSchema = string;
+export type TheDeliveryAttemptSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp for cancellation request
  */
-export type TheCancelRequestedDateActualSchema = string;
+export type TheCancelRequestedDateActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp for cancellation confirmation
  */
-export type TheCancelConfirmedDateActualSchema = string;
+export type TheCancelConfirmedDateActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of actual customs filed date
  */
-export type TheCustomsFiledDateActualSchema = string;
+export type TheCustomsFiledDateActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of hold by customs
  */
-export type TheCustomsHoldDateActualSchema = string;
+export type TheCustomsHoldDateActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of release by customs
  */
-export type TheCustomsReleaseDateActualSchema = string;
+export type TheCustomsReleaseDateActSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Type of container being used for the shipment
  */
-export type TheContainerizationTypeSchema = string;
+export type TheContainerTypeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * UN/LOCODE for destination port
  */
-export type TheArrivalUnlocodeSchema = string;
+export type TheArrivalLocodeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * UN/LOCODE for final destination port
  */
-export type TheFinalPortUnlocodeSchema = string;
+export type TheFinalPortLocodeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * UN/LOCODE for import
  */
-export type TheImportUnlocodeSchema = string;
+export type TheImportLocodeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * UN/LOCODE for lading
  */
-export type TheLadingUnlocodeSchema = string;
+export type TheLadingLocodeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * UN/LOCODE for the origin
  */
-export type TheOriginUnlocodeSchema = string;
+export type TheOriginLocodeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Whether the US export is routed
  */
-export type TheUsRoutedExportSchema = boolean;
+export type TheUsRoutedSchema = boolean;
 /**
- * An explanation about the purpose of this instance.
+ * Mode of Transportation code used by the customs authority for the country where the shipment's import declaration will be filed
  */
 export type TheImportCustomsModeSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * US Customs code for port of export
  */
-export type TheUsCustomsExportPortSchema = string;
+export type TheUsExportPortSchema = string;
 /**
- * An explanation about the purpose of this instance.
- */
-export type TheUsCustomsImportPortSchema = string;
-/**
- * An explanation about the purpose of this instance.
+ * Timestamp of resource update
  */
 export type TheUpdatedAtSchema = string;
 /**
- * An explanation about the purpose of this instance.
+ * Timestamp of resource creation
  */
 export type TheCreatedAtSchema = string;
+/**
+ * Version of shipment data format
+ */
+export type Version = string;
 
 export interface Shipment {
-    id: ShipmentUuid;
-    carrier_scac?: CarriersScac;
-    forwarder_scac?: ForwardersScac;
-    nvocc_scac?: NvocCsScac;
-    shipper_reference?: ShippersReferenceNumber;
-    forwarder_reference?: ForwardersReferenceNumber;
-    forwarders_shipper_id?: ForwardersIdAssignedToTheShipper;
-    ship_from_location?: ShipFromAddress;
-    ship_to_location?: ShipToAddress;
-    final_destination_location?: ShipmentFinalDestination;
-    carrier_instructions?: SpecialInstructions;
-    pro_number?: ProNumberForTruckShipment;
-    master_bill?: MasterBillOfLadingNumber;
-    house_bill?: HouseBillOfLadingNumber;
-    subhouse_bill?: SubHouseBillOfLadingNumber;
-    freight_payment_terms?: PaymentTerms;
-    vessel_name?: TheVesselNameSchema;
-    voyage_number?: TheVoyageNumberSchema;
-    mode?: TheModeSchema;
-    number_of_packages?: TheNumberOfPackagesSchema;
-    gross_weight_kgs?: TheGrossWeightKgsSchema;
-    volume_cbms?: TheVolumeCbmsSchema;
-    container_count?: TheContainerCountSchema;
-    dimensional_weight?: TheDimensionalWeightSchema;
-    chargeable_weight?: TheChargeableWeightSchema;
-    docs_received_actual?: TheDocsReceivedActualSchema;
-    docs_approved_actual?: TheDocsApprovedActualSchema;
-    pickup_appointment_actual?: ThePickupAppointmentActualSchema;
-    pickup_estimated?: ThePickupEstimatedSchema;
-    pickup_actual?: ThePickupActualSchema;
-    loading_estimated?: TheLoadingEstimatedSchema;
-    loading_actual?: TheLoadingActualSchema;
-    departure_estimated?: TheDepartureEstimatedSchema;
-    departure_actual?: TheDepartureActualSchema;
-    delivery_appointment_actual?: TheDeliveryAppointmentActualSchema;
-    arrival_port_estimated?: TheArrivalPortEstimatedSchema;
-    arrival_port_actual?: TheArrivalPortActualSchema;
-    delivery_estimated?: TheDeliveryEstimatedSchema;
-    delivery_actual?: TheDeliveryActualSchema;
-    last_attempted_delivery_actual?: TheLastAttemptedDeliveryActualSchema;
-    cancel_requested_date_actual?: TheCancelRequestedDateActualSchema;
-    cancel_confirmed_date_actual?: TheCancelConfirmedDateActualSchema;
-    customs_filed_date_actual?: TheCustomsFiledDateActualSchema;
-    customs_hold_date_actual?: TheCustomsHoldDateActualSchema;
-    customs_release_date_actual?: TheCustomsReleaseDateActualSchema;
-    containerization_type?: TheContainerizationTypeSchema;
-    arrival_unlocode?: TheArrivalUnlocodeSchema;
-    final_port_unlocode?: TheFinalPortUnlocodeSchema;
-    import_unlocode?: TheImportUnlocodeSchema;
-    lading_unlocode?: TheLadingUnlocodeSchema;
-    origin_unlocode?: TheOriginUnlocodeSchema;
-    us_routed_export?: TheUsRoutedExportSchema;
-    import_customs_mode?: TheImportCustomsModeSchema;
-    us_customs_export_port?: TheUsCustomsExportPortSchema;
-    us_customs_import_port?: TheUsCustomsImportPortSchema;
-    updated_at?: TheUpdatedAtSchema;
-    created_at?: TheCreatedAtSchema;
-    customer_fields?: {
-        [k: string]: any;
-    };
+  id: ShipmentUUID;
+  carriers_scac?: CarrierSSCAC;
+  forwarders_scac?: ForwarderSSCAC;
+  nvocc_scac?: NVOCCSSCAC;
+  shippers_reference?: TheShippersReferenceNumberSchema;
+  forwarders_reference?: TheForwardersReferenceNumberSchema;
+  forwarders_shipper_id?: ForwarderSIdAssignedToTheShipper;
+  ship_from_location?: ShipFromAddress;
+  ship_to_location?: ShipToAddress;
+  final_destination_location?: ShipmentFinalDestination;
+  carriers_instructions?: TheCarriersInstructionsSchema;
+  pro_number?: TheProNumberSchema;
+  bill_master?: TheBillMasterSchema;
+  bill_house?: TheBillHouseSchema;
+  bill_subhouse?: TheBillSubhouseSchema;
+  payment_terms?: ThePaymentTermsSchema;
+  vessel_name?: TheVesselNameSchema;
+  voyage_number?: TheVoyageNumberSchema;
+  mode_of_transport_code?: TheModeOfTransportCodeSchema;
+  package_qty?: ThePackageQtySchema;
+  weight_gross?: TheWeightGrossSchema;
+  volume?: TheVolumeSchema;
+  container_qty?: TheContainerQtySchema;
+  weight_dim?: TheWeightDimSchema;
+  weight_chargeable?: TheWeightChargeableSchema;
+  docs_received_act?: TheDocsReceivedActSchema;
+  docs_approved_act?: TheDocsApprovedActSchema;
+  pickup_appt?: ThePickupApptSchema;
+  pickup_est?: ThePickupEstSchema;
+  pickup_act?: ThePickupActSchema;
+  loading_est?: TheLoadingEstSchema;
+  loading_act?: TheLoadingActSchema;
+  departure_est?: TheDepartureEstSchema;
+  departure_act?: TheDepartureActSchema;
+  delivery_appt?: TheDeliveryApptSchema;
+  arrival_port_est?: TheArrivalPortEstSchema;
+  arrival_port_act?: TheArrivalPortActSchema;
+  delivery_est?: TheDeliveryEstSchema;
+  delivery_act?: TheDeliveryActSchema;
+  delivery_attempt?: TheDeliveryAttemptSchema;
+  cancel_requested_date_act?: TheCancelRequestedDateActSchema;
+  cancel_confirmed_date_act?: TheCancelConfirmedDateActSchema;
+  customs_filed_date_act?: TheCustomsFiledDateActSchema;
+  customs_hold_date_act?: TheCustomsHoldDateActSchema;
+  customs_release_date_act?: TheCustomsReleaseDateActSchema;
+  container_type?: TheContainerTypeSchema;
+  arrival_locode?: TheArrivalLocodeSchema;
+  final_port_locode?: TheFinalPortLocodeSchema;
+  import_locode?: TheImportLocodeSchema;
+  lading_locode?: TheLadingLocodeSchema;
+  origin_locode?: TheOriginLocodeSchema;
+  us_routed?: TheUsRoutedSchema;
+  import_customs_mode?: TheImportCustomsModeSchema;
+  us_export_port?: TheUsExportPortSchema;
+  updated_at?: TheUpdatedAtSchema;
+  created_at?: TheCreatedAtSchema;
+  customer_fields?: TheCustomerFieldsSchema;
+  version: Version;
 }
 /**
  * The Shipment's ship-from address
  */
 export interface ShipFromAddress {
-    id: LocationUuid;
-    name?: LocationName;
-    address_1?: Address1;
-    address_2?: Address2;
-    city?: City;
-    state?: State;
-    country?: Country;
-    postal_code?: PostalCode;
-    phone_number?: PhoneNumber;
-    fax_number?: FaxNumber;
-    updated_at?: UpdatedAt;
-    created_at?: CreatedAt;
+  id: LocationUUID;
+  name?: LocationName;
+  address_1?: Address1;
+  address_2?: Address2;
+  city?: City;
+  state?: State;
+  country?: Country;
+  postal_code?: PostalCode;
+  phone_number?: PhoneNumber;
+  fax_number?: FaxNumber;
+  updated_at?: UpdatedAt;
+  created_at?: CreatedAt;
 }
 /**
  * The Shipment's ship-to address
  */
 export interface ShipToAddress {
-    id: LocationUuid;
-    name?: LocationName;
-    address_1?: Address1;
-    address_2?: Address2;
-    city?: City;
-    state?: State;
-    country?: Country;
-    postal_code?: PostalCode;
-    phone_number?: PhoneNumber;
-    fax_number?: FaxNumber;
-    updated_at?: UpdatedAt;
-    created_at?: CreatedAt;
+  id: LocationUUID;
+  name?: LocationName;
+  address_1?: Address1;
+  address_2?: Address2;
+  city?: City;
+  state?: State;
+  country?: Country;
+  postal_code?: PostalCode;
+  phone_number?: PhoneNumber;
+  fax_number?: FaxNumber;
+  updated_at?: UpdatedAt;
+  created_at?: CreatedAt;
 }
 /**
  * The Shipment's Final Destination address
  */
 export interface ShipmentFinalDestination {
-    id: LocationUuid;
-    name?: LocationName;
-    address_1?: Address1;
-    address_2?: Address2;
-    city?: City;
-    state?: State;
-    country?: Country;
-    postal_code?: PostalCode;
-    phone_number?: PhoneNumber;
-    fax_number?: FaxNumber;
-    updated_at?: UpdatedAt;
-    created_at?: CreatedAt;
+  id: LocationUUID;
+  name?: LocationName;
+  address_1?: Address1;
+  address_2?: Address2;
+  city?: City;
+  state?: State;
+  country?: Country;
+  postal_code?: PostalCode;
+  phone_number?: PhoneNumber;
+  fax_number?: FaxNumber;
+  updated_at?: UpdatedAt;
+  created_at?: CreatedAt;
+}
+/**
+ * An arbitrary JSON payload containing customer-specific fields
+ */
+export interface TheCustomerFieldsSchema {
+  [k: string]: any;
 }
