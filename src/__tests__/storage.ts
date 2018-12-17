@@ -172,6 +172,10 @@ describe('StorageDriver ', function() {
 
             beforeAll(async () => {
                 storageDriver = StorageDriverFactory.create(storageConfig);
+
+                if(storageConfig.driver_type == 's3'){
+                    await storageDriver.__createBucket();
+                }
             });
 
             // Test the directory listing prior to any File Operation tests

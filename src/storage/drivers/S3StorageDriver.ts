@@ -60,7 +60,7 @@ export class S3StorageDriver extends StorageDriver {
         }
     }
 
-    private async _validateBucket(): Promise<boolean> {
+    private async __createBucket(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             this.s3.createBucket(
                 {
@@ -73,6 +73,23 @@ export class S3StorageDriver extends StorageDriver {
                         } else {
                             reject(err);
                         }
+                    } else {
+                        resolve(true);
+                    }
+                },
+            );
+        });
+    }
+
+    private async _validateBucket(): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            this.s3.headBucket(
+                {
+                    Bucket: this.bucket,
+                },
+                (err, data) => {
+                    if (err) {
+                        reject(new DriverError(DriverError.States.RequestError, err));
                     } else {
                         resolve(true);
                     }
