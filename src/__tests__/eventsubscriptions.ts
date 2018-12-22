@@ -26,7 +26,7 @@ import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFi
 const request = require('request');
 const utils = require('../local-test-net-utils');
 const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';
-const ES_NODE = process.env.ES_NODE || false;
+const ES_NODE = process.env.ES_TEST_NODE_URL || false;
 
 // These are the versions we are testing
 const LATEST_SHIPTOKEN = "1.0.0";
@@ -79,7 +79,9 @@ describe('EventSubscriptionEntity', function() {
         async () => {
             if(!ES_NODE)
             {
-                console.log('SKIPPING - ElasticSearch EventSubscription test because ES_NODE is not set')
+                console.log('SKIPPING - ElasticSearch EventSubscription test because ES_TEST_NODE_URL env variable is not set')
+                console.log('USAGE - Linux users uncomment ES container in compose/dev.yml and run one time:')
+                console.log('USAGE - $ sudo sysctl -w vm.max_map_count=262144')
                 console.log('NOTE - this test FAILS on CircleCI due to vm.max_map_count limits')
                 return;
             }

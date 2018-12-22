@@ -111,24 +111,25 @@ services:
       - LOCAL_SECRET_KEY
       - LOGGING_LEVEL
       - REDIS_URL
-        - CONTRACT_FIXTURES_URL
+      - CONTRACT_FIXTURES_URL
+#     - ES_TEST_NODE_URL=http://elasticsearch:9200
 
-  elasticsearch:
-    image: sebp/elk
-    ports:
-      - "5601:5601"
-      - "9200:9200"
-      - "5044:5044"
-    networks:
-      default:
-        aliases:
-          - engine-elasticsearch
-      portal:
-        aliases:
-          - engine-elasticsearch
-    environment:
-      - ES_HEAP_SIZE=2g
-      - SERVICE=engine-elasticsearch
+# elasticsearch:
+#   image: sebp/elk
+#   ports:
+#     - "5601:5601"
+#     - "9200:9200"
+#     - "5044:5044"
+#   networks:
+#     default:
+#       aliases:
+#         - engine-elasticsearch
+#     portal:
+#       aliases:
+#         - engine-elasticsearch
+#   environment:
+#     - ES_HEAP_SIZE=2g
+#     - SERVICE=engine-elasticsearch
 
 networks:
   portal:
