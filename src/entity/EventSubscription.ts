@@ -347,7 +347,6 @@ export class EventSubscription extends BaseEntity {
                         }
                     })
                     .on('error', async function(err) {
-                        console.log('ES Error', err)
                         logger.error(`Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`);
                         await eventSubscription.failed();
                         resolve();
