@@ -49,7 +49,7 @@ describe('ContractEntity', function() {
     });
 
     it(`loads contract fixtures`, async () => {
-        await Project.loadFixturesFromFile('/meta.json');
+        await Project.loadFixturesFromFile('/app/src/__test__/meta.json');
         expect(await Project.count()).toEqual(2);
         expect(await Network.count()).toEqual(3);
         expect(await Version.count()).toEqual(3);
