@@ -23,7 +23,6 @@ import { Contract, Version, Project, Network } from '../entity/Contract';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 
 const utils = require('../local-test-net-utils');
-const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';
 
 // These are the versions we are testing
 const LATEST_SHIPTOKEN = "1.0.0";
@@ -49,7 +48,7 @@ describe('ContractEntity', function() {
     });
 
     it(`loads contract fixtures`, async () => {
-        await Project.loadFixturesFromFile('/app/src/__test__/meta.json');
+        await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
         expect(await Project.count()).toEqual(2);
         expect(await Network.count()).toEqual(3);
         expect(await Version.count()).toEqual(3);
@@ -59,11 +58,11 @@ describe('ContractEntity', function() {
     it(
         `can copy ShipToken to local test net`,
         async () => {
-            await Project.loadFixturesFromFile('/meta.json');
+            await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
             const owner = await Wallet.generate_entity();
             const other = await Wallet.generate_entity();
 
-            const local = await utils.setupLocalTestNetContracts(GETH_NODE, {ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD}, [owner]);
+            const local = await utils.setupLocalTestNetContracts({ ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD }, [owner]);
 
             const SHIP = 10 ** 18;
             const ETH = 10 ** 18;

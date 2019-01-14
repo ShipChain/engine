@@ -25,7 +25,6 @@ const test_net_utils = require('../src/local-test-net-utils');
 
 const logger: Logger = loggers.get('engine');
 const ENV = process.env.ENV || 'LOCAL';
-const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';
 const CONTRACT_FIXTURES_URL = process.env.CONTRACT_FIXTURES_URL || 'https://s3.amazonaws.com/shipchain-contracts/meta.json';
 
 // Latest supported versions of the contracts
@@ -97,12 +96,11 @@ async function getNetwork(contractMetaData){
     let network;
 
     if (ENV === 'DEV' || ENV === 'LOCAL') {
-        logger.info(`Loading Contracts into ${GETH_NODE}`);
+        logger.info(`Deploying local contracts`);
 
         const deployedContracts = await test_net_utils.setupLocalTestNetContracts(
-            GETH_NODE,
-            {LOAD: LATEST_LOAD, ShipToken: LATEST_SHIPTOKEN},
-            await typeorm.getConnection().getRepository(Wallet).find(),
+            { LOAD: LATEST_LOAD, ShipToken: LATEST_SHIPTOKEN },
+            await typeorm.getConnection().getRepository(Wallet).find()
         );
 
         network = deployedContracts.LOAD.network.title;
