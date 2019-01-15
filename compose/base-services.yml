@@ -82,6 +82,7 @@ services:
       - DATABASE_URL
       - ELASTICSEARCH_URL
       - ENV
+      - GETH_NETWORK
       - GETH_NODE
       - INFLUXDB_URL
       - LOCAL_SECRET_KEY

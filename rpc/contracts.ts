@@ -25,6 +25,7 @@ const test_net_utils = require('../src/local-test-net-utils');
 
 const logger: Logger = loggers.get('engine');
 const ENV = process.env.ENV || 'LOCAL';
+const GETH_NETWORK = process.env.GETH_NETWORK;
 const CONTRACT_FIXTURES_URL = process.env.CONTRACT_FIXTURES_URL || 'https://s3.amazonaws.com/shipchain-contracts/meta.json';
 
 // Latest supported versions of the contracts
@@ -95,7 +96,13 @@ export class LoadedContracts {
 async function getNetwork(contractMetaData){
     let network;
 
-    if (ENV === 'DEV' || ENV === 'LOCAL') {
+    // Override network from environment
+    if (GETH_NETWORK){
+        network = GETH_NETWORK;
+    }
+
+    // Or determine based on ENV environment setting
+    else if (ENV === 'DEV' || ENV === 'LOCAL') {
         logger.info(`Deploying local contracts`);
 
         const deployedContracts = await test_net_utils.setupLocalTestNetContracts(
@@ -105,7 +112,6 @@ async function getNetwork(contractMetaData){
 
         network = deployedContracts.LOAD.network.title;
     }
-
     else {
         if (ENV === 'STAGE') {
             network = "ropsten";

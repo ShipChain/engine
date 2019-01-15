@@ -1,0 +1,41 @@
+version: '2.1'
+services:
+
+
+  redis_db:
+    volumes:
+      - /data/shipchain/engine/redis:/data
+
+
+  ropsten:
+    image: ethereum/client-go:v1.8.20
+    command: --testnet --syncmode light --rpc --rpcport 8545 --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcvhosts * --verbosity 2
+    healthcheck:
+      test: "nc -z localhost 8545"
+      timeout: 10s
+      interval: 10s
+      retries: 3
+    expose:
+      - 8545
+
+
+  psql:
+    volumes:
+      - /data/shipchain/engine/postgresql:/var/lib/postgresql
+
+
+  rpc:
+    links:
+      - psql
+      - ropsten
+      - redis_db
+    depends_on:
+      redis_db:
+        condition: service_healthy
+      ropsten:
+        condition: service_healthy
+      psql:
+        condition: service_healthy
+    environment:
+      - GETH_NETWORK=ropsten
+      - GETH_NODE=http://ropsten:8545
