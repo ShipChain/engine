@@ -1,0 +1,33 @@
+version: '2.1'
+services:
+
+
+  redis_db:
+    volumes:
+      - /data/shipchain/engine/redis:/data
+
+
+  geth-poa:
+    volumes:
+      - /data/shipchain/engine/chain:/geth/chain
+
+
+  psql:
+    volumes:
+      - /data/shipchain/engine/postgresql:/var/lib/postgresql
+
+
+  rpc:
+    links:
+      - psql
+      - geth-poa
+      - redis_db
+    depends_on:
+      redis_db:
+        condition: service_healthy
+      geth-poa:
+        condition: service_healthy
+      psql:
+        condition: service_healthy
+    environment:
+      - GETH_NODE=http://geth-poa:8545

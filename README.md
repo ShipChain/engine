@@ -83,9 +83,9 @@ bin/dc build
 
 ### Scripts
 
-The scripts provided in the `bin` directory allow for easier interaction with the Docker compose services and containers.  By default, these scripts use the `dev.yml` compose file.  This can be changed to any configuration file by setting the `ROLE` environment variable.  For example if you want to use `my_settings.yml` with the scripts provided, you would only need to set `ROLE=my_settings` in your environment.
+The scripts provided in the `bin` directory allow for easier interaction with the Docker compose services and containers.  All scripts use `base-services.yml` as a baseline for service definitions and are extended by override files.  By default, the override used is the `dev-lite.yml` compose file.  This can be changed to any configuration file by setting the `ROLE` environment variable.  For example if you want to override `base-services.yml` with settings from `my_settings.yml`, you would only need to set `ROLE=my_settings` in your environment.
 
- - `bin/dc` Shorthand for running `docker-compose -p shipchain-engine -f compose/dev.yml $*`.  Use this script when you need to build the Engine container or bring the stack up and down.
+ - `bin/dc` Shorthand for running `docker-compose -p shipchain-engine -f compose/base-services.yml -f compose/dev-lite.yml $*`.  Use this script when you need to build the Engine container or bring the stack up and down.
  - `bin/ddo` Run a command _inside_ the Engine RPC container.  This is useful for `yarn` or running unit tests (described below).
  - `bin/dcleanup` Single command to kill, remove, restart, and tail the new logs of a container.
  - `bin/docker_tests` This executes the unit tests with the `circleci.yml` configuration file.  The RPC service is launched using `sleep infinity` to prevent the full server from launching for the tests.
@@ -172,7 +172,7 @@ bin/docker_tests
 To start Engine, use the provided script to bring the stack online:
 
 ```
-bin/dc up
+bin/dc up rpc
 ```
 
 When you see the following line in the output, Engine is now listening for connections via `http://localhost:2000/`!
