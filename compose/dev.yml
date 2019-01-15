@@ -1,118 +1,46 @@
 version: '2.1'
 services:
 
+
   redis_db:
-    image: redis
-    expose:
-      - '6379'
-    healthcheck:
-      test: ["CMD", "redis-cli","ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    command: >
-      --requirepass redis_pass --appendonly yes
     volumes:
       - /data/shipchain/engine/redis:/data
 
-  geth-poa:
-    image: shipchain/geth-poa
-    healthcheck:
-      test: "nc -z localhost 8545"
-      timeout: 10s
-      interval: 10s
-      retries: 3
-    volumes:
-    - /data/shipchain/engine/chain:/geth/chain
-    expose:
-      - '8545'
-    environment:
-      - GETH_VERBOSITY=1
 
-  sftp:
-    image: atmoz/sftp
-    ports:
-        - "2222:22"
-    command: shipchain_user:shipchain_password:::upload
+  geth-poa:
+    volumes:
+      - /data/shipchain/engine/chain:/geth/chain
+
 
   minio:
-    image: minio/minio
-    command: server /data
-    ports:
-      - "9099:9000"
-    healthcheck:
-      test: "nc -z localhost 9000"
-      timeout: 10s
-      interval: 10s
-      retries: 3
     volumes:
-    - /data/shipchain/engine/minio:/data
-    - /data/shipchain/engine/minioconfig:/root/.minio
-    environment:
-      MINIO_ACCESS_KEY: myMinioAccessKey
-      MINIO_SECRET_KEY: myMinioSecretKey
+      - /data/shipchain/engine/minio:/data
+      - /data/shipchain/engine/minioconfig:/root/.minio
+
 
   psql:
-    image: sameersbn/postgresql:9.6-2
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "engine"]
-      interval: 1s
-      timeout: 3s
-      retries: 30
-    ports:
-    - "5431:5432"
-    environment:
-      - DB_NAME=engine
-      - DB_PASS=engine
-      - DB_USER=engine
-      - DB_EXTENSION="uuid-ossp"
     volumes:
-    - /data/shipchain/engine/postgresql:/var/lib/postgresql
+      - /data/shipchain/engine/postgresql:/var/lib/postgresql
+
 
   rpc:
-    extends:
-      service: engine-node
-      file: build.yml
-    command: node_modules/.bin/nodemon -e "ts" -x "ts-node" rpc-server.ts
-    ports:
-      - "2000:2000"
-    networks:
-      default:
-        aliases:
-          - engine-rpc
-      portal:
-        aliases:
-          - engine-rpc
     links:
       - psql
-      - geth-poa
       - sftp
+      - minio
+      - geth-poa
       - redis_db
     depends_on:
       redis_db:
         condition: service_healthy
-      geth-poa:
-        condition: service_healthy
       minio:
+        condition: service_healthy
+      geth-poa:
         condition: service_healthy
       psql:
         condition: service_healthy
-    volumes:
-      - ../:/app
     environment:
-      - ENV
       - GETH_NODE=http://geth-poa:8545
-      - SERVICE=engine-rpc
-      - DATABASE_URL
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - ELASTICSEARCH_URL
-      - INFLUXDB_URL
-      - LOCAL_SECRET_KEY
-      - LOGGING_LEVEL
-      - REDIS_URL
-      - CONTRACT_FIXTURES_URL
-      - CONTRACT_FIXTURES_URL
 #     - ES_TEST_NODE_URL=http://elasticsearch:9200
 
 # elasticsearch:
@@ -131,7 +59,3 @@ services:
 #   environment:
 #     - ES_HEAP_SIZE=2g
 #     - SERVICE=engine-elasticsearch
-
-networks:
-  portal:
-    external: true

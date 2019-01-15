@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            docker-compose -f compose/circleci.yml build
+            docker-compose -f compose/base-services.yml -f compose/circleci.yml build
 
       - run:
           name: Install dependencies
@@ -31,17 +31,17 @@ jobs:
           name: Launch the docker containers
           command: |
             $(aws ecr get-login --no-include-email)
-            docker-compose -f compose/circleci.yml up -d
+            docker-compose -f compose/base-services.yml -f compose/circleci.yml up -d
 
       - run:
           name: Run unit tests
           command: |
-            docker-compose -f compose/circleci.yml exec -T rpc yarn test
+            docker-compose -f compose/base-services.yml -f compose/circleci.yml exec -T rpc yarn test
 
       - run:
           name: Copy artifacts from Docker
           command: |
-            docker cp $(docker-compose -f compose/circleci.yml ps -q rpc):/app/reports reports
+            docker cp $(docker-compose -f compose/base-services.yml -f compose/circleci.yml ps -q rpc):/app/reports reports
 
       - store_test_results:
           path: reports
