@@ -17,6 +17,11 @@ jobs:
           docker_layer_caching: true
 
       - run:
+          name: Setup Docker network
+          command: |
+            docker network ls | grep portal > /dev/null || docker network create portal
+
+      - run:
           name: Build application Docker image
           command: |
             docker-compose -f compose/base-services.yml -f compose/circleci.yml build
