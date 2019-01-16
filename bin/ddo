@@ -1,2 +1,2 @@
 #!/bin/bash
-bin/dc run --rm rpc $*
+bin/dc run --rm -e IS_DDO=1 rpc $*

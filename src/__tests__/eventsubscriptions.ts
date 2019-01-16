@@ -79,17 +79,17 @@ describe('EventSubscriptionEntity', function() {
         async () => {
             if(!ES_NODE)
             {
-                console.log('SKIPPING - ElasticSearch EventSubscription test because ES_TEST_NODE_URL env variable is not set')
-                console.log('USAGE - Linux users uncomment ES container in compose/dev.yml and run one time:')
-                console.log('USAGE - $ sudo sysctl -w vm.max_map_count=262144')
-                console.log('NOTE - this test FAILS on CircleCI due to vm.max_map_count limits')
+                console.log('SKIPPING - ElasticSearch EventSubscription test because ES_TEST_NODE_URL env variable is not set');
+                console.log('USAGE - Linux users use `ROLE=circleci-es` in bin/docker_tests');
+                console.log('USAGE - $ sudo sysctl -w vm.max_map_count=262144');
+                console.log('NOTE - this test FAILS on CircleCI due to vm.max_map_count limits');
                 return;
             }
-            await Project.loadFixturesFromFile('/meta.json');
+            await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
             const owner = await Wallet.generate_entity();
             const other = await Wallet.generate_entity();
 
-            const local = await utils.setupLocalTestNetContracts(GETH_NODE, {ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD}, [owner]);
+            const local = await utils.setupLocalTestNetContracts({ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD}, [owner]);
 
             const subscriberAttrs = new EventSubscriberAttrs();
             subscriberAttrs.project = 'ShipToken';

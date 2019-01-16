@@ -12,12 +12,6 @@ services:
       - /data/shipchain/engine/chain:/geth/chain
 
 
-  minio:
-    volumes:
-      - /data/shipchain/engine/minio:/data
-      - /data/shipchain/engine/minioconfig:/root/.minio
-
-
   psql:
     volumes:
       - /data/shipchain/engine/postgresql:/var/lib/postgresql
@@ -26,14 +20,10 @@ services:
   rpc:
     links:
       - psql
-      - sftp
-      - minio
       - geth-poa
       - redis_db
     depends_on:
       redis_db:
-        condition: service_healthy
-      minio:
         condition: service_healthy
       geth-poa:
         condition: service_healthy

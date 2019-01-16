@@ -5,6 +5,6 @@ PROJECT_DIR="$( cd $BIN/.. && pwd  )"
 [[ -f ../.envrc ]] && source ../.envrc
 [[ -f ../.env ]] && source ../.env
 [[ -z "$COMPOSE_PROJECT" ]] && COMPOSE_PROJECT=$(basename $PROJECT_DIR)
-[[ -z "$ROLE" ]] && ROLE=dev
+[[ -z "$ROLE" ]] && ROLE=dev-lite
 
-docker-compose -p $COMPOSE_PROJECT -f compose/$ROLE.yml $*
+docker-compose -p $COMPOSE_PROJECT -f compose/base-services.yml -f compose/$ROLE.yml $*

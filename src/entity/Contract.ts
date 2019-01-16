@@ -34,6 +34,7 @@ const rp = require('request-promise-native');
 
 const logger: Logger = loggers.get('engine');
 const metrics = MetricsReporter.Instance;
+const GETH_NODE = process.env.GETH_NODE;
 
 @Entity()
 export class Project extends BaseEntity {
@@ -71,8 +72,8 @@ export class Project extends BaseEntity {
                 for (let networkName of Object.keys(meta.networks)) {
                     const network = meta.networks[networkName];
 
-                    networks[networkName] = await Network.getOrCreate(networkName, network.public_address, network.description);
-                    logger.debug(`Fixture Network: ${networkName} ${network.public_address} ${network.description} [${networks[networkName].id}]`);
+                    networks[networkName] = await Network.getOrCreate(networkName, network.description);
+                    logger.debug(`Fixture Network: ${networkName} ${network.description} [${networks[networkName].id}]`);
                 }
 
                 // Parse defined Contracts
@@ -196,12 +197,12 @@ export class Version extends BaseEntity {
         return version;
     }
 
-    async deployToLocalTestNet(nodeUrl: string) {
+    async deployToLocalTestNet() {
         const project = this.project || (await Project.findOne({ id: this.projectId }));
 
-        const network = await Network.getLocalTestNet(nodeUrl);
+        const network = await Network.getLocalTestNet();
 
-        logger.info(`Deploy to local: ${project.title} ${this.title} ${network.connection_string}`);
+        logger.info(`Deploy to local: ${project.title} ${this.title}`);
 
         const contract = await Contract.getOrCreate(project, network, this);
 
@@ -266,33 +267,30 @@ export class Network extends BaseEntity {
     contracts: Contract[];
 
     @Column() title: string;
-    @Column() connection_string: string;
     @Column() description: string;
 
     private _driver;
 
-    static async getOrCreate(title: string, connection_string: string, description: string) {
+    static async getOrCreate(title: string, description: string) {
         let network = await Network.findOne({ title });
         if (!network) {
             network = new Network();
             network.title = title;
             network.description = description;
-            network.connection_string = connection_string;
             await network.save();
-        } else if (network.connection_string !== connection_string || network.description !== description) {
+        } else if (network.description !== description) {
             network.description = description;
-            network.connection_string = connection_string;
             await network.save();
         }
         return network;
     }
 
-    static async getLocalTestNet(nodeUrl: string) {
-        return await Network.getOrCreate('local', nodeUrl, 'Local Test Net');
+    static async getLocalTestNet() {
+        return await Network.getOrCreate('local', 'Local Test Net');
     }
 
-    static async getLocalTestNetAccounts(nodeUrl: string) {
-        const local_net = await Network.getLocalTestNet(nodeUrl);
+    static async getLocalTestNetAccounts() {
+        const local_net = await Network.getLocalTestNet();
         return await new Promise((resolve, reject) => {
             local_net.getDriver().eth.getAccounts((err, accounts) => {
                 if (err) reject(err);
@@ -303,7 +301,10 @@ export class Network extends BaseEntity {
 
     getDriver() {
         if (this._driver) return this._driver;
-        this._driver = new Web3(new Web3.providers.HttpProvider(this.connection_string));
+        if(!GETH_NODE){
+            throw new Error("No setting for GETH_NODE found!");
+        }
+        this._driver = new Web3(new Web3.providers.HttpProvider(GETH_NODE));
         this._driver._entity = this;
         return this._driver;
     }

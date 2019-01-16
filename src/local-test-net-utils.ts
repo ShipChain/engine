@@ -26,7 +26,7 @@ class LatestContractFormat {
     LOAD: string;
 }
 
-export async function setupLocalTestNetContracts(nodeUrl: string, latest: LatestContractFormat, wallets: Wallet[] = []) {
+export async function setupLocalTestNetContracts(latest: LatestContractFormat, wallets: Wallet[] = []) {
     const token_version: Version = await Version.getByProjectAndTitle("ShipToken", latest.ShipToken);
     const load_version: Version = await Version.getByProjectAndTitle("LOAD", latest.LOAD);
 
@@ -37,14 +37,14 @@ export async function setupLocalTestNetContracts(nodeUrl: string, latest: Latest
         throw new Error("LOAD Version cannot be found");
     }
 
-    const local_token = await token_version.deployToLocalTestNet(nodeUrl);
-    const local_load = await load_version.deployToLocalTestNet(nodeUrl);
+    const local_token = await token_version.deployToLocalTestNet();
+    const local_load = await load_version.deployToLocalTestNet();
 
     const token_driver = await local_token['getDriver']();
     const load_driver = await local_load['getDriver']();
 
-    const accounts = await Network.getLocalTestNetAccounts(nodeUrl);
-    const network = await Network.getLocalTestNet(nodeUrl);
+    const accounts = await Network.getLocalTestNetAccounts();
+    const network = await Network.getLocalTestNet();
 
     const web3 = local_token['network'].getDriver();
 

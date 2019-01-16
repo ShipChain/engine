@@ -48,7 +48,6 @@
     "typescript": "^3.1.6"
   },
   "scripts": {
-    "pretest": "wget -O /meta.json ${CONTRACT_FIXTURES_URL}",
     "test": "jest --detectOpenHandles --forceExit",
     "server": "ts-node rpc-server.ts",
     "ingest_primitives": "node ingestPrimitives.js",

@@ -10,13 +10,13 @@ cd "${0%/*}/.."
 echo "Running tests"
 
 export ROLE=circleci
-export GETH_NODE=http://geth-poa:8545
+# export ROLE=circleci-es
 
 bin/dc down
 
 bin/dc build
 
-bin/dc up -d
+bin/dc up -d rpc
 
 bin/dc exec -T rpc yarn run test
 
