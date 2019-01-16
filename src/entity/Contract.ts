@@ -303,7 +303,9 @@ export class Network extends BaseEntity {
 
     getDriver() {
         if (this._driver) return this._driver;
-        return (this._driver = new Web3(new Web3.providers.HttpProvider(this.connection_string)));
+        this._driver = new Web3(new Web3.providers.HttpProvider(this.connection_string));
+        this._driver._entity = this;
+        return this._driver;
     }
 
     async send_tx(signed_tx, callbacks?: GenericCallback) {
@@ -407,7 +409,10 @@ export class Contract extends BaseEntity {
 
         const eth = this.network.getDriver().eth;
 
-        return (this._driver = new eth.Contract(this.version.getABI(), this.address));
+        this._driver = new eth.Contract(this.version.getABI(), this.address);
+        this._driver._eth = eth;
+        this._driver._entity = this;
+        return this._driver;
     }
 
     async encodeMethod(method, args) {

@@ -36,6 +36,14 @@ const metrics = MetricsReporter.Instance;
 
 const SECONDS = 1000;
 
+function AsyncPut(url) {
+    return new Promise(resolve => {
+        request.put(url, (error, response, body) => {
+          resolve(body);
+        });
+    })
+}
+
 export class AsyncPoll extends EventEmitter {
     readonly name: string;
     private readonly interval: number;
@@ -90,9 +98,10 @@ export class AsyncPoll extends EventEmitter {
     }
 }
 
-class EventSubscriberAttrs {
+export class EventSubscriberAttrs {
     url: string;
     project: string;
+    receiverType?: string;
     eventNames?: string[];
     lastBlock?: number;
     interval?: number;
@@ -104,6 +113,7 @@ export class EventSubscription extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
     @Column() url: string;
     @Column() project: string;
+    @Column() receiverType: string;
     @Column('simple-array') eventNames: string[];
     @Column('bigint') lastBlock: number;
     @Column('int') interval: number;
@@ -111,6 +121,7 @@ export class EventSubscription extends BaseEntity {
     @CreateDateColumn() createdDate: Date;
 
     private contractDriver: any;
+    private contract: Contract;
     private asyncPolls: any = {};
 
     static DEFAULT_INTERVAL = 30 * SECONDS;
@@ -134,6 +145,7 @@ export class EventSubscription extends BaseEntity {
             eventSubscriber.eventNames = attrs.eventNames || eventSubscriber.eventNames;
             eventSubscriber.lastBlock = attrs.lastBlock || eventSubscriber.lastBlock;
             eventSubscriber.interval = attrs.interval || eventSubscriber.interval;
+            eventSubscriber.receiverType = attrs.receiverType || eventSubscriber.receiverType;
             eventSubscriber.errorCount = 0;
             logger.debug(`Updating existing Subscription ${JSON.stringify(eventSubscriber)}`);
             await eventSubscriber.save();
@@ -144,6 +156,7 @@ export class EventSubscription extends BaseEntity {
             newSubscriber.eventNames = attrs.eventNames || ['allEvents'];
             newSubscriber.lastBlock = attrs.lastBlock || 0;
             newSubscriber.interval = attrs.interval || EventSubscription.DEFAULT_INTERVAL;
+            newSubscriber.receiverType = attrs.receiverType || 'POST';
             newSubscriber.errorCount = 0;
             eventSubscriber = await newSubscriber.save();
             logger.debug(`Creating new Subscription ${JSON.stringify(eventSubscriber)}`);
@@ -219,9 +232,22 @@ export class EventSubscription extends BaseEntity {
         }
     }
 
+    async pollOnce(contract: Contract) {
+        EventSubscription.activeSubscriptions[this.id] = this;
+
+        this.contract = contract;
+        this.contractDriver = await contract.getDriver();
+
+        for (let eventName of this.eventNames) {
+            let pollMethod = EventSubscription.buildPoll(this, eventName);
+            await pollMethod();
+        }
+    }
+
     async start(contract: Contract) {
         EventSubscription.activeSubscriptions[this.id] = this;
 
+        this.contract = contract;
         this.contractDriver = await contract.getDriver();
 
         for (let eventName of this.eventNames) {
@@ -255,6 +281,85 @@ export class EventSubscription extends BaseEntity {
         return highestBlock;
     }
 
+    private static async sendPostEvents(eventSubscription: EventSubscription, events, highestBlock, resolve) {
+        try {
+            let options = {
+                url: eventSubscription.url,
+                json: events,
+                timeout: 60 * SECONDS,
+            };
+            options = Object.assign(options, await getRequestOptions());
+
+            request
+                .post(options)
+                .on('response', async function(response) {
+                    if (response.statusCode != 200 && response.statusCode != 204) {
+                        logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`);
+                        await eventSubscription.failed();
+                        resolve();
+                    } else {
+                        await eventSubscription.success(highestBlock);
+                        resolve();
+                    }
+                })
+                .on('error', async function(err) {
+                    logger.error(`Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`);
+                    await eventSubscription.failed();
+                    resolve();
+                });
+        } catch (_err) {
+            logger.error(`Error posting events to ${eventSubscription.project}_${eventSubscription.url} ${_err}`);
+            await eventSubscription.failed();
+            resolve();
+        }
+    }
+
+    private static async sendElasticEvents(eventSubscription: EventSubscription, events, highestBlock, resolve) {
+        try {
+            logger.info(`About to put events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url}`);
+
+            await AsyncPut(eventSubscription.url + '/events/');
+
+            for (let event of events) {
+                let options = {
+                    url: eventSubscription.url + '/events/_doc',
+                    json: {
+                        network_id: eventSubscription.contract.network.id,
+                        network_title: eventSubscription.contract.network.title,
+                        project_id: eventSubscription.contract.project.id,
+                        project_title: eventSubscription.contract.project.title,
+                        version_id: eventSubscription.contract.version.id,
+                        version_title: eventSubscription.contract.version.title,
+                        ...event,
+                    },
+                    timeout: 1 * SECONDS,
+                };
+                request
+                    .post(options)
+                    .on('response', async function(response) {
+                        if (response.statusCode != 201 && response.statusCode != 204) {
+                            logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`);
+                            await eventSubscription.failed();
+                            resolve();
+                        } else {
+                            await eventSubscription.success(highestBlock);
+                            resolve();
+                        }
+                    })
+                    .on('error', async function(err) {
+                        logger.error(`Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`);
+                        await eventSubscription.failed();
+                        resolve();
+                    });
+            }
+            resolve();
+        } catch (_err) {
+            logger.error(`Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url} ${_err}`);
+            await eventSubscription.failed();
+            resolve();
+        }
+    }
+
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {
         async function pollMethod() {
             return new Promise((resolve, reject) => {
@@ -278,42 +383,17 @@ export class EventSubscription extends BaseEntity {
                         else {
                             if (events.length) {
                                 metrics.methodTime('getPastEvents', Date.now() - startTime,{eventName: eventName, web3: true});
+
                                 logger.info(`Found ${events.length} Events`);
                                 let highestBlock = EventSubscription.findHighestBlockInEvents(
                                     events,
                                     eventSubscription.lastBlock,
                                 );
+                                if(eventSubscription.receiverType == 'POST')
+                                    await EventSubscription.sendPostEvents(eventSubscription, events, highestBlock, resolve);
+                                else if(eventSubscription.receiverType == 'ELASTIC')
+                                    await EventSubscription.sendElasticEvents(eventSubscription, events, highestBlock, resolve);
 
-                                try {
-                                    let options = {
-                                        url: eventSubscription.url,
-                                        json: events,
-                                        timeout: 60 * SECONDS,
-                                    };
-                                    options = Object.assign(options, await getRequestOptions());
-
-                                    request
-                                        .post(options)
-                                        .on('response', async function(response) {
-                                            if (response.statusCode != 200 && response.statusCode != 204) {
-                                                logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`);
-                                                await eventSubscription.failed();
-                                                resolve();
-                                            } else {
-                                                await eventSubscription.success(highestBlock);
-                                                resolve();
-                                            }
-                                        })
-                                        .on('error', async function(err) {
-                                            logger.error(`Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`);
-                                            await eventSubscription.failed();
-                                            resolve();
-                                        });
-                                } catch (_err) {
-                                    logger.error(`Error posting events to ${eventSubscription.project}_${eventSubscription.url} ${_err}`);
-                                    await eventSubscription.failed();
-                                    resolve();
-                                }
                             } else {
                                 logger.silly(`Found ${events.length} Events`);
                                 resolve();

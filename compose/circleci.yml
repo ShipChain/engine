@@ -69,6 +69,7 @@ services:
       - sftp
       - minio
       - psql
+
     depends_on:
       redis_db:
         condition: service_healthy
