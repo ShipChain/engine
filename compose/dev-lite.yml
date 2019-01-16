@@ -29,5 +29,7 @@ services:
         condition: service_healthy
       psql:
         condition: service_healthy
+    volumes:
+      - ../:/app
     environment:
       - GETH_NODE=http://geth-poa:8545
