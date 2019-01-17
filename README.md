@@ -14,7 +14,13 @@ An RPC server that exposes our Typescript abstraction layer on top of Web3 bindi
 
 These instructions will get a copy of Engine up and running in your local environment.
 
-_NOTE: As Engine is only designed to expose ShipChain's smart contracts, it does not include User management, Authentication, or retry mechanisms for failed transactions.  ShipChain's own Engine is deployed in conjunction with the [Transmission](https://github.com/ShipChain/transmission) project to handle Shipment management, failed transaction retry, message authentication, and interfacing with a user management system._
+### Security Note
+
+As Engine is only designed to expose ShipChain's smart contracts, it does not include User management, Authentication, or retry mechanisms for failed transactions.  ShipChain's own internal Engine instance is deployed in conjunction with the [Transmission](https://github.com/ShipChain/transmission) project to handle Shipment management, failed transaction retry, message authentication, and uses our own *Profiles* service for interfacing with a user management system and role-based access controls to wallets and security credentials.
+
+**Engine RPC should _never_ be exposed to public traffic**.
+
+Engine enables any authorized client to send management commands to any wallet, including transferring funds, signing of messages on a user's behalf, or deleting access to any wallet. Engine RPC is designed to run as an internal service, under maximum internal security. It should live behind it's own strict firewall and only accept traffic from trusted application hosts - We also provide an nginx configuration that you can use to encrypt the engine traffic over your internal network. The database you chose to save engine data should be behind it's own firewall and only accept connections from Engine directly. While the private keys are encrypted-at-rest in the database, full disk encryption is suggested for further security. In the future, we'll add support for using a Hardware Security Module (like YubiHSM) for encrypting private keys in the database (currently, we use AWS secrets management in our production deployments).
 
 ### Prerequisites
 
