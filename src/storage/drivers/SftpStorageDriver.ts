@@ -111,7 +111,7 @@ export class SftpStorageDriver extends StorageDriver {
             return;
         } catch (err) {
             sftp.end();
-            if (err.message == 'No such file') {
+            if (err.message.includes('No such file')) {
                 metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
                 return;
             }
@@ -134,7 +134,7 @@ export class SftpStorageDriver extends StorageDriver {
             return;
         } catch (err) {
             sftp.end();
-            if (err.message == 'No such file') {
+            if (err.message.includes('No such file')) {
                 metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
                 return;
             }
@@ -199,9 +199,9 @@ export class SftpStorageDriver extends StorageDriver {
             return directoryListing;
         } catch (err) {
             sftp.end();
-            if (!vaultDirectory && err.message == 'No such file') {
+            if (!vaultDirectory && err.message.includes('No such file')) {
                 return new DirectoryListing('.');
-            } else if (vaultDirectory && err.message == 'No such file') {
+            } else if (vaultDirectory && err.message.includes('No such file')) {
                 throw new DriverError(DriverError.States.NotFoundError, err);
             } else {
                 throw new DriverError(DriverError.States.RequestError, err);
