@@ -63,10 +63,11 @@ export class SftpStorageDriver extends StorageDriver {
         let fullVaultPath = this.getFullVaultPath(filePath);
 
         try {
-            let stream = await sftp.get(fullVaultPath, null, encodingSftp);
+            let data = await sftp.get(fullVaultPath, null, encodingSftp);
+            let stream = data.sftp.createReadStream(fullVaultPath, {encoding: null});
 
             let fileContents = await getStream(stream, { encoding: encodingStream }); // set encoding to 'buffer' for binary
-            sftp.end()
+            sftp.end();
             metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
             return fileContents;
         } catch (err) {
