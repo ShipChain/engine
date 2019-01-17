@@ -1,0 +1,2 @@
+# Force linux-style line endings, and don't allow line endings to be rewritten on checkout (for all files)
+* text eol=lf
