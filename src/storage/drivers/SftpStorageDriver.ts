@@ -41,7 +41,15 @@ export class SftpStorageDriver extends StorageDriver {
 
     private async _validateDirectoryPath(sftp, filePath: string): Promise<any> {
         let parsedPath = this.parseFullVaultPath(filePath);
-        return await sftp.mkdir(parsedPath.dir, true);
+        try {
+            await sftp.list(parsedPath.dir);
+        } catch (err) {
+            if (err.message.includes('No such file')) {
+                await sftp.mkdir(parsedPath.dir, true);
+            } else {
+                throw new DriverError(DriverError.States.NotFoundError, err);
+            }
+        }
     }
 
     async getFile(filePath: string, binary: boolean = false): Promise<any> {
