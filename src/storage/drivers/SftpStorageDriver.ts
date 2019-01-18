@@ -39,9 +39,44 @@ export class SftpStorageDriver extends StorageDriver {
         }
     }
 
+    /**
+     * Replicate mkdir functionality, safely, by checking existence of directories
+     * and creating them in sequence to prevent errors when recursive mkdir hangs
+     *
+     * @param sftp SFTP Client object
+     * @param dirPath <string> Full directory path
+     * @private
+     */
+    private static async _safeRecursiveMkdir(sftp, dirPath: string): Promise<any> {
+        let walkDirs = dirPath.split(path.sep);
+
+        for(let index = 0; index <= walkDirs.length; index++){
+            let sequentialDirs = walkDirs.slice(0, index + 1);
+            let newDirPath = sequentialDirs.join(path.sep);
+
+            try {
+                await sftp.list(newDirPath);
+            } catch (err) {
+                if (err.message.includes('No such file')) {
+                    await sftp.mkdir(newDirPath);
+                } else {
+                    throw new DriverError(DriverError.States.NotFoundError, err);
+                }
+            }
+        }
+    }
+
     private async _validateDirectoryPath(sftp, filePath: string): Promise<any> {
         let parsedPath = this.parseFullVaultPath(filePath);
-        return await sftp.mkdir(parsedPath.dir, true);
+        try {
+            await sftp.list(parsedPath.dir);
+        } catch (err) {
+            if (err.message.includes('No such file')) {
+                await SftpStorageDriver._safeRecursiveMkdir(sftp, parsedPath.dir);
+            } else {
+                throw new DriverError(DriverError.States.NotFoundError, err);
+            }
+        }
     }
 
     async getFile(filePath: string, binary: boolean = false): Promise<any> {
@@ -55,10 +90,11 @@ export class SftpStorageDriver extends StorageDriver {
         let fullVaultPath = this.getFullVaultPath(filePath);
 
         try {
-            let stream = await sftp.get(fullVaultPath, null, encodingSftp);
+            let data = await sftp.get(fullVaultPath, null, encodingSftp);
+            let stream = data.sftp.createReadStream(fullVaultPath, {encoding: null});
 
             let fileContents = await getStream(stream, { encoding: encodingStream }); // set encoding to 'buffer' for binary
-            sftp.end()
+            sftp.end();
             metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
             return fileContents;
         } catch (err) {
@@ -111,7 +147,7 @@ export class SftpStorageDriver extends StorageDriver {
             return;
         } catch (err) {
             sftp.end();
-            if (err.message == 'No such file') {
+            if (err.message.includes('No such file')) {
                 metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
                 return;
             }
@@ -134,7 +170,7 @@ export class SftpStorageDriver extends StorageDriver {
             return;
         } catch (err) {
             sftp.end();
-            if (err.message == 'No such file') {
+            if (err.message.includes('No such file')) {
                 metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
                 return;
             }
@@ -199,9 +235,9 @@ export class SftpStorageDriver extends StorageDriver {
             return directoryListing;
         } catch (err) {
             sftp.end();
-            if (!vaultDirectory && err.message == 'No such file') {
+            if (!vaultDirectory && err.message.includes('No such file')) {
                 return new DirectoryListing('.');
-            } else if (vaultDirectory && err.message == 'No such file') {
+            } else if (vaultDirectory && err.message.includes('No such file')) {
                 throw new DriverError(DriverError.States.NotFoundError, err);
             } else {
                 throw new DriverError(DriverError.States.RequestError, err);

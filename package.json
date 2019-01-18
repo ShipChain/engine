@@ -48,7 +48,7 @@
     "typescript": "^3.1.6"
   },
   "scripts": {
-    "test": "jest --detectOpenHandles --forceExit",
+    "test": "jest --detectOpenHandles --forceExit --maxWorkers=3",
     "server": "ts-node rpc-server.ts",
     "ingest_primitives": "node ingestPrimitives.js",
     "start": "nodemon -e 'ts' -x 'ts-node' rpc-server.ts",

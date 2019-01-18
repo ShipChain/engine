@@ -78,6 +78,17 @@ const storageConfigs = {
                 password: SFTP_PASS,
             },
             base_path: 'upload',
+            variant: 'root',
+        },
+        sub: {
+            driver_type: 'sftp',
+            credentials: {
+                host: SFTP_HOST,
+                port: SFTP_PORT,
+                username: SFTP_USER,
+                password: SFTP_PASS,
+            },
+            base_path: path.join('upload', epochDirectory),
             variant: 'sub',
         },
     },
@@ -163,6 +174,7 @@ describe('StorageDriver ', function() {
     }
 
     if (SFTP_DRIVER_TESTS) {
+        testStorageConfigs.push(storageConfigs.sftp.sub);
         testStorageConfigs.push(storageConfigs.sftp.root);
     }
 
@@ -387,11 +399,18 @@ describe('StorageDriver ', function() {
                 it(
                     `does not throws when recursively deleting a non-empty ${fileConfig.variant} ${fileConfig.type} directory`,
                     mochaAsync(async () => {
-                        let result = await storageDriver.putFile(fileConfig.file, fileConfig.data, fileConfig.binary);
-                        expect(result).toBeUndefined();
 
-                        result = await storageDriver.removeDirectory(null, true);
-                        expect(result).toBeUndefined();
+                        // Recursively deleting an SFTP _root_ directory will cause permission errors and should be avoided
+                        if(storageConfig.driver_type === "sftp" && storageConfig.variant === "root"){
+                            expect(true).toBeTruthy();
+                        }
+                        else {
+                            let result = await storageDriver.putFile(fileConfig.file, fileConfig.data, fileConfig.binary);
+                            expect(result).toBeUndefined();
+
+                            result = await storageDriver.removeDirectory(null, true);
+                            expect(result).toBeUndefined();
+                        }
                     }),
                 );
             });

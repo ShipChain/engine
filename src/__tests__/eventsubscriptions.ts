@@ -79,10 +79,11 @@ describe('EventSubscriptionEntity', function() {
         async () => {
             if(!ES_NODE)
             {
-                console.log('SKIPPING - ElasticSearch EventSubscription test because ES_TEST_NODE_URL env variable is not set');
-                console.log('USAGE - Linux users use `ROLE=circleci-es` in bin/docker_tests');
-                console.log('USAGE - $ sudo sysctl -w vm.max_map_count=262144');
-                console.log('NOTE - this test FAILS on CircleCI due to vm.max_map_count limits');
+                console.log('\n\n' +
+                    'SKIPPING - ElasticSearch EventSubscription test because ES_TEST_NODE_URL env variable is not set\n' +
+                    'USAGE    - Linux users use `ROLE=circleci-es` in bin/docker_tests\n' +
+                    'USAGE    - $ sudo sysctl -w vm.max_map_count=262144\n' +
+                    'NOTE     - this test FAILS on CircleCI due to vm.max_map_count limits\n');
                 return;
             }
             await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
