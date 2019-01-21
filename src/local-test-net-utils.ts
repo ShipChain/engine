@@ -16,9 +16,9 @@
 
 import { Network, Version } from "./entity/Contract";
 import { Wallet } from './entity/Wallet';
-import { Logger, loggers } from 'winston';
+import { Logger } from './Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const ETH = 10 ** 18;
 
 class LatestContractFormat {

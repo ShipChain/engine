@@ -16,9 +16,9 @@
 
 import { ContractCallback } from '../contracts/ContractCallback';
 import { getRequestOptions } from '../request-options';
-import { Logger, loggers } from 'winston';
+import { Logger } from '../Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const request = require('request');
 
 export class TransmissionConfirmationCallback extends ContractCallback {

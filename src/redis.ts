@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import { Logger, loggers } from 'winston';
+import { Logger } from './Logger';
 import { MetricsReporter } from "./MetricsReporter";
 
 const redis = require('redis');
 const Redlock = require('redlock');
 
-// @ts-ignore
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://:redis_pass@redis_db:6379/1';

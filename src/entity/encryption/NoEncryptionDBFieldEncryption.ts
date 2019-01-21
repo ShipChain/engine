@@ -15,9 +15,9 @@
  */
 
 import { DBFieldEncryption } from "../Wallet";
-import { Logger, loggers } from "winston";
+import { Logger } from '../../Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const ENV = process.env.ENV || "LOCAL";
 
 export class NoEncryptionDBFieldEncryption extends DBFieldEncryption {

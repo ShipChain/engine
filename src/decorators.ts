@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import { Logger, loggers } from 'winston';
+import { Logger } from './Logger';
 import redlock from './redis';
 
-// @ts-ignore
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 
 class LockOptions {
     key?: string;

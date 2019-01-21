@@ -15,9 +15,9 @@
  */
 
 import { GenericCallback } from '../entity/Contract';
-import { Logger, loggers } from 'winston';
+import { Logger } from '../Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 
 export class ContractCallback extends GenericCallback {
     protected static CONFIRMATIONS_REQUIRED = 12;

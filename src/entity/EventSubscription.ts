@@ -25,13 +25,13 @@ import {
 } from "typeorm";
 import { Contract } from './Contract';
 import { EventEmitter } from 'events';
-import { Logger, loggers } from 'winston';
 import { getRequestOptions } from '../request-options';
+import { Logger } from '../Logger';
 import { MetricsReporter } from "../MetricsReporter";
 
 const request = require('request');
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 
 const SECONDS = 1000;

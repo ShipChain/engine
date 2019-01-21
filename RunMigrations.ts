@@ -15,14 +15,13 @@
  */
 
 // Setup logging prior to any other imports
-require("./loggingConfig");
-import { Logger, loggers } from "winston";
+import { Logger } from './src/Logger';
 
 import * as process from "process";
 import { getRDSconfig } from "./rdsconfig";
 import { Connection, createConnection, getConnectionOptions } from "typeorm";
 
-const logger: Logger = loggers.get("engine");
+const logger = Logger.get(module.filename);
 
 /**
  * This logic is borrowed from TyprOrm's CLI package for running migrations

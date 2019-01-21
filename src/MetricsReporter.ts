@@ -15,9 +15,9 @@
  */
 
 import { InfluxDB, IPoint, IWriteOptions } from 'influx';
-import { Logger, loggers } from 'winston';
+import { Logger} from './Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const ENVIRONMENT = process.env.ENV || 'LOCAL';
 const INFLUXDB_URL = process.env.INFLUXDB_URL;
 

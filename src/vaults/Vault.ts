@@ -20,14 +20,14 @@ import { Wallet } from '../entity/Wallet';
 import { ResourceLock } from "../redis";
 import * as path from 'path';
 import * as utils from '../utils';
-import { Logger, loggers } from "winston";
+import { Logger } from '../Logger';
 
 // Import Moment Typings and Functions
 import { Moment } from 'moment';
 import * as moment from 'moment';
 
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 
 
 export class Vault {

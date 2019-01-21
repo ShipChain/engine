@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Logger, loggers } from "winston";
+import { Logger } from '../Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 
 export async function getAwsSecret(secretName: string): Promise<any>{
 
