@@ -74,7 +74,7 @@ export async function ResourceLock(key: string, base_obj: any, method_to_lock: s
         }).catch(function(err) {
             // we weren't able to reach redis; your lock will eventually
             // expire, but you probably want to log this error
-            console.error(err);
+            logger.error(`${err}`);
             reject();
         });
     });

@@ -19,6 +19,8 @@ import { Logger as WinstonLogger, format, transports, loggers } from "winston";
 const appRoot = require('app-root-path');
 const path = require('path');
 const crypto = require('crypto');
+const ElasticSearch = require("winston-elasticsearch");
+const WinstonCloudWatch = require('winston-cloudwatch');
 
 /**
  * We're using the default npm levels
@@ -32,13 +34,11 @@ const crypto = require('crypto');
 
 const ENGINE_LOGGER_NAME = "engine";
 const ENV = process.env.ENV || "LOCAL";
+
 const LOGGING_LEVEL = process.env.LOGGING_LEVEL || "info";
 const CLOUDWATCH_LEVEL = process.env.CLOUDWATCH_LEVEL || LOGGING_LEVEL;
 const ELASTICSEARCH_LEVEL = process.env.ELASTICSEARCH_LEVEL || LOGGING_LEVEL;
 const ELASTICSEARCH_URL = process.env.ELASTICSEARCH_URL;
-
-const ElasticSearch = require("winston-elasticsearch");
-const WinstonCloudWatch = require('winston-cloudwatch');
 
 
 export class Logger {
@@ -118,6 +118,8 @@ export class Logger {
     // ==================================
     private static define_loggers(){
         let engine_transports = [];
+        let es_enabled = false;
+        let cw_enabled = false;
 
         // Always include the Console Transport
         // ------------------------------------
@@ -134,8 +136,8 @@ export class Logger {
 
         // Add ElasticSearch if we're running in a deployed environment
         // ------------------------------------------------------------
-        if ((ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") &&
-            ELASTICSEARCH_URL != null) {
+        if ((ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") && ELASTICSEARCH_URL != null) {
+            es_enabled = true;
 
             engine_transports.push(
                 new (ElasticSearch)({
@@ -149,13 +151,12 @@ export class Logger {
                     }
                 })
             );
-        } else {
-            console.warn("Logs are not being sent to ElasticSearch");
         }
 
         // Add CloudWatch if we're running in a deployed environment
         // ---------------------------------------------------------
         if (ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") {
+            cw_enabled = true;
 
             engine_transports.push(
                 new (WinstonCloudWatch)({
@@ -173,16 +174,23 @@ export class Logger {
                     awsRegion: 'us-east-1',
                 })
             );
-        } else {
-            console.warn("Logs are not being sent to CloudWatch");
         }
+
+        const initializationMeta = {filename: Logger.getRelativeFilename(module.filename)};
 
         loggers.add(ENGINE_LOGGER_NAME, {
             format: format.json(),
             level: LOGGING_LEVEL,
             exitOnError: true,
             transports: engine_transports
-        }).verbose("Logging Initialized", {filename: Logger.getRelativeFilename(module.filename)});
+        }).verbose("Logging Initialized", initializationMeta);
+
+        if(!es_enabled){
+            loggers.get(ENGINE_LOGGER_NAME).warn("Logs are not being sent to ElasticSearch", initializationMeta);
+        }
+        if(!cw_enabled){
+            loggers.get(ENGINE_LOGGER_NAME).warn("Logs are not being sent to CloudWatch", initializationMeta);
+        }
     }
 
 }
