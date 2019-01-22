@@ -1,4 +1,4 @@
-FROM node:10.14.0-stretch
+FROM node:10.15.0-stretch-slim
 
 LABEL maintainer="Lucas Clay <lclay@shipchain.io>"
 
@@ -6,8 +6,9 @@ ENV LANG C.UTF-8
 ENV PYTHONUNBUFFERED 1
 
 # SUPPORT SSH FOR IAM USERS #
-RUN apt-get update && apt-get -y install openssh-server python3-pip jq
+RUN apt-get update && apt-get -y install git openssh-server python2.7-minimal python3-pip jq
 RUN mkdir /var/run/sshd /etc/cron.d
+ENV PYTHON /usr/bin/python2.7
 RUN pip3 install keymaker
 RUN keymaker install
 
