@@ -17,9 +17,15 @@
 import { Logger } from '../src/Logger';
 
 const rpc = require('json-rpc2');
-const validator = require('validator');
 
 const logger = Logger.get(module.filename);
+
+const UUIDv = {
+    3: /^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
+    4: /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+    5: /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+    all: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
+};
 
 // Build Argument Validators
 // =========================
@@ -56,13 +62,21 @@ export async function buildSchemaValidators() {
     });
 }
 
+function isUuid(uuid: string, version = 4): boolean {
+    if(typeof uuid !== 'string') {
+        return false;
+    }
+    const pattern = UUIDv[version];
+    return pattern && pattern.test(uuid);
+}
+
 export function uuidArgumentValidator(args, argsToCheck) {
     for (let checkArg in argsToCheck) {
         if (argsToCheck.hasOwnProperty(checkArg)) {
             if (checkArg >= args.length) {
                 throw new rpc.Error.InvalidParams('No ' + argsToCheck[checkArg] + ' identifier provided');
             }
-            if (typeof args[checkArg] !== 'string' || !validator.isUUID(args[checkArg])) {
+            if (typeof args[checkArg] !== 'string' || !isUuid(args[checkArg])) {
                 throw new rpc.Error.InvalidParams('Invalid ' + argsToCheck[checkArg] + ' identifier format');
             }
         }
@@ -70,7 +84,7 @@ export function uuidArgumentValidator(args, argsToCheck) {
 }
 
 export function validateUuid(uuid) {
-    return typeof uuid === 'string' && validator.isUUID(uuid);
+    return typeof uuid === 'string' && isUuid(uuid);
 }
 
 export function validateShipmentArgs(shipment) {
