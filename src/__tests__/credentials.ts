@@ -17,27 +17,22 @@
 require('./testLoggingConfig');
 
 import 'mocha';
-import { createConnection } from 'typeorm';
+import * as typeorm from "typeorm";
 import { StorageCredential } from '../entity/StorageCredential';
 
 describe('StorageCredentialEntity', function() {
-    beforeEach(async () => {
-        this.connection = await createConnection({
-            type: 'sqljs',
-            synchronize: true,
-            entities: ['src/entity/**/*.ts'],
+
+    beforeAll(async () => {
+        // read connection options from ormconfig file (or ENV variables)
+        const connectionOptions = await typeorm.getConnectionOptions();
+        await typeorm.createConnection({
+            ...connectionOptions,
         });
     });
 
-    afterEach(async () => {
-        await this.connection.dropDatabase();
-        if (this.connection.isConnected) {
-            await this.connection.close();
-        }
-    });
-
     it(`can create and retrieve storage credentials`, async () => {
-        const Credentials = this.connection.getRepository(StorageCredential);
+        const DB = typeorm.getConnection();
+        const Credentials = DB.getRepository(StorageCredential);
         const attrs = {
             title: 'My Driver',
             driver_type: 'local',

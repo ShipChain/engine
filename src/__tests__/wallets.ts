@@ -17,32 +17,27 @@
 require('./testLoggingConfig');
 
 import 'mocha';
-import { createConnection } from 'typeorm';
+import * as typeorm from "typeorm";
 import { Wallet } from '../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 
 import EthCrypto from 'eth-crypto';
 
 describe('WalletEntity', function() {
-    beforeEach(async () => {
-        this.connection = await createConnection({
-            type: 'sqljs',
-            synchronize: true,
-            entities: ['src/entity/**/*.ts'],
-        });
 
+    beforeAll(async () => {
+        // read connection options from ormconfig file (or ENV variables)
+        const connectionOptions = await typeorm.getConnectionOptions();
+        await typeorm.createConnection({
+            ...connectionOptions,
+        });
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
-    afterEach(async () => {
-        await this.connection.dropDatabase();
-        if (this.connection.isConnected) {
-            await this.connection.close();
-        }
-    });
 
     it(`generates fresh wallets`, async () => {
-        const entityRepository = this.connection.getRepository(Wallet);
+        const DB = typeorm.getConnection();
+        const entityRepository = DB.getRepository(Wallet);
         const wallet = await Wallet.generate_entity();
 
         await entityRepository.save(wallet);
@@ -64,8 +59,9 @@ describe('WalletEntity', function() {
     });
 
     it(`imports wallets`, async () => {
+        const DB = typeorm.getConnection();
         const source_data = Wallet.generate_identity();
-        const entityRepository = this.connection.getRepository(Wallet);
+        const entityRepository = DB.getRepository(Wallet);
         const wallet = await Wallet.import_entity(source_data.privateKey);
         await entityRepository.save(wallet);
 

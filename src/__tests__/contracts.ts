@@ -17,7 +17,7 @@
 require('./testLoggingConfig');
 
 import 'mocha';
-import { createConnection } from 'typeorm';
+import * as typeorm from "typeorm";
 import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
@@ -30,21 +30,14 @@ const LATEST_LOAD = "1.1.0";
 
 
 describe('ContractEntity', function() {
-    beforeEach(async () => {
-        this.connection = await createConnection({
-            type: 'sqljs',
-            synchronize: true,
-            entities: ['src/entity/**/*.ts'],
+
+    beforeAll(async () => {
+        // read connection options from ormconfig file (or ENV variables)
+        const connectionOptions = await typeorm.getConnectionOptions();
+        await typeorm.createConnection({
+            ...connectionOptions,
         });
-
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
-    });
-
-    afterEach(async () => {
-        await this.connection.dropDatabase();
-        if (this.connection.isConnected) {
-            await this.connection.close();
-        }
     });
 
     it(`loads contract fixtures`, async () => {
