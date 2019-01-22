@@ -35,6 +35,6 @@ module.exports = {
     "coverageDirectory": "<rootDir>/reports/",
     "reporters": [
         "default",
-        ["jest-junit", {output: "<rootDir>/reports/junit.xml"}]
+        ["jest-junit", {output: "<rootDir>/reports/junit/jest-junit.xml"}]
     ]
 };
