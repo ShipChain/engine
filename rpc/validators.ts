@@ -29,13 +29,16 @@ let shipmentValidator;
 export async function buildSchemaValidators() {
     const fs = require('fs');
     const AJV = require('ajv');
-    const fetch = require('node-fetch');
+    const requestPromise = require('request-promise-native');
 
     ajv = new AJV({
         loadSchema: async url => {
             try {
-                let response = await fetch(url);
-                return await response.json();
+                let options = {
+                    url: url,
+                };
+                let response = await requestPromise(options);
+                return await JSON.parse(response);
             } catch (error) {
                 logger.error(`${error}`);
                 throw error;

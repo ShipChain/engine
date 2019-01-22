@@ -30,7 +30,7 @@ import { MetricsReporter } from "../MetricsReporter";
 const fs = require('fs');
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
-const rp = require('request-promise-native');
+const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -129,24 +129,19 @@ export class Project extends BaseEntity {
     }
 
     static async loadFixturesFromUrl(fixture_url: string): Promise<any> {
+        const requestOptions = {
+            uri: fixture_url,
+            json: true,
+            timeout: 20000,
+        };
 
-        return new Promise((resolve, reject) => {
-            const requestOptions = {
-                uri: fixture_url,
-                json: true,
-                timeout: 20000,
-            };
-
-            rp(requestOptions)
-                .then(async meta => {
-                    resolve(await Project.loadFixtureMetaData(meta));
-                })
-                .catch(err => {
-                    logger.error(`Retrieving Fixtures returned ${err}`);
-                    reject(err);
-                });
-        });
-
+        try {
+            const meta = await requestPromise(requestOptions);
+            return await Project.loadFixtureMetaData(meta);
+        } catch (err) {
+            logger.error(`Retrieving Fixtures returned ${err}`);
+            throw err;
+        }
     }
 }
 

@@ -15,7 +15,6 @@
     "json-rpc2": "^1.0.2",
     "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
-    "node-fetch": "^2.3.0",
     "pg": "^7.6.1",
     "read-source-stream": "^1.0.4",
     "redis": "^2.8.0",
