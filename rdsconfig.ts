@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Logger, loggers } from "winston";
+import { Logger } from './src/Logger';
 import { getAwsSecret } from "./src/shipchain/utils";
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const ENV = process.env.ENV || "LOCAL";
 
 

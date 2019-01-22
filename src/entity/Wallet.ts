@@ -16,12 +16,12 @@
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import EthCrypto from 'eth-crypto';
-import { Logger, loggers } from "winston";
+import { Logger } from '../Logger';
 
 const EthereumTx = require('ethereumjs-tx');
 const Web3 = require('web3');
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 
 export abstract class DBFieldEncryption {
     protected constructor(){

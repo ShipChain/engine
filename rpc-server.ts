@@ -15,8 +15,8 @@
  */
 
 // Setup logging prior to any other imports
-require("./loggingConfig");
-import { Logger, loggers } from "winston";
+import { Logger } from './src/Logger';
+const logger = Logger.get(module.filename);
 
 import { buildSchemaValidators } from "./rpc/validators";
 import { loadContractFixtures } from "./rpc/contracts";
@@ -36,7 +36,6 @@ const rpc = require("json-rpc2");
 const process = require("process");
 
 
-const logger: Logger = loggers.get("engine");
 const metrics = MetricsReporter.Instance;
 const PORT = process.env.PORT || 2000;
 

@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+import { Logger } from '../src/Logger';
+
 const rpc = require('json-rpc2');
 const validator = require('validator');
+
+const logger = Logger.get(module.filename);
 
 // Build Argument Validators
 // =========================
@@ -33,7 +37,7 @@ export async function buildSchemaValidators() {
                 let response = await fetch(url);
                 return await response.json();
             } catch (error) {
-                console.error(error);
+                logger.error(`${error}`);
                 throw error;
             }
         },

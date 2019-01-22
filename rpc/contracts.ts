@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import { Logger, loggers } from 'winston';
-
 import { BaseContract } from '../src/contracts/BaseContract';
 import { Project, Contract, Version } from '../src/entity/Contract';
 import { Wallet } from '../src/entity/Wallet';
+import { Logger } from '../src/Logger';
 
 const typeorm = require('typeorm');
 const test_net_utils = require('../src/local-test-net-utils');
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const ENV = process.env.ENV || 'LOCAL';
 const GETH_NETWORK = process.env.GETH_NETWORK;
 const CONTRACT_FIXTURES_URL = process.env.CONTRACT_FIXTURES_URL || 'https://s3.amazonaws.com/shipchain-contracts/meta.json';

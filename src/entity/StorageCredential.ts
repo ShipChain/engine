@@ -15,9 +15,9 @@
  */
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
-import { Logger, loggers } from 'winston';
+import { Logger } from '../Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 
 class StorageCredentialAttrs {
     title: string;

@@ -24,7 +24,7 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Logger, loggers } from 'winston';
+import { Logger } from '../Logger';
 import { MetricsReporter } from "../MetricsReporter";
 
 const fs = require('fs');
@@ -32,7 +32,7 @@ const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
 const rp = require('request-promise-native');
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 const GETH_NODE = process.env.GETH_NODE;
 

@@ -16,6 +16,8 @@
 
 const { format, loggers, transports } = require("winston");
 
+// Because this Winston Container is added first during the unit tests, the
+// normal Transports from /src/Logger.ts are not included in the output
 loggers.add("engine", {
   format: format.simple(),
   level: "info",

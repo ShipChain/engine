@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-var fs = require('fs')
+const fs = require('fs')
     , certFile = '/app/client-cert.crt'
     , keyFile = '/app/client-cert.key'
     , caFile = '/app/ca-bundle.crt';
 
-import { Logger, loggers } from "winston";
+import { Logger } from './Logger';
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const ENV = process.env.ENV || "LOCAL";
 
 let options = null;

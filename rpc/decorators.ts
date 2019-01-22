@@ -16,11 +16,11 @@
 
 import { validateUuid } from './validators';
 import { MetricsReporter } from '../src/MetricsReporter';
-import { Logger, loggers } from 'winston';
+import { Logger } from '../src/Logger';
 
 const rpc = require('json-rpc2');
 
-const logger: Logger = loggers.get('engine');
+const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 
 class RPCNamespaceOptions {
