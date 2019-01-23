@@ -17,12 +17,13 @@ module.exports = {
     "collectCoverageFrom": [
         "src/**/*.ts",
         "!<rootDir>/src/__tests__/*",
+        "!<rootDir>/src/Logger.ts",
         "!<rootDir>/src/entity/migration/*",
         "!<rootDir>/src/shipchain/contracts/**/*"
     ],
     "coverageReporters": [
-        "clover",
-        "text"
+        "text",
+        "html"
     ],
     "coverageThreshold": {
         "global": {
@@ -32,7 +33,7 @@ module.exports = {
             "statements": 0
         }
     },
-    "coverageDirectory": "<rootDir>/reports/",
+    "coverageDirectory": "<rootDir>/reports/coverage/",
     "reporters": [
         "default",
         ["jest-junit", {output: "<rootDir>/reports/junit/jest-junit.xml"}]
