@@ -62,29 +62,12 @@ export async function buildSchemaValidators() {
     });
 }
 
-function isUuid(uuid: string, version = 4): boolean {
+export function validateUuid(uuid, version = 4): boolean {
     if(typeof uuid !== 'string') {
         return false;
     }
     const pattern = UUIDv[version];
     return pattern && pattern.test(uuid);
-}
-
-export function uuidArgumentValidator(args, argsToCheck) {
-    for (let checkArg in argsToCheck) {
-        if (argsToCheck.hasOwnProperty(checkArg)) {
-            if (checkArg >= args.length) {
-                throw new rpc.Error.InvalidParams('No ' + argsToCheck[checkArg] + ' identifier provided');
-            }
-            if (typeof args[checkArg] !== 'string' || !isUuid(args[checkArg])) {
-                throw new rpc.Error.InvalidParams('Invalid ' + argsToCheck[checkArg] + ' identifier format');
-            }
-        }
-    }
-}
-
-export function validateUuid(uuid) {
-    return typeof uuid === 'string' && isUuid(uuid);
 }
 
 export function validateShipmentArgs(shipment) {
