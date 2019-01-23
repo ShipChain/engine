@@ -24,6 +24,7 @@ WORKDIR /app
 
 ADD ./package.json /app/
 ADD ./yarn.lock /app/
+ADD ./.yarnclean /app/
 RUN yarn
 
 COPY . /app/
