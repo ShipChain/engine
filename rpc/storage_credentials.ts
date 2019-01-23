@@ -17,8 +17,8 @@
 import { RPCMethod, RPCNamespace } from './decorators';
 import { StorageCredential } from '../src/entity/StorageCredential';
 import { MetricsReporter } from '../src/MetricsReporter';
-import * as path from "path";
-import { StorageDriverFactory } from "../src/storage/StorageDriverFactory";
+import * as path from 'path';
+import { StorageDriverFactory } from '../src/storage/StorageDriverFactory';
 
 const metrics = MetricsReporter.Instance;
 
@@ -30,10 +30,9 @@ const driverType = ['s3', 'sftp', 'local'];
 export class RPCStorageCredentials {
     @RPCMethod({ require: ['title', 'driver_type'] })
     public static async Create(args) {
-
         // Local driver type is disabled in environment other than LOCAL
         // and storage credentials creation is disabled for unrecognizable driver type
-        if (ENV != 'LOCAL' && args.driver_type === 'local' || driverType.indexOf(args.driver_type) < 0){
+        if ((ENV != 'LOCAL' && args.driver_type === 'local') || driverType.indexOf(args.driver_type) < 0) {
             throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
         }
 
@@ -77,7 +76,7 @@ export class RPCStorageCredentials {
     })
     public static async TestConnectivity(args) {
         const testDirectory = `TestConnectivity_${new Date().getTime()}`;
-        const testFileName = "TestConnectivity.txt";
+        const testFileName = 'TestConnectivity.txt';
         const testContent = 'Hello, World! Привет мир! 你好，世界！';
 
         let valid: boolean;
@@ -94,41 +93,39 @@ export class RPCStorageCredentials {
             const driver = StorageDriverFactory.create(auth);
             await driver.putFile(testFileName, testContent);
 
-            if(!(await driver.fileExists(testFileName))){
-                throw new Error("Created file does not exist");
+            if (!(await driver.fileExists(testFileName))) {
+                throw new Error('Created file does not exist');
             }
 
             const retrievedContent = await driver.getFile(testFileName);
-            if(retrievedContent != testContent){
-                throw new Error("Stored content does not match retrieved content");
+            if (retrievedContent != testContent) {
+                throw new Error('Stored content does not match retrieved content');
             }
 
             await driver.removeDirectory(null, true);
 
             valid = true;
-        }
-
-        catch (err) {
+        } catch (err) {
             valid = false;
 
-            if(err.message) {
+            if (err.message) {
                 message = err.message;
             } else {
                 message = err;
             }
 
-            if(err.wrappedError){
-                if(err.wrappedError.message) {
-                    message = message + ". " + err.wrappedError.message;
+            if (err.wrappedError) {
+                if (err.wrappedError.message) {
+                    message = message + '. ' + err.wrappedError.message;
                 } else {
-                    message = message + ". " + err.wrappedError
+                    message = message + '. ' + err.wrappedError;
                 }
             }
         }
 
         return {
             valid: valid,
-            message
+            message,
         };
     }
 
@@ -144,7 +141,7 @@ export class RPCStorageCredentials {
         await storage.update(args.title, args.options);
 
         return {
-            updated: true
-        }
+            updated: true,
+        };
     }
 }

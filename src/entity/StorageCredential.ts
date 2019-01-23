@@ -95,12 +95,11 @@ export class StorageCredential extends BaseEntity {
     }
 
     async update(title?: string, options?: any) {
-
-        if(title){
+        if (title) {
             this.title = title;
         }
 
-        if(options){
+        if (options) {
             this.options = options;
         }
 

@@ -22,8 +22,8 @@ import { LoadContract } from '../../../src/shipchain/contracts/Load/1.0.2/LoadCo
 import { ShipTokenContract } from '../../../src/shipchain/contracts/ShipToken/1.0.0/ShipTokenContract';
 
 const loadedContracts = LoadedContracts.Instance;
-const PROJECT = "LOAD";
-const VERSION = "1.0.2";
+const PROJECT = 'LOAD';
+const VERSION = '1.0.2';
 
 @RPCNamespace({ name: 'Load.1.0.2' })
 export class RPCLoad {
@@ -305,5 +305,4 @@ export class RPCLoad {
             flags: await LOAD_CONTRACT.getContractFlags(args.shipmentId),
         };
     }
-
 }

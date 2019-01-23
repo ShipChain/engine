@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Network, Version } from "./entity/Contract";
+import { Network, Version } from './entity/Contract';
 import { Wallet } from './entity/Wallet';
 import { Logger } from './Logger';
 
@@ -27,14 +27,14 @@ class LatestContractFormat {
 }
 
 export async function setupLocalTestNetContracts(latest: LatestContractFormat, wallets: Wallet[] = []) {
-    const token_version: Version = await Version.getByProjectAndTitle("ShipToken", latest.ShipToken);
-    const load_version: Version = await Version.getByProjectAndTitle("LOAD", latest.LOAD);
+    const token_version: Version = await Version.getByProjectAndTitle('ShipToken', latest.ShipToken);
+    const load_version: Version = await Version.getByProjectAndTitle('LOAD', latest.LOAD);
 
-    if(!token_version) {
-        throw new Error("ShipToken Version cannot be found");
+    if (!token_version) {
+        throw new Error('ShipToken Version cannot be found');
     }
-    if(!load_version) {
-        throw new Error("LOAD Version cannot be found");
+    if (!load_version) {
+        throw new Error('LOAD Version cannot be found');
     }
 
     const local_token = await token_version.deployToLocalTestNet();
@@ -101,6 +101,6 @@ export async function setupLocalTestNetContracts(latest: LatestContractFormat, w
         web3: web3,
         network: network,
         ShipToken: local_token,
-        LOAD: local_load
+        LOAD: local_load,
     };
 }

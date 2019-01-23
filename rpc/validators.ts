@@ -24,7 +24,7 @@ const UUIDv = {
     3: /^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
     4: /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
     5: /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
-    all: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i
+    all: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
 };
 
 // Build Argument Validators
@@ -63,7 +63,7 @@ export async function buildSchemaValidators() {
 }
 
 export function validateUuid(uuid, version = 4): boolean {
-    if(typeof uuid !== 'string') {
+    if (typeof uuid !== 'string') {
         return false;
     }
     const pattern = UUIDv[version];

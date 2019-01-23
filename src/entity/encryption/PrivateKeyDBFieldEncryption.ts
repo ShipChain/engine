@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import EthCrypto from "eth-crypto";
-import { DBFieldEncryption } from "../Wallet";
+import EthCrypto from 'eth-crypto';
+import { DBFieldEncryption } from '../Wallet';
 
-const LOCAL_SECRET_KEY = process.env.LOCAL_SECRET_KEY || "0x0000000000000000000000000000000000000000000000000000000000000001";
-
+const LOCAL_SECRET_KEY =
+    process.env.LOCAL_SECRET_KEY || '0x0000000000000000000000000000000000000000000000000000000000000001';
 
 export class PrivateKeyDBFieldEncryption extends DBFieldEncryption {
     protected static _instance: PrivateKeyDBFieldEncryption;
@@ -27,7 +27,7 @@ export class PrivateKeyDBFieldEncryption extends DBFieldEncryption {
     protected masterPublicKey: string;
 
     static async getInstance(): Promise<DBFieldEncryption> {
-        if(!this._instance){
+        if (!this._instance) {
             let instance = new PrivateKeyDBFieldEncryption();
 
             instance.masterPrivateKey = await instance.getMasterPrivateKey();
@@ -52,5 +52,4 @@ export class PrivateKeyDBFieldEncryption extends DBFieldEncryption {
     protected async getMasterPrivateKey(): Promise<string> {
         return LOCAL_SECRET_KEY;
     }
-
 }

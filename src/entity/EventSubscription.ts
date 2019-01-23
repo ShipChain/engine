@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-import {
-    BaseEntity,
-    Column,
-    CreateDateColumn,
-    Entity,
-    getConnection,
-    Index,
-    PrimaryGeneratedColumn
-} from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, getConnection, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { Contract } from './Contract';
 import { EventEmitter } from 'events';
 import { getRequestOptions } from '../request-options';
 import { Logger } from '../Logger';
-import { MetricsReporter } from "../MetricsReporter";
+import { MetricsReporter } from '../MetricsReporter';
 
 const request = require('request');
 
@@ -39,9 +31,9 @@ const SECONDS = 1000;
 function AsyncPut(url) {
     return new Promise(resolve => {
         request.put(url, (error, response, body) => {
-          resolve(body);
+            resolve(body);
         });
-    })
+    });
 }
 
 export class AsyncPoll extends EventEmitter {
@@ -108,7 +100,7 @@ export class EventSubscriberAttrs {
 }
 
 @Entity()
-@Index("URL_PROJECT_INDEX", ["url", "project"], { unique: true })
+@Index('URL_PROJECT_INDEX', ['url', 'project'], { unique: true })
 export class EventSubscription extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
     @Column() url: string;
@@ -141,7 +133,6 @@ export class EventSubscription extends BaseEntity {
                 delete EventSubscription.activeSubscriptions[eventSubscriber.id];
             }
 
-
             eventSubscriber.eventNames = attrs.eventNames || eventSubscriber.eventNames;
             eventSubscriber.lastBlock = attrs.lastBlock || eventSubscriber.lastBlock;
             eventSubscriber.interval = attrs.interval || eventSubscriber.interval;
@@ -171,7 +162,7 @@ export class EventSubscription extends BaseEntity {
         const DB = getConnection();
         const repository = DB.getRepository(EventSubscription);
 
-        let eventSubscriber = await repository.findOne({ url: url, project: project});
+        let eventSubscriber = await repository.findOne({ url: url, project: project });
 
         if (!eventSubscriber) {
             throw new Error('EventSubscription not found');
@@ -294,7 +285,11 @@ export class EventSubscription extends BaseEntity {
                 .post(options)
                 .on('response', async function(response) {
                     if (response.statusCode != 200 && response.statusCode != 204) {
-                        logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`);
+                        logger.error(
+                            `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${
+                                eventSubscription.url
+                            }]`,
+                        );
                         await eventSubscription.failed();
                         resolve();
                     } else {
@@ -303,7 +298,9 @@ export class EventSubscription extends BaseEntity {
                     }
                 })
                 .on('error', async function(err) {
-                    logger.error(`Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`);
+                    logger.error(
+                        `Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`,
+                    );
                     await eventSubscription.failed();
                     resolve();
                 });
@@ -338,7 +335,11 @@ export class EventSubscription extends BaseEntity {
                     .post(options)
                     .on('response', async function(response) {
                         if (response.statusCode != 201 && response.statusCode != 204) {
-                            logger.error(`Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`);
+                            logger.error(
+                                `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${
+                                    eventSubscription.url
+                                }]`,
+                            );
                             await eventSubscription.failed();
                             resolve();
                         } else {
@@ -347,14 +348,20 @@ export class EventSubscription extends BaseEntity {
                         }
                     })
                     .on('error', async function(err) {
-                        logger.error(`Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`);
+                        logger.error(
+                            `Event Subscription Failed with ${err} [${eventSubscription.project}_${
+                                eventSubscription.url
+                            }]`,
+                        );
                         await eventSubscription.failed();
                         resolve();
                     });
             }
             resolve();
         } catch (_err) {
-            logger.error(`Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url} ${_err}`);
+            logger.error(
+                `Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url} ${_err}`,
+            );
             await eventSubscription.failed();
             resolve();
         }
@@ -379,21 +386,32 @@ export class EventSubscription extends BaseEntity {
                         if (error) {
                             logger.error(`Error retrieving Events: ${error}`);
                             reject(error);
-                        }
-                        else {
+                        } else {
                             if (events.length) {
-                                metrics.methodTime('getPastEvents', Date.now() - startTime,{eventName: eventName, web3: true});
+                                metrics.methodTime('getPastEvents', Date.now() - startTime, {
+                                    eventName: eventName,
+                                    web3: true,
+                                });
 
                                 logger.info(`Found ${events.length} Events`);
                                 let highestBlock = EventSubscription.findHighestBlockInEvents(
                                     events,
                                     eventSubscription.lastBlock,
                                 );
-                                if(eventSubscription.receiverType == 'POST')
-                                    await EventSubscription.sendPostEvents(eventSubscription, events, highestBlock, resolve);
-                                else if(eventSubscription.receiverType == 'ELASTIC')
-                                    await EventSubscription.sendElasticEvents(eventSubscription, events, highestBlock, resolve);
-
+                                if (eventSubscription.receiverType == 'POST')
+                                    await EventSubscription.sendPostEvents(
+                                        eventSubscription,
+                                        events,
+                                        highestBlock,
+                                        resolve,
+                                    );
+                                else if (eventSubscription.receiverType == 'ELASTIC')
+                                    await EventSubscription.sendElasticEvents(
+                                        eventSubscription,
+                                        events,
+                                        highestBlock,
+                                        resolve,
+                                    );
                             } else {
                                 logger.silly(`Found ${events.length} Events`);
                                 resolve();

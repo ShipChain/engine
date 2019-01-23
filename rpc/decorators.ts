@@ -75,8 +75,7 @@ export function RPCMethod(options?: RPCMethodOptions) {
 
             const callback = arguments[2];
 
-            logger.debug(`Invoking RPCMethod: '${propertyKey}' in '${target.name ||
-                        target.constructor.name}'`);
+            logger.debug(`Invoking RPCMethod: '${propertyKey}' in '${target.name || target.constructor.name}'`);
             originalMethod
                 .apply(context, arguments)
                 .then(resolve => callback(null, resolve))

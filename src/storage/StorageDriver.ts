@@ -96,9 +96,9 @@ export class DriverError extends Error {
             this.reason = reason;
         }
 
-        if(wrappedError) {
+        if (wrappedError) {
             // Cleanup the wrapped error properties to force a better string output when `Error.prototype.toString()` is used
-            if (!wrappedError.name || wrappedError.name === "Error") {
+            if (!wrappedError.name || wrappedError.name === 'Error') {
                 wrappedError.name = '';
             }
 
@@ -109,7 +109,7 @@ export class DriverError extends Error {
             // Generate the user friendly message
             this.message = `${errorState} [${wrappedError}]`;
         } else {
-            this.message = `${errorState} [${this.reason}]`
+            this.message = `${errorState} [${this.reason}]`;
         }
     }
 }

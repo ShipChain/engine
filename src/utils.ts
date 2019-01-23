@@ -23,22 +23,19 @@ const crypto = require('crypto');
 
 const DEFAULT_HASH_ALG = 'sha256';
 
-
 export function stringHash(value: string, alg?: string) {
-
-    if(!alg){
+    if (!alg) {
         alg = DEFAULT_HASH_ALG;
     }
 
-    switch(alg){
-
-        case "sha256":
+    switch (alg) {
+        case 'sha256':
             const hash = crypto.createHash('sha256');
             hash.update(value);
-            return "0x" + hash.digest('hex');
+            return '0x' + hash.digest('hex');
 
-        case "keccak256":
-            return EthCrypto.hash.keccak256([{value:value, type:'string'}]);
+        case 'keccak256':
+            return EthCrypto.hash.keccak256([{ value: value, type: 'string' }]);
 
         default:
             throw new Error(`Invalid hashing algorithm ${alg}`);
@@ -48,11 +45,9 @@ export function stringHash(value: string, alg?: string) {
 export function objectHash(obj: any, at?: Date, alg?: string) {
     let s_cleaned;
 
-    if(typeof obj === 'string'){
+    if (typeof obj === 'string') {
         s_cleaned = obj;
-    }
-
-    else {
+    } else {
         /* If the object has a signed property, ignore it */
         let cleaned = { ...obj };
         delete cleaned.signed;
@@ -65,14 +60,14 @@ export function objectHash(obj: any, at?: Date, alg?: string) {
 
 export function objectSignature(author, obj, at?) {
     at = at || new Date();
-    const hash = objectHash(obj, at, (obj.signature && obj.signed.alg ? obj.signed.alg : DEFAULT_HASH_ALG));
+    const hash = objectHash(obj, at, obj.signature && obj.signed.alg ? obj.signed.alg : DEFAULT_HASH_ALG);
 
     return {
         author: author.public_key,
         hash: hash,
         at: at,
         signature: author.sign_hash(hash),
-        alg: (obj.signed && obj.signed.alg ? obj.signed.alg : DEFAULT_HASH_ALG)
+        alg: obj.signed && obj.signed.alg ? obj.signed.alg : DEFAULT_HASH_ALG,
     };
 }
 

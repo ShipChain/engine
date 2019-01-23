@@ -25,12 +25,12 @@ const test_net_utils = require('../src/local-test-net-utils');
 const logger = Logger.get(module.filename);
 const ENV = process.env.ENV || 'LOCAL';
 const GETH_NETWORK = process.env.GETH_NETWORK;
-const CONTRACT_FIXTURES_URL = process.env.CONTRACT_FIXTURES_URL || 'https://s3.amazonaws.com/shipchain-contracts/meta.json';
+const CONTRACT_FIXTURES_URL =
+    process.env.CONTRACT_FIXTURES_URL || 'https://s3.amazonaws.com/shipchain-contracts/meta.json';
 
 // Latest supported versions of the contracts
-const LATEST_SHIPTOKEN = "1.0.0";
+const LATEST_SHIPTOKEN = '1.0.0';
 import { latest as LATEST_LOAD } from './Load/Latest';
-
 
 export class LoadedContracts {
     private static _instance: LoadedContracts;
@@ -75,7 +75,11 @@ export class LoadedContracts {
             for (let loadedVersion in this.contracts[project]) {
                 if (this.contracts[project].hasOwnProperty(loadedVersion)) {
                     if (this.contracts[project][loadedVersion].latest) {
-                        logger.debug(`Retrieved ${project}:${loadedVersion} [${this.contracts[project][loadedVersion].contract.getContractVersion()}]`);
+                        logger.debug(
+                            `Retrieved ${project}:${loadedVersion} [${this.contracts[project][
+                                loadedVersion
+                            ].contract.getContractVersion()}]`,
+                        );
                         return this.contracts[project][loadedVersion].contract;
                     }
                 }
@@ -86,17 +90,19 @@ export class LoadedContracts {
                 throw new Error(`Contract '${project}' version '${version}' not registered`);
             }
 
-            logger.debug(`Retrieved ${project}:${version} [${this.contracts[project][version].contract.getContractVersion()}]`);
+            logger.debug(
+                `Retrieved ${project}:${version} [${this.contracts[project][version].contract.getContractVersion()}]`,
+            );
             return this.contracts[project][version].contract;
         }
     }
 }
 
-async function getNetwork(contractMetaData){
+async function getNetwork(contractMetaData) {
     let network;
 
     // Override network from environment
-    if (GETH_NETWORK){
+    if (GETH_NETWORK) {
         network = GETH_NETWORK;
     }
 
@@ -106,31 +112,30 @@ async function getNetwork(contractMetaData){
 
         const deployedContracts = await test_net_utils.setupLocalTestNetContracts(
             { LOAD: LATEST_LOAD, ShipToken: LATEST_SHIPTOKEN },
-            await typeorm.getConnection().getRepository(Wallet).find()
+            await typeorm
+                .getConnection()
+                .getRepository(Wallet)
+                .find(),
         );
 
         network = deployedContracts.LOAD.network.title;
-    }
-    else {
+    } else {
         if (ENV === 'STAGE') {
-            network = "ropsten";
-        }
-        else if (ENV === 'DEMO') {
-            network = "rinkeby";
-        }
-        else if (ENV === 'PROD') {
-            network = "mainnet";
-        }
-        else {
+            network = 'ropsten';
+        } else if (ENV === 'DEMO') {
+            network = 'rinkeby';
+        } else if (ENV === 'PROD') {
+            network = 'mainnet';
+        } else {
             throw new Error('Unable to determine appropriate Ethereum Network!');
         }
 
         // Validate the latest Engine Supported version is deployed on the desired network
-        if(!contractMetaData.ShipToken.deployed[network][LATEST_SHIPTOKEN]){
+        if (!contractMetaData.ShipToken.deployed[network][LATEST_SHIPTOKEN]) {
             throw new Error(`ShipToken version ${LATEST_SHIPTOKEN} is not deployed to ${network}`);
         }
 
-        if(!contractMetaData.LOAD.deployed[network][LATEST_LOAD]){
+        if (!contractMetaData.LOAD.deployed[network][LATEST_LOAD]) {
             throw new Error(`LOAD version ${LATEST_LOAD} is not deployed to ${network}`);
         }
     }
@@ -143,8 +148,12 @@ export async function loadContractFixtures() {
     const contractMetaData = await Project.loadFixturesFromUrl(CONTRACT_FIXTURES_URL);
 
     // Warn if the latest version of the contracts are not supported
-    if(LATEST_LOAD !== contractMetaData.LOAD.latest){
-        logger.warn(`LOAD version in fixture [${contractMetaData.LOAD.latest}] does not match latest supported Engine contract [${LATEST_LOAD}]`);
+    if (LATEST_LOAD !== contractMetaData.LOAD.latest) {
+        logger.warn(
+            `LOAD version in fixture [${
+                contractMetaData.LOAD.latest
+            }] does not match latest supported Engine contract [${LATEST_LOAD}]`,
+        );
     }
 
     let network = await getNetwork(contractMetaData);
@@ -152,7 +161,8 @@ export async function loadContractFixtures() {
     logger.info(`Loading Contracts from ${network}`);
 
     // The `LATEST_*` constants are hardcoded in the source.  There is no risk of external manipulation of these values
-    const TokenContract = (await import(`../src/shipchain/contracts/ShipToken/${LATEST_SHIPTOKEN}/ShipTokenContract`)).ShipTokenContract;
+    const TokenContract = (await import(`../src/shipchain/contracts/ShipToken/${LATEST_SHIPTOKEN}/ShipTokenContract`))
+        .ShipTokenContract;
     const LoadContract = (await import(`../src/shipchain/contracts/Load/${LATEST_LOAD}/LoadContract`)).LoadContract;
 
     const TOKEN_CONTRACT = new TokenContract(network, LATEST_SHIPTOKEN);
@@ -182,17 +192,24 @@ async function registerPreviousLoadContracts(LoadMetaData, LOAD_CONTRACT: BaseCo
     for (let previousContract of previousContracts) {
         const previousVersion: Version = await Version.findOne({ id: previousContract.versionId });
 
-        if(LoadMetaData && LoadMetaData[previousVersion.title]) {
-            logger.info(`Registering previous '${currentContract.project.title}' contract version ${previousVersion.title}`);
+        if (LoadMetaData && LoadMetaData[previousVersion.title]) {
+            logger.info(
+                `Registering previous '${currentContract.project.title}' contract version ${previousVersion.title}`,
+            );
 
-            const LoadContract = (await import(`../src/shipchain/contracts/Load/${previousVersion.title}/LoadContract`)).LoadContract;
+            const LoadContract = (await import(`../src/shipchain/contracts/Load/${previousVersion.title}/LoadContract`))
+                .LoadContract;
 
             const oldLoadContract = new LoadContract(currentContract.network.title, previousVersion.title);
             await oldLoadContract.Ready;
 
             loadedContracts.register(currentContract.project.title, oldLoadContract);
         } else {
-            logger.info(`Skipping previous '${currentContract.project.title}' contract version ${previousVersion.title} (not in fixture)`);
+            logger.info(
+                `Skipping previous '${currentContract.project.title}' contract version ${
+                    previousVersion.title
+                } (not in fixture)`,
+            );
         }
     }
 }

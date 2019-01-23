@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-import { DBFieldEncryption } from "../Wallet";
+import { DBFieldEncryption } from '../Wallet';
 import { Logger } from '../../Logger';
 
 const logger = Logger.get(module.filename);
-const ENV = process.env.ENV || "LOCAL";
+const ENV = process.env.ENV || 'LOCAL';
 
 export class NoEncryptionDBFieldEncryption extends DBFieldEncryption {
-
-    constructor(){
+    constructor() {
         super();
-        logger.warn("Encryption is disabled for Wallet Private Keys!");
+        logger.warn('Encryption is disabled for Wallet Private Keys!');
     }
 
-    private static checkUsage(){
-        if(ENV !== "LOCAL"){
-            throw new Error("Invalid Encryption scheme for deployment!");
+    private static checkUsage() {
+        if (ENV !== 'LOCAL') {
+            throw new Error('Invalid Encryption scheme for deployment!');
         }
     }
 
@@ -42,5 +41,4 @@ export class NoEncryptionDBFieldEncryption extends DBFieldEncryption {
         NoEncryptionDBFieldEncryption.checkUsage();
         return private_key;
     }
-
 }

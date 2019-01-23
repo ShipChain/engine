@@ -19,11 +19,10 @@ import S3 = require('aws-sdk/clients/s3');
 import { Wallet } from '../src/entity/Wallet';
 import { LoadVault } from '../src/shipchain/LoadVault';
 import { StorageCredential } from '../src/entity/StorageCredential';
-import { DriverError } from "../src/storage/StorageDriver";
+import { DriverError } from '../src/storage/StorageDriver';
 
 import { RPCMethod, RPCNamespace } from './decorators';
 import { validateShipmentArgs } from './validators';
-
 
 @RPCNamespace({ name: 'Vault' })
 export class RPCVault {
@@ -194,7 +193,6 @@ export class RPCVault {
         },
     })
     public static async AddDocumentFromS3(args) {
-
         const documentContent = await RPCVault.getFileFromS3(args.bucket, args.key);
 
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
@@ -231,7 +229,7 @@ export class RPCVault {
                         //@ts-ignore
                         const base64 = data.Body.toString('base64');
 
-                        if(data.ContentType) {
+                        if (data.ContentType) {
                             document = `data:${data.ContentType};base64,${base64}`;
                         } else {
                             document = `data:application/octet-stream;base64,${base64}`;
