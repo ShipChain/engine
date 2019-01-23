@@ -56,7 +56,7 @@ jobs:
       - run:
           name: Copy artifacts from Docker
           command: |
-            docker cp $(docker-compose -f compose/base-services.yml -f compose/circleci.yml ps -q rpc):/app/reports reports
+            docker cp $(docker-compose -f compose/base-services.yml -f compose/circleci.yml ps -q rpc):/app/reports/. reports
 
       - store_test_results:
           path: reports/junit
