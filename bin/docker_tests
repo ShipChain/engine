@@ -18,6 +18,8 @@ bin/dc build
 
 bin/dc up -d rpc
 
+bin/dc exec -T rpc yarn run lint
+
 bin/dc exec -T rpc yarn run test
 
 docker cp $(bin/dc ps -q rpc):/app/reports reports

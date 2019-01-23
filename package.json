@@ -33,6 +33,11 @@
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.10",
+    "@typescript-eslint/eslint-plugin": "^1.1.0",
+    "@typescript-eslint/parser": "^1.1.0",
+    "eslint": "^5.12.1",
+    "eslint-config-prettier": "^3.6.0",
+    "eslint-plugin-prettier": "^3.0.1",
     "jest": "^23.6.0",
     "jest-junit": "^5.2.0",
     "mocha": "^5.2.0",
@@ -43,6 +48,9 @@
     "typescript": "^3.1.6"
   },
   "scripts": {
+    "lint": "eslint 'src/**/*.ts' 'rpc/**/*.ts' ",
+    "lint-junit": "eslint 'src/**/*.ts' 'rpc/**/*.ts' --format junit -o reports/junit/lint-junit.xml ",
+    "lint-html": "eslint  'src/**/*.ts' 'rpc/**/*.ts' --format html  -o reports/lint.html ",
     "test": "jest --detectOpenHandles --forceExit --maxWorkers=3",
     "server": "ts-node rpc-server.ts",
     "ingest_primitives": "node ingestPrimitives.js",

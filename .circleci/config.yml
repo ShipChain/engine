@@ -39,6 +39,16 @@ jobs:
             docker-compose -f compose/base-services.yml -f compose/circleci.yml up -d
 
       - run:
+          name: Run lint for JUnit
+          command: |
+            docker-compose -f compose/base-services.yml -f compose/circleci.yml exec -T rpc yarn lint-junit
+
+      - run:
+          name: Run lint for HTML
+          command: |
+            docker-compose -f compose/base-services.yml -f compose/circleci.yml exec -T rpc yarn lint-html
+
+      - run:
           name: Run unit tests
           command: |
             docker-compose -f compose/base-services.yml -f compose/circleci.yml exec -T rpc yarn test
@@ -49,7 +59,7 @@ jobs:
             docker cp $(docker-compose -f compose/base-services.yml -f compose/circleci.yml ps -q rpc):/app/reports reports
 
       - store_test_results:
-          path: reports
+          path: reports/junit
       - store_artifacts:
           path: reports
 
