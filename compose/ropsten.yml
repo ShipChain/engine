@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.4'
 services:
 
 
@@ -20,6 +20,11 @@ services:
 
 
   rpc:
+    build:
+      context: ../
+      target: prod
+    image: engine-node-prod
+    command: node_modules/.bin/ts-node rpc-server.ts
     links:
       - psql
       - ropsten
@@ -27,3 +32,4 @@ services:
     environment:
       - GETH_NETWORK=ropsten
       - GETH_NODE=http://ropsten:8545
+      - GETH_NAME=ropsten

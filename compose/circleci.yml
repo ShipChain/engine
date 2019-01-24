@@ -1,8 +1,12 @@
-version: '2.1'
+version: '3.4'
 services:
 
 
   rpc:
+    build:
+      context: ../
+      target: test
+    image: engine-node-test
     command: sleep infinity
     links:
       - redis_db

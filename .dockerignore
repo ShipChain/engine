@@ -1,2 +1,18 @@
-node_modules
+# Directories
+# -----------
+.circleci
+.env
 .git
+.idea
+bin
+compose/nginx
+node_modules
+reports
+
+
+# Specific Files
+# --------------
+compose/*.yml
+.dockerignore
+.env*
+*Dockerfile*

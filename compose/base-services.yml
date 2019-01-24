@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.4'
 services:
 
 
@@ -47,9 +47,10 @@ services:
 
 
   rpc:
-    extends:
-      service: engine-node
-      file: build.yml
+    build:
+      context: ../
+      target: build
+    image: engine-node-build
     command: node_modules/.bin/nodemon -e "ts" -x "ts-node" rpc-server.ts
     ports:
       - 2000:2000
