@@ -10,16 +10,6 @@ services:
       - sftp
       - minio
       - psql
-
-    depends_on:
-      redis_db:
-        condition: service_healthy
-      geth-poa:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-      psql:
-        condition: service_healthy
     environment:
       - GETH_NODE=http://geth-poa:8545
       - SFTP_DRIVER_TESTS

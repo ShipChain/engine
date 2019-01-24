@@ -4,11 +4,6 @@ services:
 
   elasticsearch:
     image: sebp/elk
-    healthcheck:
-      test: "curl -fsSL http://localhost:9200/_cat/health\\?h\\=status | sed -r 's/^[[:space:]]+|[[:space:]]+$$//g' | grep -q green"
-      interval: 3s
-      timeout: 3s
-      retries: 30
     ports:
       - 5601:5601
       - 9200:9200
@@ -34,18 +29,6 @@ services:
       - sftp
       - minio
       - psql
-
-    depends_on:
-      redis_db:
-        condition: service_healthy
-      geth-poa:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-      psql:
-        condition: service_healthy
     environment:
       - ES_TEST_NODE_URL=http://elasticsearch:9200
       - GETH_NODE=http://geth-poa:8545

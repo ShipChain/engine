@@ -22,13 +22,6 @@ services:
       - psql
       - geth-poa
       - redis_db
-    depends_on:
-      redis_db:
-        condition: service_healthy
-      geth-poa:
-        condition: service_healthy
-      psql:
-        condition: service_healthy
     volumes:
       - ../:/app
     environment:
