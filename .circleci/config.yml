@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: docker/compose:1.19.0
+      - image: docker/compose:1.21.0
     environment:
       ROLE: circleci
 
@@ -24,22 +24,21 @@ jobs:
             docker network ls | grep portal > /dev/null || docker network create portal
 
       - run:
-          name: Build application Docker image
-          command: |
-            chmod +x bin/dc
-            bin/dc build
-
-      - run:
           name: Install dependencies
           command: |
-            apk add --no-cache py-pip
+            apk add --no-cache py-pip bash
             pip install awscli
+
+      - run:
+          name: Build application Docker images
+          command: |
+            docker build --target test   --tag engine-node-test .
+            docker build --target deploy --tag engine-node-deploy --cache-from engine-node-test .
 
       - run:
           name: Launch the docker containers
           command: |
-            $(aws ecr get-login --no-include-email)
-            bin/dc up -d
+            bin/dc up -d rpc
 
       - run:
           name: Run lint for JUnit
@@ -70,7 +69,7 @@ jobs:
           name: Save docker image
           command: |
             mkdir -p docker-cache
-            docker save -o docker-cache/built-image.tar engine-node
+            docker save -o docker-cache/built-image.tar engine-node-deploy
 
       - save_cache:
           key: docker-cache-{{ .Branch }}-{{ .Revision }}
@@ -109,8 +108,8 @@ jobs:
           name: Push image to ECR
           command: |
             source $BASH_ENV
-            docker tag engine-node $ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH
-            docker tag engine-node $ECR_ENDPOINT/engine-node:latest
+            docker tag engine-node-deploy $ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH
+            docker tag engine-node-deploy $ECR_ENDPOINT/engine-node:latest
             $(aws ecr get-login --no-include-email)
             docker push $ECR_ENDPOINT/engine-node:$SHORT_GIT_HASH
             docker push $ECR_ENDPOINT/engine-node:latest

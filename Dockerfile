@@ -25,19 +25,6 @@ RUN apt-get update && \
 ENV PYTHON /usr/bin/python2.7
 
 
-## Image only used for production building ##
-## ======================================= ##
-FROM build AS prod
-
-COPY package.json /app/
-COPY yarn.lock /app/
-COPY .yarnclean /app/
-
-RUN yarn --prod
-
-COPY . /app/
-
-
 ## Image with dev-dependencies ##
 ## =========================== ##
 FROM build AS test
@@ -46,7 +33,20 @@ COPY package.json /app/
 COPY yarn.lock /app/
 COPY .yarnclean /app/
 
-RUN yarn
+RUN yarn && yarn cache clean
+
+COPY . /app/
+
+
+## Image only used for production building ##
+## ======================================= ##
+FROM build AS prod
+
+COPY package.json /app/
+COPY yarn.lock /app/
+COPY .yarnclean /app/
+
+RUN yarn --prod && yarn cache clean
 
 COPY . /app/
 
@@ -56,16 +56,18 @@ COPY . /app/
 FROM base AS deploy
 
 # SUPPORT SSH FOR IAM USERS #
-RUN apt-get update && apt-get -y install openssh-server python3-pip jq
+RUN apt-get update && \
+    apt-get -y install openssh-server python3-pip jq && \
+    apt-get autoremove --purge -y && \
+    rm -rf /var/lib/apt/lists/*
 RUN mkdir /var/run/sshd /etc/cron.d
-RUN pip3 install keymaker
+RUN pip3 install keymaker awscli && \
+    rm -rf /root/.cache/*
 RUN keymaker install
 
 # Configure public key SSH
 RUN echo "AllowAgentForwarding yes" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
-
-RUN pip3 install awscli
 
 # Copy production node_modules without having to install packages in build
 COPY --from=prod /app /app
