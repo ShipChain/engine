@@ -28,7 +28,7 @@ We developed Engine using an array of Docker containers.  Deployment of these co
 
 See the official Docker documentation for installation information:
 
- - [Install Docker](https://docs.docker.com/engine/installation/)
+ - [Install Docker](https://docs.docker.com/engine/installation/) version > 17.09.0
  - [Install Docker Compose](https://docs.docker.com/compose/install/) version > 1.21.0
 
 Once Docker is installed, you will need a Docker "network" named `portal`:
@@ -75,16 +75,10 @@ git clone https://github.com/ShipChain/engine.git shipchain-engine
 
 In the cloned repository there are scripts provided in the `bin` directory for Docker container management.  Using these to interact with yarn will ensure you are using the correct version of Node.js (This was developed using LTS v10.14.0).
 
-Install the required Node packages:
+Install the required Node packages locally, using the build-tools from the docker image.  The first time you run this command it will build the prerequisite docker images for local Engine development.  These images will contain the startup scripts as well as tools required for compiling node packages during installation.
 
 ```
 bin/ddo yarn
-```
-
-Build the Docker image:
-
-```
-bin/dc build
 ```
 
 ### Scripts
@@ -95,6 +89,10 @@ The scripts provided in the `bin` directory allow for easier interaction with th
  - `bin/ddo` Run a command _inside_ the Engine RPC container.  This is useful for `yarn` or running unit tests (described below).
  - `bin/dcleanup` Single command to kill, remove, restart, and tail the new logs of a container.
  - `bin/docker_tests` This executes the unit tests with the `circleci.yml` configuration file.  The RPC service is launched using `sleep infinity` to prevent the full server from launching for the tests.
+
+Local development (with `dev` or `dev-lite` roles) use the `base` stage present in the [Dockerfile](Dockerfile); please note, this file *doesn't* use the docker `COPY` directive to copy the project code into the container, instead the code is mounted as a volume (so that as you save files, they update inside the container).
+
+A deployed environment should use the `prod` or `deploy` stage in the Dockerfile.  These will install node modules passing the `--production` flag to Yarn.  Additionally, the `deploy` stage includes prerequisites for connecting to a separate management container when running in an AWS environment.
 
 ### Configuration
 
@@ -143,6 +141,10 @@ If you want to also log messages to ElasticSearch, add the following variable po
  - `ELASTICSEARCH_LEVEL`
  	- Defaults to the value set in `LOGGING_LEVEL`
 
+Log messages will be sent automatically to AWS CloudWatch when `ENV` is set to `DEV`, `STAGE`, `DEMO`, or `PROD`).  The log level of the messages send to CloudWatch can be controlled via:
+ - `CLOUDWATCH_LEVEL`
+ 	- Defaults to the value set in `LOGGING_LEVEL`
+
 ##### Metrics
 Engine supports the reporting of application metrics to an InfluxDB instance. We use this internally in combination with
 Graphana to make a real-time dashboard of our application use. In order to use this, set:
@@ -172,6 +174,8 @@ Run the unit tests via the provided script
 ```
 bin/docker_tests
 ```
+
+Generated reports (Jest and Coverage) will be copied locally to a new `reports` directory after the successful completion of unit tests.
 
 ## Launching Engine
 
