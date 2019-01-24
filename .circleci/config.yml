@@ -7,6 +7,8 @@ jobs:
   build:
     docker:
       - image: docker/compose:1.19.0
+    environment:
+      ROLE: circleci
 
     working_directory: ~/repo
 
@@ -24,7 +26,8 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            docker-compose -f compose/base-services.yml -f compose/circleci.yml build
+            chmod +x bin/dc
+            bin/dc build
 
       - run:
           name: Install dependencies
@@ -36,27 +39,27 @@ jobs:
           name: Launch the docker containers
           command: |
             $(aws ecr get-login --no-include-email)
-            docker-compose -f compose/base-services.yml -f compose/circleci.yml up -d
+            bin/dc up -d
 
       - run:
           name: Run lint for JUnit
           command: |
-            docker-compose -f compose/base-services.yml -f compose/circleci.yml exec -T rpc yarn lint-junit
+            bin/dc exec -T rpc yarn lint-junit
 
       - run:
           name: Run lint for HTML
           command: |
-            docker-compose -f compose/base-services.yml -f compose/circleci.yml exec -T rpc yarn lint-html
+            bin/dc exec -T rpc yarn lint-html
 
       - run:
           name: Run unit tests
           command: |
-            docker-compose -f compose/base-services.yml -f compose/circleci.yml exec -T rpc yarn test
+            bin/dc exec -T rpc yarn test
 
       - run:
           name: Copy artifacts from Docker
           command: |
-            docker cp $(docker-compose -f compose/base-services.yml -f compose/circleci.yml ps -q rpc):/app/reports/. reports
+            docker cp $(bin/dc ps -q rpc):/app/reports/. reports
 
       - store_test_results:
           path: reports/junit
