@@ -16,9 +16,9 @@
 
 import { Logger as WinstonLogger, format, transports, loggers } from 'winston';
 
+const uuidv4 = require('uuid/v4');
 const appRoot = require('app-root-path');
 const path = require('path');
-const crypto = require('crypto');
 const ElasticSearch = require('winston-elasticsearch');
 const WinstonCloudWatch = require('winston-cloudwatch');
 
@@ -39,6 +39,8 @@ const LOGGING_LEVEL = process.env.LOGGING_LEVEL || 'info';
 const CLOUDWATCH_LEVEL = process.env.CLOUDWATCH_LEVEL || LOGGING_LEVEL;
 const ELASTICSEARCH_LEVEL = process.env.ELASTICSEARCH_LEVEL || LOGGING_LEVEL;
 const ELASTICSEARCH_URL = process.env.ELASTICSEARCH_URL;
+
+const PROCESS_UNIQUENESS = uuidv4();
 
 export class Logger {
     private readonly filename: string;
@@ -178,15 +180,7 @@ export class Logger {
                     logStreamName: function() {
                         // Spread log streams across dates as the server stays up
                         let date = new Date().toISOString().split('T')[0];
-                        return (
-                            'rpc-server-' +
-                            date +
-                            '-' +
-                            crypto
-                                .createHash('md5')
-                                .update(`${date}-${process.pid}`)
-                                .digest('hex')
-                        );
+                        return 'rpc-server-' + date + '-' + PROCESS_UNIQUENESS;
                     },
                     awsRegion: 'us-east-1',
                 }),
