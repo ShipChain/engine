@@ -23,7 +23,9 @@
     "request-promise-native": "^1.0.5",
     "rimraf": "^2.6.2",
     "ssh2-sftp-client": "^2.4.2",
+    "ts-node": "^7.0.1",
     "typeorm": "^0.2.9",
+    "typescript": "^3.2.4",
     "uuid": "^3.3.2",
     "web3": "1.0.0-beta.34",
     "winston": "^3.1.0",
@@ -41,11 +43,9 @@
     "jest": "^23.6.0",
     "jest-junit": "^5.2.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.7",
+    "nodemon": "^1.18.9",
     "prettier": "^1.15.2",
-    "ts-jest": "^23.10.5",
-    "ts-node": "^7.0.1",
-    "typescript": "^3.2.4"
+    "ts-jest": "^23.10.5"
   },
   "scripts": {
     "lint": "eslint 'src/**/*.ts' 'rpc/**/*.ts' ",
