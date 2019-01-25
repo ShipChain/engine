@@ -40,6 +40,12 @@ jobs:
             bin/dc up -d rpc
 
       - run:
+          name: Check yarn.lock integrity
+          command: |
+            bin/dc exec -T rpc yarn check --integrity
+            bin/dc exec -T rpc yarn check --verify-tree
+
+      - run:
           name: Run lint for JUnit
           command: |
             bin/dc exec -T rpc yarn lint-junit
