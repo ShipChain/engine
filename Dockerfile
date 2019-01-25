@@ -1,10 +1,12 @@
 ## Base image with node and entrypoint scripts ##
 ## =========================================== ##
-FROM node:10.15.0-stretch-slim AS base
+FROM node:10.15.0-alpine AS base
 
 LABEL maintainer="Lucas Clay <lclay@shipchain.io>"
 
 ENV LANG C.UTF-8
+
+RUN apk add --no-cache bash
 
 RUN mkdir /app
 WORKDIR /app
@@ -18,11 +20,13 @@ ENTRYPOINT ["/entrypoint.sh"]
 ## =========================================== ##
 FROM base AS build
 
-RUN apt-get update && \
-    apt-get -y install git python2.7-minimal make g++ && \
-    apt-get autoremove --purge -y && \
-    rm -rf /var/lib/apt/lists/*
-ENV PYTHON /usr/bin/python2.7
+RUN apk add --no-cache \
+    libc6-compat \
+    # git, python, make, g++ are for installing/building several npm modules
+    git \
+    python \
+    make \
+    g++
 
 
 ## Image with dev-dependencies ##
@@ -55,17 +59,27 @@ COPY . /app/
 ## ==================================================================== ##
 FROM base AS deploy
 
-# SUPPORT SSH FOR IAM USERS #
-RUN apt-get update && \
-    apt-get -y install openssh-server python3-pip jq && \
-    apt-get autoremove --purge -y && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir /var/run/sshd /etc/cron.d
-RUN pip3 install keymaker awscli && \
+# Install openssh for ECS management container
+RUN apk add --no-cache \
+    openssh-server-pam \
+    python3 \
+    jq \
+    openssl \
+    shadow \
+    nano
+
+RUN mkdir /var/run/sshd /etc/cron.d && touch /etc/pam.d/sshd
+RUN sed -i 's/^CREATE_MAIL_SPOOL=yes/CREATE_MAIL_SPOOL=no/' /etc/default/useradd
+
+# Keymaker for SSH auth via IAM
+RUN pip3 install \
+    keymaker==1.0.8 \
+    awscli==1.16.95 && \
     rm -rf /root/.cache/*
-RUN keymaker install
 
 # Configure public key SSH
+RUN echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
+RUN echo "UsePAM yes" >> /etc/ssh/sshd_config
 RUN echo "AllowAgentForwarding yes" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 

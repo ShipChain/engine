@@ -7,7 +7,8 @@ services:
       context: ../
       target: test
     image: engine-node-test
-    command: sleep infinity
+#    command: sleep infinity
+    command: sh -c 'while sleep 3600; do :; done'
     links:
       - redis_db
       - geth-poa

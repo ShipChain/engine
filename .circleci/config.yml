@@ -27,7 +27,6 @@ jobs:
           name: Install dependencies
           command: |
             apk add --no-cache py-pip bash
-            pip install awscli
 
       - run:
           name: Build application Docker images
