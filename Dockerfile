@@ -37,7 +37,7 @@ COPY package.json /app/
 COPY yarn.lock /app/
 COPY .yarnclean /app/
 
-RUN yarn && yarn cache clean
+RUN yarn --frozen-lockfile && yarn cache clean
 
 COPY . /app/
 
@@ -50,7 +50,7 @@ COPY package.json /app/
 COPY yarn.lock /app/
 COPY .yarnclean /app/
 
-RUN yarn --prod && yarn cache clean
+RUN yarn --prod --frozen-lockfile && yarn cache clean
 
 COPY . /app/
 
