@@ -24,7 +24,6 @@ const SftpClient = require('ssh2-sftp-client');
 const metrics = MetricsReporter.Instance;
 
 export class SftpStorageDriver extends StorageDriver {
-
     constructor(config) {
         super(config, 'sftp');
     }
@@ -50,7 +49,7 @@ export class SftpStorageDriver extends StorageDriver {
     private static async _safeRecursiveMkdir(sftp, dirPath: string): Promise<any> {
         let walkDirs = dirPath.split(path.sep);
 
-        for(let index = 0; index <= walkDirs.length; index++){
+        for (let index = 0; index <= walkDirs.length; index++) {
             let sequentialDirs = walkDirs.slice(0, index + 1);
             let newDirPath = sequentialDirs.join(path.sep);
 
@@ -91,15 +90,15 @@ export class SftpStorageDriver extends StorageDriver {
 
         try {
             let data = await sftp.get(fullVaultPath, null, encodingSftp);
-            let stream = data.sftp.createReadStream(fullVaultPath, {encoding: null});
+            let stream = data.sftp.createReadStream(fullVaultPath, { encoding: null });
 
             let fileContents = await getStream(stream, { encoding: encodingStream }); // set encoding to 'buffer' for binary
             sftp.end();
-            metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
             return fileContents;
         } catch (err) {
             sftp.end();
-            metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
             throw new DriverError(DriverError.States.NotFoundError, err);
         }
     }
@@ -124,11 +123,11 @@ export class SftpStorageDriver extends StorageDriver {
         try {
             await sftp.put(data, this.getFullVaultPath(filePath));
             sftp.end();
-            metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
             return;
         } catch (err) {
             sftp.end();
-            metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
             throw new DriverError(DriverError.States.RequestError, err);
         }
     }
@@ -143,15 +142,15 @@ export class SftpStorageDriver extends StorageDriver {
         try {
             await sftp.delete(fullVaultPath);
             sftp.end();
-            metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
             return;
         } catch (err) {
             sftp.end();
             if (err.message.includes('No such file')) {
-                metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+                metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
                 return;
             }
-            metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
             throw new DriverError(DriverError.States.RequestError, err);
         }
     }
@@ -166,15 +165,15 @@ export class SftpStorageDriver extends StorageDriver {
         try {
             await sftp.rmdir(fullVaultPath, recursive);
             sftp.end();
-            metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
             return;
         } catch (err) {
             sftp.end();
             if (err.message.includes('No such file')) {
-                metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
+                metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
                 return;
             }
-            metrics.methodTime('storage_remove_directory', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
             throw new DriverError(DriverError.States.RequestError, err);
         }
     }
@@ -191,15 +190,15 @@ export class SftpStorageDriver extends StorageDriver {
             sftp.end();
             for (let file of listing) {
                 if (file.type === '-' && file.name === parsedPath.base) {
-                    metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+                    metrics.methodTime('storage_file_exists', Date.now() - startTime, { driver_type: this.type });
                     return true;
                 }
             }
-            metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_file_exists', Date.now() - startTime, { driver_type: this.type });
             return false;
         } catch (err) {
             sftp.end();
-            metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_file_exists', Date.now() - startTime, { driver_type: this.type });
             return false;
         }
     }
@@ -258,11 +257,11 @@ export class SftpStorageDriver extends StorageDriver {
         try {
             let fullListing = await this._listDirectoryImplementation(sftp, vaultSearchPath, recursive);
             sftp.end();
-            metrics.methodTime('storage_list_directory', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_list_directory', Date.now() - startTime, { driver_type: this.type });
             return fullListing;
         } catch (err) {
             sftp.end();
-            metrics.methodTime('storage_list_directory', Date.now() - startTime,{ driver_type: this.type });
+            metrics.methodTime('storage_list_directory', Date.now() - startTime, { driver_type: this.type });
             throw err;
         }
     }

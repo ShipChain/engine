@@ -18,7 +18,6 @@ import { Vault } from '../vaults/Vault';
 import { Wallet } from '../entity/Wallet';
 
 export class LoadVault extends Vault {
-
     private static readonly TRACKING: string = 'tracking';
     private static readonly SHIPMENT: string = 'shipment';
     private static readonly DOCUMENTS: string = 'documents';
@@ -71,19 +70,19 @@ export class LoadVault extends Vault {
         return await this.containers[LoadVault.DOCUMENTS].listFiles();
     }
 
-    async getHistoricalShipment(author: Wallet, date: string){
+    async getHistoricalShipment(author: Wallet, date: string) {
         await this.loadMetadata();
-        const contents =  await this.getHistoricalData(author, LoadVault.SHIPMENT, date);
+        const contents = await this.getHistoricalData(author, LoadVault.SHIPMENT, date);
         contents.shipment = JSON.parse(contents.shipment);
         return contents;
     }
 
-    async getHistoricalTracking(author: Wallet, date: string){
+    async getHistoricalTracking(author: Wallet, date: string) {
         await this.loadMetadata();
         return await this.getHistoricalData(author, LoadVault.TRACKING, date);
     }
 
-    async getHistoricalDocument(author: Wallet, date: string, documentName: string){
+    async getHistoricalDocument(author: Wallet, date: string, documentName: string) {
         await this.loadMetadata();
         return await this.getHistoricalData(author, LoadVault.DOCUMENTS, date, documentName);
     }

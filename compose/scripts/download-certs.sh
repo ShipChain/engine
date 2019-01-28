@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SUBDOMAIN=$APP.${ENV,,}-internal
 
 echo "Looking for existing certificate in ACM"
@@ -27,12 +29,12 @@ fi
 
 # Export certificate as JSON
 echo "Exporting certificate"
-CERT_PASS=$(openssl rand --base64 12)
+CERT_PASS=$(openssl rand -base64 12)
 CERT_JSON=$(aws --region us-east-1 acm export-certificate --certificate-arn $CERT_ARN --passphrase $CERT_PASS)
 CA_CERT_JSON=$(aws --region us-east-1 acm-pca get-certificate-authority-certificate --certificate-authority-arn $CERT_AUTHORITY_ARN)
 
-# Copy certificate to nodejs
-echo "Copying certificate to nodejs"
+# Copy certificate to app
+echo "Copying certificate to app"
 echo $CERT_JSON | jq -r '.Certificate' >> /app/client-cert.crt
 echo $CERT_JSON | jq -r '.CertificateChain' >> /app/client-cert.crt
 echo $CERT_JSON | jq -r '.PrivateKey' > /app/client-cert.encrypted.key

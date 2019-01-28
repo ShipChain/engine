@@ -15,7 +15,7 @@
  */
 
 import { InfluxDB, IPoint, IWriteOptions } from 'influx';
-import { Logger} from './Logger';
+import { Logger } from './Logger';
 
 const logger = Logger.get(module.filename);
 const ENVIRONMENT = process.env.ENV || 'LOCAL';
@@ -70,7 +70,7 @@ export class MetricsReporter {
     }
 
     public methodTime(method: string, time_delta: number, tags: any = {}) {
-        const point = MetricsReporter.buildPoint(Object.assign({ method: method }, tags), {time_delta: time_delta});
+        const point = MetricsReporter.buildPoint(Object.assign({ method: method }, tags), { time_delta: time_delta });
 
         this.report('engine.method_time', point);
     }

@@ -29,7 +29,6 @@ const mkdirp = util.promisify(_mkdirp);
 const metrics = MetricsReporter.Instance;
 
 export class LocalStorageDriver extends StorageDriver {
-
     constructor(config) {
         super(config, 'local');
     }
@@ -62,10 +61,10 @@ export class LocalStorageDriver extends StorageDriver {
         return new Promise((resolve, reject) => {
             fs.readFile(this.getFullVaultPath(filePath), encoding, (err, data) => {
                 if (err) {
-                    metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
+                    metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
                     reject(new DriverError(DriverError.States.NotFoundError, err));
                 } else {
-                    metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
+                    metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
                     resolve(data);
                 }
             });
@@ -86,10 +85,10 @@ export class LocalStorageDriver extends StorageDriver {
         return new Promise((resolve, reject) => {
             fs.writeFile(this.getFullVaultPath(filePath), data, encoding, (err, data) => {
                 if (err) {
-                    metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
+                    metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
                     reject(new DriverError(DriverError.States.RequestError, err));
                 } else {
-                    metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
+                    metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
                     resolve();
                 }
             });
@@ -103,14 +102,14 @@ export class LocalStorageDriver extends StorageDriver {
             fs.unlink(this.getFullVaultPath(filePath), (err, data) => {
                 if (err) {
                     if (err.code == 'ENOENT') {
-                        metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+                        metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
                         resolve();
                     } else {
-                        metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+                        metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
                         reject(new DriverError(DriverError.States.RequestError, err));
                     }
                 } else {
-                    metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+                    metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
                     resolve();
                 }
             });
@@ -125,7 +124,7 @@ export class LocalStorageDriver extends StorageDriver {
         return new Promise((resolve, reject) => {
             let rmdirMethod = fs.rmdir;
 
-            if(recursive) {
+            if (recursive) {
                 rmdirMethod = rimraf;
             }
 
@@ -138,7 +137,7 @@ export class LocalStorageDriver extends StorageDriver {
                     resolve();
                 }
             });
-        })
+        });
     }
 
     async fileExists(filePath: string): Promise<any> {
@@ -146,7 +145,7 @@ export class LocalStorageDriver extends StorageDriver {
         const startTime = Date.now();
 
         const extantFile = await this.checkIfFile(this.getFullVaultPath(filePath));
-        metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+        metrics.methodTime('storage_file_exists', Date.now() - startTime, { driver_type: this.type });
         return extantFile;
     }
 
@@ -213,7 +212,7 @@ export class LocalStorageDriver extends StorageDriver {
 
         const listDirectoryReturn = await this._listDirectoryImplementation(vaultSearchPath, recursive);
         const endTime = Date.now();
-        metrics.methodTime('storage_list_directory', endTime - startTime,{ driver_type: this.type });
+        metrics.methodTime('storage_list_directory', endTime - startTime, { driver_type: this.type });
 
         return listDirectoryReturn;
     }

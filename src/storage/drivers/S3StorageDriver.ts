@@ -22,7 +22,6 @@ import S3 = require('aws-sdk/clients/s3');
 const metrics = MetricsReporter.Instance;
 
 export class S3StorageDriver extends StorageDriver {
-
     s3: S3;
     bucket: string;
 
@@ -68,7 +67,7 @@ export class S3StorageDriver extends StorageDriver {
                 },
                 (err, data) => {
                     if (err) {
-                        if(err.code == "BucketAlreadyOwnedByYou" || err.code == "BucketAlreadyExists") {
+                        if (err.code == 'BucketAlreadyOwnedByYou' || err.code == 'BucketAlreadyExists') {
                             resolve(true);
                         } else {
                             reject(err);
@@ -111,7 +110,7 @@ export class S3StorageDriver extends StorageDriver {
                 },
                 (err, data) => {
                     if (err) {
-                        metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
+                        metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
 
                         reject(new DriverError(DriverError.States.NotFoundError, err));
                     } else {
@@ -119,7 +118,7 @@ export class S3StorageDriver extends StorageDriver {
                         if (!binary) {
                             fileContent = fileContent.toString();
                         }
-                        metrics.methodTime('storage_get_file', Date.now() - startTime,{ driver_type: this.type });
+                        metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
 
                         resolve(fileContent);
                     }
@@ -146,18 +145,18 @@ export class S3StorageDriver extends StorageDriver {
                     },
                     (err, data) => {
                         if (err) {
-                            metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
+                            metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
 
                             reject(new DriverError(DriverError.States.RequestError, err));
                         } else {
-                            metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
+                            metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
 
                             resolve();
                         }
                     },
                 );
             } catch (err) {
-                metrics.methodTime('storage_put_file', Date.now() - startTime,{ driver_type: this.type });
+                metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
 
                 reject(new DriverError(DriverError.States.ParameterError, err));
             }
@@ -178,16 +177,20 @@ export class S3StorageDriver extends StorageDriver {
                 (err, data) => {
                     if (err) {
                         if (err.code === 'NotFoundError' || err.code === 'NotFound') {
-                            metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+                            metrics.methodTime('storage_remove_file', Date.now() - startTime, {
+                                driver_type: this.type,
+                            });
 
                             resolve();
                         } else {
-                            metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+                            metrics.methodTime('storage_remove_file', Date.now() - startTime, {
+                                driver_type: this.type,
+                            });
 
                             reject(new DriverError(DriverError.States.UnknownError, err));
                         }
                     } else {
-                        metrics.methodTime('storage_remove_file', Date.now() - startTime,{ driver_type: this.type });
+                        metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
 
                         resolve();
                     }
@@ -201,18 +204,18 @@ export class S3StorageDriver extends StorageDriver {
 
         const listParams = {
             Bucket: this.bucket,
-            Prefix: fullVaultPath
+            Prefix: fullVaultPath,
         };
 
         const listedObjects = await this.s3.listObjectsV2(listParams).promise();
 
         if (listedObjects.Contents.length === 0) return;
 
-        if (!recursive) throw new DriverError(DriverError.States.RequestError, null, "Directory not empty");
+        if (!recursive) throw new DriverError(DriverError.States.RequestError, null, 'Directory not empty');
 
         const deleteParams = {
             Bucket: this.bucket,
-            Delete: { Objects: [] }
+            Delete: { Objects: [] },
         };
 
         listedObjects.Contents.forEach(({ Key }) => {
@@ -238,21 +241,27 @@ export class S3StorageDriver extends StorageDriver {
                 (err, data) => {
                     if (err) {
                         if (err.code === 'NotFoundError' || err.code === 'NotFound') {
-                            metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+                            metrics.methodTime('storage_file_exists', Date.now() - startTime, {
+                                driver_type: this.type,
+                            });
 
                             resolve(false);
                         } else {
-                            metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+                            metrics.methodTime('storage_file_exists', Date.now() - startTime, {
+                                driver_type: this.type,
+                            });
 
                             reject(new DriverError(DriverError.States.UnknownError, err));
                         }
                     } else {
                         if (data.DeleteMarker) {
-                            metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+                            metrics.methodTime('storage_file_exists', Date.now() - startTime, {
+                                driver_type: this.type,
+                            });
 
                             resolve(false);
                         }
-                        metrics.methodTime('storage_file_exists', Date.now() - startTime,{ driver_type: this.type });
+                        metrics.methodTime('storage_file_exists', Date.now() - startTime, { driver_type: this.type });
 
                         resolve(true);
                     }
@@ -350,7 +359,7 @@ export class S3StorageDriver extends StorageDriver {
 
         if (vaultSearchPath) {
             if (!(await this.fileExists(vaultSearchPath))) {
-                metrics.methodTime('storage_list_directory', Date.now() - startTime,{ driver_type: this.type });
+                metrics.methodTime('storage_list_directory', Date.now() - startTime, { driver_type: this.type });
                 throw new DriverError(DriverError.States.NotFoundError, null);
             }
 
@@ -358,7 +367,7 @@ export class S3StorageDriver extends StorageDriver {
         }
 
         const listDirectoryData = await this._listDirectoryImplementation(vaultSearchPath, recursive);
-        metrics.methodTime('storage_list_directory', Date.now() - startTime,{ driver_type: this.type });
+        metrics.methodTime('storage_list_directory', Date.now() - startTime, { driver_type: this.type });
 
         return listDirectoryData;
     }

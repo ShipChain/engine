@@ -24,8 +24,8 @@ const Web3 = require('web3');
 const logger = Logger.get(module.filename);
 
 export abstract class DBFieldEncryption {
-    protected constructor(){
-        logger.info(`Initializing DB Encryptor ${this.constructor.name}`)
+    protected constructor() {
+        logger.info(`Initializing DB Encryptor ${this.constructor.name}`);
     }
 
     abstract async encrypt(private_key: string): Promise<string>;
@@ -45,13 +45,13 @@ export class Wallet extends BaseEntity {
 
     private static _privateKeyEncryptionHandler: DBFieldEncryption = null;
 
-    static setPrivateKeyEncryptionHandler(handler: DBFieldEncryption){
+    static setPrivateKeyEncryptionHandler(handler: DBFieldEncryption) {
         this._privateKeyEncryptionHandler = handler;
     }
 
-    private static get privateKeyEncryptor(){
-        if(!Wallet._privateKeyEncryptionHandler){
-            throw new Error("Private Key Encryption handler not set");
+    private static get privateKeyEncryptor() {
+        if (!Wallet._privateKeyEncryptionHandler) {
+            throw new Error('Private Key Encryption handler not set');
         }
         return Wallet._privateKeyEncryptionHandler;
     }
@@ -133,7 +133,6 @@ export class Wallet extends BaseEntity {
     }
 
     static async import_entity(private_key) {
-
         // Validate private_key format, this throws if private_key format is not valid
         const public_key = EthCrypto.publicKeyByPrivateKey(private_key);
         const address = EthCrypto.publicKey.toAddress(public_key);
@@ -197,8 +196,8 @@ export class Wallet extends BaseEntity {
     // }
 
     private __unlocked_key() {
-        if(!this.unlocked_private_key){
-            throw new Error("Wallet not initialized properly");
+        if (!this.unlocked_private_key) {
+            throw new Error('Wallet not initialized properly');
         }
 
         return this.unlocked_private_key;
@@ -248,10 +247,10 @@ export class Wallet extends BaseEntity {
     toJSON() {
         let result = {};
         for (let x of Object.keys(this)) {
-            if (x !== "unlocked_private_key") {
+            if (x !== 'unlocked_private_key') {
                 result[x] = this[x];
             }
         }
         return result;
-    };
+    }
 }

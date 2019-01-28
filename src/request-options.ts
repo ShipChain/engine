@@ -14,34 +14,30 @@
  * limitations under the License.
  */
 
-const fs = require('fs')
-    , certFile = '/app/client-cert.crt'
-    , keyFile = '/app/client-cert.key'
-    , caFile = '/app/ca-bundle.crt';
+const fs = require('fs'),
+    certFile = '/app/client-cert.crt',
+    keyFile = '/app/client-cert.key',
+    caFile = '/app/ca-bundle.crt';
 
 import { Logger } from './Logger';
 
 const logger = Logger.get(module.filename);
-const ENV = process.env.ENV || "LOCAL";
+const ENV = process.env.ENV || 'LOCAL';
 
 let options = null;
 
 export async function getRequestOptions() {
-
-    if (ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") {
-      if (!options) {
-        options = {
-          cert: fs.readFileSync(certFile),
-          key: fs.readFileSync(keyFile),
-          ca: fs.readFileSync(caFile)
+    if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') {
+        if (!options) {
+            options = {
+                cert: fs.readFileSync(certFile),
+                key: fs.readFileSync(keyFile),
+                ca: fs.readFileSync(caFile),
+            };
         }
-      }
-      return options;
-    }
-
-    else {
+        return options;
+    } else {
         logger.info(`Skipping certificate loading for ${ENV}`);
         return {};
     }
-
 }

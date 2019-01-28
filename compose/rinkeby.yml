@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.4'
 services:
 
 
@@ -10,11 +10,6 @@ services:
   rinkeby:
     image: ethereum/client-go:v1.8.20
     command: --rinkeby --syncmode light --rpc --rpcport 8545 --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcvhosts * --verbosity 2
-    healthcheck:
-      test: "nc -z localhost 8545"
-      timeout: 10s
-      interval: 10s
-      retries: 3
     expose:
       - 8545
 
@@ -25,17 +20,16 @@ services:
 
 
   rpc:
+    build:
+      context: ../
+      target: prod
+    image: engine-node-prod
+    command: node_modules/.bin/ts-node rpc-server.ts
     links:
       - psql
       - rinkeby
       - redis_db
-    depends_on:
-      redis_db:
-        condition: service_healthy
-      rinkeby:
-        condition: service_healthy
-      psql:
-        condition: service_healthy
     environment:
       - GETH_NETWORK=rinkeby
       - GETH_NODE=http://rinkeby:8545
+      - GETH_NAME=rinkeby

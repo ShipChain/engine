@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
-import { DBFieldEncryption } from "../entity/Wallet";
-import EthCrypto from "eth-crypto";
-import { getAwsSecret } from "./utils";
+import { PrivateKeyDBFieldEncryption } from '../entity/encryption/PrivateKeyDBFieldEncryption';
+import { DBFieldEncryption } from '../entity/Wallet';
+import EthCrypto from 'eth-crypto';
+import { getAwsSecret } from './utils';
 
-const ENV = process.env.ENV || "LOCAL";
+const ENV = process.env.ENV || 'LOCAL';
 
 export class AwsPrivateKeyDBFieldEncryption extends PrivateKeyDBFieldEncryption {
-
     static async getInstance(): Promise<DBFieldEncryption> {
-        if(!this._instance){
+        if (!this._instance) {
             let instance = new AwsPrivateKeyDBFieldEncryption();
 
             instance.masterPrivateKey = await instance.getMasterPrivateKey();
@@ -37,8 +36,7 @@ export class AwsPrivateKeyDBFieldEncryption extends PrivateKeyDBFieldEncryption 
     }
 
     protected async getMasterPrivateKey(): Promise<string> {
-        let secret = await getAwsSecret("ENGINE_SECRET_KEY_" + ENV);
+        let secret = await getAwsSecret('ENGINE_SECRET_KEY_' + ENV);
         return secret.SECRET_KEY;
     }
-
 }

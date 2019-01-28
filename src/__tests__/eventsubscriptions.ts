@@ -17,15 +17,14 @@
 require('./testLoggingConfig');
 
 import 'mocha';
-import { createConnection } from 'typeorm';
+import * as typeorm from "typeorm";
 import { Wallet } from '../entity/Wallet';
-import { Contract, Version, Project, Network } from '../entity/Contract';
+import { Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 
 const request = require('request');
 const utils = require('../local-test-net-utils');
-const GETH_NODE = process.env.GETH_NODE || 'http://localhost:8545';
 const ES_NODE = process.env.ES_TEST_NODE_URL || false;
 
 // These are the versions we are testing
@@ -57,21 +56,14 @@ function AsyncGetJSON(url) {
 
 
 describe('EventSubscriptionEntity', function() {
-    beforeEach(async () => {
-        this.connection = await createConnection({
-            type: 'sqljs',
-            synchronize: true,
-            entities: ['src/entity/**/*.ts'],
+
+    beforeAll(async () => {
+        // read connection options from ormconfig file (or ENV variables)
+        const connectionOptions = await typeorm.getConnectionOptions();
+        await typeorm.createConnection({
+            ...connectionOptions,
         });
-
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
-    });
-
-    afterEach(async () => {
-        await this.connection.dropDatabase();
-        if (this.connection.isConnected) {
-            await this.connection.close();
-        }
     });
 
     it(

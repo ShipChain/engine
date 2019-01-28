@@ -25,12 +25,12 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Logger } from '../Logger';
-import { MetricsReporter } from "../MetricsReporter";
+import { MetricsReporter } from '../MetricsReporter';
 
 const fs = require('fs');
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
-const rp = require('request-promise-native');
+const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -66,14 +66,15 @@ export class Project extends BaseEntity {
         const contracts = {};
 
         return new Promise(async (resolve, reject) => {
-
             try {
                 // Parse defined Networks
                 for (let networkName of Object.keys(meta.networks)) {
                     const network = meta.networks[networkName];
 
                     networks[networkName] = await Network.getOrCreate(networkName, network.description);
-                    logger.debug(`Fixture Network: ${networkName} ${network.description} [${networks[networkName].id}]`);
+                    logger.debug(
+                        `Fixture Network: ${networkName} ${network.description} [${networks[networkName].id}]`,
+                    );
                 }
 
                 // Parse defined Contracts
@@ -84,16 +85,19 @@ export class Project extends BaseEntity {
                     contracts[contractName] = contractData;
 
                     // Create Project
-                    const project = await
-                    Project.getOrCreate(contractName, contractData.description);
+                    const project = await Project.getOrCreate(contractName, contractData.description);
                     logger.debug(`Fixture Project: ${contractName} [${project.id}]`);
 
                     // Create Versions using ABI and BIN of each Contract
                     for (let versionName of Object.keys(contractData.versions)) {
                         const versionData = contractData.versions[versionName];
                         const parsedAbi = JSON.parse(versionData.abi);
-                        versions[versionName] = await
-                        Version.getOrCreate(project, versionName, parsedAbi, versionData.bin);
+                        versions[versionName] = await Version.getOrCreate(
+                            project,
+                            versionName,
+                            parsedAbi,
+                            versionData.bin,
+                        );
                         logger.debug(`Fixture Version: ${project.title} ${versionName} [${versions[versionName].id}]`);
 
                         // Remove abi/bin after Version is created so we don't return these large blobs
@@ -108,9 +112,17 @@ export class Project extends BaseEntity {
                         // Each Contract Network can have multiple historical versions
                         for (let versionName of Object.keys(networkVersion)) {
                             const contractAddress = networkVersion[versionName];
-                            const contract = await
-                            Contract.getOrCreate(project, networks[networkName], versions[versionName], contractAddress);
-                            logger.debug(`Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${contract.id}]`);
+                            const contract = await Contract.getOrCreate(
+                                project,
+                                networks[networkName],
+                                versions[versionName],
+                                contractAddress,
+                            );
+                            logger.debug(
+                                `Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${
+                                    contract.id
+                                }]`,
+                            );
                         }
                     }
                 }
@@ -129,24 +141,19 @@ export class Project extends BaseEntity {
     }
 
     static async loadFixturesFromUrl(fixture_url: string): Promise<any> {
+        const requestOptions = {
+            uri: fixture_url,
+            json: true,
+            timeout: 20000,
+        };
 
-        return new Promise((resolve, reject) => {
-            const requestOptions = {
-                uri: fixture_url,
-                json: true,
-                timeout: 20000,
-            };
-
-            rp(requestOptions)
-                .then(async meta => {
-                    resolve(await Project.loadFixtureMetaData(meta));
-                })
-                .catch(err => {
-                    logger.error(`Retrieving Fixtures returned ${err}`);
-                    reject(err);
-                });
-        });
-
+        try {
+            const meta = await requestPromise(requestOptions);
+            return await Project.loadFixtureMetaData(meta);
+        } catch (err) {
+            logger.error(`Retrieving Fixtures returned ${err}`);
+            throw err;
+        }
     }
 }
 
@@ -301,8 +308,8 @@ export class Network extends BaseEntity {
 
     getDriver() {
         if (this._driver) return this._driver;
-        if(!GETH_NODE){
-            throw new Error("No setting for GETH_NODE found!");
+        if (!GETH_NODE) {
+            throw new Error('No setting for GETH_NODE found!');
         }
         this._driver = new Web3(new Web3.providers.HttpProvider(GETH_NODE));
         this._driver._entity = this;
@@ -318,7 +325,7 @@ export class Network extends BaseEntity {
             driver.eth
                 .sendSignedTransaction(raw)
                 .on('receipt', receipt => {
-                    metrics.methodTime('send_tx_receipt', Date.now() - startTime,{web3: true});
+                    metrics.methodTime('send_tx_receipt', Date.now() - startTime, { web3: true });
                     resolve(receipt);
                 })
                 .on('confirmation', (num, obj) => {
@@ -424,7 +431,7 @@ export class Contract extends BaseEntity {
         const driver = await this.getDriver();
         const startTime = Date.now();
         const response = await driver.methods[method](...args).call();
-        metrics.methodTime('call_static', Date.now() - startTime,{contract_method: method, web3: true});
+        metrics.methodTime('call_static', Date.now() - startTime, { contract_method: method, web3: true });
         return response;
     }
 

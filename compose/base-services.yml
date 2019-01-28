@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.4'
 services:
 
 
@@ -6,22 +6,12 @@ services:
     image: redis
     command: >
       --requirepass redis_pass --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli","ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     expose:
       - 6379
 
 
   geth-poa:
     image: shipchain/geth-poa
-    healthcheck:
-      test: "nc -z localhost 8545"
-      timeout: 10s
-      interval: 10s
-      retries: 3
     expose:
       - 8545
     environment:
@@ -38,11 +28,6 @@ services:
   minio:
     image: minio/minio
     command: server /data
-    healthcheck:
-      test: "nc -z localhost 9000"
-      timeout: 10s
-      interval: 10s
-      retries: 3
     ports:
       - 9099:9000
     environment:
@@ -52,11 +37,6 @@ services:
 
   psql:
     image: sameersbn/postgresql:9.6-2
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "engine"]
-      interval: 1s
-      timeout: 3s
-      retries: 30
     expose:
       - 5432
     environment:
@@ -67,9 +47,10 @@ services:
 
 
   rpc:
-    extends:
-      service: engine-node
-      file: build.yml
+    build:
+      context: ../
+      target: build
+    image: engine-node-build
     command: node_modules/.bin/nodemon -e "ts" -x "ts-node" rpc-server.ts
     ports:
       - 2000:2000

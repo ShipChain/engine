@@ -18,16 +18,15 @@ import { Wallet } from '../../../src/entity/Wallet';
 
 import { RPCMethod, RPCNamespace } from '../../decorators';
 import { LoadedContracts } from '../../contracts';
-import { LoadContract } from "../../../src/shipchain/contracts/Load/1.1.0/LoadContract";
+import { LoadContract } from '../../../src/shipchain/contracts/Load/1.1.0/LoadContract';
 import { ShipTokenContract } from '../../../src/shipchain/contracts/ShipToken/1.0.0/ShipTokenContract';
 
 const loadedContracts = LoadedContracts.Instance;
-const PROJECT = "LOAD";
-const VERSION = "1.1.0";
+const PROJECT = 'LOAD';
+const VERSION = '1.1.0';
 
 @RPCNamespace({ name: 'Load.1.1.0' })
 export class RPCLoad {
-
     @RPCMethod({
         require: ['shipmentUuid', 'senderWallet'],
         validate: {
@@ -358,5 +357,4 @@ export class RPCLoad {
             escrowData: await LOAD_CONTRACT.getEscrowData(args.shipmentUuid),
         };
     }
-
 }
