@@ -1,8 +1,8 @@
 # Directories
 # -----------
 .circleci
-.env
 .git
+.githooks
 .idea
 bin
 compose/nginx
