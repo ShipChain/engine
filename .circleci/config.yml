@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  deploy: shipchain/ecs-deploy@0.0.2
+  deploy: shipchain/ecs-deploy@1
 jobs:
   build:
     docker:
