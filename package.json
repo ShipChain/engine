@@ -1,6 +1,6 @@
 {
   "name": "shipchain-engine",
-  "version": "0.8.0-beta",
+  "version": "1.0.0",
   "description": "ShipChain platform Web3 bindings and helper methods, plus an RPC server",
   "main": "index.js",
   "dependencies": {
