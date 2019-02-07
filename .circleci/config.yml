@@ -59,10 +59,10 @@ jobs:
           command: |
             mkdir -p docker-cache
             docker save -o docker-cache/built-image.tar engine-node
-      - save_cache:
-          key: docker-cache-{{ .Branch }}-{{ .Revision }}
+      - persist_to_workspace:
+          root: docker-cache
           paths:
-            - docker-cache
+            - built-image.tar
   push-to-ecr:
     docker:
       - image: docker:stable-git
