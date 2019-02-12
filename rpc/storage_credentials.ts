@@ -28,14 +28,7 @@ const driverType = ['s3', 'sftp', 'local'];
 
 @RPCNamespace({ name: 'StorageCredentials' })
 export class RPCStorageCredentials {
-    @RPCMethod({ require: ['title', 'driver_type'] })
-    public static async Create(args) {
-        // Local driver type is disabled in environment other than LOCAL
-        // and storage credentials creation is disabled for unrecognizable driver type
-        if ((ENV != 'LOCAL' && args.driver_type === 'local') || driverType.indexOf(args.driver_type) < 0) {
-            throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
-        }
-
+    private static async _create(args) {
         const credentials = StorageCredential.generate_entity(args);
 
         await credentials.save();
@@ -58,6 +51,17 @@ export class RPCStorageCredentials {
         };
     }
 
+    @RPCMethod({ require: ['title', 'driver_type'] })
+    public static async Create(args) {
+        // Local driver type is disabled in environment other than LOCAL
+        // and storage credentials creation is disabled for unrecognizable driver type
+        if ((ENV != 'LOCAL' && args.driver_type === 'local') || driverType.indexOf(args.driver_type) < 0) {
+            throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
+        }
+
+        return await RPCStorageCredentials._create(args);
+    }
+
     @RPCMethod()
     public static async List() {
         const storageCredentials: StorageCredential[] = await StorageCredential.listAll();
@@ -68,13 +72,7 @@ export class RPCStorageCredentials {
         };
     }
 
-    @RPCMethod({
-        require: ['storageCredentials'],
-        validate: {
-            uuid: ['storageCredentials'],
-        },
-    })
-    public static async TestConnectivity(args) {
+    private static async _test_credentials(credentials: any): Promise<{ valid: boolean; message: string }> {
         const testDirectory = `TestConnectivity_${new Date().getTime()}`;
         const testFileName = 'TestConnectivity.txt';
         const testContent = 'Hello, World! Привет мир! 你好，世界！';
@@ -83,11 +81,9 @@ export class RPCStorageCredentials {
         let message: string = undefined;
 
         try {
-            const testOptions = await StorageCredential.getOptionsById(args.storageCredentials);
-
             const auth = {
-                ...testOptions,
-                base_path: path.join(testOptions.base_path || './', testDirectory),
+                ...credentials,
+                base_path: path.join(credentials.base_path || './', testDirectory),
             };
 
             const driver = StorageDriverFactory.create(auth);
@@ -113,20 +109,46 @@ export class RPCStorageCredentials {
             } else {
                 message = err;
             }
-
-            if (err.wrappedError) {
-                if (err.wrappedError.message) {
-                    message = message + '. ' + err.wrappedError.message;
-                } else {
-                    message = message + '. ' + err.wrappedError;
-                }
-            }
         }
 
         return {
             valid: valid,
             message,
         };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials'],
+        validate: {
+            uuid: ['storageCredentials'],
+        },
+    })
+    public static async TestConnectivity(args) {
+        const testOptions = await StorageCredential.getOptionsById(args.storageCredentials);
+        return await RPCStorageCredentials._test_credentials(testOptions);
+    }
+
+    @RPCMethod({ require: ['title', 'driver_type'] })
+    public static async TestAndStore(args) {
+        // Local driver type is disabled in environment other than LOCAL
+        // and storage credentials creation is disabled for unrecognizable driver type
+        if ((ENV != 'LOCAL' && args.driver_type === 'local') || driverType.indexOf(args.driver_type) < 0) {
+            throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
+        }
+
+        const credentials = StorageCredential.generate_entity(args);
+
+        const testOptions = await credentials.getDriverOptions();
+        const testResults = await RPCStorageCredentials._test_credentials(testOptions);
+
+        if (testResults.valid) {
+            return {
+                ...testResults,
+                ...(await RPCStorageCredentials._create(args)),
+            };
+        } else {
+            return testResults;
+        }
     }
 
     @RPCMethod({

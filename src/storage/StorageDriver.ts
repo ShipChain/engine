@@ -30,12 +30,21 @@ export abstract class StorageDriver {
         this.type = type;
     }
 
+    protected getContext(action: string): string {
+        return `${this.type.toUpperCase()} ${action}`;
+    }
+
     protected getFullVaultPath(relativeFilePath: string, allowOnlyBasePath?: boolean) {
         if (!relativeFilePath) {
             if (allowOnlyBasePath) {
                 return this.base_path;
             }
-            throw new DriverError(DriverError.States.ParameterError, null, 'Missing filename from request');
+            throw new DriverError(
+                this.getContext('Get Vault Path'),
+                DriverError.States.ParameterError,
+                null,
+                'Missing filename from request',
+            );
         }
 
         if (this.base_path) {
@@ -79,7 +88,7 @@ export class DriverError extends Error {
     wrappedError: Error;
     reason: string;
 
-    constructor(errorState: DriverErrorStates, wrappedError: Error, reason?: string) {
+    constructor(context: string, errorState: DriverErrorStates, wrappedError: Error, reason?: string) {
         super(errorState);
 
         this.name = 'DriverError';
@@ -107,9 +116,9 @@ export class DriverError extends Error {
             }
 
             // Generate the user friendly message
-            this.message = `${errorState} [${wrappedError}]`;
+            this.message = `${context}: ${errorState} [${wrappedError}]`;
         } else {
-            this.message = `${errorState} [${this.reason}]`;
+            this.message = `${context}: ${errorState} [${this.reason}]`;
         }
     }
 }

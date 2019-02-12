@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "66be1186-0160-46f1-ac3d-f0e4d14ed896",
+		"_postman_id": "8ce470f7-0a00-4a21-883c-8cf5000b7302",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -218,6 +218,34 @@
 					"response": []
 				},
 				{
+					"name": "storage_credentials.validate_create (S3)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"storage_credentials.validate_create\",\n\t\"params\": {\n\t\t\"title\": \"Test S3\",\n\t\t\"driver_type\": \"s3\",\n\t\t\"options\": {\n\t\t\t\"Bucket\": \"test-bucket.mycompany.com\"\n\t\t}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "storage_credentials.create_hosted (SFTP)",
 					"request": {
 						"method": "POST",
@@ -246,6 +274,34 @@
 					"response": []
 				},
 				{
+					"name": "storage_credentials.validate_create (SFTP)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"storage_credentials.validate_create\",\n\t\"params\": {\n\t\t\"title\": \"Test SFTP\",\n\t\t\"driver_type\": \"sftp\",\n\t\t\"options\": {\n\t\t\t\"credentials\": {\n\t\t\t\t\"host\": \"localhost\",\n\t\t\t\t\"port\": \"22\",\n\t\t\t\t\"username\": \"xkcd\",\n\t\t\t\t\"password\": \"Tr0ub4dor&3\"\n\t\t\t}\n\t\t}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "storage_credentials.create_hosted (Local)",
 					"request": {
 						"method": "POST",
@@ -258,6 +314,34 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\t\"method\": \"storage_credentials.create_hosted\",\n\t\"params\": {\n\t\t\"title\": \"Test Local\",\n\t\t\"driver_type\": \"local\",\n\t\t\"base_path\": \"ngin_vaults\",\n\t\t\"options\": {}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "storage_credentials.validate_create (Local)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"storage_credentials.validate_create\",\n\t\"params\": {\n\t\t\"title\": \"Test Local\",\n\t\t\"driver_type\": \"local\",\n\t\t\"base_path\": \"ngin_vaults\",\n\t\t\"options\": {}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",

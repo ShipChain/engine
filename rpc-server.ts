@@ -63,6 +63,7 @@ server.expose("wallet", {
 
 server.expose("storage_credentials", {
     "create_hosted": RPCStorageCredentials.Create,
+    "validate_create": RPCStorageCredentials.TestAndStore,
     "list": RPCStorageCredentials.List,
     "test": RPCStorageCredentials.TestConnectivity,
     "update": RPCStorageCredentials.Update,
