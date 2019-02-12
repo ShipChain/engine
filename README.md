@@ -380,7 +380,7 @@ To view the Minio interface to the Buckets containing the vault files, navigate 
 {
   "method": "storage_credentials.create_hosted",
   "params": {
-    "driver_type": "sfstp",
+    "driver_type": "sftp",
     "title": "My SFTP Server",
     "base_path": "vaults",
     "options": {
@@ -391,6 +391,23 @@ To view the Minio interface to the Buckets containing the vault files, navigate 
         "password": "Tr0ub4dor&3"
       }
     }
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+#### Validate and Create
+
+Engine also provides the ability to Validate Storage Credential options prior to creating the entity.  This is useful for testing permissions, base path, authentication, etc without needing to create the entity first and then call a separate rpc method to test.  If the connectivity test is performed successfully, the entity will be created.  If the test fails, the entity is not created and the error response will contain information regarding the failure.
+
+The arguments to this endpoint are identical to those in the `"method": "storage_credentials.create_hosted"` method.   The only difference in invoking this endpoint is the method name.
+
+```JS
+{
+  "method": "storage_credentials.validate_create",
+  "params": {
+    ...
   },
   "jsonrpc": "2.0",
   "id": 0
