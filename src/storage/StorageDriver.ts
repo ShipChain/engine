@@ -39,7 +39,12 @@ export abstract class StorageDriver {
             if (allowOnlyBasePath) {
                 return this.base_path;
             }
-            throw new DriverError(this.getContext('Get Vault Path'), DriverError.States.ParameterError, null, 'Missing filename from request');
+            throw new DriverError(
+                this.getContext('Get Vault Path'),
+                DriverError.States.ParameterError,
+                null,
+                'Missing filename from request',
+            );
         }
 
         if (this.base_path) {

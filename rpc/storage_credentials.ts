@@ -28,7 +28,6 @@ const driverType = ['s3', 'sftp', 'local'];
 
 @RPCNamespace({ name: 'StorageCredentials' })
 export class RPCStorageCredentials {
-
     private static async _create(args) {
         const credentials = StorageCredential.generate_entity(args);
 
@@ -73,7 +72,7 @@ export class RPCStorageCredentials {
         };
     }
 
-    private static async _test_credentials(credentials: any): Promise<{valid: boolean, message: string}> {
+    private static async _test_credentials(credentials: any): Promise<{ valid: boolean; message: string }> {
         const testDirectory = `TestConnectivity_${new Date().getTime()}`;
         const testFileName = 'TestConnectivity.txt';
         const testContent = 'Hello, World! Привет мир! 你好，世界！';
@@ -142,10 +141,10 @@ export class RPCStorageCredentials {
         const testOptions = await credentials.getDriverOptions();
         const testResults = await RPCStorageCredentials._test_credentials(testOptions);
 
-        if(testResults.valid){
+        if (testResults.valid) {
             return {
                 ...testResults,
-                ...await RPCStorageCredentials._create(args),
+                ...(await RPCStorageCredentials._create(args)),
             };
         } else {
             return testResults;

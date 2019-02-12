@@ -148,7 +148,9 @@ export class S3StorageDriver extends StorageDriver {
                         if (err) {
                             metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
 
-                            reject(new DriverError(this.getContext('Write File'), DriverError.States.RequestError, err));
+                            reject(
+                                new DriverError(this.getContext('Write File'), DriverError.States.RequestError, err),
+                            );
                         } else {
                             metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
 
@@ -188,7 +190,9 @@ export class S3StorageDriver extends StorageDriver {
                                 driver_type: this.type,
                             });
 
-                            reject(new DriverError(this.getContext('Delete File'), DriverError.States.UnknownError, err));
+                            reject(
+                                new DriverError(this.getContext('Delete File'), DriverError.States.UnknownError, err),
+                            );
                         }
                     } else {
                         metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
@@ -212,7 +216,13 @@ export class S3StorageDriver extends StorageDriver {
 
         if (listedObjects.Contents.length === 0) return;
 
-        if (!recursive) throw new DriverError(this.getContext('Remove Directory'), DriverError.States.RequestError, null, 'Directory not empty');
+        if (!recursive)
+            throw new DriverError(
+                this.getContext('Remove Directory'),
+                DriverError.States.RequestError,
+                null,
+                'Directory not empty',
+            );
 
         const deleteParams = {
             Bucket: this.bucket,
@@ -252,7 +262,9 @@ export class S3StorageDriver extends StorageDriver {
                                 driver_type: this.type,
                             });
 
-                            reject(new DriverError(this.getContext('Head Object'), DriverError.States.UnknownError, err));
+                            reject(
+                                new DriverError(this.getContext('Head Object'), DriverError.States.UnknownError, err),
+                            );
                         }
                     } else {
                         if (data.DeleteMarker) {
@@ -322,7 +334,13 @@ export class S3StorageDriver extends StorageDriver {
                             try {
                                 subDirListing = await this._listDirectoryImplementation(subPrefix, recursive);
                             } catch (err) {
-                                reject(new DriverError(this.getContext('List Objects'), DriverError.States.UnknownError, err));
+                                reject(
+                                    new DriverError(
+                                        this.getContext('List Objects'),
+                                        DriverError.States.UnknownError,
+                                        err,
+                                    ),
+                                );
                             }
 
                             directoryListing.addDirectory(subDirListing);

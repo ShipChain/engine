@@ -77,7 +77,12 @@ export class LocalStorageDriver extends StorageDriver {
         let encoding = binary ? null : 'utf8';
 
         if (!data) {
-            throw new DriverError(this.getContext('Write File'), DriverError.States.ParameterError, null, 'Missing file content');
+            throw new DriverError(
+                this.getContext('Write File'),
+                DriverError.States.ParameterError,
+                null,
+                'Missing file content',
+            );
         }
 
         await this._validateDirectoryPath(filePath);
@@ -160,9 +165,13 @@ export class LocalStorageDriver extends StorageDriver {
                     if (!vaultDirectory && err.code == 'ENOENT') {
                         resolve(new DirectoryListing('.'));
                     } else if (vaultDirectory && err.code == 'ENOENT') {
-                        reject(new DriverError(this.getContext('List Directory'), DriverError.States.NotFoundError, err));
+                        reject(
+                            new DriverError(this.getContext('List Directory'), DriverError.States.NotFoundError, err),
+                        );
                     } else {
-                        reject(new DriverError(this.getContext('List Directory'), DriverError.States.RequestError, err));
+                        reject(
+                            new DriverError(this.getContext('List Directory'), DriverError.States.RequestError, err),
+                        );
                     }
                 } else {
                     let directoryListing = new DirectoryListing(directoryRelativeName);
@@ -175,7 +184,13 @@ export class LocalStorageDriver extends StorageDriver {
                         try {
                             itemIsFile = await this.checkIfFile(fileInVaultPath);
                         } catch (err) {
-                            reject(new DriverError(this.getContext('List Directory'), DriverError.States.UnknownError, err));
+                            reject(
+                                new DriverError(
+                                    this.getContext('List Directory'),
+                                    DriverError.States.UnknownError,
+                                    err,
+                                ),
+                            );
                         }
 
                         if (itemIsFile) {
@@ -186,7 +201,13 @@ export class LocalStorageDriver extends StorageDriver {
                                 try {
                                     subDirListing = await this._listDirectoryImplementation(fileInVaultPath, recursive);
                                 } catch (err) {
-                                    reject(new DriverError(this.getContext('List Directory'), DriverError.States.UnknownError, err));
+                                    reject(
+                                        new DriverError(
+                                            this.getContext('List Directory'),
+                                            DriverError.States.UnknownError,
+                                            err,
+                                        ),
+                                    );
                                 }
                                 directoryListing.addDirectory(subDirListing);
                             } else {

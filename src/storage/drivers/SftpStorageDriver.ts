@@ -109,7 +109,12 @@ export class SftpStorageDriver extends StorageDriver {
         let encoding = binary ? null : 'utf8';
 
         if (!data) {
-            throw new DriverError(this.getContext('Write File'), DriverError.States.ParameterError, null, 'Missing file content');
+            throw new DriverError(
+                this.getContext('Write File'),
+                DriverError.States.ParameterError,
+                null,
+                'Missing file content',
+            );
         }
 
         let sftp = await this._connect();
