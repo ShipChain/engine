@@ -34,7 +34,7 @@ export class SftpStorageDriver extends StorageDriver {
             await client.connect(this.config.credentials);
             return client;
         } catch (err) {
-            throw new DriverError(DriverError.States.ConnectionError, err);
+            throw new DriverError(this.getContext('Connect'), DriverError.States.ConnectionError, err);
         }
     }
 
@@ -59,7 +59,7 @@ export class SftpStorageDriver extends StorageDriver {
                 if (err.message.includes('No such file')) {
                     await sftp.mkdir(newDirPath);
                 } else {
-                    throw new DriverError(DriverError.States.NotFoundError, err);
+                    throw new DriverError(`SFTP Make Directory`, DriverError.States.NotFoundError, err);
                 }
             }
         }
@@ -73,7 +73,7 @@ export class SftpStorageDriver extends StorageDriver {
             if (err.message.includes('No such file')) {
                 await SftpStorageDriver._safeRecursiveMkdir(sftp, parsedPath.dir);
             } else {
-                throw new DriverError(DriverError.States.NotFoundError, err);
+                throw new DriverError(this.getContext('List Directory'), DriverError.States.NotFoundError, err);
             }
         }
     }
@@ -99,7 +99,7 @@ export class SftpStorageDriver extends StorageDriver {
         } catch (err) {
             sftp.end();
             metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
-            throw new DriverError(DriverError.States.NotFoundError, err);
+            throw new DriverError(this.getContext('Read File'), DriverError.States.NotFoundError, err);
         }
     }
 
@@ -109,7 +109,7 @@ export class SftpStorageDriver extends StorageDriver {
         let encoding = binary ? null : 'utf8';
 
         if (!data) {
-            throw new DriverError(DriverError.States.ParameterError, null, 'Missing file content');
+            throw new DriverError(this.getContext('Write File'), DriverError.States.ParameterError, null, 'Missing file content');
         }
 
         let sftp = await this._connect();
@@ -128,7 +128,7 @@ export class SftpStorageDriver extends StorageDriver {
         } catch (err) {
             sftp.end();
             metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
-            throw new DriverError(DriverError.States.RequestError, err);
+            throw new DriverError(this.getContext('Write File'), DriverError.States.RequestError, err);
         }
     }
 
@@ -151,7 +151,7 @@ export class SftpStorageDriver extends StorageDriver {
                 return;
             }
             metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
-            throw new DriverError(DriverError.States.RequestError, err);
+            throw new DriverError(this.getContext('Delete File'), DriverError.States.RequestError, err);
         }
     }
 
@@ -174,7 +174,7 @@ export class SftpStorageDriver extends StorageDriver {
                 return;
             }
             metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
-            throw new DriverError(DriverError.States.RequestError, err);
+            throw new DriverError(this.getContext('Remove Directory'), DriverError.States.RequestError, err);
         }
     }
 
@@ -237,9 +237,9 @@ export class SftpStorageDriver extends StorageDriver {
             if (!vaultDirectory && err.message.includes('No such file')) {
                 return new DirectoryListing('.');
             } else if (vaultDirectory && err.message.includes('No such file')) {
-                throw new DriverError(DriverError.States.NotFoundError, err);
+                throw new DriverError(this.getContext('List Directory'), DriverError.States.NotFoundError, err);
             } else {
-                throw new DriverError(DriverError.States.RequestError, err);
+                throw new DriverError(this.getContext('List Directory'), DriverError.States.RequestError, err);
             }
         }
     }

@@ -221,7 +221,7 @@ export class RPCVault {
                 },
                 (err, data) => {
                     if (err) {
-                        reject(new DriverError(DriverError.States.NotFoundError, err));
+                        reject(new DriverError("S3 Read File", DriverError.States.NotFoundError, err));
                     } else {
                         let document;
 

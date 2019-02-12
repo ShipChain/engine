@@ -45,7 +45,7 @@ export class LocalStorageDriver extends StorageDriver {
                     if (err.code === 'ENOENT') {
                         resolve(false);
                     } else {
-                        reject(new DriverError(DriverError.States.RequestError, err));
+                        reject(new DriverError(this.getContext('File Exist'), DriverError.States.RequestError, err));
                     }
                 } else {
                     resolve(stats.isFile());
@@ -62,7 +62,7 @@ export class LocalStorageDriver extends StorageDriver {
             fs.readFile(this.getFullVaultPath(filePath), encoding, (err, data) => {
                 if (err) {
                     metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
-                    reject(new DriverError(DriverError.States.NotFoundError, err));
+                    reject(new DriverError(this.getContext('Read File'), DriverError.States.NotFoundError, err));
                 } else {
                     metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
                     resolve(data);
@@ -77,7 +77,7 @@ export class LocalStorageDriver extends StorageDriver {
         let encoding = binary ? null : 'utf8';
 
         if (!data) {
-            throw new DriverError(DriverError.States.ParameterError, null, 'Missing file content');
+            throw new DriverError(this.getContext('Write File'), DriverError.States.ParameterError, null, 'Missing file content');
         }
 
         await this._validateDirectoryPath(filePath);
@@ -86,7 +86,7 @@ export class LocalStorageDriver extends StorageDriver {
             fs.writeFile(this.getFullVaultPath(filePath), data, encoding, (err, data) => {
                 if (err) {
                     metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
-                    reject(new DriverError(DriverError.States.RequestError, err));
+                    reject(new DriverError(this.getContext('Write File'), DriverError.States.RequestError, err));
                 } else {
                     metrics.methodTime('storage_put_file', Date.now() - startTime, { driver_type: this.type });
                     resolve();
@@ -106,7 +106,7 @@ export class LocalStorageDriver extends StorageDriver {
                         resolve();
                     } else {
                         metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
-                        reject(new DriverError(DriverError.States.RequestError, err));
+                        reject(new DriverError(this.getContext('Delete File'), DriverError.States.RequestError, err));
                     }
                 } else {
                     metrics.methodTime('storage_remove_file', Date.now() - startTime, { driver_type: this.type });
@@ -131,7 +131,7 @@ export class LocalStorageDriver extends StorageDriver {
             rmdirMethod(fullVaultPath, (err, data) => {
                 if (err) {
                     metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
-                    reject(new DriverError(DriverError.States.RequestError, err));
+                    reject(new DriverError(this.getContext('Remove Directory'), DriverError.States.RequestError, err));
                 } else {
                     metrics.methodTime('storage_remove_directory', Date.now() - startTime, { driver_type: this.type });
                     resolve();
@@ -160,9 +160,9 @@ export class LocalStorageDriver extends StorageDriver {
                     if (!vaultDirectory && err.code == 'ENOENT') {
                         resolve(new DirectoryListing('.'));
                     } else if (vaultDirectory && err.code == 'ENOENT') {
-                        reject(new DriverError(DriverError.States.NotFoundError, err));
+                        reject(new DriverError(this.getContext('List Directory'), DriverError.States.NotFoundError, err));
                     } else {
-                        reject(new DriverError(DriverError.States.RequestError, err));
+                        reject(new DriverError(this.getContext('List Directory'), DriverError.States.RequestError, err));
                     }
                 } else {
                     let directoryListing = new DirectoryListing(directoryRelativeName);
@@ -175,7 +175,7 @@ export class LocalStorageDriver extends StorageDriver {
                         try {
                             itemIsFile = await this.checkIfFile(fileInVaultPath);
                         } catch (err) {
-                            reject(new DriverError(DriverError.States.UnknownError, err));
+                            reject(new DriverError(this.getContext('List Directory'), DriverError.States.UnknownError, err));
                         }
 
                         if (itemIsFile) {
@@ -186,7 +186,7 @@ export class LocalStorageDriver extends StorageDriver {
                                 try {
                                     subDirListing = await this._listDirectoryImplementation(fileInVaultPath, recursive);
                                 } catch (err) {
-                                    reject(new DriverError(DriverError.States.UnknownError, err));
+                                    reject(new DriverError(this.getContext('List Directory'), DriverError.States.UnknownError, err));
                                 }
                                 directoryListing.addDirectory(subDirListing);
                             } else {

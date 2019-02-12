@@ -113,14 +113,6 @@ export class RPCStorageCredentials {
             } else {
                 message = err;
             }
-
-            if (err.wrappedError) {
-                if (err.wrappedError.message) {
-                    message = message + '. ' + err.wrappedError.message;
-                } else {
-                    message = message + '. ' + err.wrappedError;
-                }
-            }
         }
 
         return {
