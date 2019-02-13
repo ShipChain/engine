@@ -209,6 +209,20 @@ export class RPCVault {
         };
     }
 
+    public static async PutDocumentInS3(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+        const contents = await load.getDocument(wallet, args.documentName);
+
+        await RPCVault.putFileInS3(args.bucket, args.key, contents);
+
+        return {
+            success: true,
+        };
+    }
+
     static async getFileFromS3(bucket: string, objectKey: string): Promise<string> {
         let s3_options = { apiVersion: '2006-03-01' };
         const s3 = new S3(s3_options);
@@ -217,6 +231,41 @@ export class RPCVault {
             s3.getObject(
                 {
                     Key: objectKey,
+                    Bucket: bucket,
+                },
+                (err, data) => {
+                    if (err) {
+                        reject(new DriverError('S3 Read File', DriverError.States.NotFoundError, err));
+                    } else {
+                        let document;
+
+                        // Ignore the error for providing a parameter to `toString`.  This is valid for the Buffer type.
+                        //@ts-ignore
+                        const base64 = data.Body.toString('base64');
+
+                        if (data.ContentType) {
+                            document = `data:${data.ContentType};base64,${base64}`;
+                        } else {
+                            document = `data:application/octet-stream;base64,${base64}`;
+                        }
+
+                        resolve(document);
+                    }
+                },
+            );
+        });
+    }
+
+    static async putFileInS3(bucket: string, objectKey: string, data: any): Promise<string> {
+        let s3_options = { apiVersion: '2006-03-01' };
+        const s3 = new S3(s3_options);
+
+        return new Promise<string>((resolve, reject) => {
+            s3.upload(
+                {
+                    Key: objectKey,
+                    Body: data,
+                    ACL: "private",
                     Bucket: bucket,
                 },
                 (err, data) => {
