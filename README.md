@@ -663,6 +663,25 @@ Retrieving one of the existing documents in this container is performed via:
 }
 ```
 
+##### Add to s3
+
+A document can be retrieved with the purpose to be put in a s3 bucket via:
+
+```JS
+{
+  "method": "vault.put_document_in_s3",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "documentName": "example.png",
+    "bucket": "test-bucket.mycompany.com",
+    "key": "2808d10f-2d8c-47c6-9975-8e60fab55bac/7d3e338d-f610-408d-ab1b-0d789725f16d/example.png"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
 ##### List
 
 Listing the files included in this container is performed via:

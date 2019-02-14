@@ -199,7 +199,6 @@ export class RPCVault {
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
-        // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>: Doc content: ${documentContent}`);
 
         await load.addDocument(wallet, args.documentName, documentContent);
         const signature = await load.writeMetadata(wallet);
@@ -227,7 +226,7 @@ export class RPCVault {
         const contents = await load.getDocument(wallet, args.documentName);
         const dataUriMatch = contents.match(dataUriRegex);
 
-        if(dataUriMatch.length == 3){
+        if (dataUriMatch.length == 3) {
             const base64DecodedContents = Buffer.from(dataUriMatch[2], 'base64');
             await RPCVault.putFileInS3(args.bucket, args.key, base64DecodedContents, dataUriMatch[1]);
         } else {
@@ -272,7 +271,12 @@ export class RPCVault {
         });
     }
 
-    static async putFileInS3(bucket: string, objectKey: string, data: any, contentType: string = 'application/octet-stream'): Promise<string> {
+    static async putFileInS3(
+        bucket: string,
+        objectKey: string,
+        data: any,
+        contentType: string = 'application/octet-stream',
+    ): Promise<string> {
         let s3_options = { apiVersion: '2006-03-01' };
         const s3 = new S3(s3_options);
 
