@@ -199,6 +199,7 @@ export class RPCVault {
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
+        // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>: Doc content: ${documentContent}`);
 
         await load.addDocument(wallet, args.documentName, documentContent);
         const signature = await load.writeMetadata(wallet);
@@ -209,14 +210,29 @@ export class RPCVault {
         };
     }
 
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'key', 'bucket'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
     public static async PutDocumentInS3(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
-        const contents = await load.getDocument(wallet, args.documentName);
 
-        await RPCVault.putFileInS3(args.bucket, args.key, contents);
+        const dataUriRegex = /^data:([^;]+);base64,(.*)$/;
+
+        const contents = await load.getDocument(wallet, args.documentName);
+        const dataUriMatch = contents.match(dataUriRegex);
+
+        if(dataUriMatch.length == 3){
+            const base64DecodedContents = Buffer.from(dataUriMatch[2], 'base64');
+            await RPCVault.putFileInS3(args.bucket, args.key, base64DecodedContents, dataUriMatch[1]);
+        } else {
+            await RPCVault.putFileInS3(args.bucket, args.key, contents);
+        }
 
         return {
             success: true,
@@ -256,7 +272,7 @@ export class RPCVault {
         });
     }
 
-    static async putFileInS3(bucket: string, objectKey: string, data: any): Promise<string> {
+    static async putFileInS3(bucket: string, objectKey: string, data: any, contentType: string = 'application/octet-stream'): Promise<string> {
         let s3_options = { apiVersion: '2006-03-01' };
         const s3 = new S3(s3_options);
 
@@ -265,26 +281,15 @@ export class RPCVault {
                 {
                     Key: objectKey,
                     Body: data,
-                    ACL: "private",
+                    ACL: 'private',
                     Bucket: bucket,
+                    ContentType: contentType,
                 },
                 (err, data) => {
                     if (err) {
-                        reject(new DriverError('S3 Read File', DriverError.States.NotFoundError, err));
+                        reject(new DriverError('Write File to s3', DriverError.States.NotFoundError, err));
                     } else {
-                        let document;
-
-                        // Ignore the error for providing a parameter to `toString`.  This is valid for the Buffer type.
-                        //@ts-ignore
-                        const base64 = data.Body.toString('base64');
-
-                        if (data.ContentType) {
-                            document = `data:${data.ContentType};base64,${base64}`;
-                        } else {
-                            document = `data:application/octet-stream;base64,${base64}`;
-                        }
-
-                        resolve(document);
+                        resolve();
                     }
                 },
             );
