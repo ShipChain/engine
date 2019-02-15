@@ -209,6 +209,35 @@ export class RPCVault {
         };
     }
 
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'key', 'bucket'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async PutDocumentInS3(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+
+        const dataUriRegex = /^data:([^;]+);base64,(.*)$/;
+
+        const contents = await load.getDocument(wallet, args.documentName);
+        const dataUriMatch = contents.match(dataUriRegex);
+
+        if (dataUriMatch.length == 3) {
+            const base64DecodedContents = Buffer.from(dataUriMatch[2], 'base64');
+            await RPCVault.putFileInS3(args.bucket, args.key, base64DecodedContents, dataUriMatch[1]);
+        } else {
+            await RPCVault.putFileInS3(args.bucket, args.key, contents);
+        }
+
+        return {
+            success: true,
+        };
+    }
+
     static async getFileFromS3(bucket: string, objectKey: string): Promise<string> {
         let s3_options = { apiVersion: '2006-03-01' };
         const s3 = new S3(s3_options);
@@ -236,6 +265,35 @@ export class RPCVault {
                         }
 
                         resolve(document);
+                    }
+                },
+            );
+        });
+    }
+
+    static async putFileInS3(
+        bucket: string,
+        objectKey: string,
+        data: any,
+        contentType: string = 'application/octet-stream',
+    ): Promise<string> {
+        let s3_options = { apiVersion: '2006-03-01' };
+        const s3 = new S3(s3_options);
+
+        return new Promise<string>((resolve, reject) => {
+            s3.upload(
+                {
+                    Key: objectKey,
+                    Body: data,
+                    ACL: 'private',
+                    Bucket: bucket,
+                    ContentType: contentType,
+                },
+                (err, data) => {
+                    if (err) {
+                        reject(new DriverError('Write File to s3', DriverError.States.NotFoundError, err));
+                    } else {
+                        resolve();
                     }
                 },
             );
