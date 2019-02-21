@@ -20,7 +20,7 @@ const request = require("request");
 
 // Setup the source URL for the Primitive JSONSchema
 const schemaBaseUrl = "http://schema.shipchain.io/";
-const schemaVersion = "1.1.0";
+const schemaVersion = "1.2.0";
 const schemas = [
   "shipment"
 ];

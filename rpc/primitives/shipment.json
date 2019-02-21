@@ -1,5 +1,5 @@
 {
-  "$id": "http://schema.shipchain.io/1.1.0/shipment.json",
+  "$id": "http://schema.shipchain.io/1.2.0/shipment.json",
   "type": "object",
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -84,19 +84,24 @@
       "maxLength": 255
     },
     "ship_from_location": {
-      "$ref": "http://schema.shipchain.io/1.0.1/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.0/location.json",
       "title": "Ship from address",
       "description": "The Shipment's ship-from address"
     },
     "ship_to_location": {
-      "$ref": "http://schema.shipchain.io/1.0.1/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.0/location.json",
       "title": "Ship to address",
       "description": "The Shipment's ship-to address"
     },
     "final_destination_location": {
-      "$ref": "http://schema.shipchain.io/1.0.1/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.0/location.json",
       "title": "Shipment final destination",
       "description": "The Shipment's Final Destination address"
+    },
+    "bill_to_location": {
+      "$ref": "http://schema.shipchain.io/1.2.0/location.json",
+      "title": "Shipment's billed location (if different from ship_to_location)",
+      "description": "The Shipment's Bill To address"
     },
     "carriers_instructions": {
       "$id": "/properties/carriers_instructions",
@@ -585,6 +590,67 @@
       "title": "The customer_fields Schema",
       "description": "An arbitrary JSON payload containing customer-specific fields",
       "additionalProperties": true
+    },
+    "special_instructions": {
+      "$id": "/properties/special_instructions",
+      "type": "string",
+      "title": "The special_instructions Schema",
+      "description": "General instructions or information about the shipment",
+      "additionalProperties": true
+    },
+    "trailer_number": {
+      "$id": "/properties/trailer_number",
+      "type": "string",
+      "title": "The trailer_number Schema",
+      "description": "Number of trailer hauling goods",
+      "default": "",
+      "examples": [
+        "TA664231"
+      ],
+      "maxLength": 255
+    },
+    "seal_number": {
+      "$id": "/properties/seal_number",
+      "type": "string",
+      "title": "The seal_number Schema",
+      "description": "If trailer is sealed, provide seal number",
+      "default": "",
+      "examples": [
+        "Z88654Q63"
+      ],
+      "maxLength": 255
+    },
+    "is_master_bol": {
+      "$id": "/properties/is_master_bol",
+      "type": "boolean",
+      "title": "The is_master_bol Schema",
+      "description": "Boolean on whether the shipment is a master or house bill of lading",
+      "default": false,
+      "examples": [
+        true
+      ]
+    },
+    "nmfc_class": {
+      "$id": "/properties/nmfc_class",
+      "type": "string",
+      "title": "The nmfc_class Schema",
+      "pattern": "^1[015]0$|^1[27]5$|^2[05]0$|^[345]00$|^[567]0$|^[568]5$|^92\\.5$|^77\\.5$",
+      "description": "National Motor Freight Traffic Association classification. Freight class between 50 and 500",
+      "default": "",
+      "examples": [
+        "55"
+      ],
+      "maxLength": 4
+    },
+    "is_hazmat": {
+      "$id": "/properties/is_hazmat",
+      "type": "boolean",
+      "title": "The is_hazmat Schema",
+      "description": "Boolean on whether the shipment is hazardous",
+      "default": false,
+      "examples": [
+        true
+      ]
     },
     "version": {
       "$id": "/properties/version",
