@@ -15,7 +15,9 @@ module.exports = {
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
+        "rpc/**/*.ts",
         "src/**/*.ts",
+        "!<rootDir>/rpc/__tests__/*",
         "!<rootDir>/src/__tests__/*",
         "!<rootDir>/src/Logger.ts",
         "!<rootDir>/src/entity/migration/*",
