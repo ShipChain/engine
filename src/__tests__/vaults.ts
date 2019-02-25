@@ -20,6 +20,7 @@ import 'mocha';
 import { Vault } from '../vaults/Vault';
 import { Wallet } from '../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
+import { CloseConnection } from "../redis";
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 const CONTAINER = 'test2';
@@ -67,6 +68,10 @@ describe('Vaults', function() {
 
     afterEach(async () => {
         global.Date = RealDate;
+    });
+
+    afterAll(async () => {
+        CloseConnection();
     });
 
     it(`can create or load an empty vault`, async () => {

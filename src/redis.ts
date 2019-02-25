@@ -85,3 +85,7 @@ export async function ResourceLock(
             });
     });
 }
+
+export const CloseConnection = (callback?) => {
+    redisClient.quit(callback);
+};

@@ -21,6 +21,7 @@ import * as typeorm from "typeorm";
 import { LoadVault } from '../LoadVault';
 import { Wallet } from '../../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../../entity/encryption/PrivateKeyDBFieldEncryption";
+import { CloseConnection } from "../../redis";
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
@@ -55,6 +56,10 @@ describe('LoadVault', function() {
 
     afterEach(async () => {
         resetDate();
+    });
+
+    afterAll(async () => {
+        CloseConnection();
     });
 
     it(`can be created`, async () => {
