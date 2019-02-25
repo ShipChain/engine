@@ -15,13 +15,18 @@
  */
 
 
-
 require('../../src/__tests__/testLoggingConfig');
 
 import 'mocha';
 import * as typeorm from "typeorm";
 import * as Transaction from 'ethereumjs-tx';
-import { mochaAsync, expectMissingRequiredParams, expectInvalidUUIDParams, resolveCallback } from './utils';
+import {
+    mochaAsync,
+    expectMissingRequiredParams,
+    expectInvalidUUIDParams,
+    resolveCallback,
+    cleanupDeployedContracts
+} from "./utils";
 
 import { RPCTransaction } from '../transaction';
 import { RPCLoad } from '../Load/1.1.0/RPCLoad';
@@ -62,17 +67,7 @@ describe('RPC Transactions', function() {
     });
 
     afterAll(async () => {
-        // Since we are using `loadContractFixtures()` we need to cleanup the loaded conctracts
-        try {
-            const entities = ['Contract', 'Version', 'Network', 'Project'];
-            for (const entity of entities) {
-                const repository = await typeorm.getRepository(entity);
-                await repository.remove(await repository.find());
-            }
-        } catch (error) {
-            console.error(`Table Truncation Error ${error}`);
-            throw new Error(`ERROR: Cleaning test db: ${error}`);
-        }
+        await cleanupDeployedContracts(typeorm);
     });
 
     describe('Sign', function() {

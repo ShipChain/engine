@@ -27,6 +27,19 @@ export const mochaAsync = fn => {
     };
 };
 
+export const cleanupDeployedContracts = async (typeorm: any) => {
+    try {
+        const entities = ['Contract', 'Version', 'Network', 'Project'];
+        for (const entity of entities) {
+            const repository = await typeorm.getRepository(entity);
+            await repository.remove(await repository.find());
+        }
+    } catch (error) {
+        console.error(`Table Truncation Error ${error}`);
+        throw new Error(`ERROR: Cleaning test db: ${error}`);
+    }
+};
+
 export const expectMissingRequiredParams = (throwable: Error, params: string[]) => {
     if(!throwable){
         fail("No Error when one was expected!");
