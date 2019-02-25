@@ -27,9 +27,10 @@ const metrics = MetricsReporter.Instance;
 export class RPCEvent {
     @RPCMethod({ require: ['url', 'project'] })
     public static async Subscribe(args) {
+        const project = loadedContracts.get(args.project);
         const eventSubscription = await EventSubscription.getOrCreate(args);
 
-        await eventSubscription.start(loadedContracts.get(eventSubscription.project).getContractEntity());
+        await eventSubscription.start(project.getContractEntity());
 
         // This should be non-blocking
         EventSubscription.getCount()
