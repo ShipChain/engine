@@ -70,7 +70,7 @@ describe('RPC Wallets', function() {
             const initialCount = await Wallet.count();
 
             try {
-                await RPCWallet.Import({});
+                await CallRPCMethod(RPCWallet.Import,{});
                 fail("Did not Throw"); return;
             } catch (err) {
                 caughtError = err;
