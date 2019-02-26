@@ -51,7 +51,12 @@ export class RPCStorageCredentials {
         };
     }
 
-    @RPCMethod({ require: ['title', 'driver_type'] })
+    @RPCMethod({
+        require: ['title', 'driver_type'],
+        validate: {
+            string: ['title'],
+        },
+    })
     public static async Create(args) {
         // Local driver type is disabled in environment other than LOCAL
         // and storage credentials creation is disabled for unrecognizable driver type
@@ -128,7 +133,12 @@ export class RPCStorageCredentials {
         return await RPCStorageCredentials._test_credentials(testOptions);
     }
 
-    @RPCMethod({ require: ['title', 'driver_type'] })
+    @RPCMethod({
+        require: ['title', 'driver_type'],
+        validate: {
+            string: ['title'],
+        },
+    })
     public static async TestAndStore(args) {
         // Local driver type is disabled in environment other than LOCAL
         // and storage credentials creation is disabled for unrecognizable driver type
@@ -155,6 +165,7 @@ export class RPCStorageCredentials {
         require: ['storageCredentials'],
         validate: {
             uuid: ['storageCredentials'],
+            string: ['title'],
         },
     })
     public static async Update(args) {
