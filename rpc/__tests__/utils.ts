@@ -60,6 +60,16 @@ export const expectInvalidUUIDParams = (throwable: Error, params: string[]) => {
     expect(throwable.message).toMatch(`${missingPrefix}: '${params.join(', ')}'`);
 };
 
+// RPCMethod decorator throws this error when provided argument does not match expected format
+export const expectInvalidStringParams = (throwable: Error, params: string[]) => {
+    if(!throwable){
+        fail("No Error when one was expected!");
+        return;
+    }
+    const missingPrefix = `Invalid String${params.length === 1 ? '' : 's'}`;
+    expect(throwable.message).toMatch(`${missingPrefix}: '${params.join(', ')}'`);
+};
+
 // RPCMethod decorated methods are called in the RPC Server context which handles
 // returning data and/or errors via callbacks.  Since we're calling these directly
 // we need a utility method to act as that callback to resolve/reject from the method

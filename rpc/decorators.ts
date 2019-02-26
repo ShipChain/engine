@@ -45,6 +45,7 @@ class RPCMethodOptions {
 
 class RPCMethodValidateOptions {
     uuid?: string[];
+    string?: string[];
 }
 
 export function RPCMethod(options?: RPCMethodOptions) {
@@ -129,5 +130,17 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
 
     if (failed.length > 0) {
         throw new rpc.Error.InvalidParams(`Invalid UUID${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+    }
+
+    if (validations && validations.string) {
+        for (let param of validations.string) {
+            if (args && args.hasOwnProperty(param) && !(typeof args[param] === 'string')) {
+                failed.push(param);
+            }
+        }
+    }
+
+    if (failed.length > 0) {
+        throw new rpc.Error.InvalidParams(`Invalid String${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 }
