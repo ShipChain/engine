@@ -22,8 +22,8 @@ import * as typeorm from "typeorm";
 import {
     mochaAsync,
     expectMissingRequiredParams,
-    resolveCallback,
     cleanupDeployedContracts,
+    CallRPCMethod,
 } from "./utils";
 
 import { RPCEvent } from '../event';
@@ -50,7 +50,7 @@ describe('RPC Events', function() {
             let caughtError;
 
             try {
-                await RPCEvent.Subscribe({});
+                await CallRPCMethod(RPCEvent.Subscribe,{});
                 fail("Did not Throw"); return;
             } catch (err) {
                 caughtError = err;
@@ -61,13 +61,9 @@ describe('RPC Events', function() {
 
         it(`Throws if Project not found`, mochaAsync(async () => {
             try {
-                await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCEvent.Subscribe(
-                        {
-                            url: 'URL',
-                            project: 'not a project',
-                        }, null, resolveCallback(resolve, reject));
+                await CallRPCMethod(RPCEvent.Subscribe, {
+                    url: 'URL',
+                    project: 'not a project',
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -78,13 +74,9 @@ describe('RPC Events', function() {
         it(`Returns new subscription`, mochaAsync(async () => {
             expect(await EventSubscription.count()).toEqual(0);
             try {
-                const response: any = await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCEvent.Subscribe(
-                        {
-                            url: 'URL',
-                            project: 'LOAD',
-                        }, null, resolveCallback(resolve, reject));
+                const response: any = await CallRPCMethod(RPCEvent.Subscribe,{
+                    url: 'URL',
+                    project: 'LOAD',
                 });
 
                 expect(response).toBeDefined();
@@ -105,7 +97,7 @@ describe('RPC Events', function() {
             let caughtError;
 
             try {
-                await RPCEvent.Unsubscribe({});
+                await CallRPCMethod(RPCEvent.Unsubscribe,{});
                 fail("Did not Throw"); return;
             } catch (err) {
                 caughtError = err;
@@ -116,13 +108,9 @@ describe('RPC Events', function() {
 
         it(`Throw if subscription does not exist`, mochaAsync(async () => {
             try {
-                await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCEvent.Unsubscribe(
-                        {
-                            url: 'URL',
-                            project: 'please fail',
-                        }, null, resolveCallback(resolve, reject));
+                await CallRPCMethod(RPCEvent.Unsubscribe,{
+                    url: 'URL',
+                    project: 'please fail',
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -133,13 +121,9 @@ describe('RPC Events', function() {
         it(`Successfully unsubscribe`, mochaAsync(async () => {
             expect(await EventSubscription.count()).toEqual(1);
             try {
-                const response: any = await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCEvent.Unsubscribe(
-                        {
-                            url: 'URL',
-                            project: 'LOAD',
-                        }, null, resolveCallback(resolve, reject));
+                const response: any = await CallRPCMethod(RPCEvent.Unsubscribe,{
+                    url: 'URL',
+                    project: 'LOAD',
                 });
                 expect(response).toBeDefined();
             } catch (err){

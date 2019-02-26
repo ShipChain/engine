@@ -24,8 +24,8 @@ import {
     mochaAsync,
     expectMissingRequiredParams,
     expectInvalidUUIDParams,
-    resolveCallback,
-    cleanupDeployedContracts
+    CallRPCMethod,
+    cleanupDeployedContracts,
 } from "./utils";
 
 import { RPCTransaction } from '../transaction';
@@ -54,13 +54,9 @@ describe('RPC Transactions', function() {
         await fullWallet.save();
 
         // Generate a transaction to sign/send
-        txUnsigned = await new Promise((resolve, reject) => {
-            // @ts-ignore
-            RPCLoad.CreateShipmentTx(
-                {
-                    shipmentUuid: "77777777-25fe-465e-8458-0e9f8ffa2cdd",
-                    senderWallet: fullWallet.id,
-                }, null, resolveCallback(resolve, reject));
+        txUnsigned = await CallRPCMethod(RPCLoad.CreateShipmentTx, {
+            shipmentUuid: "77777777-25fe-465e-8458-0e9f8ffa2cdd",
+            senderWallet: fullWallet.id,
         });
         txUnsigned = txUnsigned.transaction;
 
@@ -75,7 +71,7 @@ describe('RPC Transactions', function() {
             let caughtError;
 
             try {
-                await RPCTransaction.Sign({});
+                await CallRPCMethod(RPCTransaction.Sign,{});
                 fail("Did not Throw"); return;
             } catch (err) {
                 caughtError = err;
@@ -88,7 +84,7 @@ describe('RPC Transactions', function() {
             let caughtError;
 
             try {
-                await RPCTransaction.Sign({
+                await CallRPCMethod(RPCTransaction.Sign,{
                     signerWallet: '',
                     txUnsigned: {}
                 });
@@ -102,13 +98,9 @@ describe('RPC Transactions', function() {
 
         it(`Validates TX Parameter is object`, mochaAsync(async () => {
             try {
-                await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCTransaction.Sign(
-                        {
-                            signerWallet: '00000000-0000-4000-8000-000000000000',
-                            txUnsigned: 'Transaction Unsigned String',
-                        }, null, resolveCallback(resolve, reject));
+                await CallRPCMethod(RPCTransaction.Sign, {
+                    signerWallet: '00000000-0000-4000-8000-000000000000',
+                    txUnsigned: 'Transaction Unsigned String',
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -118,13 +110,9 @@ describe('RPC Transactions', function() {
 
         it(`Throws if Wallet not found`, mochaAsync(async () => {
             try {
-                await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCTransaction.Sign(
-                        {
-                            signerWallet: '00000000-0000-4000-8000-000000000000',
-                            txUnsigned: {},
-                        }, null, resolveCallback(resolve, reject));
+                await CallRPCMethod(RPCTransaction.Sign, {
+                    signerWallet: '00000000-0000-4000-8000-000000000000',
+                    txUnsigned: {},
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -134,13 +122,9 @@ describe('RPC Transactions', function() {
 
         it(`Returns Signed Transaction`, mochaAsync(async () => {
             try {
-                const response: any = await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCTransaction.Sign(
-                        {
-                            signerWallet: fullWallet.id,
-                            txUnsigned: txUnsigned,
-                        }, null, resolveCallback(resolve, reject));
+                const response: any = await CallRPCMethod(RPCTransaction.Sign, {
+                    signerWallet: fullWallet.id,
+                    txUnsigned: txUnsigned,
                 });
 
                 expect(response).toBeDefined();
@@ -159,7 +143,7 @@ describe('RPC Transactions', function() {
             let caughtError;
 
             try {
-                await RPCTransaction.Send({});
+                await CallRPCMethod(RPCTransaction.Send,{});
                 fail("Did not Throw"); return;
             } catch (err) {
                 caughtError = err;
@@ -170,12 +154,8 @@ describe('RPC Transactions', function() {
 
         it(`Validates TX Parameter is object`, mochaAsync(async () => {
             try {
-                await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCTransaction.Send(
-                        {
-                            txSigned: 'Transaction Unsigned String',
-                        }, null, resolveCallback(resolve, reject));
+                await CallRPCMethod(RPCTransaction.Send, {
+                    txSigned: 'Transaction Unsigned String',
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -185,12 +165,8 @@ describe('RPC Transactions', function() {
 
         it(`Returns Transaction Receipt`, mochaAsync(async () => {
             try {
-                const response: any = await new Promise((resolve, reject) => {
-                    // @ts-ignore
-                    RPCTransaction.Send(
-                        {
-                            txSigned: txSigned,
-                        }, null, resolveCallback(resolve, reject));
+                const response: any = await CallRPCMethod(RPCTransaction.Send, {
+                    txSigned: txSigned,
                 });
 
                 expect(response).toBeDefined();

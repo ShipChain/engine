@@ -40,6 +40,7 @@ export const cleanupDeployedContracts = async (typeorm: any) => {
     }
 };
 
+// RPCMethod decorator throws this error when required argument not provided
 export const expectMissingRequiredParams = (throwable: Error, params: string[]) => {
     if(!throwable){
         fail("No Error when one was expected!");
@@ -49,6 +50,7 @@ export const expectMissingRequiredParams = (throwable: Error, params: string[]) 
     expect(throwable.message).toMatch(`${missingPrefix}: '${params.join(', ')}'`);
 };
 
+// RPCMethod decorator throws this error when provided argument does not match expected format
 export const expectInvalidUUIDParams = (throwable: Error, params: string[]) => {
     if(!throwable){
         fail("No Error when one was expected!");
@@ -58,13 +60,25 @@ export const expectInvalidUUIDParams = (throwable: Error, params: string[]) => {
     expect(throwable.message).toMatch(`${missingPrefix}: '${params.join(', ')}'`);
 };
 
-export const resolveCallback = (resolve: any, reject: any) => {
+// RPCMethod decorated methods are called in the RPC Server context which handles
+// returning data and/or errors via callbacks.  Since we're calling these directly
+// we need a utility method to act as that callback to resolve/reject from the method
+const resolveCallback = (resolve: any, reject: any) => {
     return (throwable: Error, data: any) => {
         if(throwable){
             reject(throwable);
         }
         resolve(data);
     };
+};
+
+// This makes calling the RPCMethod decorated methods easier as it injects the
+// callback handler created above and returns a promise that either returns the
+// result of the RPC method or raises an error with the rejection of the promise
+export const CallRPCMethod = async (method: any, args: any = null): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        method(args, null, resolveCallback(resolve, reject))
+    });
 };
 
 
