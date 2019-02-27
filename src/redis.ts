@@ -25,27 +25,33 @@ const metrics = MetricsReporter.Instance;
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://:redis_pass@redis_db:6379/1';
 
-const redisClient = redis.createClient(REDIS_URL);
+let redisClient = null;
+let redlock = null;
 
-const redlock = new Redlock([redisClient], {
-    // the expected clock drift; for more details
-    // see http://redis.io/topics/distlock
-    driftFactor: 0.01, // time in ms
+function getRedlock() {
+    if(!redlock || !redisClient) {
+        redisClient = redis.createClient(REDIS_URL);
 
-    // the max number of times Redlock will attempt
-    // to lock a resource before erroring
-    retryCount: 120,
+        redlock = new Redlock([redisClient], {
+            // the expected clock drift; for more details
+            // see http://redis.io/topics/distlock
+            driftFactor: 0.01, // time in ms
 
-    // the time in ms between attempts
-    retryDelay: 500, // time in ms
+            // the max number of times Redlock will attempt
+            // to lock a resource before erroring
+            retryCount: 120,
 
-    // the max time in ms randomly added to retries
-    // to improve performance under high contention
-    // see https://www.awsarchitectureblog.com/2015/03/backoff.html
-    retryJitter: 200, // time in ms
-});
+            // the time in ms between attempts
+            retryDelay: 500, // time in ms
 
-export default redlock;
+            // the max time in ms randomly added to retries
+            // to improve performance under high contention
+            // see https://www.awsarchitectureblog.com/2015/03/backoff.html
+            retryJitter: 200, // time in ms
+        });
+    }
+    return redlock;
+}
 
 export async function ResourceLock(
     key: string,
@@ -58,7 +64,7 @@ export async function ResourceLock(
 
     return new Promise((resolve, reject) => {
         const lockAttemptTime = Date.now();
-        redlock
+        getRedlock()
             .lock(key, ttl)
             .then(async function(lock) {
                 const lockObtainTime = Date.now();
@@ -88,4 +94,6 @@ export async function ResourceLock(
 
 export const CloseConnection = (callback?) => {
     redisClient.quit(callback);
+    redisClient = null;
+    redlock = null;
 };
