@@ -17,7 +17,6 @@
 require('../../__tests__/testLoggingConfig');
 
 import 'mocha';
-import * as typeorm from "typeorm";
 import { LoadVault } from '../LoadVault';
 import { Wallet } from '../../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../../entity/encryption/PrivateKeyDBFieldEncryption";
@@ -26,7 +25,7 @@ import { CloseConnection } from "../../redis";
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-describe('LoadVault', function() {
+export const LoadVaultTests = async function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {
@@ -45,12 +44,6 @@ describe('LoadVault', function() {
     }
 
     beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
-
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
@@ -160,7 +153,7 @@ describe('LoadVault', function() {
         expect(listing).toEqual([{name: DOCUMENT_01.name},{name: DOCUMENT_02.name}]);
     });
 
-});
+};
 
 
 const SHIPMENT_01 = {

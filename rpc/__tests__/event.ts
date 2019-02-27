@@ -22,27 +22,17 @@ import * as typeorm from "typeorm";
 import {
     mochaAsync,
     expectMissingRequiredParams,
-    cleanupDeployedContracts,
+    cleanupEntities,
     CallRPCMethod,
 } from "./utils";
 
 import { RPCEvent } from '../event';
 import { EventSubscription } from "../../src/entity/EventSubscription";
-import { loadContractFixtures } from "../contracts";
 
-describe('RPC Events', function() {
+export const RPCEventTests = async function() {
 
-    beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
-        await loadContractFixtures();
-    });
-
-    afterAll(async () => {
-        await cleanupDeployedContracts(typeorm);
+    afterAll(async() => {
+        await cleanupEntities(typeorm);
     });
 
     describe('Subscribe', function() {
@@ -133,4 +123,4 @@ describe('RPC Events', function() {
         }));
     });
 
-});
+};

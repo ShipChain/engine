@@ -17,7 +17,6 @@
 require('./testLoggingConfig');
 
 import 'mocha';
-import * as typeorm from "typeorm";
 import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
@@ -29,14 +28,9 @@ const LATEST_SHIPTOKEN = "1.0.0";
 const LATEST_LOAD = "1.1.0";
 
 
-describe('ContractEntity', function() {
+export const ContractEntityTests = async function() {
 
     beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
@@ -85,4 +79,4 @@ describe('ContractEntity', function() {
         },
         10000,
     );
-});
+};

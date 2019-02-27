@@ -25,20 +25,17 @@ import {
     expectMissingRequiredParams,
     expectInvalidUUIDParams,
     expectInvalidStringParams,
+    cleanupEntities,
     CallRPCMethod,
 } from "./utils";
 
 import { RPCStorageCredentials } from '../storage_credentials';
 import { StorageCredential } from "../../src/entity/StorageCredential";
 
-describe('RPC StorageCredentials', function() {
+export const RPCStorageCredentialsTests = async function() {
 
-    beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
+    afterAll(async() => {
+        await cleanupEntities(typeorm);
     });
 
     describe('Create', function() {
@@ -307,7 +304,6 @@ describe('RPC StorageCredentials', function() {
                 const response: any = await CallRPCMethod(RPCStorageCredentials.TestConnectivity,{
                     storageCredentials: existingSC.id,
                 });
-                console.log(response);
                 expect(response.valid).toBeTruthy();
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
@@ -316,4 +312,4 @@ describe('RPC StorageCredentials', function() {
             expect(await StorageCredential.count()).toEqual(initialCount);
         }));
     });
-});
+};

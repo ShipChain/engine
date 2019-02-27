@@ -24,29 +24,22 @@ import {
     mochaAsync,
     expectMissingRequiredParams,
     expectInvalidUUIDParams,
+    cleanupEntities,
     CallRPCMethod,
-    cleanupDeployedContracts
 } from "./utils";
 
 import { RPCWallet } from '../wallet';
-import { loadContractFixtures } from "../contracts";
 import { Wallet } from "../../src/entity/Wallet";
 import { PrivateKeyDBFieldEncryption } from "../../src/entity/encryption/PrivateKeyDBFieldEncryption";
 
-describe('RPC Wallets', function() {
+export const RPCWalletTests = async function() {
 
     beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
-        await loadContractFixtures();
     });
 
     afterAll(async() => {
-        await cleanupDeployedContracts(typeorm);
+        await cleanupEntities(typeorm);
     });
 
     describe('Create', function() {
@@ -100,11 +93,11 @@ describe('RPC Wallets', function() {
 
             try {
                 const response: any = await CallRPCMethod(RPCWallet.Import,{
-                    privateKey: '0x0000000000000000000000000000000000000000000000000000000000000001',
+                    privateKey: '0x0000000000000000000000000000000000000000000000000000000000000111',
                 });
                 expect(response.success).toBeTruthy();
-                expect(response.wallet.address).toEqual('0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf');
-                expect(response.wallet.public_key).toEqual('79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8');
+                expect(response.wallet.address).toEqual('0x718811e2d1170db844d0c5de6D276b299f2916a9');
+                expect(response.wallet.public_key).toEqual('64e1b1969f9102977691a40431b0b672055dcf31163897d996434420e6c95dc9c16f60c7c11fc3c9eb27fa26a9035b669bfb77d21cef371ddce94e329222550c');
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }
@@ -162,7 +155,7 @@ describe('RPC Wallets', function() {
             const initialCount = await Wallet.count();
 
             try {
-                // Get existing wallet
+                // Import new (known) wallet
                 const imported: any = await CallRPCMethod(RPCWallet.Import,{
                     privateKey: '0x0000000000000000000000000000000000000000000000000000000000000001',
                 });
@@ -171,14 +164,14 @@ describe('RPC Wallets', function() {
                     wallet: imported.wallet.id,
                 });
                 expect(response.success).toBeTruthy();
-                expect(response.ether).toEqual('158456325028528675187087900672');
+                expect(response.ether).toEqual('158456325028527357987087900672');
                 expect(response.ship).toEqual('0');
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }
 
-            expect(await Wallet.count()).toEqual(initialCount);
+            expect(await Wallet.count()).toEqual(initialCount + 1);
         }));
     });
 
-});
+};

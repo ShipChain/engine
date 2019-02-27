@@ -33,7 +33,7 @@ const DATE_3 = '2018-01-01T01:00:03.000Z';
 const DATE_4 = '2018-01-01T01:00:04.000Z';
 const DATE_5 = '2018-01-01T01:00:05.000Z';
 
-describe('Vaults', function() {
+export const VaultTests = async function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {
@@ -816,4 +816,4 @@ describe('Vaults', function() {
         expect(test_4[CONTAINER][FILE_2]).toEqual("2-4");
     });
 
-});
+};

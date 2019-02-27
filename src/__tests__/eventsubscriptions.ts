@@ -17,7 +17,6 @@
 require('./testLoggingConfig');
 
 import 'mocha';
-import * as typeorm from "typeorm";
 import { Wallet } from '../entity/Wallet';
 import { Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
@@ -55,14 +54,10 @@ function AsyncGetJSON(url) {
 }
 
 
-describe('EventSubscriptionEntity', function() {
+export const EventSubscriptionEntityTests = async  function() {
 
     beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
+
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
@@ -150,4 +145,4 @@ describe('EventSubscriptionEntity', function() {
         },
         30000, // This one can be a bit slow...
     );
-});
+};

@@ -24,30 +24,23 @@ import {
     mochaAsync,
     expectMissingRequiredParams,
     expectInvalidUUIDParams,
+    cleanupEntities,
     CallRPCMethod,
-    cleanupDeployedContracts,
 } from "./utils";
 
 import { RPCTransaction } from '../transaction';
 import { RPCLoad } from '../Load/1.1.0/RPCLoad';
 import { Wallet } from "../../src/entity/Wallet";
 import { PrivateKeyDBFieldEncryption } from "../../src/entity/encryption/PrivateKeyDBFieldEncryption";
-import { loadContractFixtures } from "../contracts";
 
-describe('RPC Transactions', function() {
+export const RPCTransactions = async function() {
 
     let fullWallet;
     let txUnsigned;
     let txSigned;
 
-    beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
+    beforeEach(async () => {
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
-        await loadContractFixtures();
 
         // Import known funded wallet
         fullWallet = await Wallet.import_entity('0x0000000000000000000000000000000000000000000000000000000000000001');
@@ -60,10 +53,10 @@ describe('RPC Transactions', function() {
         });
         txUnsigned = txUnsigned.transaction;
 
-    });
+    }, 10000);
 
-    afterAll(async () => {
-        await cleanupDeployedContracts(typeorm);
+    afterAll(async() => {
+        await cleanupEntities(typeorm);
     });
 
     describe('Sign', function() {
@@ -178,4 +171,4 @@ describe('RPC Transactions', function() {
         }));
     });
 
-});
+};

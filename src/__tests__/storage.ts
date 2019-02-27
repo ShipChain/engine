@@ -154,7 +154,7 @@ const fileConfigs = {
 
 const emptyDirectoryListing = new DirectoryListing('.');
 
-describe('StorageDriver ', function() {
+export const StorageDriverTests = async function() {
     // Create and Cleanup the local testing directory
     // ==============================================
     beforeAll(() => {
@@ -416,4 +416,4 @@ describe('StorageDriver ', function() {
             });
         });
     });
-});
+};
