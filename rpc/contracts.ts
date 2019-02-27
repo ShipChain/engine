@@ -96,6 +96,10 @@ export class LoadedContracts {
             return this.contracts[project][version].contract;
         }
     }
+
+    public reset(): void {
+        this.contracts = {};
+    }
 }
 
 async function getNetwork(contractMetaData) {
