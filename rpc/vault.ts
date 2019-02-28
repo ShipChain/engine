@@ -79,15 +79,12 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'payload'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            object: ['payload'],
         },
     })
     public static async AddTrackingData(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
-
-        if (args.payload == '') {
-            throw new Error('Invalid Payload provided');
-        }
 
         const load = new LoadVault(storage, args.vault);
 
@@ -125,6 +122,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'shipment'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            object: ['shipment'],
         },
     })
     public static async AddShipmentData(args) {
@@ -148,6 +146,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            string: ['documentName'],
         },
     })
     public static async GetDocument(args) {
@@ -169,6 +168,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'documentContent'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            string: ['documentName', 'documentContent'],
         },
     })
     public static async AddDocument(args) {
@@ -342,6 +342,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            date: ['date'],
         },
     })
     public static async GetHistoricalShipmentData(args) {
@@ -363,6 +364,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            date: ['date'],
         },
     })
     public static async GetHistoricalTrackingData(args) {
@@ -384,6 +386,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            date: ['date'],
         },
     })
     public static async GetHistoricalDocument(args) {

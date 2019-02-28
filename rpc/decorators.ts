@@ -18,6 +18,11 @@ import { validateUuid } from './validators';
 import { MetricsReporter } from '../src/MetricsReporter';
 import { Logger } from '../src/Logger';
 
+// Import Moment Typings and Functions
+import { Moment } from 'moment';
+import * as moment from 'moment';
+const MOMENT_FORMAT: string = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
+
 const rpc = require('json-rpc2');
 
 const logger = Logger.get(module.filename);
@@ -47,6 +52,7 @@ class RPCMethodValidateOptions {
     uuid?: string[];
     string?: string[];
     object?: string[];
+    date?: string[];
 }
 
 export function RPCMethod(options?: RPCMethodOptions) {
@@ -119,6 +125,8 @@ function checkRequiredParameters(args, required: string[]) {
 }
 
 function validateParameters(args, validations: RPCMethodValidateOptions) {
+    // Check UUID format
+    // -----------------
     let failed: string[] = [];
 
     if (validations && validations.uuid) {
@@ -133,6 +141,8 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
         throw new rpc.Error.InvalidParams(`Invalid UUID${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 
+    // Check String format
+    // -------------------
     if (validations && validations.string) {
         for (let param of validations.string) {
             if (args && args.hasOwnProperty(param) && !(typeof args[param] === 'string')) {
@@ -145,6 +155,8 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
         throw new rpc.Error.InvalidParams(`Invalid String${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 
+    // Check Object format
+    // -------------------
     if (validations && validations.object) {
         for (let param of validations.object) {
             if (args && args.hasOwnProperty(param)) {
@@ -163,5 +175,26 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
 
     if (failed.length > 0) {
         throw new rpc.Error.InvalidParams(`Invalid Object${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+    }
+
+    // Check Date format
+    // -----------------
+    if (validations && validations.date) {
+        for (let param of validations.date) {
+            if (args && args.hasOwnProperty(param)) {
+                if (typeof args[param] === 'string') {
+                    const dateCheck: Moment = moment(args[param], MOMENT_FORMAT, true);
+                    if (!dateCheck.isValid()) {
+                        failed.push(param);
+                    }
+                } else {
+                    failed.push(param);
+                }
+            }
+        }
+    }
+
+    if (failed.length > 0) {
+        throw new rpc.Error.InvalidParams(`Invalid Date${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 }
