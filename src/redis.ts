@@ -29,7 +29,7 @@ let redisClient = null;
 let redlock = null;
 
 function getRedlock() {
-    if(!redlock || !redisClient) {
+    if (!redlock || !redisClient) {
         redisClient = redis.createClient(REDIS_URL);
 
         redlock = new Redlock([redisClient], {
@@ -93,7 +93,9 @@ export async function ResourceLock(
 }
 
 export const CloseConnection = (callback?) => {
-    redisClient.quit(callback);
+    if (redisClient) {
+        redisClient.quit(callback);
+    }
     redisClient = null;
     redlock = null;
 };

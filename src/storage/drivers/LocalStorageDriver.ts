@@ -154,7 +154,11 @@ export class LocalStorageDriver extends StorageDriver {
         return extantFile;
     }
 
-    private async _listDirectoryImplementation(vaultDirectory: string, recursive: boolean): Promise<any> {
+    private async _listDirectoryImplementation(
+        vaultDirectory: string,
+        recursive: boolean,
+        errorOnEmpty: boolean,
+    ): Promise<any> {
         let vaultSearchPath = vaultDirectory || this.base_path;
         let parsedSearchPath = path.parse(vaultSearchPath);
         let directoryRelativeName = vaultDirectory ? parsedSearchPath.base : '';
@@ -162,9 +166,9 @@ export class LocalStorageDriver extends StorageDriver {
         return new Promise((resolve, reject) => {
             fs.readdir(vaultSearchPath, async (err, files) => {
                 if (err) {
-                    if (!vaultDirectory && err.code == 'ENOENT') {
+                    if (!errorOnEmpty && err.code == 'ENOENT') {
                         resolve(new DirectoryListing('.'));
-                    } else if (vaultDirectory && err.code == 'ENOENT') {
+                    } else if (errorOnEmpty && err.code == 'ENOENT') {
                         reject(
                             new DriverError(this.getContext('List Directory'), DriverError.States.NotFoundError, err),
                         );
@@ -199,7 +203,11 @@ export class LocalStorageDriver extends StorageDriver {
                             if (recursive) {
                                 let subDirListing;
                                 try {
-                                    subDirListing = await this._listDirectoryImplementation(fileInVaultPath, recursive);
+                                    subDirListing = await this._listDirectoryImplementation(
+                                        fileInVaultPath,
+                                        recursive,
+                                        errorOnEmpty,
+                                    );
                                 } catch (err) {
                                     reject(
                                         new DriverError(
@@ -222,7 +230,11 @@ export class LocalStorageDriver extends StorageDriver {
         });
     }
 
-    async listDirectory(vaultDirectory: string, recursive: boolean = false): Promise<any> {
+    async listDirectory(
+        vaultDirectory: string,
+        recursive: boolean = false,
+        errorOnEmpty: boolean = true,
+    ): Promise<any> {
         const startTime = Date.now();
         metrics.countAction('storage_list_directory', { driver_type: this.type });
         let vaultSearchPath = vaultDirectory;
@@ -231,7 +243,7 @@ export class LocalStorageDriver extends StorageDriver {
             vaultSearchPath = path.join(this.base_path, vaultSearchPath);
         }
 
-        const listDirectoryReturn = await this._listDirectoryImplementation(vaultSearchPath, recursive);
+        const listDirectoryReturn = await this._listDirectoryImplementation(vaultSearchPath, recursive, errorOnEmpty);
         const endTime = Date.now();
         metrics.methodTime('storage_list_directory', endTime - startTime, { driver_type: this.type });
 

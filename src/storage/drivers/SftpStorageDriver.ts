@@ -208,7 +208,12 @@ export class SftpStorageDriver extends StorageDriver {
         }
     }
 
-    private async _listDirectoryImplementation(sftp, vaultDirectory: string, recursive: boolean): Promise<any> {
+    private async _listDirectoryImplementation(
+        sftp,
+        vaultDirectory: string,
+        recursive: boolean,
+        errorOnEmpty: boolean,
+    ): Promise<any> {
         let vaultSearchPath = vaultDirectory || this.base_path;
         let parsedSearchPath = path.parse(vaultSearchPath);
         let directoryRelativeName = vaultDirectory ? parsedSearchPath.base : '';
@@ -228,7 +233,7 @@ export class SftpStorageDriver extends StorageDriver {
                 if (file.type === 'd') {
                     if (recursive) {
                         directoryListing.addDirectory(
-                            await this._listDirectoryImplementation(sftp, fileInVaultPath, recursive),
+                            await this._listDirectoryImplementation(sftp, fileInVaultPath, recursive, errorOnEmpty),
                         );
                     } else {
                         directoryListing.addDirectory(new DirectoryListing(parsedFile.base));
@@ -239,9 +244,9 @@ export class SftpStorageDriver extends StorageDriver {
             return directoryListing;
         } catch (err) {
             sftp.end();
-            if (!vaultDirectory && err.message.includes('No such file')) {
+            if (!errorOnEmpty && err.message.includes('No such file')) {
                 return new DirectoryListing('.');
-            } else if (vaultDirectory && err.message.includes('No such file')) {
+            } else if (errorOnEmpty && err.message.includes('No such file')) {
                 throw new DriverError(this.getContext('List Directory'), DriverError.States.NotFoundError, err);
             } else {
                 throw new DriverError(this.getContext('List Directory'), DriverError.States.RequestError, err);
@@ -249,7 +254,11 @@ export class SftpStorageDriver extends StorageDriver {
         }
     }
 
-    async listDirectory(vaultDirectory: string, recursive: boolean = false): Promise<any> {
+    async listDirectory(
+        vaultDirectory: string,
+        recursive: boolean = false,
+        errorOnEmpty: boolean = true,
+    ): Promise<any> {
         const startTime = Date.now();
         metrics.countAction('storage_list_directory', { driver_type: this.type });
         let sftp = await this._connect();
@@ -260,7 +269,7 @@ export class SftpStorageDriver extends StorageDriver {
         }
 
         try {
-            let fullListing = await this._listDirectoryImplementation(sftp, vaultSearchPath, recursive);
+            let fullListing = await this._listDirectoryImplementation(sftp, vaultSearchPath, recursive, errorOnEmpty);
             sftp.end();
             metrics.methodTime('storage_list_directory', Date.now() - startTime, { driver_type: this.type });
             return fullListing;

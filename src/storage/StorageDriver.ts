@@ -69,7 +69,7 @@ export abstract class StorageDriver {
 
     abstract async fileExists(filePath: string): Promise<any>;
 
-    abstract async listDirectory(vaultDirectory: string, recursive?: boolean): Promise<any>;
+    abstract async listDirectory(vaultDirectory: string, recursive?: boolean, errorOnEmpty?: boolean): Promise<any>;
 }
 
 enum DriverErrorStates {
