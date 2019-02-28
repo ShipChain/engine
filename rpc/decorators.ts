@@ -46,6 +46,7 @@ class RPCMethodOptions {
 class RPCMethodValidateOptions {
     uuid?: string[];
     string?: string[];
+    object?: string[];
 }
 
 export function RPCMethod(options?: RPCMethodOptions) {
@@ -142,5 +143,25 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
 
     if (failed.length > 0) {
         throw new rpc.Error.InvalidParams(`Invalid String${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+    }
+
+    if (validations && validations.object) {
+        for (let param of validations.object) {
+            if (args && args.hasOwnProperty(param)) {
+                if (typeof args[param] !== 'object' || Array.isArray(args[param])) {
+                    failed.push(param);
+                } else {
+                    try {
+                        JSON.stringify(args[param]);
+                    } catch (err) {
+                        failed.push(param);
+                    }
+                }
+            }
+        }
+    }
+
+    if (failed.length > 0) {
+        throw new rpc.Error.InvalidParams(`Invalid Object${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 }
