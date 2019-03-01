@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import S3 = require('aws-sdk/clients/s3');
+const AWS = require('aws-sdk');
 
 import { Wallet } from '../src/entity/Wallet';
 import { LoadVault } from '../src/shipchain/LoadVault';
@@ -194,12 +194,12 @@ export class RPCVault {
         },
     })
     public static async AddDocumentFromS3(args) {
-        const documentContent = await RPCVault.getFileFromS3(args.bucket, args.key);
-
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
+
+        const documentContent = await RPCVault.getFileFromS3(args.bucket, args.key);
 
         await load.addDocument(wallet, args.documentName, documentContent);
         const signature = await load.writeMetadata(wallet);
@@ -242,7 +242,7 @@ export class RPCVault {
 
     static async getFileFromS3(bucket: string, objectKey: string): Promise<string> {
         let s3_options = { apiVersion: '2006-03-01' };
-        const s3 = new S3(s3_options);
+        const s3 = new AWS.S3(s3_options);
 
         return new Promise<string>((resolve, reject) => {
             s3.getObject(
@@ -280,7 +280,7 @@ export class RPCVault {
         contentType: string = 'application/octet-stream',
     ): Promise<string> {
         let s3_options = { apiVersion: '2006-03-01' };
-        const s3 = new S3(s3_options);
+        const s3 = new AWS.S3(s3_options);
 
         return new Promise<string>((resolve, reject) => {
             s3.upload(
