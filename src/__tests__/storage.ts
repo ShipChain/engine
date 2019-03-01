@@ -154,7 +154,7 @@ const fileConfigs = {
 
 const emptyDirectoryListing = new DirectoryListing('.');
 
-describe('StorageDriver ', function() {
+export const StorageDriverTests = async function() {
     // Create and Cleanup the local testing directory
     // ==============================================
     beforeAll(() => {
@@ -195,10 +195,10 @@ describe('StorageDriver ', function() {
             it(
                 `can list the empty vault directory`,
                 mochaAsync(async () => {
-                    let result = await storageDriver.listDirectory();
+                    let result = await storageDriver.listDirectory(null, null, false);
                     expect(result).toEqual(emptyDirectoryListing);
 
-                    result = await storageDriver.listDirectory(null, true);
+                    result = await storageDriver.listDirectory(null, true, false);
                     expect(result).toEqual(emptyDirectoryListing);
                 }),
             );
@@ -416,4 +416,4 @@ describe('StorageDriver ', function() {
             });
         });
     });
-});
+};

@@ -23,14 +23,9 @@ import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFi
 
 import EthCrypto from 'eth-crypto';
 
-describe('WalletEntity', function() {
+export const WalletEntityTests = async function() {
 
     beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
@@ -98,4 +93,4 @@ describe('WalletEntity', function() {
 
         expect(Wallet.recover_signer_public_key(signed, hash)).toEqual(wallet.public_key);
     });
-});
+};

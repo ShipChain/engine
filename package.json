@@ -51,11 +51,11 @@
     "lint": "eslint 'src/**/*.ts' 'rpc/**/*.ts' ",
     "lint-junit": "eslint 'src/**/*.ts' 'rpc/**/*.ts' --format junit -o reports/junit/lint-junit.xml ",
     "lint-html": "eslint  'src/**/*.ts' 'rpc/**/*.ts' --format html  -o reports/lint.html ",
-    "test": "jest --detectOpenHandles --forceExit --maxWorkers=3",
+    "test": "jest --detectOpenHandles --forceExit --runInBand",
     "server": "ts-node rpc-server.ts",
     "ingest_primitives": "node ingestPrimitives.js",
     "start": "nodemon -e 'ts' -x 'ts-node' rpc-server.ts",
-    "clean": "rm -rf ./dist && find src -name '*.js' -name '*.js.map' ! -name 'testLoggingConfig.js' -delete",
+    "clean": "rm -rf ./dist && find src -name '*.js' ! -name 'testLoggingConfig.js' -delete && find src -name '*.js.map' ! -name 'testLoggingConfig.js' -delete && find rpc -name '*.js' -delete && find rpc -name '*.js.map' -delete",
     "prettier": "./node_modules/.bin/prettier --write 'src/**/*.ts' 'rpc/**/*.ts' ",
     "typeorm": "ts-node ./node_modules/.bin/typeorm",
     "migrate": "ts-node RunMigrations.ts"

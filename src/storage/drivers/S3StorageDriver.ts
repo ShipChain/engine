@@ -286,6 +286,7 @@ export class S3StorageDriver extends StorageDriver {
     private async _listDirectoryImplementation(
         vaultDirectory: string,
         recursive: boolean,
+        errorOnEmpty: boolean,
         continuationToken?: string,
     ): Promise<any> {
         let vaultSearchPath = vaultDirectory || this.base_path;
@@ -305,9 +306,9 @@ export class S3StorageDriver extends StorageDriver {
         return new Promise((resolve, reject) => {
             this.s3.listObjectsV2(listParams, async (err, data) => {
                 if (err) {
-                    if (!vaultDirectory && (err.code == 'NoSuchKey' || err.code == 'NoSuchBucket')) {
+                    if (!errorOnEmpty && (err.code == 'NoSuchKey' || err.code == 'NoSuchBucket')) {
                         resolve(new DirectoryListing('.'));
-                    } else if (vaultDirectory && err.code == 'NoSuchKey') {
+                    } else if (errorOnEmpty && err.code == 'NoSuchKey') {
                         reject(new DriverError(this.getContext('List Objects'), DriverError.States.NotFoundError, err));
                     } else {
                         reject(new DriverError(this.getContext('List Objects'), DriverError.States.RequestError, err));
@@ -332,7 +333,11 @@ export class S3StorageDriver extends StorageDriver {
                             let subDirListing;
 
                             try {
-                                subDirListing = await this._listDirectoryImplementation(subPrefix, recursive);
+                                subDirListing = await this._listDirectoryImplementation(
+                                    subPrefix,
+                                    recursive,
+                                    errorOnEmpty,
+                                );
                             } catch (err) {
                                 reject(
                                     new DriverError(
@@ -354,6 +359,7 @@ export class S3StorageDriver extends StorageDriver {
                         let additional_content = await this._listDirectoryImplementation(
                             vaultDirectory,
                             recursive,
+                            errorOnEmpty,
                             data.NextContinuationToken,
                         );
 
@@ -371,7 +377,11 @@ export class S3StorageDriver extends StorageDriver {
         });
     }
 
-    async listDirectory(vaultDirectory: string, recursive: boolean = false): Promise<any> {
+    async listDirectory(
+        vaultDirectory: string,
+        recursive: boolean = false,
+        errorOnEmpty: boolean = true,
+    ): Promise<any> {
         const startTime = Date.now();
         metrics.countAction('storage_list_directory', { driver_type: this.type });
         let vaultSearchPath = vaultDirectory;
@@ -385,7 +395,7 @@ export class S3StorageDriver extends StorageDriver {
             vaultSearchPath = path.join(this.base_path, vaultSearchPath);
         }
 
-        const listDirectoryData = await this._listDirectoryImplementation(vaultSearchPath, recursive);
+        const listDirectoryData = await this._listDirectoryImplementation(vaultSearchPath, recursive, errorOnEmpty);
         metrics.methodTime('storage_list_directory', Date.now() - startTime, { driver_type: this.type });
 
         return listDirectoryData;

@@ -20,6 +20,7 @@ import 'mocha';
 import { Vault } from '../vaults/Vault';
 import { Wallet } from '../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
+import { CloseConnection } from "../redis";
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 const CONTAINER = 'test2';
@@ -32,7 +33,7 @@ const DATE_3 = '2018-01-01T01:00:03.000Z';
 const DATE_4 = '2018-01-01T01:00:04.000Z';
 const DATE_5 = '2018-01-01T01:00:05.000Z';
 
-describe('Vaults', function() {
+export const VaultTests = async function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {
@@ -67,6 +68,10 @@ describe('Vaults', function() {
 
     afterEach(async () => {
         global.Date = RealDate;
+    });
+
+    afterAll(async () => {
+        CloseConnection();
     });
 
     it(`can create or load an empty vault`, async () => {
@@ -811,4 +816,4 @@ describe('Vaults', function() {
         expect(test_4[CONTAINER][FILE_2]).toEqual("2-4");
     });
 
-});
+};

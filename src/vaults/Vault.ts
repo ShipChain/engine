@@ -304,8 +304,8 @@ export class Vault {
         return await ResourceLock(this.id, this.driver, 'removeDirectory', [directoryPath, recursive]);
     }
 
-    async listDirectory(vaultDirectory: string, recursive?: boolean) {
-        return await ResourceLock(this.id, this.driver, 'listDirectory', [vaultDirectory, recursive]);
+    async listDirectory(vaultDirectory: string, recursive?: boolean, errorOnEmpty?: boolean) {
+        return await ResourceLock(this.id, this.driver, 'listDirectory', [vaultDirectory, recursive, errorOnEmpty]);
     }
 
     getOrCreateContainer(author: Wallet, name: string, container_type?: string, meta?: any) {
@@ -912,7 +912,7 @@ export class ExternalFileMultiContainer extends ExternalDirectoryContainer imple
     }
 
     async listFiles() {
-        const fileList = (await this.vault.listDirectory(this.name)).files;
+        const fileList = (await this.vault.listDirectory(this.name, null, false)).files;
         for (let file of fileList) {
             file.name = file.name.replace(/.json$/, '');
         }

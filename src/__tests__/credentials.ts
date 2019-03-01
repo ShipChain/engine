@@ -20,15 +20,7 @@ import 'mocha';
 import * as typeorm from "typeorm";
 import { StorageCredential } from '../entity/StorageCredential';
 
-describe('StorageCredentialEntity', function() {
-
-    beforeAll(async () => {
-        // read connection options from ormconfig file (or ENV variables)
-        const connectionOptions = await typeorm.getConnectionOptions();
-        await typeorm.createConnection({
-            ...connectionOptions,
-        });
-    });
+export const StorageCredentialEntityTests = async function() {
 
     it(`can create and retrieve storage credentials`, async () => {
         const DB = typeorm.getConnection();
@@ -75,4 +67,4 @@ describe('StorageCredentialEntity', function() {
         expect(credential.title).toEqual(newTitle);
         expect(credential.options).toEqual(newOptions);
     });
-});
+};
