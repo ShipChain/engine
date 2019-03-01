@@ -190,6 +190,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'key', 'bucket'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            string: ['documentName', 'key', 'bucket'],
         },
     })
     public static async AddDocumentFromS3(args) {
@@ -213,6 +214,7 @@ export class RPCVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'key', 'bucket'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            string: ['documentName', 'key', 'bucket'],
         },
     })
     public static async PutDocumentInS3(args) {
@@ -387,6 +389,7 @@ export class RPCVault {
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
             date: ['date'],
+            string: ['documentName'],
         },
     })
     public static async GetHistoricalDocument(args) {
