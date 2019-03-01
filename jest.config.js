@@ -18,21 +18,24 @@ module.exports = {
         "rpc/**/*.ts",
         "src/**/*.ts",
         "!<rootDir>/rpc/__tests__/*",
+        "!<rootDir>/rpc/Load/1.0.2/*",
         "!<rootDir>/src/__tests__/*",
         "!<rootDir>/src/Logger.ts",
         "!<rootDir>/src/entity/migration/*",
-        "!<rootDir>/src/shipchain/contracts/**/*"
+        "!<rootDir>/src/shipchain/contracts/**/*",
+        "!<rootDir>/src/shipchain/__tests__/*"
     ],
     "coverageReporters": [
         "text",
+        "text-summary",
         "html"
     ],
     "coverageThreshold": {
         "global": {
-            "branches": 0,
-            "functions": 0,
-            "lines": 0,
-            "statements": 0
+            "branches": 60,
+            "functions": 75,
+            "lines": 75,
+            "statements": 75
         }
     },
     "coverageDirectory": "<rootDir>/reports/coverage/",

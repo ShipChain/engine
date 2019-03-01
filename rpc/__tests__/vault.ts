@@ -23,6 +23,7 @@ const fs = require('fs');
 
 import 'mocha';
 import * as typeorm from "typeorm";
+const AWS = require('aws-sdk');
 import {
     mochaAsync,
     expectMissingRequiredParams,
@@ -47,6 +48,7 @@ const DATE_4 = '2018-01-01T04:00:00.000Z';
 
 export const RPCVaultTests = async function() {
     const RealDate = Date;
+    const RealAwsS3 = AWS.S3;
 
     function mockDate(isoDate) {
         // @ts-ignore
@@ -72,7 +74,8 @@ export const RPCVaultTests = async function() {
     let emptyLocalVaultId;
 
     let knownShipmentSchemaId = uuidv4();
-    let knownDocumentContent = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mN8U+T4nYEIwDiqkL4KAZKnGefMCAbPAAAAAElFTkSuQmCC';
+    let knownDocumentContentb64 = 'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mN8U+T4nYEIwDiqkL4KAZKnGefMCAbPAAAAAElFTkSuQmCC';
+    let knownDocumentContent = `data:image/png;base64,${knownDocumentContentb64}`;
 
     beforeAll(async () => {
         Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
@@ -104,6 +107,8 @@ export const RPCVaultTests = async function() {
 
     afterAll(async() => {
         await cleanupEntities(typeorm);
+        AWS.S3.mockRestore();
+        AWS.S3 = RealAwsS3;
     });
 
     describe('CreateVault', function() {
@@ -930,6 +935,485 @@ export const RPCVaultTests = async function() {
         }));
     });
 
+    describe('AddDocumentFromS3', function() {
+
+        const mockedGetObjectSuccessOctet = jest.fn().mockImplementation((params, cb) => {
+            cb(null, {Body: "octetdata"});
+        });
+        const mockedGetObjectSuccessPng = jest.fn().mockImplementation((params, cb) => {
+            cb(null, {Body: knownDocumentContentb64, ContentType: "image/png"});
+        });
+        const mockedGetObjectFail = jest.fn().mockImplementation((params, cb) => {
+            cb(new Error("Mocked failure"), null);
+        });
+
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'key', 'bucket']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: '123',
+                    vaultWallet: '123',
+                    vault: '123',
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates documentName is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: {},
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Invalid String: 'documentName'`);
+            }
+        }));
+
+        it(`Validates key is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: {},
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Invalid String: 'key'`);
+            }
+        }));
+
+        it(`Validates bucket is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Invalid String: 'bucket'`);
+            }
+        }));
+
+        it(`Validates StorageCredentials exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual('StorageCredentials not found');
+            }
+        }));
+
+        it(`Validates Vault Wallet exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: uuidv4(),
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual('Wallet not found');
+            }
+        }));
+
+        it(`Validates Vault exists`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    getObject: (params, cb) => {
+                        mockedGetObjectSuccessPng(params, cb);
+                    }
+                };
+            });
+
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: uuidv4(),
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+            }
+        }));
+
+        it(`Add fails if s3 object not found`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    getObject: (params, cb) => {
+                        mockedGetObjectFail(params, cb);
+                    }
+                };
+            });
+
+            try {
+                await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 's3png.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual('S3 Read File: File Not Found [Mocked failure]');
+            }
+        }));
+
+        it(`Adds new png data`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    getObject: (params, cb) => {
+                        mockedGetObjectSuccessPng(params, cb);
+                    }
+                };
+            });
+
+            try {
+                const result: any = await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 's3png.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.vault_signed).toBeDefined();
+                expect(fs.existsSync(`./${testableLocalVaultId}/documents/s3png.png.json`)).toBeTruthy();
+
+                const getResult: any = await CallRPCMethod(RPCVault.GetDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 's3png.png',
+                });
+                expect(getResult.success).toBeTruthy();
+                expect(getResult.document).toEqual(knownDocumentContent);
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
+        it(`Adds new octet data`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    getObject: (params, cb) => {
+                        mockedGetObjectSuccessOctet(params, cb);
+                    }
+                };
+            });
+
+            try {
+                const result: any = await CallRPCMethod(RPCVault.AddDocumentFromS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 's3octet.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.vault_signed).toBeDefined();
+                expect(fs.existsSync(`./${testableLocalVaultId}/documents/s3octet.png.json`)).toBeTruthy();
+
+                const getResult: any = await CallRPCMethod(RPCVault.GetDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 's3octet.png',
+                });
+                expect(getResult.success).toBeTruthy();
+                expect(getResult.document).toEqual("data:application/octet-stream;base64,octetdata");
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+    });
+
+    describe('PutDocumentInS3', function() {
+
+        const mockedUploadSuccess = jest.fn().mockImplementation((params, cb) => {
+            cb(null, true);
+        });
+        const mockedUploadFail = jest.fn().mockImplementation((params, cb) => {
+            cb(new Error("Mocked failure"), null);
+        });
+
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'key', 'bucket']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: '123',
+                    vaultWallet: '123',
+                    vault: '123',
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates documentName is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: {},
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Invalid String: 'documentName'`);
+            }
+        }));
+
+        it(`Validates key is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: {},
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Invalid String: 'key'`);
+            }
+        }));
+
+        it(`Validates bucket is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Invalid String: 'bucket'`);
+            }
+        }));
+
+        it(`Validates StorageCredentials exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual('StorageCredentials not found');
+            }
+        }));
+
+        it(`Validates Vault Wallet exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: uuidv4(),
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual('Wallet not found');
+            }
+        }));
+
+        it(`Validates Vault exists`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    upload: (params, cb) => {
+                        mockedUploadSuccess(params, cb);
+                    }
+                };
+            });
+
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: uuidv4(),
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+            }
+        }));
+
+        it(`Put fails if document not found`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    upload: (params, cb) => {
+                        mockedUploadFail(params, cb);
+                    }
+                };
+            });
+
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'none.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual('Unauthorized access to vault contents');
+            }
+        }));
+
+        it(`Throws if upload fails`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    upload: (params, cb) => {
+                        mockedUploadFail(params, cb);
+                    }
+                };
+            });
+
+            try {
+                await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual('Write File to s3: File Not Found [Mocked failure]');
+            }
+        }));
+
+        it(`Puts existing png document data`, mochaAsync(async () => {
+
+            AWS.S3 = jest.fn().mockImplementation( ()=> {
+                return {
+                    upload: (params, cb) => {
+                        mockedUploadSuccess(params, cb);
+                    }
+                };
+            });
+
+            try {
+                const result: any = await CallRPCMethod(RPCVault.PutDocumentInS3, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    documentName: 'test.png',
+                    key: 'key',
+                    bucket: 'bucket',
+                });
+                expect(result.success).toBeTruthy();
+                expect(mockedUploadSuccess).toHaveBeenCalledWith({
+                        Key: 'key',
+                        Body: Buffer.from(knownDocumentContentb64, 'base64'),
+                        ACL: 'private',
+                        Bucket: 'bucket',
+                        ContentType: 'image/png',
+                    },
+                    expect.any(Function));
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+    });
+
     describe('ListDocuments', function() {
         it(`Has required parameters`, mochaAsync(async () => {
             let caughtError;
@@ -1005,6 +1489,10 @@ export const RPCVaultTests = async function() {
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.documents).toEqual([{
+                    name: "s3octet.png",
+                },{
+                    name: "s3png.png",
+                },{
                     name: "test.png",
                 }]);
             } catch (err) {
@@ -1574,6 +2062,8 @@ export const RPCVaultTests = async function() {
                 expect(result.historical_data).toEqual({
                     on_date: DATE_1,
                     documents: {
+                        's3octet.png': 'data:application/octet-stream;base64,octetdata',
+                        's3png.png': knownDocumentContent,
                         'test.png': knownDocumentContent,
                     },
                 });
@@ -1607,6 +2097,8 @@ export const RPCVaultTests = async function() {
                 expect(result.historical_data).toEqual({
                     on_date: DATE_1,
                     documents: {
+                        's3octet.png': 'data:application/octet-stream;base64,octetdata',
+                        's3png.png': knownDocumentContent,
                         'test.png': knownDocumentContent,
                     },
                 });
@@ -1622,6 +2114,8 @@ export const RPCVaultTests = async function() {
                 expect(result.historical_data).toEqual({
                     on_date: DATE_3,
                     documents: {
+                        's3octet.png': 'data:application/octet-stream;base64,octetdata',
+                        's3png.png': knownDocumentContent,
                         'test.png': knownDocumentContent + "extra",
                     },
                 });
@@ -1661,13 +2155,6 @@ export const RPCVaultTests = async function() {
                     vault: testableLocalVaultId,
                     date: DATE_2,
                     documentName: 'none.png',
-                });
-                expect(result.success).toBeTruthy();
-                expect(result.historical_data).toEqual({
-                    on_date: DATE_1,
-                    documents: {
-                        'test.png': knownDocumentContent,
-                    },
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
