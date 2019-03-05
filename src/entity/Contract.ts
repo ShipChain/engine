@@ -418,9 +418,11 @@ export class Contract extends BaseEntity {
         this.version = this.version || (await Version.findOne({ id: this.versionId }));
 
         const eth = this.network.getDriver().eth;
+        const utils = this.network.getDriver().utils;
 
         this._driver = new eth.Contract(this.version.getABI(), this.address);
         this._driver._eth = eth;
+        this._driver._utils = utils;
         this._driver._entity = this;
         return this._driver;
     }
@@ -444,22 +446,31 @@ export class Contract extends BaseEntity {
         const driver = await this.getDriver();
 
         const contractMethod = driver.methods[methodName](...args);
-        // Estimating Gas is causing errors on multiple occasions
-        // For now I'm leaving this out so development can continue
-        // ========================================================
-        // let estimatedGas = await contractMethod.estimateGas({from: this.address, gas: 5000000});
-        // if(estimatedGas == 5000000){
-        //     throw new Error("Transaction out of gas");
-        // }
-        // estimatedGas += 21000;
-        // estimatedGas *=  1.2;
+
+        // Estimate the gas, but have a safe fallback of 500k in case estimation fails
         let estimatedGas = 500000;
+        try {
+            estimatedGas = await contractMethod.estimateGas({ from: this.address, gas: 5000000 });
+            if (estimatedGas == 5000000) {
+                throw new Error("Transaction out of gas");
+            }
+            estimatedGas *= 2;
+        } catch (err) {
+            logger.warn(`Gas Estimation Failed: ${err}.  Falling back to ${estimatedGas}`);
+        }
 
         const encoded = contractMethod.encodeABI();
 
         if (!options) options = {};
 
-        const hex_i = i => (Number.isInteger(i) ? Web3.utils.toHex(i) : i);
+        // gasPriceOracle.gasPrice returns either a string or a BN
+        // we need to support converting either to hex
+        const hex_i = i => {
+            return Number.isInteger(i) ? Web3.utils.toHex(i) :
+                driver._utils.isBN(i) ? driver._utils.BN(i).toString(16) :
+                typeof i === 'string' ? '0x'+driver._utils.toBN(i).toString(16) :
+                i;
+        };
 
         return {
             to: this.address,
