@@ -19,16 +19,16 @@ import { Logger } from './Logger';
 
 const logger = Logger.get(module.filename);
 
-const SECONDS = 1000;
-const MINUTES = 60 * SECONDS;
-
 export class AsyncPoll extends EventEmitter {
     readonly name: string;
     private readonly interval: number;
     private stopPolling: boolean = false;
     private activeTimeout = null;
 
-    constructor(name: string, callback: any, interval: number = 10 * SECONDS, once: boolean = false) {
+    public static SECONDS = 1000;
+    public static MINUTES = 60 * AsyncPoll.SECONDS;
+
+    constructor(name: string, callback: any, interval: number = 10 * AsyncPoll.SECONDS, once: boolean = false) {
         super();
         this.name = name;
         this.interval = interval;
