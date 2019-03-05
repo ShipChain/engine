@@ -19,6 +19,7 @@
     "read-source-stream": "^1.0.4",
     "redis": "^2.8.0",
     "redlock": "^3.1.2",
+    "regression": "^2.0.1",
     "request": "^2.34",
     "request-promise-native": "^1.0.5",
     "rimraf": "^2.6.2",

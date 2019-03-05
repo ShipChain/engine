@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+const regression = require('regression');
+
 import { AsyncPoll } from './AsyncPoll';
 import { Logger } from './Logger';
 import { MetricsReporter } from './MetricsReporter';
@@ -32,7 +34,7 @@ const DESIRED_WAIT_TIME: number = 2;
 const DEFAULT_GAS_PRICE = Web3.utils.toWei('20', 'gwei');
 
 // How often the gas price oracle re-calculates
-const CALCULATION_INTERVAL: number = Number(process.env.GPO_INTERVAL) || 30 * AsyncPoll.MINUTES;
+const CALCULATION_INTERVAL: number = Number(process.env.GPO_INTERVAL) || 1.5 * AsyncPoll.MINUTES;
 
 // Gas Price Oracle service to handle background updates of the most
 // recent gas price estimates.  This will run every CALCULATION_INTERVAL
@@ -104,10 +106,15 @@ export class GasPriceOracle {
     private async calculateGasPrice(): Promise<void> {
         // allPrices in Gwei for consistent calculations
         const allPrices = [];
+        let ethGasStationCalculation: EthGasStationCalculation;
 
         // Only include EthGasStation request if we're running against Mainnet (PROD)
         if (ENV === 'PROD') {
-            allPrices.push(await this.getEthGasStationBestPrice());
+            ethGasStationCalculation = await this.getEthGasStationBestPrice();
+
+            // Weight towards the EthGasStation price since it's based on a wait time instead of just a median value
+            allPrices.push(ethGasStationCalculation.price);
+            allPrices.push(ethGasStationCalculation.price);
         }
 
         // Always use the attached node's gas price oracle
@@ -121,13 +128,20 @@ export class GasPriceOracle {
 
         this.gasPriceMetrics.gasPriceSingle('calculated', +priceAverageStr);
 
+        // Predict the wait time if we have Eth Gas Station data (with prediction method)
+        if (ethGasStationCalculation) {
+            const prediction = ethGasStationCalculation.predict(+priceAverageStr);
+            logger.debug(`Predicted Wait Time  : ${prediction[1]}m`);
+            this.gasPriceMetrics.waitTimeSingle('calculated', prediction[1]);
+        }
+
         // toWei prefers a string representation of the input number
         this._gasPrice = Web3.utils.toWei(priceAverageStr, 'gwei');
     }
 
     // Pull data from the EthGasStation and find the gas price that gives us the desired wait time
     // -------------------------------------------------------------------------------------------
-    private async getEthGasStationBestPrice(): Promise<number> {
+    private async getEthGasStationBestPrice(): Promise<EthGasStationCalculation> {
         const url = `https://ethgasstation.info/json/ethgasAPI.json`;
 
         let data: EthGasStationInfo = await GasPriceOracle.retrieveJson(url);
@@ -160,26 +174,25 @@ export class GasPriceOracle {
             desiredPrice = data.fastest;
         }
 
-        logger.debug(
-            `GasStation Fastest   : ${data.fastest} gwei  [${data.fastestWait}m] ` +
-                `${desiredPrice <= data.fastest ? '+' : ''}`,
-        );
-        logger.debug(
-            `GasStation Fast      : ${data.fast} gwei  [${data.fastWait}m] ` +
-                `${desiredPrice <= data.fast ? '+' : ''}`,
-        );
-        logger.debug(
-            `GasStation Average   : ${data.average} gwei  [${data.avgWait}m] ` +
-                `${desiredPrice <= data.average ? '+' : ''}`,
-        );
-        logger.debug(
-            `GasStation SafeLow   : ${data.safeLow} gwei  [${data.safeLowWait}m] ` +
-                `${desiredPrice <= data.safeLow ? '+' : ''}`,
-        );
-
+        GasPriceOracle.logEthGasStationPrices(data, desiredPrice);
         this.gasPriceMetrics.ethGasStation(data);
 
-        return Number(desiredPrice);
+        // Calculate Regression on Gwei/WaitTime for predicting wait times for final gwei
+        let waitPoints = [
+            [+data.fastest, +data.fastestWait],
+            [+data.fast, +data.fastWait],
+            [+data.average, +data.avgWait],
+            [+data.safeLow, +data.safeLowWait],
+        ];
+
+        // Power regression matches the best with all the test data seen
+        // Alternatively exponential is close as well
+        const regressionOutput = regression.power(waitPoints);
+
+        return {
+            price: Number(desiredPrice),
+            predict:regressionOutput.predict
+        };
     }
 
     // Get the 60% Median gas price of the last 20 blocks by the eth_gasPrice call
@@ -207,6 +220,27 @@ export class GasPriceOracle {
             throw err;
         }
     }
+
+    // Log the GasStation Gwei -> Wait Time values
+    // -------------------------------------------
+    private static logEthGasStationPrices(data: EthGasStationInfo, desiredPrice: number) {
+        logger.debug(
+            `GasStation Fastest   : ${data.fastest} gwei  [${data.fastestWait}m] ` +
+            `${desiredPrice <= data.fastest ? "+" : ""}`
+        );
+        logger.debug(
+            `GasStation Fast      : ${data.fast} gwei  [${data.fastWait}m] ` +
+            `${desiredPrice <= data.fast ? "+" : ""}`
+        );
+        logger.debug(
+            `GasStation Average   : ${data.average} gwei  [${data.avgWait}m] ` +
+            `${desiredPrice <= data.average ? "+" : ""}`
+        );
+        logger.debug(
+            `GasStation SafeLow   : ${data.safeLow} gwei  [${data.safeLowWait}m] ` +
+            `${desiredPrice <= data.safeLow ? "+" : ""}`
+        );
+    }
 }
 
 // The schema from EthGasStation's API
@@ -223,6 +257,13 @@ interface EthGasStationInfo {
     avgWait: number;
     fastWait: number;
     fastestWait: number;
+}
+
+// The schema from EthGasStation's API
+// ===================================
+interface EthGasStationCalculation {
+    price: number;
+    predict: Function;
 }
 
 // Extension of the MetricsReporter that handles the specific requests for GasPriceOracle
@@ -245,6 +286,13 @@ class GasPriceOracleMetrics extends MetricsReporter {
     public gasPriceSingle(source: string, price: number, tags: any = {}) {
         const point = MetricsReporter.buildPoint(Object.assign({ source: source }, tags), { price: price });
         this.report(GasPriceOracleMetrics.influxPriceMeasurementName, point);
+    }
+
+    // Report a single wait time from `source`
+    // ---------------------------------------
+    public waitTimeSingle(source: string, wait: number, tags: any = {}) {
+        const point = MetricsReporter.buildPoint(Object.assign({ source: source }, tags), { wait: wait });
+        this.report(GasPriceOracleMetrics.influxWaitMeasurementName, point);
     }
 
     // Report the price and estimated wait times for all the EthGasStation data points returned
