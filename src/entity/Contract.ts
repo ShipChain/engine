@@ -26,6 +26,7 @@ import {
 } from 'typeorm';
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
+import { GasPriceOracle } from '../GasPriceOracle';
 
 const fs = require('fs');
 const Web3 = require('web3');
@@ -34,6 +35,7 @@ const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
+const gasPriceOracle = GasPriceOracle.Instance;
 const GETH_NODE = process.env.GETH_NODE;
 
 @Entity()
@@ -461,7 +463,7 @@ export class Contract extends BaseEntity {
 
         return {
             to: this.address,
-            gasPrice: hex_i(options.gasPrice || 20 * 10 ** 9),
+            gasPrice: hex_i(options.gasPrice || gasPriceOracle.gasPrice),
             gasLimit: hex_i(options.gasLimit || estimatedGas),
             value: hex_i(options.value || 0),
             data: encoded,
