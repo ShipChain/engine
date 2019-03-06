@@ -452,7 +452,7 @@ export class Contract extends BaseEntity {
         try {
             estimatedGas = await contractMethod.estimateGas({ from: this.address, gas: 5000000 });
             if (estimatedGas == 5000000) {
-                throw new Error("Transaction out of gas");
+                throw new Error('Transaction out of gas');
             }
             estimatedGas *= 2;
         } catch (err) {
@@ -466,10 +466,16 @@ export class Contract extends BaseEntity {
         // gasPriceOracle.gasPrice returns either a string or a BN
         // we need to support converting either to hex
         const hex_i = i => {
-            return Number.isInteger(i) ? Web3.utils.toHex(i) :
-                driver._utils.isBN(i) ? driver._utils.BN(i).toString(16) :
-                typeof i === 'string' ? '0x'+driver._utils.toBN(i).toString(16) :
-                i;
+            if (Number.isInteger(i)) {
+                return Web3.utils.toHex(i);
+            }
+            if (driver._utils.isBN(i)) {
+                return driver._utils.BN(i).toString(16);
+            }
+            if (typeof i === 'string') {
+                return '0x' + driver._utils.toBN(i).toString(16);
+            }
+            return i;
         };
 
         return {

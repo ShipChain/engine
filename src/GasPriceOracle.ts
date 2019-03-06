@@ -191,7 +191,7 @@ export class GasPriceOracle {
 
         return {
             price: Number(desiredPrice),
-            predict:regressionOutput.predict
+            predict: regressionOutput.predict,
         };
     }
 
@@ -226,19 +226,19 @@ export class GasPriceOracle {
     private static logEthGasStationPrices(data: EthGasStationInfo, desiredPrice: number) {
         logger.debug(
             `GasStation Fastest   : ${data.fastest} gwei  [${data.fastestWait}m] ` +
-            `${desiredPrice <= data.fastest ? "+" : ""}`
+                `${desiredPrice <= data.fastest ? '+' : ''}`,
         );
         logger.debug(
             `GasStation Fast      : ${data.fast} gwei  [${data.fastWait}m] ` +
-            `${desiredPrice <= data.fast ? "+" : ""}`
+                `${desiredPrice <= data.fast ? '+' : ''}`,
         );
         logger.debug(
             `GasStation Average   : ${data.average} gwei  [${data.avgWait}m] ` +
-            `${desiredPrice <= data.average ? "+" : ""}`
+                `${desiredPrice <= data.average ? '+' : ''}`,
         );
         logger.debug(
             `GasStation SafeLow   : ${data.safeLow} gwei  [${data.safeLowWait}m] ` +
-            `${desiredPrice <= data.safeLow ? "+" : ""}`
+                `${desiredPrice <= data.safeLow ? '+' : ''}`,
         );
     }
 }
