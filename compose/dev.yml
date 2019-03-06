@@ -23,6 +23,34 @@ services:
       - /data/shipchain/engine/postgresql:/var/lib/postgresql
 
 
+  influxdb:
+    image: influxdb:alpine
+    command: "influxd"
+    expose:
+      - 8083
+      - 8086
+      - 8090
+    links:
+      - grafana
+    volumes:
+      - /data/shipchain/engine/influxdbtest:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=engine
+      - INFLUXDB_ADMIN_ENABLED=true
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin
+      - INFLUXDB_USER=engine
+      - INFLUXDB_USER_PASSWORD=engine
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - /data/shipchain/engine/grafanatest:/var/lib/grafana
+    user: 0:0
+
+
   rpc:
     links:
       - psql
@@ -30,7 +58,9 @@ services:
       - minio
       - geth-poa
       - redis_db
+      - influxdb
     volumes:
       - ../:/app
     environment:
       - GETH_NODE=http://geth-poa:8545
+      - INFLUXDB_URL=http://influxdb:8086/engine
