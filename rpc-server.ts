@@ -30,6 +30,7 @@ import { RPCStorageCredentials } from "./rpc/storage_credentials";
 
 import { getRDSconfig } from "./rdsconfig";
 import { MetricsReporter } from "./src/MetricsReporter";
+import { GasPriceOracle } from "./src/GasPriceOracle";
 
 const typeorm = require("typeorm");
 const rpc = require("json-rpc2");
@@ -158,6 +159,8 @@ async function startRpcServer() {
 
     await loadContractFixtures();
     await startEventSubscriptions();
+
+    await GasPriceOracle.Start();
 
     metrics.countAction("startRpcServer");
 

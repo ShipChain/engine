@@ -15,14 +15,12 @@
  */
 
 
-
-
 require('./src/__tests__/testLoggingConfig');
 
 import 'mocha';
 import * as typeorm from "typeorm";
 import { CloseConnection as CloseRedis } from "./src/redis";
-import { loadContractFixtures, LoadedContracts } from "./rpc/contracts";
+import { loadContractFixtures } from "./rpc/contracts";
 import { cleanupDeployedContracts } from "./rpc/__tests__/utils";
 
 
@@ -43,6 +41,10 @@ import { EventSubscriptionEntityTests } from './src/__tests__/eventsubscriptions
 import { StorageDriverTests } from './src/__tests__/storage';
 import { VaultTests } from './src/__tests__/vaults';
 import { WalletEntityTests } from './src/__tests__/wallets';
+import { GasPriceOracleTests } from "./src/__tests__/gaspriceoracle";
+
+// ShipChain Tests
+// ===============
 import { LoadVaultTests } from './src/shipchain/__tests__/loadvault';
 
 
@@ -106,6 +108,7 @@ describe('Core', async () => {
     describe('StorageDriver', StorageDriverTests);
     describe('Vaults', VaultTests);
     describe('Wallets', WalletEntityTests);
+    describe('GasPriceOracle', GasPriceOracleTests);
 
 });
 

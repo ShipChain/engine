@@ -26,7 +26,7 @@ export class MetricsReporter {
 
     private readonly influx: InfluxDB = null;
 
-    private constructor() {
+    protected constructor() {
         if (INFLUXDB_URL) {
             // Connect to a single host with a DSN:
             this.influx = new InfluxDB(INFLUXDB_URL);
@@ -40,7 +40,7 @@ export class MetricsReporter {
         return this._instance || (this._instance = new this());
     }
 
-    private static buildPoint(tags: any = {}, fields: any = {}) {
+    protected static buildPoint(tags: any = {}, fields: any = {}) {
         let defaultPoint = {
             tags: {
                 environment: ENVIRONMENT,

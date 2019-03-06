@@ -16,10 +16,10 @@
 
 import { BaseEntity, Column, CreateDateColumn, Entity, getConnection, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { Contract } from './Contract';
-import { EventEmitter } from 'events';
 import { getRequestOptions } from '../request-options';
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
+import { AsyncPoll } from '../AsyncPoll';
 
 const request = require('request');
 
@@ -34,60 +34,6 @@ function AsyncPut(url) {
             resolve(body);
         });
     });
-}
-
-export class AsyncPoll extends EventEmitter {
-    readonly name: string;
-    private readonly interval: number;
-    private stopPolling: boolean = false;
-    private activeTimeout = null;
-
-    constructor(name: string, callback: any, interval: number = 10 * SECONDS, once: boolean = false) {
-        super();
-        this.name = name;
-        this.interval = interval;
-        logger.info(`Starting AsyncPoll for ${this.name}`);
-        this.on('poll', AsyncPoll.wrapCallback(this, callback, once));
-    }
-
-    static wrapCallback(self: AsyncPoll, callback: any, once?: boolean) {
-        async function execute() {
-            try {
-                await callback();
-            } catch (err) {
-                logger.error(`Error Executing AsyncPoll ${err}`);
-            }
-            if (!once) {
-                self.start();
-            }
-        }
-
-        return execute;
-    }
-
-    start() {
-        // Don't set a new interval if poll is stopped
-        if (!this.stopPolling) {
-            this.activeTimeout = setTimeout(() => {
-                // If the interval fires but we've triggered a stop, make sure we don't emit
-                if (!this.stopPolling) {
-                    logger.silly(`Emitting poll for ${this.name}`);
-                    this.emit('poll');
-                }
-            }, this.interval);
-        }
-    }
-
-    stop() {
-        logger.info(`Stopping AsyncPoll for ${this.name}`);
-
-        this.stopPolling = true;
-
-        // Kill the timeout if it's running
-        if (this.activeTimeout) {
-            clearTimeout(this.activeTimeout);
-        }
-    }
 }
 
 export class EventSubscriberAttrs {

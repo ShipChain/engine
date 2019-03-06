@@ -56,7 +56,6 @@ export class LoadContract extends BaseContract {
 
     async depositEthTransaction(shipperWallet: Wallet, shipmentId: number, value: number) {
         return await this.buildTransactionForWallet(shipperWallet, 'depositETH', [shipmentId], {
-            gasLimit: this.defaultGasLimit,
             value: value,
         });
     }

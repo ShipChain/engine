@@ -143,7 +143,6 @@ export class LoadContract extends BaseContract {
             'fundEscrowEther',
             [LoadContract.convertShipmentUuidToBytes16(shipmentUuid)],
             {
-                gasLimit: this.defaultGasLimit,
                 value: depositAmount,
             },
         );

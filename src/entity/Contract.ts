@@ -26,6 +26,7 @@ import {
 } from 'typeorm';
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
+import { GasPriceOracle } from '../GasPriceOracle';
 
 const fs = require('fs');
 const Web3 = require('web3');
@@ -34,6 +35,7 @@ const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
+const gasPriceOracle = GasPriceOracle.Instance;
 const GETH_NODE = process.env.GETH_NODE;
 
 @Entity()
@@ -416,9 +418,11 @@ export class Contract extends BaseEntity {
         this.version = this.version || (await Version.findOne({ id: this.versionId }));
 
         const eth = this.network.getDriver().eth;
+        const utils = this.network.getDriver().utils;
 
         this._driver = new eth.Contract(this.version.getABI(), this.address);
         this._driver._eth = eth;
+        this._driver._utils = utils;
         this._driver._entity = this;
         return this._driver;
     }
@@ -442,26 +446,41 @@ export class Contract extends BaseEntity {
         const driver = await this.getDriver();
 
         const contractMethod = driver.methods[methodName](...args);
-        // Estimating Gas is causing errors on multiple occasions
-        // For now I'm leaving this out so development can continue
-        // ========================================================
-        // let estimatedGas = await contractMethod.estimateGas({from: this.address, gas: 5000000});
-        // if(estimatedGas == 5000000){
-        //     throw new Error("Transaction out of gas");
-        // }
-        // estimatedGas += 21000;
-        // estimatedGas *=  1.2;
+
+        // Estimate the gas, but have a safe fallback of 500k in case estimation fails
         let estimatedGas = 500000;
+        try {
+            estimatedGas = await contractMethod.estimateGas({ from: this.address, gas: 5000000 });
+            if (estimatedGas == 5000000) {
+                throw new Error('Transaction out of gas');
+            }
+            estimatedGas *= 2;
+        } catch (err) {
+            logger.warn(`Gas Estimation Failed: ${err}.  Falling back to ${estimatedGas}`);
+        }
 
         const encoded = contractMethod.encodeABI();
 
         if (!options) options = {};
 
-        const hex_i = i => (Number.isInteger(i) ? Web3.utils.toHex(i) : i);
+        // gasPriceOracle.gasPrice returns either a string or a BN
+        // we need to support converting either to hex
+        const hex_i = i => {
+            if (Number.isInteger(i)) {
+                return Web3.utils.toHex(i);
+            }
+            if (driver._utils.isBN(i)) {
+                return driver._utils.BN(i).toString(16);
+            }
+            if (typeof i === 'string') {
+                return '0x' + driver._utils.toBN(i).toString(16);
+            }
+            return i;
+        };
 
         return {
             to: this.address,
-            gasPrice: hex_i(options.gasPrice || 20 * 10 ** 9),
+            gasPrice: hex_i(options.gasPrice || gasPriceOracle.gasPrice),
             gasLimit: hex_i(options.gasLimit || estimatedGas),
             value: hex_i(options.value || 0),
             data: encoded,

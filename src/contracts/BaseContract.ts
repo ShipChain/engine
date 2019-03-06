@@ -25,8 +25,6 @@ export abstract class BaseContract {
     protected _eth;
     protected _utils;
 
-    protected defaultGasLimit: number = 500000;
-
     protected constructor(contractName: string, network: string, version: string) {
         this.Ready = Contract.getContractVersion(contractName, network, version).then(contract => {
             this._contract = contract;
@@ -67,7 +65,6 @@ export abstract class BaseContract {
     }
 
     async buildTransaction(method: string, args: any[], options?: any) {
-        options = Object.assign({}, options, { gasLimit: this.defaultGasLimit });
         return await this._contract.build_transaction(method, args, options);
     }
 
