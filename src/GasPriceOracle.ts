@@ -19,6 +19,7 @@ const regression = require('regression');
 import { AsyncPoll } from './AsyncPoll';
 import { Logger } from './Logger';
 import { MetricsReporter } from './MetricsReporter';
+import { delay } from './utils';
 
 const requestPromise = require('request-promise-native');
 const Web3 = require('web3');
@@ -124,27 +125,29 @@ export class GasPriceOracle {
             return total + (currentValue - total) / (currentIndex + 1);
         }, 0);
 
-        let priceAverageStr = priceAverage.toFixed(2);
+        priceAverage = Number(priceAverage.toFixed(2));
 
-        this.gasPriceMetrics.gasPriceSingle('calculated', +priceAverageStr);
+        // Prevent too rapid growth of gas price used
+        let previousGasPrice = Number(Web3.utils.fromWei(this._gasPrice, 'gwei'));
+        priceAverage = Math.min(priceAverage, 4 * previousGasPrice);
+
+        this.gasPriceMetrics.gasPriceSingle('calculated', priceAverage);
 
         // Predict the wait time if we have Eth Gas Station data (with prediction method)
         if (ethGasStationCalculation) {
-            const prediction = ethGasStationCalculation.predict(+priceAverageStr);
+            const prediction = ethGasStationCalculation.predict(priceAverage);
             logger.debug(`Predicted Wait Time  : ${prediction[1]}m`);
             this.gasPriceMetrics.waitTimeSingle('calculated', prediction[1]);
         }
 
         // toWei prefers a string representation of the input number
-        this._gasPrice = Web3.utils.toWei(priceAverageStr, 'gwei');
+        this._gasPrice = Web3.utils.toWei(`${priceAverage}`, 'gwei');
     }
 
     // Pull data from the EthGasStation and find the gas price that gives us the desired wait time
     // -------------------------------------------------------------------------------------------
     private async getEthGasStationBestPrice(): Promise<EthGasStationCalculation> {
-        const url = `https://ethgasstation.info/json/ethgasAPI.json`;
-
-        let data: EthGasStationInfo = await GasPriceOracle.retrieveJson(url);
+        let data = await GasPriceOracle.getEthGasStationJson();
 
         // EthGasStation API does not report data in gwei.  I think this is 100s of babbages...
         data.fastest /= 10.0;
@@ -193,6 +196,35 @@ export class GasPriceOracle {
             price: Number(desiredPrice),
             predict: regressionOutput.predict,
         };
+    }
+
+    // EthGasStation API can return high outlier data.
+    // We are selecting the best data for our calculations
+    // ---------------------------------------------------
+    private static async getEthGasStationJson() {
+        const url = `https://ethgasstation.info/json/ethgasAPI.json`;
+
+        let returnEgs: EthGasStationInfo;
+
+        let egs1: EthGasStationInfo = await GasPriceOracle.retrieveJson(url);
+
+        await delay(0.5 * AsyncPoll.SECONDS);
+        let egs2: EthGasStationInfo = await GasPriceOracle.retrieveJson(url);
+
+        await delay(0.5 * AsyncPoll.SECONDS);
+        let egs3: EthGasStationInfo = await GasPriceOracle.retrieveJson(url);
+
+        returnEgs = egs1;
+
+        if (egs2.safeLowWait < returnEgs.safeLowWait) {
+            returnEgs = egs2;
+        }
+
+        if (egs3.safeLowWait < returnEgs.safeLowWait) {
+            returnEgs = egs3;
+        }
+
+        return returnEgs;
     }
 
     // Get the 60% Median gas price of the last 20 blocks by the eth_gasPrice call
@@ -259,8 +291,8 @@ interface EthGasStationInfo {
     fastestWait: number;
 }
 
-// The schema from EthGasStation's API
-// ===================================
+// The schema for getEthGasStationBestPrice's return
+// =================================================
 interface EthGasStationCalculation {
     price: number;
     predict: Function;

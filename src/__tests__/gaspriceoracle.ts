@@ -42,6 +42,7 @@ export const GasPriceOracleTests = async function() {
 
         nock('https://ethgasstation.info')
             .get('/json/ethgasAPI.json')
+            .times(3)
             .reply(200, {
                 fast: 500,
                 fastest: 600,
@@ -65,6 +66,7 @@ export const GasPriceOracleTests = async function() {
 
         nock('https://ethgasstation.info')
             .get('/json/ethgasAPI.json')
+            .times(3)
             .reply(200, {
                 fast: 500,
                 fastest: 600,
