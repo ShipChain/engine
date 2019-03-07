@@ -82,3 +82,7 @@ export function verifySignature(signed) {
 export function verifyHash(obj) {
     return objectHash(obj, obj.signed.at, obj.signed.alg) == obj.signed.hash;
 }
+
+export function delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
