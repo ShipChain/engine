@@ -23,7 +23,7 @@
     "request": "^2.34",
     "request-promise-native": "^1.0.5",
     "rimraf": "^2.6.2",
-    "ssh2-sftp-client": "^2.4.2",
+    "ssh2-sftp-client": "2.5.0",
     "ts-node": "^7.0.1",
     "typeorm": "^0.2.9",
     "typescript": "^3.2.4",

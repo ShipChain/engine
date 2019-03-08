@@ -760,7 +760,7 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
-bcrypt-pbkdf@^1.0.0:
+bcrypt-pbkdf@^1.0.0, bcrypt-pbkdf@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.2.tgz#a4301d389b6a43f9b67ff3ca11a3f6637e360e9e"
   integrity sha1-pDAdOJtqQ/m2f/PKEaP2Y342Dp4=
@@ -1437,6 +1437,16 @@ concat-stream@^1.5.0:
     buffer-from "^1.0.0"
     inherits "^2.0.3"
     readable-stream "^2.2.2"
+    typedarray "^0.0.6"
+
+concat-stream@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-2.0.0.tgz#414cf5af790a48c60ab9be4527d56d5e41133cb1"
+  integrity sha512-MWufYdFw53ccGjCA+Ol7XJYpAlW6/prSMzuPOTRnJGcGzuhLn4Scrz7qf6o8bROZ514ltazcIFJZevcfbo0x7A==
+  dependencies:
+    buffer-from "^1.0.0"
+    inherits "^2.0.3"
+    readable-stream "^3.0.2"
     typedarray "^0.0.6"
 
 configstore@^3.0.0:
@@ -6071,6 +6081,15 @@ readable-stream@3:
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
+readable-stream@^3.0.2:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.2.0.tgz#de17f229864c120a9f56945756e4f32c4045245d"
+  integrity sha512-RV20kLjdmpZuTF1INEb9IA3L68Nmi+Ri7ppZqo78wj//Pn62fCoJyV9zalccNzDD/OuJpMG4f+pfMl8+L6QdGw==
+  dependencies:
+    inherits "^2.0.3"
+    string_decoder "^1.1.1"
+    util-deprecate "^1.0.1"
+
 readdirp@^2.0.0:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/readdirp/-/readdirp-2.2.1.tgz#0e87622a3325aa33e892285caf8b4e846529a525"
@@ -6801,28 +6820,29 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-ssh2-sftp-client@^2.4.2:
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/ssh2-sftp-client/-/ssh2-sftp-client-2.4.2.tgz#5f0dad58a299a5a9b5403278ca162d4e64dd92f3"
-  integrity sha512-D/qx6UJSKVNszau8s3y06FmMsa3UlAi5izhBD7xIY36zaNIO6ZmP/NsqKTcVMT+IDnBSjzlcZapW7WZ+K4tCAQ==
+ssh2-sftp-client@2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/ssh2-sftp-client/-/ssh2-sftp-client-2.5.0.tgz#bea4e7b1bb8b600c177c4fe42aa792d821eb634a"
+  integrity sha512-faPgWQF0UF1jkZ7rw1Sp4xuCRLJqJ81TDqckcluUA8wT6AKSkjhb/538RdliHNGUeCY9pYESTuoOBly3facX0g==
   dependencies:
-    ssh2 "^0.6.1"
+    concat-stream "^2.0.0"
+    ssh2 "^0.8.2"
 
-ssh2-streams@~0.2.0:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/ssh2-streams/-/ssh2-streams-0.2.1.tgz#9c9c9964be60e9644575af328677f64b1e5cbd79"
-  integrity sha512-3zCOsmunh1JWgPshfhKmBCL3lUtHPoh+a/cyQ49Ft0Q0aF7xgN06b76L+oKtFi0fgO57FLjFztb1GlJcEZ4a3Q==
+ssh2-streams@~0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/ssh2-streams/-/ssh2-streams-0.4.2.tgz#bac0d18727396d16049f5f0c8517a46516b45719"
+  integrity sha512-2rSj3oTIJnbAIzR3+XwIYef9wCOVrPQZNLL+fFPPjnPxf09tKkAbgrlYgh/1qynBTz65AUOS+s1zuko4M/GKCw==
   dependencies:
     asn1 "~0.2.0"
-    semver "^5.1.0"
+    bcrypt-pbkdf "^1.0.2"
     streamsearch "~0.1.2"
 
-ssh2@^0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/ssh2/-/ssh2-0.6.1.tgz#5dde1a7394bb978b1f9c2f014affee2f5493bd40"
-  integrity sha512-fNvocq+xetsaAZtBG/9Vhh0GDjw1jQeW7Uq/DPh4fVrJd0XxSfXAqBjOGVk4o2jyWHvyC6HiaPFpfHlR12coDw==
+ssh2@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/ssh2/-/ssh2-0.8.2.tgz#f7a172458d3a7a13d520438264f90de8a3ee72af"
+  integrity sha512-oaXu7faddvPFGavnLBkk0RFwLXvIzCPq6KqAC3ExlnFPAVIE1uo7pWHe9xmhNHXm+nIe7yg9qsssOm+ip2jijw==
   dependencies:
-    ssh2-streams "~0.2.0"
+    ssh2-streams "~0.4.2"
 
 sshpk@^1.7.0:
   version "1.15.2"
