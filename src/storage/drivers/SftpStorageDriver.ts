@@ -18,7 +18,6 @@ import { DirectoryListing, DriverError, FileEntity, StorageDriver } from '../Sto
 import { MetricsReporter } from '../../MetricsReporter';
 import * as path from 'path';
 
-const getStream = require('get-stream');
 const SftpClient = require('ssh2-sftp-client');
 
 const metrics = MetricsReporter.Instance;
