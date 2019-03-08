@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8ce470f7-0a00-4a21-883c-8cf5000b7302",
+		"_postman_id": "72a5b104-82ad-409a-9187-9934ec2d92a4",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -2218,6 +2218,86 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "help",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"method\": \"help\",\n\t\"params\": {},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+				},
+				"url": {
+					"raw": "http://localhost:2000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "2000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "help [namespace]",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"method\": \"help\",\n\t\"params\": {\n\t\t\"namespace\": \"wallet\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+				},
+				"url": {
+					"raw": "http://localhost:2000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "2000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
