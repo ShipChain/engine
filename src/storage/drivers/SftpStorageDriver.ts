@@ -18,7 +18,6 @@ import { DirectoryListing, DriverError, FileEntity, StorageDriver } from '../Sto
 import { MetricsReporter } from '../../MetricsReporter';
 import * as path from 'path';
 
-const getStream = require('get-stream');
 const SftpClient = require('ssh2-sftp-client');
 
 const metrics = MetricsReporter.Instance;
@@ -82,20 +81,16 @@ export class SftpStorageDriver extends StorageDriver {
         const startTime = Date.now();
         metrics.countAction('storage_get_file', { driver_type: this.type });
         let encodingSftp = binary ? null : 'utf8';
-        let encodingStream = binary ? 'buffer' : 'utf8';
 
         let sftp = await this._connect();
 
         let fullVaultPath = this.getFullVaultPath(filePath);
 
         try {
-            let data = await sftp.get(fullVaultPath, null, encodingSftp);
-            let stream = data.sftp.createReadStream(fullVaultPath, { encoding: null });
-
-            let fileContents = await getStream(stream, { encoding: encodingStream }); // set encoding to 'buffer' for binary
+            let data = await sftp.get(fullVaultPath, undefined, { encoding: encodingSftp });
             sftp.end();
             metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
-            return fileContents;
+            return data;
         } catch (err) {
             sftp.end();
             metrics.methodTime('storage_get_file', Date.now() - startTime, { driver_type: this.type });
