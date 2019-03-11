@@ -93,6 +93,14 @@ export function RPCMethod(options?: RPCMethodOptions) {
                 });
         };
 
+        // Add the RPCMethod options that are validated as a property on the method
+        Object.defineProperty(descriptor.value, 'rpcOptions', {
+            value: options,
+            writable: false,
+            enumerable: true,
+            configurable: false,
+        });
+
         // return edited descriptor as opposed to overwriting the descriptor
         return descriptor;
     };

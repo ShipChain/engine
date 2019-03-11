@@ -18,6 +18,14 @@
 import { Logger } from './src/Logger';
 const logger = Logger.get(module.filename);
 
+declare global {
+    // Extend the default PropertyDescriptor with a property
+    // for holding RPCMethod validation options. See rpc/decorators.ts
+    interface PropertyDescriptor {
+        rpcOptions?: any;
+    }
+}
+
 import { buildSchemaValidators } from "./rpc/validators";
 import { loadContractFixtures } from "./rpc/contracts";
 import { RPCVault } from "./rpc/vault";
@@ -39,6 +47,32 @@ const process = require("process");
 
 const metrics = MetricsReporter.Instance;
 const PORT = process.env.PORT || 2000;
+
+const RpcNamespaces = {};
+
+rpc.Endpoint.$include({
+    'expose': function($super, namespace, handlers){
+
+        if(namespace !== 'help') {
+            if (!RpcNamespaces[namespace]) {
+                RpcNamespaces[namespace] = {};
+            }
+
+            for (let method of Object.keys(handlers)) {
+                logger.silly(`Registering RPC Method '${namespace}.${method}'`);
+                const mtd = Object.getOwnPropertyDescriptor(handlers, method);
+
+                // The RPCMethod function decorator adds its parameter check options
+                // as a new key in the PropertyDescriptor of the function itself
+                const rpcMethodOptions = Object.getOwnPropertyDescriptor(mtd.value, 'rpcOptions');
+
+                RpcNamespaces[namespace][method] = rpcMethodOptions.value || {};
+            }
+        }
+
+        $super(namespace, handlers);
+    }
+});
 
 
 const server = rpc.Server.$create({
@@ -138,6 +172,16 @@ server.expose("vault", {
 server.expose("event", {
     "subscribe": RPCEvent.Subscribe,
     "unsubscribe": RPCEvent.Unsubscribe,
+});
+
+server.expose("help", (args, opt, callback) => {
+    if(args && args.namespace) {
+        let result = {};
+        result[args.namespace] = RpcNamespaces[args.namespace];
+        callback(null, result);
+    } else {
+        callback(null, RpcNamespaces);
+    }
 });
 
 // Build Schema Validators
