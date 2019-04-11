@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-const entities = [__dirname + "/src/entity/*.ts"];
-const migrations = [__dirname + "/src/entity/migration/*.ts"];
-const subscribers = [__dirname + "/src/subscriber/*.ts"];
+const ENV = process.env.ENV || 'LOCAL';
+
+let dir = "src";
+let ext = "ts";
+
+if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD'){
+  dir = "dist/src";
+  ext = "js";
+}
+
+const entities = [__dirname + `/${dir}/entity/*.${ext}`];
+const migrations = [__dirname + `/${dir}/entity/migration/*.${ext}`];
+const subscribers = [__dirname + `/${dir}/subscriber/*.${ext}`];
 
 const cli = {
-  "entitiesDir": "src/entity",
-  "migrationsDir": "src/entity/migration",
-  "subscribersDir": "src/subscriber"
+  "entitiesDir": `${dir}/entity`,
+  "migrationsDir": `${dir}/entity/migration`,
+  "subscribersDir": `${dir}/subscriber`
 };
 
 const rdsUrl = process.env.DATABASE_URL || `psql://engine:engine@psql:5432/engine`;
