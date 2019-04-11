@@ -6,6 +6,7 @@
 .idea
 bin
 compose/nginx
+dist
 node_modules
 reports
 

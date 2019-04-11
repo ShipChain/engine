@@ -41,6 +41,7 @@ RUN yarn --frozen-lockfile && yarn cache clean
 
 COPY . /app/
 
+RUN yarn compile
 
 ## Image only used for production building ##
 ## ======================================= ##
@@ -53,6 +54,8 @@ COPY .yarnclean /app/
 RUN yarn --prod --frozen-lockfile && yarn cache clean
 
 COPY . /app/
+
+RUN yarn compile
 
 
 ## Image to be deployed to ECS with additional utils and no build tools ##
