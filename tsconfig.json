@@ -9,5 +9,10 @@
         "experimentalDecorators": true,
         "sourceMap": true,
         "outDir": "./dist"
-    }
+    },
+    "exclude": [
+        "node_modules",
+        "jest.testOrder.ts",
+        "**/__tests__/*.ts"
+    ]
 }
