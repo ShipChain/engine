@@ -43,6 +43,7 @@ import { VaultTests } from './src/__tests__/vaults';
 import { WalletEntityTests } from './src/__tests__/wallets';
 import { GasPriceOracleTests } from "./src/__tests__/gaspriceoracle";
 import { EventSubscriptionPostsTests } from "./src/__tests__/eventSubscriptionPosts";
+import { UtilsTests } from "./src/__tests__/utils";
 
 
 // ShipChain Tests
@@ -50,37 +51,37 @@ import { EventSubscriptionPostsTests } from "./src/__tests__/eventSubscriptionPo
 import { LoadVaultTests } from './src/shipchain/__tests__/loadvault';
 
 
-// describe('RPC', async () => {
-//
-//     beforeAll(async () => {
-//         try {
-//             // read connection options from ormconfig file (or ENV variables)
-//             const connectionOptions = await typeorm.getConnectionOptions();
-//             await typeorm.createConnection(connectionOptions);
-//             await loadContractFixtures();
-//         } catch(err){
-//             console.error(`beforeAll Error ${err}`);
-//         }
-//     }, 10000);
-//
-//     afterAll(async() => {
-//         try {
-//             await cleanupDeployedContracts(typeorm);
-//             let conn = await typeorm.getConnection();
-//             await conn.close();
-//             await CloseRedis();
-//         } catch(err){
-//             console.error(`afterAll Error ${err}`);
-//         }
-//     }, 10000);
-//
-//     describe('Events', RPCEventTests);
-//     describe('Vaults', RPCVaultTests);
-//     describe('Storage', RPCStorageCredentialsTests);
-//     describe('Transactions', RPCTransactions);
-//     describe('Wallets', RPCWalletTests);
-//
-// });
+describe('RPC', async () => {
+
+    beforeAll(async () => {
+        try {
+            // read connection options from ormconfig file (or ENV variables)
+            const connectionOptions = await typeorm.getConnectionOptions();
+            await typeorm.createConnection(connectionOptions);
+            await loadContractFixtures();
+        } catch(err){
+            console.error(`beforeAll Error ${err}`);
+        }
+    }, 10000);
+
+    afterAll(async() => {
+        try {
+            await cleanupDeployedContracts(typeorm);
+            let conn = await typeorm.getConnection();
+            await conn.close();
+            await CloseRedis();
+        } catch(err){
+            console.error(`afterAll Error ${err}`);
+        }
+    }, 10000);
+
+    describe('Events', RPCEventTests);
+    describe('Vaults', RPCVaultTests);
+    describe('Storage', RPCStorageCredentialsTests);
+    describe('Transactions', RPCTransactions);
+    describe('Wallets', RPCWalletTests);
+
+});
 
 describe('Core', async () => {
     beforeAll(async () => {
@@ -104,39 +105,40 @@ describe('Core', async () => {
         }
     }, 10000);
 
-    // describe('Contracts', ContractEntityTests);
-    // describe('StorageCredentials', StorageCredentialEntityTests);
-    // describe('EventSubscriptions', EventSubscriptionEntityTests);
-    // describe('StorageDriver', StorageDriverTests);
-    // describe('Vaults', VaultTests);
-    // describe('Wallets', WalletEntityTests);
-    // describe('GasPriceOracle', GasPriceOracleTests);
+    describe('Contracts', ContractEntityTests);
+    describe('StorageCredentials', StorageCredentialEntityTests);
+    describe('EventSubscriptions', EventSubscriptionEntityTests);
+    describe('StorageDriver', StorageDriverTests);
+    describe('Vaults', VaultTests);
+    describe('Wallets', WalletEntityTests);
+    describe('GasPriceOracle', GasPriceOracleTests);
     describe('EventSubscriptionPosts', EventSubscriptionPostsTests);
+    describe('Utils', UtilsTests);
 
 });
 
-// describe('ShipChain', async () => {
-//     beforeAll(async () => {
-//         try {
-//             // read connection options from ormconfig file (or ENV variables)
-//             const connectionOptions = await typeorm.getConnectionOptions();
-//             await typeorm.createConnection(connectionOptions);
-//         } catch(err){
-//             console.error(`beforeAll Error ${err}`);
-//         }
-//     }, 10000);
-//
-//     afterAll(async() => {
-//         try {
-//             await cleanupDeployedContracts(typeorm);
-//             let conn = await typeorm.getConnection();
-//             await conn.close();
-//             await CloseRedis();
-//         } catch(err){
-//             console.error(`afterAll Error ${err}`);
-//         }
-//     }, 10000);
-//
-//     describe('LOAD Vault', LoadVaultTests);
-//
-// });
+describe('ShipChain', async () => {
+    beforeAll(async () => {
+        try {
+            // read connection options from ormconfig file (or ENV variables)
+            const connectionOptions = await typeorm.getConnectionOptions();
+            await typeorm.createConnection(connectionOptions);
+        } catch(err){
+            console.error(`beforeAll Error ${err}`);
+        }
+    }, 10000);
+
+    afterAll(async() => {
+        try {
+            await cleanupDeployedContracts(typeorm);
+            let conn = await typeorm.getConnection();
+            await conn.close();
+            await CloseRedis();
+        } catch(err){
+            console.error(`afterAll Error ${err}`);
+        }
+    }, 10000);
+
+    describe('LOAD Vault', LoadVaultTests);
+
+});
