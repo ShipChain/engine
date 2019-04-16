@@ -21,9 +21,9 @@ import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { AsyncPoll } from '../AsyncPoll';
 import { arrayChunker } from '../utils';
-const EVENT_CHUNK_SIZE = process.env.EVENT_CHUNK_SIZE || 50;
 
 const request = require('request');
+const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -220,84 +220,52 @@ export class EventSubscription extends BaseEntity {
         return highestBlock;
     }
 
-    private static async sendPostEvents(eventSubscription: EventSubscription, events, highestBlock, resolve) {
+    private static async sendPostEvents(eventSubscription: EventSubscription, allEvents, resolve) {
         try {
-            let event_batches = arrayChunker(events, EVENT_CHUNK_SIZE);
-            let event_batch_number = 0;
-            let result_success = true;
+            let EVENT_CHUNK_SIZE = +process.env.EVENT_CHUNK_SIZE || 50;
 
-            while (result_success && event_batch_number < event_batches.length) {
-                highestBlock = EventSubscription.findHighestBlockInEvents(
-                    event_batches[event_batch_number],
+            let chunkedEvents = arrayChunker(allEvents, EVENT_CHUNK_SIZE);
+
+            for (let chunkIndex = 0; chunkIndex < chunkedEvents.length; chunkIndex++) {
+                let highestChunkBlock = EventSubscription.findHighestBlockInEvents(
+                    chunkedEvents[chunkIndex],
                     eventSubscription.lastBlock,
                 );
 
-                let result = await this.sendPostEventsChunk(
-                    eventSubscription,
-                    event_batches,
-                    event_batch_number,
-                    resolve,
-                    highestBlock,
-                    result_success,
-                );
-
-                result_success = result[0];
-                event_batch_number = result[1];
+                try {
+                    await EventSubscription.sendPostEventsChunk(
+                        eventSubscription,
+                        chunkedEvents[chunkIndex],
+                        highestChunkBlock,
+                    );
+                } catch (err) {
+                    break;
+                }
             }
+
+            resolve();
         } catch (_err) {
-            logger.error(`Error posting events to ${eventSubscription.project}_${eventSubscription.url} ${_err}`);
             await eventSubscription.failed();
             resolve();
         }
     }
 
-    private static async sendPostEventsChunk(
-        eventSubscription: EventSubscription,
-        event_batches,
-        event_batch_number,
-        resolve,
-        highestBlock,
-        result_success,
-    ) {
+    private static async sendPostEventsChunk(eventSubscription: EventSubscription, chunk, highestChunkBlock) {
         let options = {
             url: eventSubscription.url,
-            json: event_batches[event_batch_number],
+            json: chunk,
             timeout: 60 * SECONDS,
         };
 
-        console.log(event_batches[event_batch_number]);
-
         options = Object.assign(options, await getRequestOptions());
 
-        request
-            .post(options)
-            .on('response', async function(response) {
-                if (response.statusCode != 200 && response.statusCode != 204) {
-                    console.log('Result: failure');
-                    logger.error(
-                        `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${
-                            eventSubscription.url
-                        }]`,
-                    );
-                    await eventSubscription.failed();
-                    result_success = false;
-                    resolve();
-                } else {
-                    console.log('Result: success');
-                    await eventSubscription.success(highestBlock);
-                    event_batch_number++;
-                    resolve();
-                }
-            })
-            .on('error', async function(err) {
-                logger.error(
-                    `Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`,
-                );
-                await eventSubscription.failed();
-                resolve();
-            });
-
-        return [result_success, event_batch_number];
+        try {
+            await requestPromise.post(options);
+            await eventSubscription.success(highestChunkBlock);
+        } catch (err) {
+            await eventSubscription.failed();
+            throw err;
+        }
     }
 
     private static async sendElasticEvents(eventSubscription: EventSubscription, events, highestBlock, resolve) {
@@ -388,12 +356,7 @@ export class EventSubscription extends BaseEntity {
                                     eventSubscription.lastBlock,
                                 );
                                 if (eventSubscription.receiverType == 'POST')
-                                    await EventSubscription.sendPostEvents(
-                                        eventSubscription,
-                                        events,
-                                        highestBlock,
-                                        resolve,
-                                    );
+                                    await EventSubscription.sendPostEvents(eventSubscription, events, resolve);
                                 else if (eventSubscription.receiverType == 'ELASTIC')
                                     await EventSubscription.sendElasticEvents(
                                         eventSubscription,
