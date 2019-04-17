@@ -86,3 +86,11 @@ export function verifyHash(obj) {
 export function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function arrayChunker(array, size) {
+    const chunked_arr = [];
+    for (let index = 0; index < array.length; index += size) {
+        chunked_arr.push(array.slice(index, size + index));
+    }
+    return chunked_arr;
+}

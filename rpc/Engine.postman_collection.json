@@ -843,7 +843,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"load.get_historical_document\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\",\n\t\t\"documentName\": \"example.png\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"vault.get_historical_document\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\",\n\t\t\"documentName\": \"example.png\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -871,7 +871,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"load.get_historical_tracking_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"vault.get_historical_tracking_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -899,7 +899,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"load.get_historical_shipment_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"vault.get_historical_shipment_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"date\": \"2018-11-09T19:57:56.340Z\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",

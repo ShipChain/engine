@@ -42,6 +42,9 @@ import { StorageDriverTests } from './src/__tests__/storage';
 import { VaultTests } from './src/__tests__/vaults';
 import { WalletEntityTests } from './src/__tests__/wallets';
 import { GasPriceOracleTests } from "./src/__tests__/gaspriceoracle";
+import { EventSubscriptionPostsTests } from "./src/__tests__/eventSubscriptionPosts";
+import { UtilsTests } from "./src/__tests__/utils";
+
 
 // ShipChain Tests
 // ===============
@@ -109,6 +112,8 @@ describe('Core', async () => {
     describe('Vaults', VaultTests);
     describe('Wallets', WalletEntityTests);
     describe('GasPriceOracle', GasPriceOracleTests);
+    describe('EventSubscriptionPosts', EventSubscriptionPostsTests);
+    describe('Utils', UtilsTests);
 
 });
 

@@ -374,7 +374,7 @@ Currently Engine supports connection to vaults in Local Storage, S3 Buckets (or 
 These parameters are common to all Storage Credential creations:
 
  - `driver_type` One of `s3`, `sftp`, or `local`.  These may have additional parameters described below.
- - `title` Friendly title to remeber this connection by.
+ - `title` Friendly title to remember this connection by.
  - `base_path` Path within the storage driver where the vaults will be created.  Defaults to the root directory.
 
 ##### S3
@@ -568,7 +568,7 @@ A vault's contents can be verified against the embedded, signed hash to ensure t
 }
 ```
 
-The object returned will include the newly created `vault_id`.  This value will need to be provided as the `vault` parameter to all remaining interactions with the Vault (as seen in the examples below).
+The object returned will include a boolean `verified` dependent on the verification of the data.
 
 #### Tracking Data Container
 

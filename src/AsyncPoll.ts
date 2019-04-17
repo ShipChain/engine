@@ -42,6 +42,7 @@ export class AsyncPoll extends EventEmitter {
                 await callback();
             } catch (err) {
                 logger.error(`Error Executing AsyncPoll ${err}`);
+                logger.debug(`Stack trace for error: ${err.stack}`);
             }
             if (!once) {
                 self.start();

@@ -20,8 +20,10 @@ import { getRequestOptions } from '../request-options';
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { AsyncPoll } from '../AsyncPoll';
+import { arrayChunker } from '../utils';
 
 const request = require('request');
+const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -218,42 +220,51 @@ export class EventSubscription extends BaseEntity {
         return highestBlock;
     }
 
-    private static async sendPostEvents(eventSubscription: EventSubscription, events, highestBlock, resolve) {
+    private static async sendPostEvents(eventSubscription: EventSubscription, allEvents, resolve) {
         try {
-            let options = {
-                url: eventSubscription.url,
-                json: events,
-                timeout: 60 * SECONDS,
-            };
-            options = Object.assign(options, await getRequestOptions());
+            let EVENT_CHUNK_SIZE = +process.env.EVENT_CHUNK_SIZE || 50;
 
-            request
-                .post(options)
-                .on('response', async function(response) {
-                    if (response.statusCode != 200 && response.statusCode != 204) {
-                        logger.error(
-                            `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${
-                                eventSubscription.url
-                            }]`,
-                        );
-                        await eventSubscription.failed();
-                        resolve();
-                    } else {
-                        await eventSubscription.success(highestBlock);
-                        resolve();
-                    }
-                })
-                .on('error', async function(err) {
-                    logger.error(
-                        `Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`,
+            let chunkedEvents = arrayChunker(allEvents, EVENT_CHUNK_SIZE);
+
+            for (let chunkIndex = 0; chunkIndex < chunkedEvents.length; chunkIndex++) {
+                let highestChunkBlock = EventSubscription.findHighestBlockInEvents(
+                    chunkedEvents[chunkIndex],
+                    eventSubscription.lastBlock,
+                );
+
+                try {
+                    await EventSubscription.sendPostEventsChunk(
+                        eventSubscription,
+                        chunkedEvents[chunkIndex],
+                        highestChunkBlock,
                     );
-                    await eventSubscription.failed();
-                    resolve();
-                });
+                } catch (err) {
+                    break;
+                }
+            }
+
+            resolve();
         } catch (_err) {
-            logger.error(`Error posting events to ${eventSubscription.project}_${eventSubscription.url} ${_err}`);
             await eventSubscription.failed();
             resolve();
+        }
+    }
+
+    private static async sendPostEventsChunk(eventSubscription: EventSubscription, chunk, highestChunkBlock) {
+        let options = {
+            url: eventSubscription.url,
+            json: chunk,
+            timeout: 60 * SECONDS,
+        };
+
+        options = Object.assign(options, await getRequestOptions());
+
+        try {
+            await requestPromise.post(options);
+            await eventSubscription.success(highestChunkBlock);
+        } catch (err) {
+            await eventSubscription.failed();
+            throw err;
         }
     }
 
@@ -345,12 +356,7 @@ export class EventSubscription extends BaseEntity {
                                     eventSubscription.lastBlock,
                                 );
                                 if (eventSubscription.receiverType == 'POST')
-                                    await EventSubscription.sendPostEvents(
-                                        eventSubscription,
-                                        events,
-                                        highestBlock,
-                                        resolve,
-                                    );
+                                    await EventSubscription.sendPostEvents(eventSubscription, events, resolve);
                                 else if (eventSubscription.receiverType == 'ELASTIC')
                                     await EventSubscription.sendElasticEvents(
                                         eventSubscription,

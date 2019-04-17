@@ -17,7 +17,7 @@
 require('./testLoggingConfig');
 
 import 'mocha';
-const nock = require('nock')
+const nock = require('nock');
 import { GasPriceOracle } from '../GasPriceOracle';
 
 export const GasPriceOracleTests = async function() {
