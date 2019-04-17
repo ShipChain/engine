@@ -254,7 +254,7 @@ export class EventSubscription extends BaseEntity {
         let options = {
             url: eventSubscription.url,
             json: chunk,
-            timeout: 60 * SECONDS,
+            timeout: 90 * SECONDS,
         };
 
         options = Object.assign(options, await getRequestOptions());
