@@ -31,11 +31,14 @@ import {
 import { RPCWallet } from '../wallet';
 import { Wallet } from "../../src/entity/Wallet";
 import { PrivateKeyDBFieldEncryption } from "../../src/entity/encryption/PrivateKeyDBFieldEncryption";
+import { EncryptorContainer } from '../../src/shipchain/EncryptorContainer';
 
 export const RPCWalletTests = async function() {
 
     beforeAll(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+
+        await EncryptorContainer.init();
+        //Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
     afterAll(async() => {

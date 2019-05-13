@@ -20,6 +20,7 @@ import 'mocha';
 import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
+import { EncryptorContainer } from '../shipchain/EncryptorContainer';
 
 const utils = require('../local-test-net-utils');
 
@@ -31,7 +32,8 @@ const LATEST_LOAD = "1.1.0";
 export const ContractEntityTests = async function() {
 
     beforeAll(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
+//        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
     it(`loads contract fixtures`, async () => {

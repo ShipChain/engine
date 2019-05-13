@@ -21,6 +21,7 @@ import { LoadVault } from '../LoadVault';
 import { Wallet } from '../../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../../entity/encryption/PrivateKeyDBFieldEncryption";
 import { CloseConnection } from "../../redis";
+import { EncryptorContainer } from '../EncryptorContainer';
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
@@ -44,7 +45,8 @@ export const LoadVaultTests = async function() {
     }
 
     beforeAll(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
+        //Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
     afterEach(async () => {

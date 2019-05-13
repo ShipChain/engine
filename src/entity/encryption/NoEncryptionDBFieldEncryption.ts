@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { DBFieldEncryption } from '../Wallet';
 import { Logger } from '../../Logger';
+import { DBFieldEncryption } from './DBFieldEncryption';
 
 const logger = Logger.get(module.filename);
 const ENV = process.env.ENV || 'LOCAL';

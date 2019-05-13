@@ -22,11 +22,13 @@ import { Wallet } from '../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 
 import EthCrypto from 'eth-crypto';
+import { EncryptorContainer } from '../shipchain/EncryptorContainer';
 
 export const WalletEntityTests = async function() {
 
     beforeAll(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
+        //Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
 

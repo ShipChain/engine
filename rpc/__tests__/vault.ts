@@ -39,6 +39,7 @@ import { uuidv4 } from "../../src/utils";
 import { StorageCredential } from "../../src/entity/StorageCredential";
 import { Wallet } from "../../src/entity/Wallet";
 import { PrivateKeyDBFieldEncryption } from "../../src/entity/encryption/PrivateKeyDBFieldEncryption";
+import { EncryptorContainer } from '../../src/shipchain/EncryptorContainer';
 
 const DATE_0 = '2018-01-01T00:00:00.000Z';
 const DATE_1 = '2018-01-01T01:00:00.000Z';
@@ -78,7 +79,8 @@ export const RPCVaultTests = async function() {
     let knownDocumentContent = `data:image/png;base64,${knownDocumentContentb64}`;
 
     beforeAll(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        //Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
 
         // Import known funded wallets
         fullWallet1 = await Wallet.import_entity('0x0000000000000000000000000000000000000000000000000000000000000001');

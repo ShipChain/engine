@@ -15,7 +15,7 @@
  */
 
 import EthCrypto from 'eth-crypto';
-import { DBFieldEncryption } from '../Wallet';
+import { DBFieldEncryption } from './DBFieldEncryption';
 
 const LOCAL_SECRET_KEY =
     process.env.LOCAL_SECRET_KEY || '0x0000000000000000000000000000000000000000000000000000000000000001';
