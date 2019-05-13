@@ -65,7 +65,6 @@ export const VaultTests = async function() {
 
     beforeEach(async () => {
         await EncryptorContainer.init();
-        //Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
     afterEach(async () => {

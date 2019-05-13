@@ -79,7 +79,6 @@ export const RPCVaultTests = async function() {
     let knownDocumentContent = `data:image/png;base64,${knownDocumentContentb64}`;
 
     beforeAll(async () => {
-        //Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
         await EncryptorContainer.init();
 
         // Import known funded wallets

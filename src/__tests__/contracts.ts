@@ -33,7 +33,6 @@ export const ContractEntityTests = async function() {
 
     beforeAll(async () => {
         await EncryptorContainer.init();
-//        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
     });
 
     it(`loads contract fixtures`, async () => {

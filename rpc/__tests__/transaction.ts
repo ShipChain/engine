@@ -42,7 +42,6 @@ export const RPCTransactions = async function() {
 
     beforeEach(async () => {
         await EncryptorContainer.init();
-        //Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
 
         // Import known funded wallet
         fullWallet = await Wallet.import_entity('0x0000000000000000000000000000000000000000000000000000000000000001');
