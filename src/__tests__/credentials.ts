@@ -32,7 +32,7 @@ export const StorageCredentialEntityTests = async function() {
             options: { foo: 'bar' },
         };
 
-        const credential = StorageCredential.generate_entity(attrs);
+        const credential = await StorageCredential.generate_entity(attrs);
 
         await Credentials.save(credential);
 
@@ -40,7 +40,7 @@ export const StorageCredentialEntityTests = async function() {
 
         const options_from_id = await StorageCredential.getOptionsById(credential.id);
 
-        expect(credential.getDriverOptions()).toEqual(options_from_id);
+        expect(await credential.getDriverOptions()).toEqual(options_from_id);
     });
 
     it(`can update storage credentials`, async () => {
@@ -54,7 +54,7 @@ export const StorageCredentialEntityTests = async function() {
         const newTitle = "New Title";
         const newOptions = {setting: "New!"};
 
-        const credential = StorageCredential.generate_entity(attrs);
+        const credential = await StorageCredential.generate_entity(attrs);
         await credential.save();
 
         // Update Title

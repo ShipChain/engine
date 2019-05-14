@@ -16,6 +16,7 @@
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import { Logger } from '../Logger';
+import { EncryptorContainer } from './encryption/EncryptorContainer';
 
 const logger = Logger.get(module.filename);
 
@@ -38,14 +39,17 @@ export class StorageCredential extends BaseEntity {
     @Column('text') driver_type: string;
     @Column('text') base_path: string;
 
-    @Column('simple-json') options: Object;
+    @Column('simple-json') options: string;
 
-    static generate_entity(attrs: StorageCredentialAttrs) {
+    static async generate_entity(attrs: StorageCredentialAttrs) {
         const credentials = new StorageCredential();
         credentials.title = attrs.title;
         credentials.driver_type = attrs.driver_type;
         credentials.base_path = attrs.base_path || './';
-        credentials.options = attrs.options || {};
+
+        //credentials.options = attrs.options || {};
+        const optionString: string = JSON.stringify({ jsonOption: attrs.options });
+        credentials.options = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
         logger.debug(`Creating ${attrs.driver_type} StorageDriver ${attrs.title}`);
         return credentials;
     }
@@ -100,15 +104,19 @@ export class StorageCredential extends BaseEntity {
         }
 
         if (options) {
-            this.options = options;
+            const optionString: string = JSON.stringify({ jsonOption: options });
+            this.options = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
         }
 
         await this.save();
     }
 
-    getDriverOptions() {
+    async getDriverOptions() {
+        const decrptedOptionString = await EncryptorContainer.defaultEncryptor.decrypt(this.options);
+        const wrappedOptions = JSON.parse(decrptedOptionString);
+        const decrptedOptions = wrappedOptions['jsonOption'];
         return {
-            ...this.options,
+            ...decrptedOptions,
             driver_type: this.driver_type,
             base_path: this.base_path,
             __id: this.id,
