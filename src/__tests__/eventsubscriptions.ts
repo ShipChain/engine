@@ -21,7 +21,7 @@ import { Wallet } from '../entity/Wallet';
 import { Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
-import { EncryptorContainer } from '../shipchain/EncryptorContainer';
+import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
 const request = require('request');
 const utils = require('../local-test-net-utils');

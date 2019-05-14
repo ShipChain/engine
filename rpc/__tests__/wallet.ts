@@ -31,7 +31,7 @@ import {
 import { RPCWallet } from '../wallet';
 import { Wallet } from "../../src/entity/Wallet";
 import { PrivateKeyDBFieldEncryption } from "../../src/entity/encryption/PrivateKeyDBFieldEncryption";
-import { EncryptorContainer } from '../../src/shipchain/EncryptorContainer';
+import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
 
 export const RPCWalletTests = async function() {
 

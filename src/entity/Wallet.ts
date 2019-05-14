@@ -17,7 +17,7 @@
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import EthCrypto from 'eth-crypto';
 import { Logger } from '../Logger';
-import { EncryptorContainer } from '../shipchain/EncryptorContainer';
+import { EncryptorContainer } from './encryption/EncryptorContainer';
 
 const EthereumTx = require('ethereumjs-tx');
 const Web3 = require('web3');
@@ -45,8 +45,7 @@ export class Wallet extends BaseEntity {
             throw new Error('Wallet not found');
         }
 
-        //wallet.unlocked_private_key = await Wallet.privateKeyEncryptor.decrypt(wallet.private_key);
-        wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptorOfStage.decrypt(wallet.private_key);
+        wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptor.decrypt(wallet.private_key);
 
         return wallet;
     }
@@ -61,7 +60,7 @@ export class Wallet extends BaseEntity {
             throw new Error('Wallet not found');
         }
 
-        wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptorOfStage.decrypt(wallet.private_key);
+        wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptor.decrypt(wallet.private_key);
 
         return wallet;
     }
@@ -100,7 +99,7 @@ export class Wallet extends BaseEntity {
         const wallet = new Wallet();
         const identity = Wallet.generate_identity();
 
-        const encryptedPrivateKey = await EncryptorContainer.defaultEncryptorOfStage.encrypt(identity.privateKey);
+        const encryptedPrivateKey = await EncryptorContainer.defaultEncryptor.encrypt(identity.privateKey);
 
         Object.assign(wallet, {
             public_key: identity.publicKey,
@@ -124,7 +123,7 @@ export class Wallet extends BaseEntity {
         } catch (_err) {
             const wallet = new Wallet();
 
-            const encryptedPrivateKey = await EncryptorContainer.defaultEncryptorOfStage.encrypt(private_key);
+            const encryptedPrivateKey = await EncryptorContainer.defaultEncryptor.encrypt(private_key);
 
             Object.assign(wallet, {
                 public_key: public_key,

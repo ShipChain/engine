@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AwsPrivateKeyDBFieldEncryption } from './AwsPrivateKeyDBFieldEncryption';
-import { PrivateKeyDBFieldEncryption } from '../entity/encryption/PrivateKeyDBFieldEncryption';
-import { DBFieldEncryption } from '../entity/encryption/DBFieldEncryption';
+import { AwsPrivateKeyDBFieldEncryption } from '../../shipchain/AwsPrivateKeyDBFieldEncryption';
+import { PrivateKeyDBFieldEncryption } from './PrivateKeyDBFieldEncryption';
+import { DBFieldEncryption } from './DBFieldEncryption';
 import _default from 'eth-crypto';
 
 const ENV = process.env.ENV || 'LOCAL';
@@ -25,21 +25,21 @@ export class EncryptorContainer {
      * This class may contain more types of encryptors. Or we can get encryptor
      * by its type name later
      */
-    static _defaultEncryptorOfStage: DBFieldEncryption = null;
+    static _defaultEncryptor: DBFieldEncryption = null;
 
-    static get defaultEncryptorOfStage(): DBFieldEncryption {
-        if (this._defaultEncryptorOfStage == null) {
+    static get defaultEncryptor(): DBFieldEncryption {
+        if (this._defaultEncryptor == null) {
             throw new Error('EncryptorContainer init function not called!');
         } else {
-            return this._defaultEncryptorOfStage;
+            return this._defaultEncryptor;
         }
     }
 
     static async init() {
         if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') {
-            this._defaultEncryptorOfStage = await AwsPrivateKeyDBFieldEncryption.getInstance();
+            this._defaultEncryptor = await AwsPrivateKeyDBFieldEncryption.getInstance();
         } else {
-            this._defaultEncryptorOfStage = await PrivateKeyDBFieldEncryption.getInstance();
+            this._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
         }
     }
 }

@@ -39,7 +39,7 @@ import { uuidv4 } from "../../src/utils";
 import { StorageCredential } from "../../src/entity/StorageCredential";
 import { Wallet } from "../../src/entity/Wallet";
 import { PrivateKeyDBFieldEncryption } from "../../src/entity/encryption/PrivateKeyDBFieldEncryption";
-import { EncryptorContainer } from '../../src/shipchain/EncryptorContainer';
+import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
 
 const DATE_0 = '2018-01-01T00:00:00.000Z';
 const DATE_1 = '2018-01-01T01:00:00.000Z';

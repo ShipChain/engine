@@ -22,7 +22,7 @@ import { Wallet } from '../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 
 import EthCrypto from 'eth-crypto';
-import { EncryptorContainer } from '../shipchain/EncryptorContainer';
+import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
 export const WalletEntityTests = async function() {
 

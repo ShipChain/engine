@@ -36,7 +36,7 @@ import { RPCWallet } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
 import { RPCStorageCredentials } from "./rpc/storage_credentials";
 
-import { EncryptorContainer } from "./src/shipchain/EncryptorContainer";
+import { EncryptorContainer } from "./src/entity/encryption/EncryptorContainer";
 
 import { getRDSconfig } from "./rdsconfig";
 import { MetricsReporter } from "./src/MetricsReporter";
