@@ -19,7 +19,6 @@ require('./testLoggingConfig');
 import 'mocha';
 import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
-import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
 const utils = require('../local-test-net-utils');

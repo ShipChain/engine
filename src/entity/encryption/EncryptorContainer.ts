@@ -35,10 +35,6 @@ export class EncryptorContainer {
     }
 
     static async init() {
-        if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') {
-            this._defaultEncryptor = await AwsPrivateKeyDBFieldEncryption.getInstance();
-        } else {
             this._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
-        }
     }
 }
