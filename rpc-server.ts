@@ -36,11 +36,12 @@ import { RPCWallet } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
 import { RPCStorageCredentials } from "./rpc/storage_credentials";
 
-import { EncryptorContainer } from "./src/entity/encryption/EncryptorContainer";
 
 import { getRDSconfig } from "./rdsconfig";
 import { MetricsReporter } from "./src/MetricsReporter";
 import { GasPriceOracle } from "./src/GasPriceOracle";
+
+import {ShipChainEncryptorContainer} from "./src/shipchain/ShipChainEncryptorContainer"
 
 const typeorm = require("typeorm");
 const rpc = require("json-rpc2");
@@ -191,7 +192,7 @@ server.expose("help", (args, opt, callback) => {
 // Start RPC Server
 // =======================
 async function startRpcServer() {
-    await EncryptorContainer.init();
+    await ShipChainEncryptorContainer.init();
     await buildSchemaValidators();
 
     // read connection options from ormconfig file (or ENV variables)

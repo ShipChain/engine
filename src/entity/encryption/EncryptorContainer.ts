@@ -16,7 +16,6 @@
 import { AwsPrivateKeyDBFieldEncryption } from '../../shipchain/AwsPrivateKeyDBFieldEncryption';
 import { PrivateKeyDBFieldEncryption } from './PrivateKeyDBFieldEncryption';
 import { DBFieldEncryption } from './DBFieldEncryption';
-import _default from 'eth-crypto';
 
 const ENV = process.env.ENV || 'LOCAL';
 
