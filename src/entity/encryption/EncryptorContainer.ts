@@ -35,6 +35,6 @@ export class EncryptorContainer {
     }
 
     static async init() {
-            this._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
+        this._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
     }
 }
