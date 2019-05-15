@@ -25,7 +25,7 @@ import { PrivateKeyDBFieldEncryption } from '../../entity/encryption/PrivateKeyD
 
 export const shipChainEncryptorContainerTests = async function() {
     beforeEach(async () => {
-        ShipChainEncryptorContainer.defaultEncryptor = null;
+        ShipChainEncryptorContainer.clear();
     });
 
     describe("ShipChainEncryptorContainer", () => {

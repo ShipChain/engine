@@ -32,9 +32,13 @@ export class EncryptorContainer {
         }
     }
 
-    static set defaultEncryptor(inputEncryptor: DBFieldEncryption) {
-        EncryptorContainer._defaultEncryptor = inputEncryptor;
+    static clear(): void {
+        EncryptorContainer._defaultEncryptor = null;
     }
+
+    // static set defaultEncryptor(inputEncryptor: DBFieldEncryption) {
+    //     EncryptorContainer._defaultEncryptor = inputEncryptor;
+    // }
 
     static async init() {
         EncryptorContainer._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
