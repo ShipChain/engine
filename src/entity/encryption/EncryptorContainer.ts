@@ -24,7 +24,7 @@ export class EncryptorContainer {
      * This class may contain more types of encryptors. Or we can get encryptor
      * by its type name later
      */
-    static _defaultEncryptor: DBFieldEncryption = null;
+    protected static _defaultEncryptor: DBFieldEncryption = null;
 
     static get defaultEncryptor(): DBFieldEncryption {
         if (this._defaultEncryptor == null) {
@@ -32,6 +32,10 @@ export class EncryptorContainer {
         } else {
             return this._defaultEncryptor;
         }
+    }
+
+    static set defaultEncryptor(inputEncryptor: DBFieldEncryption) {
+        this._defaultEncryptor = inputEncryptor;
     }
 
     static async init() {
