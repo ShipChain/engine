@@ -6,9 +6,9 @@ export class ShipChainEncryptorContainer extends EncryptorContainer {
     static async init() {
         const ENV = process.env.ENV || 'LOCAL';
         if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') {
-            this._defaultEncryptor = await AwsPrivateKeyDBFieldEncryption.getInstance();
+            EncryptorContainer._defaultEncryptor = await AwsPrivateKeyDBFieldEncryption.getInstance();
         } else {
-            this._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
+            EncryptorContainer._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
         }
     }
 }

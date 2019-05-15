@@ -19,6 +19,7 @@ require('./testLoggingConfig');
 import 'mocha';
 import * as typeorm from "typeorm";
 import { StorageCredential } from '../entity/StorageCredential';
+import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
 export const StorageCredentialEntityTests = async function() {
 
@@ -60,11 +61,14 @@ export const StorageCredentialEntityTests = async function() {
         // Update Title
         await credential.update(newTitle);
         expect(credential.title).toEqual(newTitle);
-        expect(credential.options).toEqual(attrs.options);
+
+        const oldOptions = JSON.parse(await EncryptorContainer.defaultEncryptor.decrypt(credential.options))['jsonOption'];
+        expect(oldOptions).toEqual(attrs.options);
 
         // Update Options
         await credential.update(null, newOptions);
         expect(credential.title).toEqual(newTitle);
-        expect(credential.options).toEqual(newOptions);
+        const unEncyptedOptions = JSON.parse(await EncryptorContainer.defaultEncryptor.decrypt(credential.options))['jsonOption'];
+        expect(unEncyptedOptions).toEqual(newOptions);
     });
 };

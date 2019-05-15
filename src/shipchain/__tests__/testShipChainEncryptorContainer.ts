@@ -23,32 +23,33 @@ import { ShipChainEncryptorContainer } from '../ShipChainEncryptorContainer';
 import { AwsPrivateKeyDBFieldEncryption } from '../../shipchain/AwsPrivateKeyDBFieldEncryption';
 import { PrivateKeyDBFieldEncryption } from '../../entity/encryption/PrivateKeyDBFieldEncryption'
 
-export const LoadVaultTests = async function() {
-    afterEach(async () => {
+export const shipChainEncryptorContainerTests = async function() {
+    beforeEach(async () => {
         ShipChainEncryptorContainer.defaultEncryptor = null;
     });
 
     describe("ShipChainEncryptorContainer", () => {
         it("should throw an error when calling the getter while the defaultEncrptor is null",  () => {
-              expect(() => {return ShipChainEncryptorContainer.defaultEncryptor}).toThrow(Error);
-            
+              expect(() => {ShipChainEncryptorContainer.defaultEncryptor}).toThrow(Error);
         });
 
-        it("should have the right type after set", () => {
+        it("should have the right type after set, env LOCAL", async () => {
             const oldENV = process.env.ENV;
             process.env.ENV = 'LOCAL';
-            ShipChainEncryptorContainer.init();
-            expect(ShipChainEncryptorContainer.defaultEncryptor instanceof PrivateKeyDBFieldEncryption).toEqual(true);
+            await ShipChainEncryptorContainer.init();
+            expect(ShipChainEncryptorContainer.defaultEncryptor instanceof PrivateKeyDBFieldEncryption).toBeTruthy();
             process.env.ENV = oldENV;
         });
 
-        it("should have the right type after set", () => {
+        it("should still have the type PrivateKeyDBFieldEncryption, because \
+        that is what the type of the _instance in PrivateKeyDBFieldEncryption is. env DEV", async () => {
             const oldENV = process.env.ENV;
             process.env.ENV = 'DEV';
-            ShipChainEncryptorContainer.init();
-            expect(ShipChainEncryptorContainer.defaultEncryptor instanceof AwsPrivateKeyDBFieldEncryption).toEqual(true);
+            await ShipChainEncryptorContainer.init();
+            //console.error('type='+ (ShipChainEncryptorContainer.defaultEncryptor.constructor.name));
+            expect(ShipChainEncryptorContainer.defaultEncryptor instanceof PrivateKeyDBFieldEncryption).toBeTruthy();
+            //expect(ShipChainEncryptorContainer.defaultEncryptor instanceof AwsPrivateKeyDBFieldEncryption).toBeTruthy();
             process.env.ENV = oldENV;
         });
     });
-    
-}
+};

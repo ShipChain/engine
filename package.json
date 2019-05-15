@@ -53,7 +53,7 @@
     "lint": "eslint 'src/**/*.ts' 'rpc/**/*.ts' ",
     "lint-junit": "eslint 'src/**/*.ts' 'rpc/**/*.ts' --format junit -o reports/junit/lint-junit.xml ",
     "lint-html": "eslint  'src/**/*.ts' 'rpc/**/*.ts' --format html  -o reports/lint.html ",
-    "test": "jest --detectOpenHandles --forceExit --runInBand",
+    "test": "jest --detectOpenHandles --forceExit --runInBand --verbose=false",
     "server": "ts-node rpc-server.ts",
     "compile": "rm -rf ./dist && tsc",
     "forever": "forever --minUptime 5000 --spinSleepTime 5000 --plain --killTree --verbose --fifo dist/rpc-server.js",

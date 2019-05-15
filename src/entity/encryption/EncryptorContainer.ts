@@ -17,8 +17,6 @@ import { AwsPrivateKeyDBFieldEncryption } from '../../shipchain/AwsPrivateKeyDBF
 import { PrivateKeyDBFieldEncryption } from './PrivateKeyDBFieldEncryption';
 import { DBFieldEncryption } from './DBFieldEncryption';
 
-const ENV = process.env.ENV || 'LOCAL';
-
 export class EncryptorContainer {
     /**
      * This class may contain more types of encryptors. Or we can get encryptor
@@ -27,18 +25,18 @@ export class EncryptorContainer {
     protected static _defaultEncryptor: DBFieldEncryption = null;
 
     static get defaultEncryptor(): DBFieldEncryption {
-        if (this._defaultEncryptor == null) {
+        if (EncryptorContainer._defaultEncryptor == null) {
             throw new Error('EncryptorContainer init function not called!');
         } else {
-            return this._defaultEncryptor;
+            return EncryptorContainer._defaultEncryptor;
         }
     }
 
     static set defaultEncryptor(inputEncryptor: DBFieldEncryption) {
-        this._defaultEncryptor = inputEncryptor;
+        EncryptorContainer._defaultEncryptor = inputEncryptor;
     }
 
     static async init() {
-        this._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
+        EncryptorContainer._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();
     }
 }
