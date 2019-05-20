@@ -37,8 +37,10 @@ services:
 
   psql:
     image: sameersbn/postgresql:9.6-2
-    expose:
-      - 5432
+#    expose:
+#      - 5432
+    ports:
+      - 6000:5432
     environment:
       DB_NAME: engine
       DB_PASS: engine

@@ -20,6 +20,7 @@ import { Logger } from './src/Logger';
 import * as process from "process";
 import { getRDSconfig } from "./rdsconfig";
 import { Connection, createConnection, getConnectionOptions } from "typeorm";
+import { MetadataArgsStorage } from 'typeorm/metadata-args/MetadataArgsStorage';
 
 const logger = Logger.get(module.filename);
 
@@ -29,11 +30,10 @@ const logger = Logger.get(module.filename);
  */
 class Migration {
 
-    static async run() {
+    static async run(revert : boolean = false) {
 
         let connection: Connection | undefined = undefined;
         try {
-
             const defaultOptions = await getConnectionOptions();
             const rdsOptions = await getRDSconfig();
 
@@ -52,7 +52,12 @@ class Migration {
             connection = await createConnection(fullOptions);
 
             const options = { transaction: true };
-            await connection.runMigrations(options);
+            if (revert === false) {
+                await connection.runMigrations(options);
+            } else {
+                logger.info("running the undo last migration.");
+                await connection.undoLastMigration(options);
+            }
             await connection.close();
 
             // exit process if no errors
@@ -69,7 +74,12 @@ class Migration {
 
 
 try {
-    Migration.run();
+    if (process.argv[2] === '--revert') {
+        Migration.run(true);
+    }
+    else {
+        Migration.run();
+    }
 } catch (_err) {
     logger.error(`Error during migration run: ${_err}`);
 }

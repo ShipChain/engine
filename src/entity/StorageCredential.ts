@@ -39,7 +39,7 @@ export class StorageCredential extends BaseEntity {
     @Column('text') driver_type: string;
     @Column('text') base_path: string;
 
-    @Column('simple-json') options: string;
+    @Column('simple-json') options: object;
 
     static async generate_entity(attrs: StorageCredentialAttrs) {
         const credentials = new StorageCredential();
@@ -48,8 +48,9 @@ export class StorageCredential extends BaseEntity {
         credentials.base_path = attrs.base_path || './';
 
         //credentials.options = attrs.options || {};
-        const optionString: string = JSON.stringify({ jsonOption: attrs.options });
-        credentials.options = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
+        const optionString: string = JSON.stringify(attrs.options);
+        const encryptString = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
+        credentials.options = {'EncryptedJson' : encryptString};
         logger.debug(`Creating ${attrs.driver_type} StorageDriver ${attrs.title}`);
         return credentials;
     }
@@ -104,15 +105,17 @@ export class StorageCredential extends BaseEntity {
         }
 
         if (options) {
-            const optionString: string = JSON.stringify({ jsonOption: options });
-            this.options = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
+            const optionString: string = JSON.stringify(options);
+            const encryptString = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
+            this.options = {'EncryptedJson' : encryptString};
         }
 
         await this.save();
     }
 
     async getDriverOptions() {
-        const decrptedOptionString = await EncryptorContainer.defaultEncryptor.decrypt(this.options);
+        const encryptString = this.options['EncryptedJson'];
+        const decrptedOptionString = await EncryptorContainer.defaultEncryptor.decrypt(encryptString);
         const wrappedOptions = JSON.parse(decrptedOptionString);
         const decrptedOptions = wrappedOptions['jsonOption'];
         return {

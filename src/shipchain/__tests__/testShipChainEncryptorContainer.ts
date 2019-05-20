@@ -48,7 +48,13 @@ export const shipChainEncryptorContainerTests = async function() {
             await ShipChainEncryptorContainer.init();
             //console.error('type='+ (ShipChainEncryptorContainer.defaultEncryptor.constructor.name));
             expect(ShipChainEncryptorContainer.defaultEncryptor instanceof PrivateKeyDBFieldEncryption).toBeTruthy();
-            //expect(ShipChainEncryptorContainer.defaultEncryptor instanceof AwsPrivateKeyDBFieldEncryption).toBeTruthy();
+            //TODO: there may be a way to test this a little bit more with mocking. I
+            //think we can mock the encrypt function of both
+            //AwsPrivateKeyDBFieldEncryption and PrivateKeyDBFieldEncryption,
+            //and making them return different strings. Then we assert the
+            //strings here. But the problem is whether it is worthy doing at
+            //this moment after all the detailed debugging. 
+            //expect(ShipChainEncryptorContainer.PrivateKeyDBFieldEncryptionefaultEncryptor instanceof AwsPrivateKeyDBFieldEncryption).toBeTruthy();
             process.env.ENV = oldENV;
         });
     });
