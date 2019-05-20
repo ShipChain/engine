@@ -116,8 +116,7 @@ export class StorageCredential extends BaseEntity {
     async getDriverOptions() {
         const encryptString = this.options['EncryptedJson'];
         const decrptedOptionString = await EncryptorContainer.defaultEncryptor.decrypt(encryptString);
-        const wrappedOptions = JSON.parse(decrptedOptionString);
-        const decrptedOptions = wrappedOptions['jsonOption'];
+        const decrptedOptions = JSON.parse(decrptedOptionString);
         return {
             ...decrptedOptions,
             driver_type: this.driver_type,
