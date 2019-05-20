@@ -62,13 +62,13 @@ export const StorageCredentialEntityTests = async function() {
         await credential.update(newTitle);
         expect(credential.title).toEqual(newTitle);
 
-        const oldOptions = JSON.parse(await EncryptorContainer.defaultEncryptor.decrypt(credential.options))['jsonOption'];
+        const oldOptions = JSON.parse(await EncryptorContainer.defaultEncryptor.decrypt(credential.options['EncryptedJson']));
         expect(oldOptions).toEqual(attrs.options);
 
         // Update Options
         await credential.update(null, newOptions);
         expect(credential.title).toEqual(newTitle);
-        const unEncyptedOptions = JSON.parse(await EncryptorContainer.defaultEncryptor.decrypt(credential.options))['jsonOption'];
+        const unEncyptedOptions = JSON.parse(await EncryptorContainer.defaultEncryptor.decrypt(credential.options['EncryptedJson']));
         expect(unEncyptedOptions).toEqual(newOptions);
     });
 };

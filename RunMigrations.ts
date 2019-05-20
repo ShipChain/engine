@@ -53,9 +53,10 @@ class Migration {
 
             const options = { transaction: true };
             if (revert === false) {
+                logger.info("Running the forward migration.");
                 await connection.runMigrations(options);
             } else {
-                logger.info("running the undo last migration.");
+                logger.info("Running the UNDO last migration!");
                 await connection.undoLastMigration(options);
             }
             await connection.close();

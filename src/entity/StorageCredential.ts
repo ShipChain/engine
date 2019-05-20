@@ -50,7 +50,7 @@ export class StorageCredential extends BaseEntity {
         //credentials.options = attrs.options || {};
         const optionString: string = JSON.stringify(attrs.options);
         const encryptString = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
-        credentials.options = {'EncryptedJson' : encryptString};
+        credentials.options = { EncryptedJson: encryptString };
         logger.debug(`Creating ${attrs.driver_type} StorageDriver ${attrs.title}`);
         return credentials;
     }
@@ -107,7 +107,7 @@ export class StorageCredential extends BaseEntity {
         if (options) {
             const optionString: string = JSON.stringify(options);
             const encryptString = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
-            this.options = {'EncryptedJson' : encryptString};
+            this.options = { EncryptedJson: encryptString };
         }
 
         await this.save();
