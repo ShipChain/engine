@@ -16,13 +16,11 @@ export class StorageCredentialEncryptionOptions1558380631422 implements Migratio
     }
 
     public async up(queryRunner: QueryRunner): Promise<any> {
-        const connection = getConnection();
-        const scOptions = await connection
-        .getRepository(StorageCredential)
-        .find();
+
+        const scOptions = await queryRunner.manager.find(StorageCredential);
         const encryptor : DBFieldEncryption = await this.getEncyptHandler();
-        for (let sco of scOptions) {
-            const optionString: string = JSON.stringify(sco.options);
+        for (let sco of scOptions) { 
+            const optionString: string = JSON.stringify(sco.options || {});
             const encryptString = await encryptor.encrypt(optionString);
             sco.options = {'EncryptedJson' : encryptString};
             sco.save();
@@ -30,10 +28,7 @@ export class StorageCredentialEncryptionOptions1558380631422 implements Migratio
     }
     
     public async down(queryRunner: QueryRunner): Promise<any> {
-        const connection = getConnection();
-        const scOptions = await connection
-        .getRepository(StorageCredential)
-        .find();
+        const scOptions = await queryRunner.manager.find(StorageCredential);
         const encryptor : DBFieldEncryption = await this.getEncyptHandler();
         for (let sco of scOptions) {
             const decrptedOptionString = await encryptor.decrypt(sco.options['EncryptedJson']);
