@@ -1,0 +1,5 @@
+{
+    "EncryptorContainer" : {
+    "defaultEncryptor" : "PrivateKeyDBFieldEncryption"
+    } 
+}
