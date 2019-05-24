@@ -19,7 +19,7 @@ import { Logger } from './Logger';
 const config = require('config');
 
 const logger = Logger.get(module.filename);
-const ENVIRONMENT =  config.util.getEnv('NODE_CONFIG_ENV');
+const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV');
 
 export class MetricsReporter {
     private static _instance: MetricsReporter;

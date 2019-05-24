@@ -223,7 +223,7 @@ export class EventSubscription extends BaseEntity {
 
     private static async sendPostEvents(eventSubscription: EventSubscription, allEvents, resolve) {
         try {
-            let EVENT_CHUNK_SIZE = config.get("EVENT_CHUNK_SIZE");
+            let EVENT_CHUNK_SIZE = config.get('EVENT_CHUNK_SIZE');
             let chunkedEvents = arrayChunker(allEvents, EVENT_CHUNK_SIZE);
 
             for (let chunkIndex = 0; chunkIndex < chunkedEvents.length; chunkIndex++) {
