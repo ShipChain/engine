@@ -1,0 +1,10 @@
+{
+    "GETH_NODE" : "fdfd",
+
+}
+
+
+options that are available in tests:
+
+'Storage.S3.DRIVER_TESTS'
+'Storage.SFTP.DRIVER_TESTS'

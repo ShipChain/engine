@@ -21,6 +21,7 @@ import { StorageDriverFactory } from '../storage/StorageDriverFactory';
 import { DirectoryListing, DriverError, FileEntity } from '../storage/StorageDriver';
 import * as path from 'path';
 import * as fs from 'fs';
+const config = require('config');
 
 // https://staxmanade.com/2015/11/testing-asyncronous-code-with-mochajs-and-es7-async-await/
 // Automatically wrap a test case with try/catch and call the async done() when it's complete
@@ -35,22 +36,22 @@ const mochaAsync = fn => {
     };
 };
 
-const S3_DRIVER_TESTS = process.env.S3_DRIVER_TESTS || false;
-const SFTP_DRIVER_TESTS = process.env.SFTP_DRIVER_TESTS || false;
+const S3_DRIVER_TESTS = config.get('Storage.S3.S3_DRIVER_TESTS');
+const SFTP_DRIVER_TESTS = config.get('Storage.SFTP.SFTP_DRIVER_TESTS');
 
 // SFTP Configuration.  When run with `bin/docker_tests` this pulls environment variables from circleci.yml, or
 // uses defaults for the SFTP service started via `bin/dc up sftp`
-const SFTP_HOST = process.env.SFTP_HOST || 'localhost';
-const SFTP_PORT = process.env.SFTP_PORT || '2222';
-const SFTP_USER = process.env.SFTP_USER || 'shipchain_user';
-const SFTP_PASS = process.env.SFTP_PASS || 'shipchain_password';
+const SFTP_HOST = config.get('Storage.SFTP.SFTP_HOST');
+const SFTP_PORT = config.get('Storage.SFTP.SFTP_PORT');
+const SFTP_USER = config.get('Storage.SFTP.SFTP_USER');
+const SFTP_PASS = config.get('Storage.SFTP.SFTP_PASS');
 
 // S3 Configuration.  When run with `bin/docker_tests` this pulls environment variables from circleci.yml, or
 // uses defaults for the Minio service started via `bin/dc up sftp`
-const S3_ENDPOINT = process.env.S3_ENDPOINT || 'http://localhost:9099';
-const S3_BUCKET = process.env.S3_BUCKET || 'my-test-bucket';
-const S3_ACCESSKEY = process.env.S3_ACCESSKEY || 'myMinioAccessKey';
-const S3_SECRETKEY = process.env.S3_SECRETKEY || 'myMinioSecretKey';
+const S3_ENDPOINT = config.get('Storage.S3.S3_ENDPOINT');
+const S3_BUCKET = config.get('Storage.S3.S3_BUCKET');
+const S3_ACCESSKEY = config.get('Storage.S3.S3_ACCESSKEY');
+const S3_SECRETKEY = config.get('Storage.S3.S3_SECRETKEY');
 
 const epochDirectory = new Date().getTime().toString();
 const utf8HelloWorld = 'Hello, World! Привет мир! 你好，世界！';
