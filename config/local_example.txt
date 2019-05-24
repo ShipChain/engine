@@ -1,10 +1,9 @@
 {
     "GETH_NODE" : "fdfd",
-
+    "GPO_INTERVAL": 90000, 
+    "INFLUXDB_URL" :  "http://{host}:{port}/{database}"
+    "ELASTICSEARCH_URL" :  
 }
 
 
 options that are available in tests:
-
-'Storage.S3.DRIVER_TESTS'
-'Storage.SFTP.DRIVER_TESTS'

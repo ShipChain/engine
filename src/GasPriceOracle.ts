@@ -23,16 +23,17 @@ import { delay } from './utils';
 
 const requestPromise = require('request-promise-native');
 import Web3 from 'web3';
+const config = require('config');
 
 const logger = Logger.get(module.filename);
-const GETH_NODE = process.env.GETH_NODE;
+const GETH_NODE = config.get('GETH_NODE');
 const ENV = process.env.ENV;
 
 // Time (in minutes) that we don't want to wait longer than
 const DESIRED_WAIT_TIME: number = 2;
 
 // How often the gas price oracle re-calculates
-const CALCULATION_INTERVAL: number = Number(process.env.GPO_INTERVAL) || 1.5 * AsyncPoll.MINUTES;
+const CALCULATION_INTERVAL: number = Number(config.get('GPO_INTERVAL')) || 1.5 * AsyncPoll.MINUTES;
 
 // Gas Price Oracle service to handle background updates of the most
 // recent gas price estimates.  This will run every CALCULATION_INTERVAL

@@ -1,5 +1,12 @@
 {
-    "EncryptorContainer" : {
-    "defaultEncryptor" : "PrivateKeyDBFieldEncryption"
-    }
+    "EncryptorContainer": {
+        "defaultEncryptor": "PrivateKeyDBFieldEncryption"
+    },
+    "MetricPointTag" : "LOCAL",
+    "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
+    "LOCAL_SECRET_KEY" : "0x0000000000000000000000000000000000000000000000000000000000000001",
+    "EVENT_CHUNK_SIZE" : 50, 
+    "LOGGING_LEVEL" : "info",
+    "CLOUDWATCH_LEVEL" : "info",
+    "ELASTICSEARCH_LEVEL" : "info"
 }

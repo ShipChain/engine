@@ -21,6 +21,7 @@ const appRoot = require('app-root-path');
 const path = require('path');
 const ElasticSearch = require('winston-elasticsearch');
 const WinstonCloudWatch = require('winston-cloudwatch');
+const config = require('config');
 
 /**
  * We're using the default npm levels
@@ -33,12 +34,12 @@ const WinstonCloudWatch = require('winston-cloudwatch');
  */
 
 const ENGINE_LOGGER_NAME = 'engine';
-const ENV = process.env.ENV || 'LOCAL';
+const ENV = config.util.getEnv('NODE_CONFIG_ENV');
 
-const LOGGING_LEVEL = process.env.LOGGING_LEVEL || 'info';
-const CLOUDWATCH_LEVEL = process.env.CLOUDWATCH_LEVEL || LOGGING_LEVEL;
-const ELASTICSEARCH_LEVEL = process.env.ELASTICSEARCH_LEVEL || LOGGING_LEVEL;
-const ELASTICSEARCH_URL = process.env.ELASTICSEARCH_URL;
+const LOGGING_LEVEL = config.get("LOGGING_LEVEL");
+const CLOUDWATCH_LEVEL = config.get("CLOUDWATCH_LEVEL");
+const ELASTICSEARCH_LEVEL = config.get("ELASTICSEARCH_LEVEL");
+
 
 const PROCESS_UNIQUENESS = uuidv4();
 
@@ -150,7 +151,8 @@ export class Logger {
 
         // Add ElasticSearch if we're running in a deployed environment
         // ------------------------------------------------------------
-        if ((ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') && ELASTICSEARCH_URL != null) {
+        if (config.has("ELASTICSEARCH_URL")) {
+            const ELASTICSEARCH_URL : string = config.get("ELASTICSEARCH_URL");
             es_enabled = true;
 
             engine_transports.push(
