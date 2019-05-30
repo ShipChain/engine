@@ -281,16 +281,13 @@ export class EventSubscription extends BaseEntity {
                 let options = {
                     url: eventSubscription.url + '/events/_doc',
                     json: {
-                        events: {
-                            network_id: eventSubscription.contract.network.id,
-                            network_title: eventSubscription.contract.network.title,
-                            project_id: eventSubscription.contract.project.id,
-                            project_title: eventSubscription.contract.project.title,
-                            version_id: eventSubscription.contract.version.id,
-                            version_title: eventSubscription.contract.version.title,
-                            ...event,
-                        },
-                        project: eventSubscription.project,
+                        network_id: eventSubscription.contract.network.id,
+                        network_title: eventSubscription.contract.network.title,
+                        project_id: eventSubscription.contract.project.id,
+                        project_title: eventSubscription.contract.project.title,
+                        version_id: eventSubscription.contract.version.id,
+                        version_title: eventSubscription.contract.version.title,
+                        ...event,
                     },
                     timeout: 1 * SECONDS,
                 };
