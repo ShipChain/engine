@@ -253,7 +253,10 @@ export class EventSubscription extends BaseEntity {
     private static async sendPostEventsChunk(eventSubscription: EventSubscription, chunk, highestChunkBlock) {
         let options = {
             url: eventSubscription.url,
-            json: chunk,
+            json: {
+                events: chunk,
+                project: eventSubscription.project,
+            },
             timeout: 90 * SECONDS,
         };
 
