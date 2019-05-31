@@ -6,5 +6,6 @@
     "isDeployedStage" : true, 
     "isDeployingLocalContracts" : true,
     "masterPrivateKeySecretName" : "ENGINE_SECRET_KEY_PROD",
+    "isGettingBestGasStationPriceNeeded" : true,
     "GETH_NETWORK" : "mainnet"
 }

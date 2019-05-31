@@ -12,5 +12,6 @@
     "CONTRACT_FIXTURES_URL" : "https://s3.amazonaws.com/shipchain-contracts/meta.json",
     "DATABASE_URL" : "psql://engine:engine@psql:5432/engine",
     "isDeployedStage" : false,
+    "isGettingBestGasStationPriceNeeded" : false,
     "isDeployingLocalContracts" : true
 }

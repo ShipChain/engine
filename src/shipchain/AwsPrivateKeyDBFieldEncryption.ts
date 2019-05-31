@@ -20,7 +20,6 @@ import EthCrypto from 'eth-crypto';
 import { getAwsSecret } from './utils';
 const config = require('config');
 
-
 export class AwsPrivateKeyDBFieldEncryption extends PrivateKeyDBFieldEncryption {
     static async getInstance(): Promise<DBFieldEncryption> {
         if (!this._instance) {
@@ -36,7 +35,7 @@ export class AwsPrivateKeyDBFieldEncryption extends PrivateKeyDBFieldEncryption 
     }
 
     protected async getMasterPrivateKey(): Promise<string> {
-        let secret = await getAwsSecret(config.get("masterPrivateKeySecretName"))
+        let secret = await getAwsSecret(config.get('masterPrivateKeySecretName'));
         return secret.SECRET_KEY;
     }
 }

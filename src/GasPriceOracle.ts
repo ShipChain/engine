@@ -27,7 +27,6 @@ const config = require('config');
 
 const logger = Logger.get(module.filename);
 const GETH_NODE = config.get('GETH_NODE');
-const ENV = process.env.ENV;
 
 // Time (in minutes) that we don't want to wait longer than
 const DESIRED_WAIT_TIME: number = 2;
@@ -109,8 +108,9 @@ export class GasPriceOracle {
         const allPrices = [];
         let ethGasStationCalculation: EthGasStationCalculation;
 
-        // Only include EthGasStation request if we're running against Mainnet (PROD)
-        if (ENV === 'PROD') {
+        // Only include EthGasStation request if we're running against Mainnet
+        // (PROD)
+        if (config.get('isGettingBestGasStationPriceNeeded')) {
             ethGasStationCalculation = await this.getEthGasStationBestPrice();
 
             // Weight towards the EthGasStation price since it's based on a wait time instead of just a median value
