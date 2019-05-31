@@ -60,7 +60,7 @@ export class RPCStorageCredentials {
         // Local driver type is disabled in environment other than LOCAL
         // and storage credentials creation is disabled for unrecognizable driver type
         if (
-            (!config.get('isDeployedStage') && args.driver_type === 'local') ||
+            (config.get('isDeployedStage') && args.driver_type === 'local') ||
             driverType.indexOf(args.driver_type) < 0
         ) {
             throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
@@ -145,7 +145,7 @@ export class RPCStorageCredentials {
         // Local driver type is disabled in environment other than LOCAL
         // and storage credentials creation is disabled for unrecognizable driver type
         if (
-            (!config.get('isDeployedStage') && args.driver_type === 'local') ||
+            (config.get('isDeployedStage') && args.driver_type === 'local') ||
             driverType.indexOf(args.driver_type) < 0
         ) {
             throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
