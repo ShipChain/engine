@@ -18,7 +18,6 @@
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "EVENT_CHUNK_SIZE" : 1, 
     "isDeployedStage" : false, 
-    "masterPrivateKeySecretName" : "ENGINE_SECRET_KEY_LOCAL",
     "isDeployingLocalContracts" : true
 
 }
