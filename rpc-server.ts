@@ -46,10 +46,11 @@ import {ShipChainEncryptorContainer} from "./src/shipchain/ShipChainEncryptorCon
 const typeorm = require("typeorm");
 const rpc = require("json-rpc2");
 const process = require("process");
+const config = require('config');
 
 
 const metrics = MetricsReporter.Instance;
-const PORT = process.env.PORT || 2000;
+const PORT = config.get("RPC_SERVER_PORT");
 
 const RpcNamespaces = {};
 

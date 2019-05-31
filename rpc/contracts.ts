@@ -20,13 +20,11 @@ import { Wallet } from '../src/entity/Wallet';
 import { Logger } from '../src/Logger';
 
 const typeorm = require('typeorm');
+const config = require('config');
 const test_net_utils = require('../src/local-test-net-utils');
 
 const logger = Logger.get(module.filename);
-const ENV = process.env.ENV || 'LOCAL';
-const GETH_NETWORK = process.env.GETH_NETWORK;
-const CONTRACT_FIXTURES_URL =
-    process.env.CONTRACT_FIXTURES_URL || 'https://s3.amazonaws.com/shipchain-contracts/meta.json';
+const CONTRACT_FIXTURES_URL = config.get('CONTRACT_FIXTURES_URL');
 
 // Latest supported versions of the contracts
 const LATEST_SHIPTOKEN = '1.0.0';
@@ -105,13 +103,8 @@ export class LoadedContracts {
 async function getNetwork(contractMetaData) {
     let network;
 
-    // Override network from environment
-    if (GETH_NETWORK) {
-        network = GETH_NETWORK;
-    }
-
     // Or determine based on ENV environment setting
-    else if (ENV === 'DEV' || ENV === 'LOCAL') {
+    if (config.get('isDeployingLocalContracts')) {
         logger.info(`Deploying local contracts`);
 
         const deployedContracts = await test_net_utils.setupLocalTestNetContracts(
@@ -124,12 +117,9 @@ async function getNetwork(contractMetaData) {
 
         network = deployedContracts.LOAD.network.title;
     } else {
-        if (ENV === 'STAGE') {
-            network = 'ropsten';
-        } else if (ENV === 'DEMO') {
-            network = 'rinkeby';
-        } else if (ENV === 'PROD') {
-            network = 'mainnet';
+        // Override network from config
+        if (config.has('GETH_NETWORK')) {
+            network = config.get('GETH_NETWORK');
         } else {
             throw new Error('Unable to determine appropriate Ethereum Network!');
         }

@@ -19,10 +19,9 @@ import { StorageCredential } from '../src/entity/StorageCredential';
 import { MetricsReporter } from '../src/MetricsReporter';
 import * as path from 'path';
 import { StorageDriverFactory } from '../src/storage/StorageDriverFactory';
+const config = require('config');
 
 const metrics = MetricsReporter.Instance;
-
-const ENV = process.env.ENV || 'LOCAL';
 
 const driverType = ['s3', 'sftp', 'local'];
 
@@ -60,7 +59,10 @@ export class RPCStorageCredentials {
     public static async Create(args) {
         // Local driver type is disabled in environment other than LOCAL
         // and storage credentials creation is disabled for unrecognizable driver type
-        if ((ENV != 'LOCAL' && args.driver_type === 'local') || driverType.indexOf(args.driver_type) < 0) {
+        if (
+            (!config.get('isDeployedStage') && args.driver_type === 'local') ||
+            driverType.indexOf(args.driver_type) < 0
+        ) {
             throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
         }
 
@@ -142,7 +144,10 @@ export class RPCStorageCredentials {
     public static async TestAndStore(args) {
         // Local driver type is disabled in environment other than LOCAL
         // and storage credentials creation is disabled for unrecognizable driver type
-        if ((ENV != 'LOCAL' && args.driver_type === 'local') || driverType.indexOf(args.driver_type) < 0) {
+        if (
+            (!config.get('isDeployedStage') && args.driver_type === 'local') ||
+            driverType.indexOf(args.driver_type) < 0
+        ) {
             throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
         }
 

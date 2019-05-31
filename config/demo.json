@@ -1,5 +1,9 @@
 {
     "EncryptorContainer" : {
     "defaultEncryptor" : "AwsPrivateKeyDBFieldEncryption"
-    } 
+    },
+    "isDeployingLocalContracts" : true,
+    "rdsAwsSecretKey" : "ENGINE_RDS_DEMO",
+    "GETH_NETWORK" : "rinkeby",
+    "isDeployedStage" : true 
 }

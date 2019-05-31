@@ -24,7 +24,7 @@ const config = require('config');
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 
-const REDIS_URL = config.get('ReditUrl');
+const REDIS_URL = config.get('REDIS_URL');
 
 let redisClient = null;
 let redlock = null;

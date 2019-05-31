@@ -7,3 +7,7 @@
 
 
 options that are available in tests:
+
+    "ES_TEST_NODE_URL" : "http://elasticsearch:920"
+
+    local and test should not have "rdsAwsSecretKey"

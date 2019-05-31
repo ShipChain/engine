@@ -1,9 +1,9 @@
 {
     "EncryptorContainer" : {
     "defaultEncryptor" : "AwsPrivateKeyDBFieldEncryption"
-    }, 
-    "rdsAwsSecretKey" : "ENGINE_RDS_PROD",
+    },
     "isDeployedStage" : true, 
+    "rdsAwsSecretKey" : "ENGINE_RDS_STAGE",
     "isDeployingLocalContracts" : true,
-    "GETH_NETWORK" : "mainnet"
+    "GETH_NETWORK" :  "ropsten"
 }

@@ -14,5 +14,10 @@
             "S3_SECRETKEY": "myMinioSecretKey",
             "S3_DRIVER_TESTS": false
         }
-    }
+    },
+    "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
+    "EVENT_CHUNK_SIZE" : 1, 
+    "isDeployedStage" : false, 
+    "isDeployingLocalContracts" : true
+
 }
