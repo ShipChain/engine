@@ -4,5 +4,6 @@
     },
     "rdsAwsSecretKey" : "ENGINE_RDS_DEV",
     "isDeployingLocalContracts" : true, 
+    "masterPrivateKeySecretName" : "ENGINE_SECRET_KEY_DEV",
     "isDeployedStage" : true 
 }

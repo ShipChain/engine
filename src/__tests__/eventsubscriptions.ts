@@ -25,7 +25,6 @@ import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 const request = require('request');
 const config = require('config');
 const utils = require('../local-test-net-utils');
-//const ES_NODE = process.env.ES_TEST_NODE_URL || false;
 
 // These are the versions we are testing
 const LATEST_SHIPTOKEN = "1.0.0";

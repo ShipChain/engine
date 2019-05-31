@@ -28,8 +28,6 @@ export const EventSubscriptionPostsTests = async function() {
     const EVENTS = [{"blockNumber": 1}, {"blockNumber": 2}];
 
     it(`Tracks highestChunkBlock with failure before any chunks are done`, async() => {
-        process.env.EVENT_CHUNK_SIZE = "1";
-
         const thisNock = nock(TEST_URL)
             .post(TEST_URL_PATH).reply(400, "Error");
 
@@ -56,8 +54,6 @@ export const EventSubscriptionPostsTests = async function() {
     });
 
     it(`Tracks highestChunkBlock with failure before all chunks are done`, async() => {
-        process.env.EVENT_CHUNK_SIZE = "1";
-
         const thisNock = nock(TEST_URL)
             .post(TEST_URL_PATH).reply(204)
             .post(TEST_URL_PATH).reply(400, "Error");
@@ -85,8 +81,6 @@ export const EventSubscriptionPostsTests = async function() {
     });
 
     it(`Tracks highestChunkBlock when all chunks are successful`,  async() => {
-        process.env.EVENT_CHUNK_SIZE = "1";
-
         const thisNock = nock(TEST_URL)
             .post(TEST_URL_PATH).reply(204)
             .post(TEST_URL_PATH).reply(204);

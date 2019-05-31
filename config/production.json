@@ -5,5 +5,6 @@
     "rdsAwsSecretKey" : "ENGINE_RDS_PROD",
     "isDeployedStage" : true, 
     "isDeployingLocalContracts" : true,
+    "masterPrivateKeySecretName" : "ENGINE_SECRET_KEY_PROD",
     "GETH_NETWORK" : "mainnet"
 }
