@@ -242,7 +242,7 @@ export class Version extends BaseEntity {
                     logger.debug(`\tLocal Test Net Account: ${account}`);
                     driver
                         .deploy({ data: this.bytecode })
-                        .send({ from: account, gasLimit: 134217728 }, (err, tx_hash) => {
+                        .send({ from: account, gasLimit: 8000000 }, (err, tx_hash) => {
                             contract.deploy_tx_id = tx_hash;
                             logger.debug(`\tDeploy TX ID: ${tx_hash}`);
                         })

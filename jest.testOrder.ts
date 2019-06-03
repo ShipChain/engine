@@ -141,6 +141,6 @@ describe('ShipChain', async () => {
     }, 10000);
 
     describe('LOAD Vault', LoadVaultTests);
-    describe('Test The ShipChainEncrptorContainer', shipChainEncryptorContainerTests);
+    describe('ShipChainEncryptorContainer', shipChainEncryptorContainerTests);
 
 });

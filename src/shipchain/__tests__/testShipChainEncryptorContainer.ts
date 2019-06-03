@@ -18,7 +18,6 @@ require('../../__tests__/testLoggingConfig');
 
 import 'mocha'
 
-import '../ShipChainEncryptorContainer'
 import { ShipChainEncryptorContainer } from '../ShipChainEncryptorContainer';
 import { AwsPrivateKeyDBFieldEncryption } from '../../shipchain/AwsPrivateKeyDBFieldEncryption';
 import { PrivateKeyDBFieldEncryption } from '../../entity/encryption/PrivateKeyDBFieldEncryption'

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AwsPrivateKeyDBFieldEncryption } from '../../shipchain/AwsPrivateKeyDBFieldEncryption';
 import { PrivateKeyDBFieldEncryption } from './PrivateKeyDBFieldEncryption';
 import { DBFieldEncryption } from './DBFieldEncryption';
 
@@ -35,10 +34,6 @@ export class EncryptorContainer {
     static clear(): void {
         EncryptorContainer._defaultEncryptor = null;
     }
-
-    // static set defaultEncryptor(inputEncryptor: DBFieldEncryption) {
-    //     EncryptorContainer._defaultEncryptor = inputEncryptor;
-    // }
 
     static async init() {
         EncryptorContainer._defaultEncryptor = await PrivateKeyDBFieldEncryption.getInstance();

@@ -46,7 +46,6 @@ export class StorageCredential extends BaseEntity {
         credentials.driver_type = attrs.driver_type;
         credentials.base_path = attrs.base_path || './';
 
-        //credentials.options = attrs.options || {};
         const optionString: string = JSON.stringify(attrs.options || {});
         const encryptString = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
         credentials.options = { EncryptedJson: encryptString };
@@ -114,10 +113,10 @@ export class StorageCredential extends BaseEntity {
 
     async getDriverOptions() {
         const encryptString = this.options['EncryptedJson'];
-        const decrptedOptionString = await EncryptorContainer.defaultEncryptor.decrypt(encryptString);
-        const decrptedOptions = JSON.parse(decrptedOptionString);
+        const decryptedOptionString = await EncryptorContainer.defaultEncryptor.decrypt(encryptString);
+        const decryptedOptions = JSON.parse(decryptedOptionString);
         return {
-            ...decrptedOptions,
+            ...decryptedOptions,
             driver_type: this.driver_type,
             base_path: this.base_path,
             __id: this.id,

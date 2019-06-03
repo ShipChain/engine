@@ -8,7 +8,7 @@ export class StorageCredentialEncryptionOptions1558380631422 implements Migratio
 
     private async getEncyptHandler() : Promise<DBFieldEncryption> {
         const ENV = process.env.ENV || 'LOCAL';
-        if (ENV === "DEV" || ENV === "STAGE" || ENV === "PROD") {
+        if (ENV === "DEV" || ENV === "STAGE" || ENV === "PROD" || ENV==="DEMO") {
                 return await AwsPrivateKeyDBFieldEncryption.getInstance();
             } else {
                 return await PrivateKeyDBFieldEncryption.getInstance();

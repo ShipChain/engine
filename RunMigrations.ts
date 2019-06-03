@@ -20,7 +20,6 @@ import { Logger } from './src/Logger';
 import * as process from "process";
 import { getRDSconfig } from "./rdsconfig";
 import { Connection, createConnection, getConnectionOptions } from "typeorm";
-import { MetadataArgsStorage } from 'typeorm/metadata-args/MetadataArgsStorage';
 
 const logger = Logger.get(module.filename);
 
