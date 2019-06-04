@@ -30,7 +30,7 @@ export abstract class BaseContract {
             this._contract = contract;
             this._network = contract.network;
             this._eth = this._network.getDriver().eth;
-            this._utils = this._eth.extend.utils;
+            this._utils = this._network.getDriver().utils;
         });
     }
 

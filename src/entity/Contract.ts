@@ -340,7 +340,7 @@ export class Network extends BaseEntity {
                         callbacks.call('error', [err]);
                     }
                     reject(err);
-                })
+                }),
         );
     }
 }
