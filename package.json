@@ -25,10 +25,10 @@
     "rimraf": "^2.6.2",
     "ssh2-sftp-client": "2.5.0",
     "ts-node": "^7.0.1",
-    "typeorm": "^0.2.9",
-    "typescript": "^3.2.4",
+    "typeorm": "0.2.9",
+    "typescript": "3.2.4",
     "uuid": "^3.3.2",
-    "web3": "1.0.0-beta.34",
+    "web3": "1.0.0-beta.55",
     "winston": "^3.1.0",
     "winston-cloudwatch": "^2.0.3",
     "winston-elasticsearch": "^0.7.5"
