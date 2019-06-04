@@ -24,7 +24,7 @@ import { Logger } from '../Logger';
 
 // Import Moment Typings and Functions
 import { Moment } from 'moment';
-import * as moment from 'moment';
+import moment from 'moment';
 
 const logger = Logger.get(module.filename);
 
