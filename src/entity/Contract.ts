@@ -29,7 +29,6 @@ import { MetricsReporter } from '../MetricsReporter';
 import { GasPriceOracle } from '../GasPriceOracle';
 
 const fs = require('fs');
-// const Web3 = require('web3');
 import Web3 from 'web3';
 const EthereumTx = require('ethereumjs-tx');
 const requestPromise = require('request-promise-native');
