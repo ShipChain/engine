@@ -61,7 +61,7 @@ export const ContractEntityTests = async function() {
 
             const txParams = await owner.add_tx_params(
                 local.network,
-                await local.ShipToken.build_transaction('transfer', [other.address, 100 * SHIP]),
+                await local.ShipToken.build_transaction('transfer', [other.address, local.web3.utils.toBN(100 * SHIP).toString()]),
             );
 
             const [signed_tx, txHash] = await owner.sign_tx(txParams);

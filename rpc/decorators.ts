@@ -20,7 +20,7 @@ import { Logger } from '../src/Logger';
 
 // Import Moment Typings and Functions
 import { Moment } from 'moment';
-import * as moment from 'moment';
+import moment from 'moment';
 const MOMENT_FORMAT: string = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
 const rpc = require('json-rpc2');

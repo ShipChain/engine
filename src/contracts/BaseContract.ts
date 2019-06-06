@@ -30,7 +30,7 @@ export abstract class BaseContract {
             this._contract = contract;
             this._network = contract.network;
             this._eth = this._network.getDriver().eth;
-            this._utils = this._eth.extend.utils;
+            this._utils = this._network.getDriver().utils;
         });
     }
 
@@ -50,6 +50,18 @@ export abstract class BaseContract {
         const staticResponse = await this._contract.call_static(method, args);
 
         let transformedResponse = staticResponse;
+
+        // If this is a single value response, there's no nested properties
+        if (Object.keys(staticResponse).length === 1 && staticResponse.hasOwnProperty('_hex')) {
+            transformedResponse = this._utils.toBN(staticResponse).toString();
+        }
+
+        // Web3.js beta55 returns uint256 values as {"_hex": "0x00"}
+        for (let property of Object.keys(staticResponse)) {
+            if (Object.keys(staticResponse[property]).length === 1 && staticResponse[property].hasOwnProperty('_hex')) {
+                transformedResponse[property] = this._utils.toBN(staticResponse[property]).toString();
+            }
+        }
 
         if (transform) {
             transformedResponse = {};

@@ -22,7 +22,7 @@ import { MetricsReporter } from './MetricsReporter';
 import { delay } from './utils';
 
 const requestPromise = require('request-promise-native');
-const Web3 = require('web3');
+import Web3 from 'web3';
 
 const logger = Logger.get(module.filename);
 const GETH_NODE = process.env.GETH_NODE;
@@ -30,9 +30,6 @@ const ENV = process.env.ENV;
 
 // Time (in minutes) that we don't want to wait longer than
 const DESIRED_WAIT_TIME: number = 2;
-
-// Default gas price in case no services are returning values (likely will never be used)
-const DEFAULT_GAS_PRICE = Web3.utils.toWei('20', 'gwei');
 
 // How often the gas price oracle re-calculates
 const CALCULATION_INTERVAL: number = Number(process.env.GPO_INTERVAL) || 1.5 * AsyncPoll.MINUTES;
@@ -55,8 +52,10 @@ export class GasPriceOracle {
         if (!GETH_NODE) {
             throw new Error('No setting for GETH_NODE found!');
         }
-        this.web3 = new Web3(new Web3.providers.HttpProvider(GETH_NODE));
-        this._gasPrice = DEFAULT_GAS_PRICE;
+        this.web3 = new Web3(GETH_NODE);
+
+        // Default gas price in case no services are returning values (likely will never be used)
+        this._gasPrice = this.web3.utils.toWei('20', 'gwei');
         this.gasPriceMetrics = GasPriceOracleMetrics.Instance;
     }
 
@@ -128,7 +127,7 @@ export class GasPriceOracle {
         priceAverage = Number(priceAverage.toFixed(2));
 
         // Prevent too rapid growth of gas price used
-        let previousGasPrice = Number(Web3.utils.fromWei(this._gasPrice, 'gwei'));
+        let previousGasPrice = Number(this.web3.utils.fromWei(this._gasPrice, 'gwei'));
         priceAverage = Math.min(priceAverage, 4 * previousGasPrice);
 
         this.gasPriceMetrics.gasPriceSingle('calculated', priceAverage);
@@ -141,7 +140,7 @@ export class GasPriceOracle {
         }
 
         // toWei prefers a string representation of the input number
-        this._gasPrice = Web3.utils.toWei(`${priceAverage}`, 'gwei');
+        this._gasPrice = this.web3.utils.toWei(`${priceAverage}`, 'gwei');
     }
 
     // Pull data from the EthGasStation and find the gas price that gives us the desired wait time
@@ -230,7 +229,7 @@ export class GasPriceOracle {
     // Get the 60% Median gas price of the last 20 blocks by the eth_gasPrice call
     // ---------------------------------------------------------------------------
     private async getWeb3OracleGasPrice(): Promise<number> {
-        const web3oracleGasPrice = Number(Web3.utils.fromWei(`${await this.web3.eth.getGasPrice()}`, 'gwei'));
+        const web3oracleGasPrice = Number(this.web3.utils.fromWei(`${await this.web3.eth.getGasPrice()}`, 'gwei'));
         logger.debug(`Web3 Gas Price Oracle: ${web3oracleGasPrice} gwei`);
         this.gasPriceMetrics.gasPriceSingle('web3', web3oracleGasPrice);
         return web3oracleGasPrice;

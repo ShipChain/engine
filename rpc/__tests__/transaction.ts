@@ -19,7 +19,7 @@ require('../../src/__tests__/testLoggingConfig');
 
 import 'mocha';
 import * as typeorm from "typeorm";
-import * as Transaction from 'ethereumjs-tx';
+const EthereumTx = require('ethereumjs-tx');
 import {
     mochaAsync,
     expectMissingRequiredParams,
@@ -120,11 +120,14 @@ export const RPCTransactions = async function() {
                     txUnsigned: txUnsigned,
                 });
 
+                const txResponse = new EthereumTx(response.transaction);
+                const validTx = txResponse.validate();
+
                 expect(response).toBeDefined();
                 expect(response.success).toBeTruthy();
                 expect(response.hash).toMatch(/^0x[a-f0-9]{64}$/);
-                expect(response.transaction).toBeInstanceOf(Transaction);
-                txSigned = response.transaction;
+                expect(validTx).toBeTruthy();
+                txSigned = txResponse;
             } catch (err){
                 fail(`Should not have thrown [${err}]`);
             }

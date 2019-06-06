@@ -59,14 +59,15 @@ export async function setupLocalTestNetContracts(latest: LatestContractFormat, w
     for (let wallet of wallets) {
         /* Keep Owner wallet happy */
         let current_balance = await web3.eth.getBalance(wallet.address);
-        if (current_balance <= 2.5 * ETH) {
+
+        if (web3.utils.toBN(current_balance).cmp(web3.utils.toBN(2.5 * ETH)) <= 0) {
             logger.info(`${wallet.address} is low on ETH, refilling: ${current_balance}`);
             await new Promise((resolve, reject) =>
                 web3.eth
                     .sendTransaction({
                         from: accounts[0],
                         to: wallet.address,
-                        value: 5 * ETH,
+                        value: web3.utils.toBN(5 * ETH).toString(),
                     })
                     .on('receipt', receipt => {
                         resolve();
@@ -79,19 +80,22 @@ export async function setupLocalTestNetContracts(latest: LatestContractFormat, w
 
         /* and mint 500 ship */
         let current_ship_balance = await local_token['call_static']('balanceOf', [wallet.address]);
-        if (current_ship_balance <= 250 * ETH) {
+        if (web3.utils.toBN(current_ship_balance).cmp(web3.utils.toBN(250 * ETH)) <= 0) {
             logger.info(`${wallet.address} is low on SHIP, refilling: ${current_ship_balance}`);
             await new Promise((resolve, reject) =>
                 token_driver.methods
-                    .mint(wallet.address, 500 * ETH)
+                    .mint(wallet.address, web3.utils.toBN(500 * ETH).toString())
                     .send({ from: accounts[0] })
                     .on('receipt', resolve)
                     .on('error', reject),
             );
         }
 
-        current_balance = (await web3.eth.getBalance(wallet.address)) / ETH;
-        current_ship_balance = (await local_token['call_static']('balanceOf', [wallet.address])) / ETH;
+        current_balance = await web3.eth.getBalance(wallet.address);
+        current_balance = web3.utils.fromWei(current_balance, 'ether');
+
+        current_ship_balance = web3.utils.toBN(await local_token['call_static']('balanceOf', [wallet.address]));
+        current_ship_balance = web3.utils.fromWei(current_ship_balance, 'ether');
 
         logger.info(`${wallet.address} ETH  Balance: ${current_balance}`);
         logger.info(`${wallet.address} SHIP  Balance: ${current_ship_balance}`);
