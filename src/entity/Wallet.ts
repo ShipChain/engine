@@ -196,7 +196,7 @@ export class Wallet extends BaseEntity {
 
     async add_tx_params(network, txParams) {
         const driver = network.getDriver();
-        const hex_i = i => (Number.isInteger(i) ? Web3.utils.toHex(i) : i);
+        const hex_i = i => (Number.isInteger(i) ? driver.utils.toHex(i) : i);
         return {
             nonce: hex_i(txParams.nonce || (await driver.eth.getTransactionCount(this.address))),
             chainId: txParams.chainId || (await driver.eth.net.getId()),

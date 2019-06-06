@@ -29,7 +29,7 @@ import { MetricsReporter } from '../MetricsReporter';
 import { GasPriceOracle } from '../GasPriceOracle';
 
 const fs = require('fs');
-const Web3 = require('web3');
+import Web3 from 'web3';
 const EthereumTx = require('ethereumjs-tx');
 const requestPromise = require('request-promise-native');
 
@@ -231,31 +231,30 @@ export class Version extends BaseEntity {
 
         const driver = new eth.Contract(parsed_abi);
 
-        // const await_accounts = await eth.getAccounts();
+        return new Promise(async (resolve, reject) => {
+            const accounts = await eth.getAccounts();
+            let account = accounts[0];
 
-        return new Promise((resolve, reject) => {
-            eth.getAccounts((err, acc) => {
-                if (err) {
+            logger.debug(`Local Test Net Account: ${account}`);
+            driver
+                .deploy({ data: this.bytecode })
+                .send({ from: account, gas: 8000000 })
+                .on('receipt', receipt => {
+                    logger.debug(`Deploy Address: ${receipt.contractAddress}`);
+                    contract.address = receipt.contractAddress;
+                    contract.deploy_date = new Date();
+                    contract.deploy_author = account;
+                    contract.save().then(() => resolve(contract));
+                })
+                .on('transactionHash', async txHash => {
+                    logger.debug(`Deploy TX ID: ${txHash}`);
+                    contract.deploy_tx_id = txHash;
+                    await contract.save();
+                })
+                .on('error', err => {
+                    logger.debug(`ERROR ${err}`);
                     reject(err);
-                } else {
-                    let account = acc[0];
-                    logger.debug(`\tLocal Test Net Account: ${account}`);
-                    driver
-                        .deploy({ data: this.bytecode })
-                        .send({ from: account, gasLimit: 8000000 }, (err, tx_hash) => {
-                            contract.deploy_tx_id = tx_hash;
-                            logger.debug(`\tDeploy TX ID: ${tx_hash}`);
-                        })
-                        .on('receipt', receipt => {
-                            logger.debug('\tDeploy Address:', receipt.contractAddress);
-                            contract.address = receipt.contractAddress;
-                            contract.deploy_date = new Date();
-                            contract.deploy_author = account;
-                            contract.save().then(() => resolve(contract));
-                        })
-                        .on('error', reject);
-                }
-            });
+                });
         });
     }
 
@@ -300,12 +299,7 @@ export class Network extends BaseEntity {
 
     static async getLocalTestNetAccounts() {
         const local_net = await Network.getLocalTestNet();
-        return await new Promise((resolve, reject) => {
-            local_net.getDriver().eth.getAccounts((err, accounts) => {
-                if (err) reject(err);
-                else resolve(accounts);
-            });
-        });
+        return await local_net.getDriver().eth.getAccounts();
     }
 
     getDriver() {
@@ -313,7 +307,12 @@ export class Network extends BaseEntity {
         if (!GETH_NODE) {
             throw new Error('No setting for GETH_NODE found!');
         }
-        this._driver = new Web3(new Web3.providers.HttpProvider(GETH_NODE));
+        const web3Options = {
+            transactionBlockTimeout: 50,
+            transactionConfirmationBlocks: 1,
+            transactionPollingTimeout: 480,
+        };
+        this._driver = new Web3(GETH_NODE, null, web3Options);
         this._driver._entity = this;
         return this._driver;
     }
@@ -467,7 +466,7 @@ export class Contract extends BaseEntity {
         // we need to support converting either to hex
         const hex_i = i => {
             if (Number.isInteger(i)) {
-                return Web3.utils.toHex(i);
+                return this.network.getDriver().utils.toHex(i);
             }
             if (driver._utils.isBN(i)) {
                 return driver._utils.BN(i).toString(16);
