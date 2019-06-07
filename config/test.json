@@ -18,6 +18,9 @@
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "EVENT_CHUNK_SIZE" : 1, 
     "isDeployedStage" : false, 
-    "isDeployingLocalContracts" : true
+    "isDeployingLocalContracts" : true,
+
+    "GETH_NODE" : "http://geth-poa:8545",
+    "GPO_INTERVAL": 90000
 
 }
