@@ -16,6 +16,7 @@
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import { Logger } from '../Logger';
+import { EncryptorContainer } from './encryption/EncryptorContainer';
 
 const logger = Logger.get(module.filename);
 
@@ -37,15 +38,15 @@ export class StorageCredential extends BaseEntity {
 
     @Column('text') driver_type: string;
     @Column('text') base_path: string;
-
     @Column('simple-json') options: Object;
 
-    static generate_entity(attrs: StorageCredentialAttrs) {
+    static async generate_entity(attrs: StorageCredentialAttrs) {
         const credentials = new StorageCredential();
         credentials.title = attrs.title;
         credentials.driver_type = attrs.driver_type;
         credentials.base_path = attrs.base_path || './';
-        credentials.options = attrs.options || {};
+        await credentials.setOptionsField(attrs.options);
+
         logger.debug(`Creating ${attrs.driver_type} StorageDriver ${attrs.title}`);
         return credentials;
     }
@@ -94,21 +95,34 @@ export class StorageCredential extends BaseEntity {
         return (await StorageCredential.getById(id)).getDriverOptions();
     }
 
+    private async setOptionsField(options: any) {
+        const optionString: string = JSON.stringify(options || {});
+        const encryptString = await EncryptorContainer.defaultEncryptor.encrypt(optionString);
+        this.options = { EncryptedJson: encryptString };
+    }
+
+    private async getOptionsField() {
+        const encryptString = this.options['EncryptedJson'];
+        const decryptedOptionString = await EncryptorContainer.defaultEncryptor.decrypt(encryptString);
+        return JSON.parse(decryptedOptionString);
+    }
+
     async update(title?: string, options?: any) {
         if (title) {
             this.title = title;
         }
 
         if (options) {
-            this.options = options;
+            await this.setOptionsField(options);
         }
 
         await this.save();
     }
 
-    getDriverOptions() {
+    async getDriverOptions() {
+        const decryptedOptions = await this.getOptionsField();
         return {
-            ...this.options,
+            ...decryptedOptions,
             driver_type: this.driver_type,
             base_path: this.base_path,
             __id: this.id,

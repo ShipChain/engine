@@ -1095,6 +1095,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 * **Leeward Bound** - [leewardbound](https://github.com/leewardbound)
 * **Adam Hodges** - [ajhodges](https://github.com/ajhodges)
 * **James Neyer** - [jamesfneyer](https://github.com/jamesfneyer)
+* **Jianwei Liu** - [jianwel](https://github.com/jianwel)
 
 <!--See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.-->
 

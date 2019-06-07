@@ -29,7 +29,7 @@ const driverType = ['s3', 'sftp', 'local'];
 @RPCNamespace({ name: 'StorageCredentials' })
 export class RPCStorageCredentials {
     private static async _create(args) {
-        const credentials = StorageCredential.generate_entity(args);
+        const credentials = await StorageCredential.generate_entity(args);
 
         await credentials.save();
 
@@ -146,7 +146,7 @@ export class RPCStorageCredentials {
             throw new Error(`Driver type: ${args.driver_type}, not allowed!`);
         }
 
-        const credentials = StorageCredential.generate_entity(args);
+        const credentials = await StorageCredential.generate_entity(args);
 
         const testOptions = await credentials.getDriverOptions();
         const testResults = await RPCStorageCredentials._test_credentials(testOptions);

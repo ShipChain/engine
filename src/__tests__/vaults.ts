@@ -21,6 +21,7 @@ import { Vault } from '../vaults/Vault';
 import { Wallet } from '../entity/Wallet';
 import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 import { CloseConnection } from "../redis";
+import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 const CONTAINER = 'test2';
@@ -63,7 +64,7 @@ export const VaultTests = async function() {
     }
 
     beforeEach(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
     });
 
     afterEach(async () => {

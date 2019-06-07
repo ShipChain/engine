@@ -31,7 +31,7 @@ import {
 import { RPCTransaction } from '../transaction';
 import { RPCLoad } from '../Load/1.1.0/RPCLoad';
 import { Wallet } from "../../src/entity/Wallet";
-import { PrivateKeyDBFieldEncryption } from "../../src/entity/encryption/PrivateKeyDBFieldEncryption";
+import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
 
 export const RPCTransactions = async function() {
 
@@ -40,7 +40,7 @@ export const RPCTransactions = async function() {
     let txSigned;
 
     beforeEach(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
 
         // Import known funded wallet
         fullWallet = await Wallet.import_entity('0x0000000000000000000000000000000000000000000000000000000000000001');

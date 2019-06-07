@@ -19,20 +19,9 @@ import { BaseContract } from '../src/contracts/BaseContract';
 import { MetricsReporter } from '../src/MetricsReporter';
 import { LoadedContracts } from './contracts';
 import { RPCMethod, RPCNamespace } from './decorators';
-import { AwsPrivateKeyDBFieldEncryption } from '../src/shipchain/AwsPrivateKeyDBFieldEncryption';
-import { PrivateKeyDBFieldEncryption } from '../src/entity/encryption/PrivateKeyDBFieldEncryption';
 
 const loadedContracts = LoadedContracts.Instance;
 const metrics = MetricsReporter.Instance;
-const ENV = process.env.ENV || 'LOCAL';
-
-export async function setupWalletEncryptionHandler() {
-    if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') {
-        Wallet.setPrivateKeyEncryptionHandler(await AwsPrivateKeyDBFieldEncryption.getInstance());
-    } else {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
-    }
-}
 
 @RPCNamespace({ name: 'Wallet' })
 export class RPCWallet {

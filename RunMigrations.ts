@@ -29,11 +29,10 @@ const logger = Logger.get(module.filename);
  */
 class Migration {
 
-    static async run() {
+    static async run(revert : boolean = false) {
 
         let connection: Connection | undefined = undefined;
         try {
-
             const defaultOptions = await getConnectionOptions();
             const rdsOptions = await getRDSconfig();
 
@@ -52,7 +51,13 @@ class Migration {
             connection = await createConnection(fullOptions);
 
             const options = { transaction: true };
-            await connection.runMigrations(options);
+            if (revert === false) {
+                logger.info("Running the forward migration.");
+                await connection.runMigrations(options);
+            } else {
+                logger.info("Running the UNDO last migration!");
+                await connection.undoLastMigration(options);
+            }
             await connection.close();
 
             // exit process if no errors
@@ -69,7 +74,12 @@ class Migration {
 
 
 try {
-    Migration.run();
+    if (process.argv[2] === '--revert') {
+        Migration.run(true);
+    }
+    else {
+        Migration.run();
+    }
 } catch (_err) {
     logger.error(`Error during migration run: ${_err}`);
 }

@@ -20,7 +20,7 @@ import 'mocha';
 import { Wallet } from '../entity/Wallet';
 import { Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
-import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
+import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
 const request = require('request');
 const utils = require('../local-test-net-utils');
@@ -57,8 +57,7 @@ function AsyncGetJSON(url) {
 export const EventSubscriptionEntityTests = async  function() {
 
     beforeAll(async () => {
-
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
     });
 
     it(

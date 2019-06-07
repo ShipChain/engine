@@ -19,8 +19,8 @@ require('../../__tests__/testLoggingConfig');
 import 'mocha';
 import { LoadVault } from '../LoadVault';
 import { Wallet } from '../../entity/Wallet';
-import { PrivateKeyDBFieldEncryption } from "../../entity/encryption/PrivateKeyDBFieldEncryption";
 import { CloseConnection } from "../../redis";
+import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
@@ -44,7 +44,7 @@ export const LoadVaultTests = async function() {
     }
 
     beforeAll(async () => {
-        Wallet.setPrivateKeyEncryptionHandler(await PrivateKeyDBFieldEncryption.getInstance());
+        await EncryptorContainer.init();
     });
 
     afterEach(async () => {

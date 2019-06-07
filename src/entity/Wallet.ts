@@ -17,20 +17,12 @@
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import EthCrypto from 'eth-crypto';
 import { Logger } from '../Logger';
+import { EncryptorContainer } from './encryption/EncryptorContainer';
 
 const EthereumTx = require('ethereumjs-tx');
 const Web3 = require('web3');
 
 const logger = Logger.get(module.filename);
-
-export abstract class DBFieldEncryption {
-    protected constructor() {
-        logger.info(`Initializing DB Encryptor ${this.constructor.name}`);
-    }
-
-    abstract async encrypt(private_key: string): Promise<string>;
-    abstract async decrypt(cipher_text: string): Promise<string>;
-}
 
 @Entity()
 export class Wallet extends BaseEntity {
@@ -43,19 +35,6 @@ export class Wallet extends BaseEntity {
 
     private unlocked_private_key: string;
 
-    private static _privateKeyEncryptionHandler: DBFieldEncryption = null;
-
-    static setPrivateKeyEncryptionHandler(handler: DBFieldEncryption) {
-        this._privateKeyEncryptionHandler = handler;
-    }
-
-    private static get privateKeyEncryptor() {
-        if (!Wallet._privateKeyEncryptionHandler) {
-            throw new Error('Private Key Encryption handler not set');
-        }
-        return Wallet._privateKeyEncryptionHandler;
-    }
-
     static async getById(id: string) {
         const DB = getConnection();
         const repository = DB.getRepository(Wallet);
@@ -66,7 +45,7 @@ export class Wallet extends BaseEntity {
             throw new Error('Wallet not found');
         }
 
-        wallet.unlocked_private_key = await Wallet.privateKeyEncryptor.decrypt(wallet.private_key);
+        wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptor.decrypt(wallet.private_key);
 
         return wallet;
     }
@@ -81,7 +60,7 @@ export class Wallet extends BaseEntity {
             throw new Error('Wallet not found');
         }
 
-        wallet.unlocked_private_key = await Wallet.privateKeyEncryptor.decrypt(wallet.private_key);
+        wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptor.decrypt(wallet.private_key);
 
         return wallet;
     }
@@ -120,7 +99,7 @@ export class Wallet extends BaseEntity {
         const wallet = new Wallet();
         const identity = Wallet.generate_identity();
 
-        const encryptedPrivateKey = await Wallet.privateKeyEncryptor.encrypt(identity.privateKey);
+        const encryptedPrivateKey = await EncryptorContainer.defaultEncryptor.encrypt(identity.privateKey);
 
         Object.assign(wallet, {
             public_key: identity.publicKey,
@@ -144,7 +123,7 @@ export class Wallet extends BaseEntity {
         } catch (_err) {
             const wallet = new Wallet();
 
-            const encryptedPrivateKey = await Wallet.privateKeyEncryptor.encrypt(private_key);
+            const encryptedPrivateKey = await EncryptorContainer.defaultEncryptor.encrypt(private_key);
 
             Object.assign(wallet, {
                 public_key: public_key,

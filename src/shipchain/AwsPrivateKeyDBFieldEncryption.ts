@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { PrivateKeyDBFieldEncryption } from '../entity/encryption/PrivateKeyDBFieldEncryption';
-import { DBFieldEncryption } from '../entity/Wallet';
 import EthCrypto from 'eth-crypto';
 import { getAwsSecret } from './utils';
+import { DBFieldEncryption } from '../entity/encryption/DBFieldEncryption';
+import { PrivateKeyDBFieldEncryption } from '../entity/encryption/PrivateKeyDBFieldEncryption';
 
 const ENV = process.env.ENV || 'LOCAL';
 
