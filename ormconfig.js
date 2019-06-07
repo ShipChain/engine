@@ -35,6 +35,7 @@ const cli = {
 };
 
 const rdsUrl = config.get("DATABASE_URL");
+console.log("rdsUrl="+rdsUrl);
 
 module.exports = {
   "name": "default",
