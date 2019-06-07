@@ -49,7 +49,6 @@ import { UtilsTests } from "./src/__tests__/utils";
 // ShipChain Tests
 // ===============
 import { LoadVaultTests } from './src/shipchain/__tests__/loadvault';
-import { shipChainEncryptorContainerTests } from './src/shipchain/__tests__/testShipChainEncryptorContainer';
 
 
 describe('RPC', async () => {
@@ -141,6 +140,5 @@ describe('ShipChain', async () => {
     }, 10000);
 
     describe('LOAD Vault', LoadVaultTests);
-    describe('ShipChainEncryptorContainer', shipChainEncryptorContainerTests);
 
 });
