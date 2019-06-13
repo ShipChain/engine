@@ -25,6 +25,7 @@ import { Logger } from '../Logger';
 // Import Moment Typings and Functions
 import { Moment } from 'moment';
 import moment from 'moment';
+import zlib from 'zlib';
 
 const logger = Logger.get(module.filename);
 
@@ -36,6 +37,7 @@ export class Vault {
     protected meta;
 
     private static readonly METADATA_FILE_NAME = 'meta.json';
+    private static readonly CURRENT_VAULT_VERSION = '0.0.2';
     static readonly OWNERS_ROLE = 'owners';
     static readonly LEDGER_ROLE = 'ledger';
     static readonly LEDGER_CONTAINER = 'ledger';
@@ -68,7 +70,7 @@ export class Vault {
     protected async initializeMetadata(author: Wallet, roles?) {
         this.meta = {
             id: this.id,
-            version: '0.0.1',
+            version: Vault.CURRENT_VAULT_VERSION,
             created: new Date(),
             roles: roles || {},
             containers: {},
@@ -190,6 +192,11 @@ export class Vault {
     async decryptWithRoleKey(wallet: Wallet, role: string, message: any) {
         const key = await this.__loadRoleKey(wallet, role);
         if (!key) throw new Error('Role has no valid encryption key');
+
+        if (this.meta.version == Vault.CURRENT_VAULT_VERSION) {
+            const deflated = await this.decompressContent(message);
+            return await Wallet.decrypt_with_raw_key(key, deflated);
+        }
         return await Wallet.decrypt_with_raw_key(key, message);
     }
 
@@ -211,9 +218,42 @@ export class Vault {
         throw new Error('Wallet has no access to contents');
     }
 
+    async compressContent(content: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            zlib.deflate(content, (error, buffer) => {
+                if (!error) {
+                    resolve(buffer.toString('base64'));
+                } else {
+                    reject();
+                }
+            });
+        });
+    }
+
+    async decompressContent(content: string) {
+        const buffer = Buffer.from(content, 'base64');
+        return new Promise((resolve, reject) => {
+            zlib.unzip(buffer, (error, bufferResult) => {
+                if (!error) {
+                    resolve(bufferResult.toString());
+                } else {
+                    reject();
+                }
+            });
+        });
+    }
+
     async encryptForRole(role: string, message: any) {
         const public_key = this.meta.roles[role].public_key;
-        return await Wallet.encrypt_to_string(public_key, message);
+        const encryptedMessage = await Wallet.encrypt_to_string(public_key, message);
+        // let compressed: string;
+        const compressed = await this.compressContent(encryptedMessage);
+        console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Initial message byte size: ${Buffer.byteLength(encryptedMessage, 'utf8')}`);
+        console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> compressed message byte size: ${Buffer.byteLength(compressed, 'utf8')}`);
+        // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>> Type of compressed message: ${typeof compressed}`);
+        return  compressed;
+        // return await this.compressContent(encryptedMessage);
+        // return await Wallet.encrypt_to_string(public_key, message);
     }
 
     async authorize(author: Wallet, role: string, public_key: string, force_key?: string) {
@@ -262,11 +302,37 @@ export class Vault {
         }
     }
 
-    async writeMetadata(author: Wallet) {
+    upgradeVault(upgrade: boolean = true) {
+        if (this.meta.version != Vault.CURRENT_VAULT_VERSION && upgrade) {
+            this.meta.version = Vault.CURRENT_VAULT_VERSION;
+        }
+    }
+
+    // async cleanDirectoryInVault(listDirectory: string[]){
+    //     for (let directory of listDirectory){
+    //         await this.driver.removeDirectory(directory);
+    //     }
+    // }
+    //
+    //
+    //
+    // async compressVault(){
+    //     let listVaultDirectory = (await this.listDirectory(this.id, false, false)).directories;
+    //     for (let directory of listVaultDirectory){
+    //         await this.driver.copyDirectory(directory, `${this.id}/${directory.name}`);
+    //     }
+    //
+    //
+    //
+    // }
+
+    async writeMetadata(author: Wallet, upgrade: boolean = true) {
         logger.info(`Writing Vault ${this.id} Metadata`);
+        this.upgradeVault(upgrade);
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
         await this.putFile(Vault.METADATA_FILE_NAME, utils.stringify(this.meta));
+        // await this.compressVault();
         return this.meta.signed;
     }
 
