@@ -192,11 +192,6 @@ export class Vault {
     async decryptWithRoleKey(wallet: Wallet, role: string, message: any) {
         const key = await this.__loadRoleKey(wallet, role);
         if (!key) throw new Error('Role has no valid encryption key');
-
-        if (this.meta.version == Vault.CURRENT_VAULT_VERSION) {
-            const deflated = await this.decompressContent(message);
-            return await Wallet.decrypt_with_raw_key(key, deflated);
-        }
         return await Wallet.decrypt_with_raw_key(key, message);
     }
 
@@ -218,26 +213,37 @@ export class Vault {
         throw new Error('Wallet has no access to contents');
     }
 
-    async compressContent(content: string): Promise<any> {
+    async compressContent(content: string | object): Promise<any> {
+        let toCompress;
+        if (typeof content === 'object'){
+            toCompress = JSON.stringify(content);
+        }else {
+            toCompress = content;
+        }
         return new Promise((resolve, reject) => {
-            zlib.deflate(content, (error, buffer) => {
+            zlib.deflate(toCompress, (error, buffer) => {
                 if (!error) {
                     resolve(buffer.toString('base64'));
                 } else {
-                    reject();
+                    logger.error(`Unable to compress message: ${content}`);
+                    reject(new Error('Unable to compress message'));
                 }
             });
         });
     }
 
-    async decompressContent(content: string) {
+    async decompressContent(content: string, toDecompress: boolean = true): Promise<any> {
         const buffer = Buffer.from(content, 'base64');
         return new Promise((resolve, reject) => {
             zlib.unzip(buffer, (error, bufferResult) => {
+                if (!toDecompress){
+                    resolve(content);
+                }
                 if (!error) {
                     resolve(bufferResult.toString());
                 } else {
-                    reject();
+                    logger.error(`Unable to decompress message: ${content}`);
+                    reject(new Error('Unable to decompress message'));
                 }
             });
         });
@@ -245,15 +251,7 @@ export class Vault {
 
     async encryptForRole(role: string, message: any) {
         const public_key = this.meta.roles[role].public_key;
-        const encryptedMessage = await Wallet.encrypt_to_string(public_key, message);
-        // let compressed: string;
-        const compressed = await this.compressContent(encryptedMessage);
-        console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Initial message byte size: ${Buffer.byteLength(encryptedMessage, 'utf8')}`);
-        console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> compressed message byte size: ${Buffer.byteLength(compressed, 'utf8')}`);
-        // console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>> Type of compressed message: ${typeof compressed}`);
-        return  compressed;
-        // return await this.compressContent(encryptedMessage);
-        // return await Wallet.encrypt_to_string(public_key, message);
+        return await Wallet.encrypt_to_string(public_key, message);
     }
 
     async authorize(author: Wallet, role: string, public_key: string, force_key?: string) {
@@ -308,24 +306,6 @@ export class Vault {
         }
     }
 
-    // async cleanDirectoryInVault(listDirectory: string[]){
-    //     for (let directory of listDirectory){
-    //         await this.driver.removeDirectory(directory);
-    //     }
-    // }
-    //
-    //
-    //
-    // async compressVault(){
-    //     let listVaultDirectory = (await this.listDirectory(this.id, false, false)).directories;
-    //     for (let directory of listVaultDirectory){
-    //         await this.driver.copyDirectory(directory, `${this.id}/${directory.name}`);
-    //     }
-    //
-    //
-    //
-    // }
-
     async writeMetadata(author: Wallet, upgrade: boolean = true) {
         logger.info(`Writing Vault ${this.id} Metadata`);
         this.upgradeVault(upgrade);
@@ -345,7 +325,9 @@ export class Vault {
         for (const name in this.containers) {
             if (this.containers.hasOwnProperty(name)) {
                 const container = this.containers[name];
-                this.meta.containers[name] = await container.buildMetadata(author);
+                const containerMeta = await container.buildMetadata(author);
+                this.meta.containers[name] = await this.compressContent(containerMeta);
+                // this.meta.containers[name] = await container.buildMetadata(author);
             }
         }
     }
