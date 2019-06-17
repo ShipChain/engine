@@ -236,9 +236,9 @@ export class Vault {
         const buffer = Buffer.from(content, 'base64');
         return new Promise((resolve, reject) => {
             zlib.unzip(buffer, (error, bufferResult) => {
-                if (!toDecompress){
-                    resolve(content);
-                }
+                // if (!toDecompress) {
+                //     resolve(content);
+                // }
                 if (!error) {
                     resolve(bufferResult.toString());
                 } else {
@@ -273,31 +273,40 @@ export class Vault {
     }
 
     async loadMetadata() {
-        try {
+       // let content: any;
+       // let parsed;
+       try {
             const data = await this.getFile(Vault.METADATA_FILE_NAME);
             this.meta = await JSON.parse(data);
+            const upgraded = this.meta.version == this.meta.CURRENT_VAULT_VERSION;
             this.containers = {};
             for (const name in this.meta.containers) {
-                this.containers[name] = Container.typeFactory(
-                    this.meta.containers[name].container_type,
-                    this,
-                    name,
-                    this.meta.containers[name],
+               console.log(`------------------------ Container: ${name}, data ---------------------------`);
+               console.log(`compressed container: ${Buffer.byteLength(this.meta.containers[name], 'utf8')}`);
+               const contentString = await this.decompressContent(this.meta.containers[name], upgraded);
+               console.log(`Content string format: ${contentString}`);
+               const contentJson = JSON.parse(contentString);
+               console.log(`Decompressed container: ${Buffer.byteLength(contentString, 'utf8')}`);
+               this.containers[name] = Container.typeFactory(
+                   contentJson.container_type,
+                   this,
+                   name,
+                   contentJson,
                 );
             }
-            // TODO: Check Vault Version number and apply migrations if necessary
-            return this.meta;
-        } catch (_err) {
-            if (_err instanceof DriverError) {
-                throw new Error("Unable to load vault from Storage driver '" + _err.errorState + "'");
-            }
+           // TODO: Check Vault Version number and apply migrations if necessary
+           return this.meta;
+       } catch (_err) {
+           if (_err instanceof DriverError) {
+               throw new Error("Unable to load vault from Storage driver '" + _err.errorState + "'");
+           }
 
-            if (_err instanceof SyntaxError) {
-                throw new Error('Unable to parse vault metadata');
-            }
+           if (_err instanceof SyntaxError) {
+               throw new Error('Unable to parse vault metadata');
+           }
 
-            throw _err;
-        }
+           throw _err;
+       }
     }
 
     upgradeVault(upgrade: boolean = true) {
@@ -312,7 +321,6 @@ export class Vault {
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
         await this.putFile(Vault.METADATA_FILE_NAME, utils.stringify(this.meta));
-        // await this.compressVault();
         return this.meta.signed;
     }
 
@@ -327,7 +335,6 @@ export class Vault {
                 const container = this.containers[name];
                 const containerMeta = await container.buildMetadata(author);
                 this.meta.containers[name] = await this.compressContent(containerMeta);
-                // this.meta.containers[name] = await container.buildMetadata(author);
             }
         }
     }
