@@ -314,6 +314,7 @@ export class Vault {
 
     upgradeVault(upgrade: boolean = true) {
         if (this.meta.version != Vault.CURRENT_VAULT_VERSION && upgrade) {
+            logger.debug(`Migrating vault ${this.id} to version ${Vault.CURRENT_VAULT_VERSION}`);
             this.meta.version = Vault.CURRENT_VAULT_VERSION;
         }
     }
