@@ -232,21 +232,28 @@ export class Vault {
         });
     }
 
-    async decompressContent(content: string, toDecompress: boolean = true): Promise<any> {
-        const buffer = Buffer.from(content, 'base64');
+    async decompressContent(content: string): Promise<any> {
+        let buffer;
+        buffer = Buffer.from(content, 'base64');
         return new Promise((resolve, reject) => {
             zlib.unzip(buffer, (error, bufferResult) => {
-                // if (!toDecompress) {
-                //     resolve(content);
-                // }
                 if (!error) {
                     resolve(bufferResult.toString());
                 } else {
+                    // console.log(`>>>>>>>>>>>>>>>>>>>> Decompress error message: ${error}`);
                     logger.error(`Unable to decompress message: ${content}`);
                     reject(new Error('Unable to decompress message'));
                 }
             });
         });
+    }
+
+    async getContainerContent(content: any) {
+        let contentJson: object = content;
+        if (this.meta.version == Vault.CURRENT_VAULT_VERSION || typeof content == 'string') {
+            contentJson = JSON.parse(await this.decompressContent(content));
+        }
+        return contentJson;
     }
 
     async encryptForRole(role: string, message: any) {
@@ -273,40 +280,47 @@ export class Vault {
     }
 
     async loadMetadata() {
-       // let content: any;
-       // let parsed;
-       try {
+        let contentJson, compressedContainerSize: number = 0, deCompressedContainerSize: number = 0;
+        try {
             const data = await this.getFile(Vault.METADATA_FILE_NAME);
             this.meta = await JSON.parse(data);
-            const upgraded = this.meta.version == this.meta.CURRENT_VAULT_VERSION;
             this.containers = {};
             for (const name in this.meta.containers) {
-               console.log(`------------------------ Container: ${name}, data ---------------------------`);
-               console.log(`compressed container: ${Buffer.byteLength(this.meta.containers[name], 'utf8')}`);
-               const contentString = await this.decompressContent(this.meta.containers[name], upgraded);
-               console.log(`Content string format: ${contentString}`);
-               const contentJson = JSON.parse(contentString);
-               console.log(`Decompressed container: ${Buffer.byteLength(contentString, 'utf8')}`);
-               this.containers[name] = Container.typeFactory(
+                console.log(`------------------------ Container: ${name}, data ---------------------------`);
+                compressedContainerSize = compressedContainerSize + this.meta.containers[name].length;
+                console.log(`Compressed container content length: ${this.meta.containers[name].length}`);
+                console.log(`Compressed container size: ${Buffer.byteLength(this.meta.containers[name], 'utf8')}`);
+
+                contentJson = await this.getContainerContent(this.meta.containers[name]);
+
+                deCompressedContainerSize = deCompressedContainerSize + JSON.stringify(contentJson).length;
+                console.log(`Decompressed container content length: ${JSON.stringify(contentJson).length}`);
+                console.log(`Decompressed container size: ${Buffer.byteLength(JSON.stringify(contentJson), 'utf8')}`);
+
+                this.containers[name] = Container.typeFactory(
                    contentJson.container_type,
                    this,
                    name,
                    contentJson,
                 );
             }
+            console.log(`########### Total Compressed Containers size: ${compressedContainerSize} #################`);
+            console.log(`########### Total Decompressed Containers size: ${deCompressedContainerSize} ################`);
+            console.log(`>>>>>>>>>> Data rate saving: ${(1-compressedContainerSize/deCompressedContainerSize)*100}`);
+
            // TODO: Check Vault Version number and apply migrations if necessary
            return this.meta;
-       } catch (_err) {
-           if (_err instanceof DriverError) {
+        } catch (_err) {
+            if (_err instanceof DriverError) {
                throw new Error("Unable to load vault from Storage driver '" + _err.errorState + "'");
-           }
+            }
 
-           if (_err instanceof SyntaxError) {
+            if (_err instanceof SyntaxError) {
                throw new Error('Unable to parse vault metadata');
-           }
+            }
 
-           throw _err;
-       }
+            throw _err;
+        }
     }
 
     upgradeVault(upgrade: boolean = true) {
