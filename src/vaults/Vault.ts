@@ -215,9 +215,9 @@ export class Vault {
 
     async compressContent(content: string | object): Promise<any> {
         let toCompress;
-        if (typeof content === 'object'){
+        if (typeof content === 'object') {
             toCompress = JSON.stringify(content);
-        }else {
+        } else {
             toCompress = content;
         }
         return new Promise((resolve, reject) => {
@@ -240,7 +240,6 @@ export class Vault {
                 if (!error) {
                     resolve(bufferResult.toString());
                 } else {
-                    // console.log(`>>>>>>>>>>>>>>>>>>>> Decompress error message: ${error}`);
                     logger.error(`Unable to decompress message: ${content}`);
                     reject(new Error('Unable to decompress message'));
                 }
@@ -281,6 +280,7 @@ export class Vault {
 
     async loadMetadata() {
         let contentJson;
+        let metaContainer: object = {};
         let compressedContainerSize: number = 0;
         let deCompressedContainerSize: number = 0;
         try {
@@ -290,25 +290,22 @@ export class Vault {
             for (const name in this.meta.containers) {
                 compressedContainerSize = compressedContainerSize + this.meta.containers[name].length;
                 contentJson = await this.getContainerContent(this.meta.containers[name]);
+                metaContainer[name] = contentJson;
                 deCompressedContainerSize = deCompressedContainerSize + JSON.stringify(contentJson).length;
 
-                this.containers[name] = Container.typeFactory(
-                   contentJson.container_type,
-                   this,
-                   name,
-                   contentJson,
-                );
+                this.containers[name] = Container.typeFactory(contentJson.container_type, this, name, contentJson);
             }
 
-            logger.debug(`saving rate: ${(1-compressedContainerSize/deCompressedContainerSize)*100}`);
-           return this.meta;
+            logger.debug(`saving rate: ${(1 - compressedContainerSize / deCompressedContainerSize) * 100}`);
+            this.meta.containers = metaContainer;
+            return this.meta;
         } catch (_err) {
             if (_err instanceof DriverError) {
-               throw new Error("Unable to load vault from Storage driver '" + _err.errorState + "'");
+                throw new Error("Unable to load vault from Storage driver '" + _err.errorState + "'");
             }
 
             if (_err instanceof SyntaxError) {
-               throw new Error('Unable to parse vault metadata');
+                throw new Error('Unable to parse vault metadata');
             }
 
             throw _err;
@@ -326,6 +323,9 @@ export class Vault {
         this.upgradeVault(upgrade);
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
+        for (const name in this.meta.containers) {
+            this.meta.containers[name] = await this.compressContent(this.meta.containers[name]);
+        }
         await this.putFile(Vault.METADATA_FILE_NAME, utils.stringify(this.meta));
         return this.meta.signed;
     }
@@ -339,8 +339,7 @@ export class Vault {
         for (const name in this.containers) {
             if (this.containers.hasOwnProperty(name)) {
                 const container = this.containers[name];
-                const containerMeta = await container.buildMetadata(author);
-                this.meta.containers[name] = await this.compressContent(containerMeta);
+                this.meta.containers[name] = await container.buildMetadata(author);
             }
         }
     }
