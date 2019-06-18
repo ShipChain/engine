@@ -280,22 +280,17 @@ export class Vault {
     }
 
     async loadMetadata() {
-        let contentJson, compressedContainerSize: number = 0, deCompressedContainerSize: number = 0;
+        let contentJson;
+        let compressedContainerSize: number = 0;
+        let deCompressedContainerSize: number = 0;
         try {
             const data = await this.getFile(Vault.METADATA_FILE_NAME);
             this.meta = await JSON.parse(data);
             this.containers = {};
             for (const name in this.meta.containers) {
-                console.log(`------------------------ Container: ${name}, data ---------------------------`);
                 compressedContainerSize = compressedContainerSize + this.meta.containers[name].length;
-                console.log(`Compressed container content length: ${this.meta.containers[name].length}`);
-                console.log(`Compressed container size: ${Buffer.byteLength(this.meta.containers[name], 'utf8')}`);
-
                 contentJson = await this.getContainerContent(this.meta.containers[name]);
-
                 deCompressedContainerSize = deCompressedContainerSize + JSON.stringify(contentJson).length;
-                console.log(`Decompressed container content length: ${JSON.stringify(contentJson).length}`);
-                console.log(`Decompressed container size: ${Buffer.byteLength(JSON.stringify(contentJson), 'utf8')}`);
 
                 this.containers[name] = Container.typeFactory(
                    contentJson.container_type,
@@ -304,11 +299,8 @@ export class Vault {
                    contentJson,
                 );
             }
-            console.log(`########### Total Compressed Containers size: ${compressedContainerSize} #################`);
-            console.log(`########### Total Decompressed Containers size: ${deCompressedContainerSize} ################`);
-            console.log(`>>>>>>>>>> Data rate saving: ${(1-compressedContainerSize/deCompressedContainerSize)*100}`);
 
-           // TODO: Check Vault Version number and apply migrations if necessary
+            logger.debug(`saving rate: ${(1-compressedContainerSize/deCompressedContainerSize)*100}`);
            return this.meta;
         } catch (_err) {
             if (_err instanceof DriverError) {
