@@ -23,7 +23,7 @@ export class StorageCredentialEncryptionOptions1558380631422 implements Migratio
             const optionString: string = JSON.stringify(sco.options || {});
             const encryptString = await encryptor.encrypt(optionString);
             sco.options = {'EncryptedJson' : encryptString};
-            sco.save();
+            await sco.save();
         }
     }
     
@@ -34,7 +34,7 @@ export class StorageCredentialEncryptionOptions1558380631422 implements Migratio
             const decrptedOptionString = await encryptor.decrypt(sco.options['EncryptedJson']);
             const decrptedOptions= JSON.parse(decrptedOptionString);
             sco.options = decrptedOptions; 
-            sco.save();
+            await sco.save();
         }
     }
 
