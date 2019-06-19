@@ -312,16 +312,18 @@ export class Vault {
         }
     }
 
-    upgradeVault(upgrade: boolean = true) {
-        if (this.meta.version != Vault.CURRENT_VAULT_VERSION && upgrade) {
+    upgradeVault(upgrade: boolean) {
+        if (upgrade) {
             logger.debug(`Migrating vault ${this.id} to version ${Vault.CURRENT_VAULT_VERSION}`);
             this.meta.version = Vault.CURRENT_VAULT_VERSION;
+        } else {
+            return;
         }
     }
 
-    async writeMetadata(author: Wallet, upgrade: boolean = true) {
+    async writeMetadata(author: Wallet) {
         logger.info(`Writing Vault ${this.id} Metadata`);
-        this.upgradeVault(upgrade);
+        this.upgradeVault(this.meta.version != Vault.CURRENT_VAULT_VERSION);
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
         for (const name in this.meta.containers) {
