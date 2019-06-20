@@ -119,7 +119,7 @@ export const RPCVaultTests = async function() {
         vaultToMigrate.roles.ledger["public_key"] = role.publicKey;
         vaultToMigrate.roles.ledger[fullWallet1.public_key] = key2;
         signedVaultToMigrate = JSON.stringify(signObject(fullWallet1, vaultToMigrate));
-        await fs.writeFile(`./${dummyId}/meta.json`, signedVaultToMigrate);
+        fs.writeFileSync(`./${dummyId}/meta.json`, signedVaultToMigrate);
 
         await buildSchemaValidators();
 
