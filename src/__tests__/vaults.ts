@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import {signObject} from "../utils";
+
+const fs = require('fs');
 require('./testLoggingConfig');
 
 import 'mocha';
@@ -33,6 +36,24 @@ const DATE_2 = '2018-01-01T01:00:02.000Z';
 const DATE_3 = '2018-01-01T01:00:03.000Z';
 const DATE_4 = '2018-01-01T01:00:04.000Z';
 const DATE_5 = '2018-01-01T01:00:05.000Z';
+const dummyId = 'e7721042-7ee1-4d92-93db-c9544b454abf';
+const oldVersion = '0.0.1';
+const newVersion = '0.0.2';
+let vaultToMigrate = {
+    containers: {
+        tracking: {
+            container_type: "external_list_daily",
+            roles: ["owners"]
+        }
+    },
+    roles: {
+        owners: { public_key: "" },
+        ledger: { public_key: ""}
+    },
+    created: DATE_1,
+    id: dummyId,
+    version: oldVersion
+};
 
 export const VaultTests = async function() {
     const RealDate = Date;
@@ -815,6 +836,43 @@ export const VaultTests = async function() {
 
         let test_4 = await vault.getHistoricalData(author, CONTAINER, DATE_5, FILE_2);
         expect(test_4[CONTAINER][FILE_2]).toEqual("2-4");
+    });
+
+    it(`can load update and migrate a previous vault version`, async () => {
+        let metaFileJson;
+        let author = await Wallet.generate_entity();
+        const role = Wallet.generate_identity();
+        const key1 = await Wallet.encrypt_to_string(author.public_key, role.privateKey);
+        const key2 = await Wallet.encrypt_to_string(author.public_key, role.privateKey);
+        vaultToMigrate.roles.owners["public_key"] = role.publicKey;
+        vaultToMigrate.roles.owners[author.public_key] = key1;
+        vaultToMigrate.roles.ledger["public_key"] = role.publicKey;
+        vaultToMigrate.roles.ledger[author.public_key] = key2;
+        const signedVaultToMigrate = JSON.stringify(signObject(author, vaultToMigrate));
+        const vaultDir = `/app/${storage_driver.base_path}/${dummyId}`;
+
+        fs.mkdirSync(vaultDir, {recursive: true});
+        fs.writeFileSync(`${vaultDir}/meta.json`, signedVaultToMigrate, 'utf8');
+
+        expect(fs.existsSync(`${vaultDir}/meta.json`)).toBeTruthy();
+
+        const previousVersionVault = new Vault(storage_driver, vaultToMigrate.id);
+        await previousVersionVault.loadMetadata();
+        expect(await previousVersionVault.metadataFileExists()).toBeTruthy();
+
+        metaFileJson = JSON.parse(await previousVersionVault.getFile('meta.json'));
+        expect(metaFileJson.version == oldVersion).toBeTruthy();
+        expect(typeof metaFileJson.containers.tracking == 'object').toBeTruthy();
+
+        const container = previousVersionVault.getOrCreateContainer(author, 'shipment', 'embedded_file');
+        expect(typeof container == 'object').toBeTruthy();
+
+        await previousVersionVault.writeMetadata(author);
+        expect(await previousVersionVault.metadataFileExists()).toBeTruthy();
+        metaFileJson = JSON.parse(await previousVersionVault.getFile('meta.json'));
+        expect(metaFileJson.version == newVersion).toBeTruthy();
+        expect(typeof metaFileJson.containers.tracking == 'string').toBeTruthy();
+        expect(typeof metaFileJson.containers.shipment == 'string').toBeTruthy();
     });
 
 };

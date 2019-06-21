@@ -23,6 +23,7 @@ const fs = require('fs');
 
 import 'mocha';
 import * as typeorm from "typeorm";
+import * as path from 'path';
 const AWS = require('aws-sdk');
 import {
     mochaAsync,
@@ -90,6 +91,7 @@ export const RPCVaultTests = async function() {
 
     let testableLocalVaultId;
     let emptyLocalVaultId;
+    let vaultDir;
     let signedVaultToMigrate;
 
     let knownShipmentSchemaId = uuidv4();
@@ -119,7 +121,9 @@ export const RPCVaultTests = async function() {
         vaultToMigrate.roles.ledger["public_key"] = role.publicKey;
         vaultToMigrate.roles.ledger[fullWallet1.public_key] = key2;
         signedVaultToMigrate = JSON.stringify(signObject(fullWallet1, vaultToMigrate));
-        fs.writeFileSync(`./${dummyId}/meta.json`, signedVaultToMigrate);
+        vaultDir = `/app/${dummyId}/`;
+        fs.mkdirSync(vaultDir, {recursive: true});
+        fs.writeFileSync(`${vaultDir}/meta.json`, signedVaultToMigrate);
 
         await buildSchemaValidators();
 
@@ -2205,9 +2209,9 @@ export const RPCVaultTests = async function() {
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.vault_signed).toBeDefined();
-                expect(fs.existsSync(`./${dummyId}/tracking/20180101.json`)).toBeTruthy();
-                expect(fs.existsSync(`./${dummyId}/meta.json`)).toBeTruthy();
-                const meta = JSON.parse(fs.readFileSync(`./${dummyId}/meta.json`));
+                expect(fs.existsSync(`${vaultDir}/tracking/20180101.json`)).toBeTruthy();
+                expect(fs.existsSync(`${vaultDir}/meta.json`)).toBeTruthy();
+                const meta = JSON.parse(fs.readFileSync(`${vaultDir}/meta.json`));
                 expect(meta.version == newVersion).toBeTruthy();
                 expect(typeof meta.containers.tracking == "string").toBeTruthy();
                 expect(typeof meta.containers.ledger == "string").toBeTruthy();
