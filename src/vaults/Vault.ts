@@ -25,6 +25,7 @@ import { Logger } from '../Logger';
 // Import Moment Typings and Functions
 import { Moment } from 'moment';
 import moment from 'moment';
+import zlib from 'zlib';
 
 const logger = Logger.get(module.filename);
 
@@ -36,6 +37,9 @@ export class Vault {
     protected meta;
 
     private static readonly METADATA_FILE_NAME = 'meta.json';
+    private static readonly VAULT_VERSION__INITIAL = '0.0.1';
+    private static readonly VAULT_VERSION__ZIP_CONTAINER = '0.0.2';
+    private static readonly CURRENT_VAULT_VERSION = Vault.VAULT_VERSION__ZIP_CONTAINER;
     static readonly OWNERS_ROLE = 'owners';
     static readonly LEDGER_ROLE = 'ledger';
     static readonly LEDGER_CONTAINER = 'ledger';
@@ -68,7 +72,7 @@ export class Vault {
     protected async initializeMetadata(author: Wallet, roles?) {
         this.meta = {
             id: this.id,
-            version: '0.0.1',
+            version: Vault.CURRENT_VAULT_VERSION,
             created: new Date(),
             roles: roles || {},
             containers: {},
@@ -211,6 +215,52 @@ export class Vault {
         throw new Error('Wallet has no access to contents');
     }
 
+    async compressContent(content: string | object): Promise<string> {
+        let toCompress;
+        if (typeof content === 'object') {
+            toCompress = JSON.stringify(content);
+        } else {
+            toCompress = content;
+        }
+        return new Promise((resolve, reject) => {
+            zlib.deflate(toCompress, (error, buffer) => {
+                if (!error) {
+                    resolve(buffer.toString('base64'));
+                } else {
+                    logger.error(`Unable to compress message: ${content}`);
+                    reject(new Error('Unable to compress message'));
+                }
+            });
+        });
+    }
+
+    async decompressContent(content: string): Promise<string> {
+        let buffer;
+        buffer = Buffer.from(content, 'base64');
+        return new Promise((resolve, reject) => {
+            zlib.unzip(buffer, (error, bufferResult) => {
+                if (!error) {
+                    resolve(bufferResult.toString());
+                } else {
+                    logger.error(`Unable to decompress message: ${content}`);
+                    reject(new Error('Unable to decompress message'));
+                }
+            });
+        });
+    }
+
+    async getContainerContent(content: any, name: string): Promise<Container> {
+        let container;
+        let contentObject: object;
+        if (this.meta.version >= Vault.VAULT_VERSION__ZIP_CONTAINER) {
+            contentObject = JSON.parse(await this.decompressContent(content));
+        } else {
+            contentObject = content;
+        }
+        container = Container.typeFactory(contentObject['container_type'], this, name, contentObject);
+        return container;
+    }
+
     async encryptForRole(role: string, message: any) {
         const public_key = this.meta.roles[role].public_key;
         return await Wallet.encrypt_to_string(public_key, message);
@@ -235,19 +285,17 @@ export class Vault {
     }
 
     async loadMetadata() {
+        let metaContent: object = {};
         try {
             const data = await this.getFile(Vault.METADATA_FILE_NAME);
             this.meta = await JSON.parse(data);
             this.containers = {};
             for (const name in this.meta.containers) {
-                this.containers[name] = Container.typeFactory(
-                    this.meta.containers[name].container_type,
-                    this,
-                    name,
-                    this.meta.containers[name],
-                );
+                this.containers[name] = await this.getContainerContent(this.meta.containers[name], name);
+                metaContent[name] = this.containers[name].meta;
             }
-            // TODO: Check Vault Version number and apply migrations if necessary
+
+            this.meta.containers = metaContent;
             return this.meta;
         } catch (_err) {
             if (_err instanceof DriverError) {
@@ -264,8 +312,12 @@ export class Vault {
 
     async writeMetadata(author: Wallet) {
         logger.info(`Writing Vault ${this.id} Metadata`);
+        this.meta.version = Vault.CURRENT_VAULT_VERSION;
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
+        for (const name in this.meta.containers) {
+            this.meta.containers[name] = await this.compressContent(this.meta.containers[name]);
+        }
         await this.putFile(Vault.METADATA_FILE_NAME, utils.stringify(this.meta));
         return this.meta.signed;
     }

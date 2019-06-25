@@ -23,6 +23,7 @@ const fs = require('fs');
 
 import 'mocha';
 import * as typeorm from "typeorm";
+import * as path from 'path';
 const AWS = require('aws-sdk');
 import {
     mochaAsync,
@@ -35,7 +36,7 @@ import {
 
 import { buildSchemaValidators } from "../validators";
 import { RPCVault } from '../vault';
-import { uuidv4 } from "../../src/utils";
+import { uuidv4, signObject } from "../../src/utils";
 import { StorageCredential } from "../../src/entity/StorageCredential";
 import { Wallet } from "../../src/entity/Wallet";
 import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
@@ -45,6 +46,24 @@ const DATE_1 = '2018-01-01T01:00:00.000Z';
 const DATE_2 = '2018-01-01T02:00:00.000Z';
 const DATE_3 = '2018-01-01T03:00:00.000Z';
 const DATE_4 = '2018-01-01T04:00:00.000Z';
+const dummyId = 'e7721042-7ee1-4d92-93db-c9544b454abf';
+const oldVersion = '0.0.1';
+const newVersion = '0.0.2';
+let vaultToMigrate = {
+    containers: {
+        tracking: {
+            container_type: "external_list_daily",
+            roles: ["owners"]
+        }
+    },
+    roles: {
+        owners: { public_key: "" },
+        ledger: { public_key: ""}
+    },
+    created: DATE_1,
+    id: dummyId,
+    version: oldVersion
+};
 
 export const RPCVaultTests = async function() {
     const RealDate = Date;
@@ -72,6 +91,8 @@ export const RPCVaultTests = async function() {
 
     let testableLocalVaultId;
     let emptyLocalVaultId;
+    let vaultDir;
+    let signedVaultToMigrate;
 
     let knownShipmentSchemaId = uuidv4();
     let knownDocumentContentb64 = 'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mN8U+T4nYEIwDiqkL4KAZKnGefMCAbPAAAAAElFTkSuQmCC';
@@ -91,6 +112,18 @@ export const RPCVaultTests = async function() {
             driver_type: 'local',
         });
         await localStorage.save();
+
+        const role = Wallet.generate_identity();
+        const key1 = await Wallet.encrypt_to_string(fullWallet1.public_key, role.privateKey);
+        const key2 = await Wallet.encrypt_to_string(fullWallet1.public_key, role.privateKey);
+        vaultToMigrate.roles.owners["public_key"] = role.publicKey;
+        vaultToMigrate.roles.owners[fullWallet1.public_key] = key1;
+        vaultToMigrate.roles.ledger["public_key"] = role.publicKey;
+        vaultToMigrate.roles.ledger[fullWallet1.public_key] = key2;
+        signedVaultToMigrate = JSON.stringify(signObject(fullWallet1, vaultToMigrate));
+        vaultDir = `/app/${dummyId}/`;
+        fs.mkdirSync(vaultDir, {recursive: true});
+        fs.writeFileSync(`${vaultDir}/meta.json`, signedVaultToMigrate);
 
         await buildSchemaValidators();
 
@@ -2161,6 +2194,32 @@ export const RPCVaultTests = async function() {
                 expect(err.message).toEqual(`No data found for date`);
             }
         }));
+    });
+
+    describe('migrateVault', function() {
+        it(`Migrate an old vault upon modification request`, mochaAsync(async () => {
+            try {
+                const result: any = await CallRPCMethod(RPCVault.AddTrackingData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: dummyId,
+                    payload: {
+                        some: 'data'
+                    },
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.vault_signed).toBeDefined();
+                expect(fs.existsSync(`${vaultDir}/tracking/20180101.json`)).toBeTruthy();
+                expect(fs.existsSync(`${vaultDir}/meta.json`)).toBeTruthy();
+                const meta = JSON.parse(fs.readFileSync(`${vaultDir}/meta.json`));
+                expect(meta.version == newVersion).toBeTruthy();
+                expect(typeof meta.containers.tracking == "string").toBeTruthy();
+                expect(typeof meta.containers.ledger == "string").toBeTruthy();
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
     });
 
 };
