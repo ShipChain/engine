@@ -35,7 +35,7 @@ export class AwsPrivateKeyDBFieldEncryption extends PrivateKeyDBFieldEncryption 
     }
 
     protected async getMasterPrivateKey(): Promise<string> {
-        let secret = await getAwsSecret('ENGINE_SECRET_KEY_'+config.util.getEnv('NODE_CONFIG_ENV'));
+        let secret = await getAwsSecret('ENGINE_SECRET_KEY_' + config.util.getEnv('NODE_CONFIG_ENV'));
         return secret.SECRET_KEY;
     }
 }
