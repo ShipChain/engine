@@ -110,7 +110,7 @@ export class GasPriceOracle {
 
         // Only include EthGasStation request if we're running against Mainnet
         // (PROD)
-        if (config.get('isGettingBestGasStationPriceNeeded')) {
+        if (config.get('GPO_ETH_GAS_STATION')) {
             ethGasStationCalculation = await this.getEthGasStationBestPrice();
 
             // Weight towards the EthGasStation price since it's based on a wait time instead of just a median value

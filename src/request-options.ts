@@ -26,7 +26,7 @@ const logger = Logger.get(module.filename);
 let options = null;
 
 export async function getRequestOptions() {
-    if (config.get('isDeployedStage')) {
+    if (config.get('IS_DEPLOYED_STAGE')) {
         if (!options) {
             options = {
                 cert: fs.readFileSync(certFile),

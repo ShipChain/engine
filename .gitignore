@@ -13,4 +13,4 @@ reports/
 .env
 .envrc
 .DS_Store
-config/local*.json
+config/local*.*

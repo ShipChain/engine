@@ -1,4 +1,4 @@
-{
+export default {
     "Storage": {
         "SFTP": {
             "SFTP_HOST": "localhost",
@@ -17,10 +17,12 @@
     },
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "EVENT_CHUNK_SIZE" : 1, 
-    "isDeployedStage" : false, 
-    "isDeployingLocalContracts" : true,
+    "IS_DEPLOYED_STAGE" : false, 
+    "DEPLOY_CONTRACTS" : false,
+
+//this configuration is optional
+//    "ES_TEST_NODE_URL" : "http://elasticsearch:920",
 
     "GETH_NODE" : "http://geth-poa:8545",
     "GPO_INTERVAL": 90000
-
 }

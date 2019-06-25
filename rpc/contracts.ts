@@ -104,7 +104,7 @@ async function getNetwork(contractMetaData) {
     let network;
 
     // Or determine based on ENV environment setting
-    if (config.get('isDeployingLocalContracts')) {
+    if (config.get('DEPLOY_CONTRACTS')) {
         logger.info(`Deploying local contracts`);
 
         const deployedContracts = await test_net_utils.setupLocalTestNetContracts(

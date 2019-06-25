@@ -19,7 +19,7 @@ const config = require('config');
 let dir = "src";
 let ext = "ts";
 
-if (config.get("isDeployedStage")) {
+if (config.get("IS_DEPLOYED_STAGE")) {
   dir = "dist/src";
   ext = "js";
 }

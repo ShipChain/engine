@@ -1085,9 +1085,40 @@ bin/ddo yarn run prettier
 ```
 -->
 
+## Using Configuration Files
+
+Inside the config folder, there are ts configuration files that are named either
+"default.ts" or "STAGE_NAME.ts". All the default configuration values should go
+into the default.ts. The specific stages will inherit the values of entries from default.ts
+by default, while overwriting them if some entries re-defined in a specific STAGE_NAME.ts.
+
+Besides the above, you can write a local.ts file to overwrite any configuration
+for your local run, which will overwrite  However, DO NOT add the local.ts to
+the git repository. 
+
+For more details of the precedence of different configuration options, you can
+refer to [File Load Order]
+(https://github.com/lorenwest/node-config/wiki/Configuration-Files#file-load-order)
+and [Command Line Overrides]
+(https://github.com/lorenwest/node-config/wiki/Command-Line-Overrides)
+
+Some rules of the current configuration setting:
+
+Some optional configurations are commented out in the ts files, for example the 
+"ES_TEST_NODE_URL". Some other optional entires include,
+
+* INFLUXDB_URL
+* ELASTICSEARCH_URL
+* ES_TEST_NODE_URL
+* GETH_NETWORK
+
+You need to define GETH_NODE in your local.ts. 
+
+
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/shipchain/engine/tags).
+We use [SemVer](http://semver.org/) for versioning. For the versions available,
+see the [tags on this repository](https://github.com/shipchain/engine/tags).
 
 ## Authors
 

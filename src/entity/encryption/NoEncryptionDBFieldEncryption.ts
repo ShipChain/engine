@@ -27,7 +27,7 @@ export class NoEncryptionDBFieldEncryption extends DBFieldEncryption {
     }
 
     private static checkUsage() {
-        if (config.get('isDeployedStage')) {
+        if (config.get('IS_DEPLOYED_STAGE')) {
             throw new Error('Invalid Encryption scheme for deployment!');
         }
     }
