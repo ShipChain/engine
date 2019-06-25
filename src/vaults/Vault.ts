@@ -37,7 +37,9 @@ export class Vault {
     protected meta;
 
     private static readonly METADATA_FILE_NAME = 'meta.json';
-    private static readonly CURRENT_VAULT_VERSION = '0.0.2';
+    private static readonly VAULT_VERSION__INITIAL = '0.0.1';
+    private static readonly VAULT_VERSION__ZIP_CONTAINER = '0.0.2';
+    private static readonly CURRENT_VAULT_VERSION = Vault.VAULT_VERSION__ZIP_CONTAINER;
     static readonly OWNERS_ROLE = 'owners';
     static readonly LEDGER_ROLE = 'ledger';
     static readonly LEDGER_CONTAINER = 'ledger';
@@ -213,7 +215,7 @@ export class Vault {
         throw new Error('Wallet has no access to contents');
     }
 
-    async compressContent(content: string | object): Promise<any> {
+    async compressContent(content: string | object): Promise<string> {
         let toCompress;
         if (typeof content === 'object') {
             toCompress = JSON.stringify(content);
@@ -232,7 +234,7 @@ export class Vault {
         });
     }
 
-    async decompressContent(content: string): Promise<any> {
+    async decompressContent(content: string): Promise<string> {
         let buffer;
         buffer = Buffer.from(content, 'base64');
         return new Promise((resolve, reject) => {
@@ -247,12 +249,16 @@ export class Vault {
         });
     }
 
-    async getContainerContent(content: any) {
-        let contentJson: object = content;
-        if (this.meta.version == Vault.CURRENT_VAULT_VERSION || typeof content == 'string') {
-            contentJson = JSON.parse(await this.decompressContent(content));
+    async getContainerContent(content: any, name: string): Promise<Container> {
+        let container;
+        let contentObject: object;
+        if (this.meta.version >= Vault.VAULT_VERSION__ZIP_CONTAINER) {
+            contentObject = JSON.parse(await this.decompressContent(content));
+        } else {
+            contentObject = content;
         }
-        return contentJson;
+        container = Container.typeFactory(contentObject['container_type'], this, name, contentObject);
+        return container;
     }
 
     async encryptForRole(role: string, message: any) {
@@ -279,25 +285,17 @@ export class Vault {
     }
 
     async loadMetadata() {
-        let contentJson;
-        let metaContainer: object = {};
-        let compressedContainerSize: number = 0;
-        let deCompressedContainerSize: number = 0;
+        let metaContent: object = {};
         try {
             const data = await this.getFile(Vault.METADATA_FILE_NAME);
             this.meta = await JSON.parse(data);
             this.containers = {};
             for (const name in this.meta.containers) {
-                compressedContainerSize = compressedContainerSize + this.meta.containers[name].length;
-                contentJson = await this.getContainerContent(this.meta.containers[name]);
-                metaContainer[name] = contentJson;
-                deCompressedContainerSize = deCompressedContainerSize + JSON.stringify(contentJson).length;
-
-                this.containers[name] = Container.typeFactory(contentJson.container_type, this, name, contentJson);
+                this.containers[name] = await this.getContainerContent(this.meta.containers[name], name);
+                metaContent[name] = this.containers[name].meta;
             }
 
-            logger.debug(`saving rate: ${(1 - compressedContainerSize / deCompressedContainerSize) * 100}`);
-            this.meta.containers = metaContainer;
+            this.meta.containers = metaContent;
             return this.meta;
         } catch (_err) {
             if (_err instanceof DriverError) {
@@ -312,18 +310,9 @@ export class Vault {
         }
     }
 
-    upgradeVault(upgrade: boolean) {
-        if (upgrade) {
-            logger.debug(`Migrating vault ${this.id} to version ${Vault.CURRENT_VAULT_VERSION}`);
-            this.meta.version = Vault.CURRENT_VAULT_VERSION;
-        } else {
-            return;
-        }
-    }
-
     async writeMetadata(author: Wallet) {
         logger.info(`Writing Vault ${this.id} Metadata`);
-        this.upgradeVault(this.meta.version != Vault.CURRENT_VAULT_VERSION);
+        this.meta.version = Vault.CURRENT_VAULT_VERSION;
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
         for (const name in this.meta.containers) {
