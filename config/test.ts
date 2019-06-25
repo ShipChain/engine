@@ -18,7 +18,7 @@ export default {
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "EVENT_CHUNK_SIZE" : 1, 
     "IS_DEPLOYED_STAGE" : false, 
-    "DEPLOY_CONTRACTS" : false,
+    "DEPLOY_CONTRACTS" : true,
 
 //this configuration is optional
 //    "ES_TEST_NODE_URL" : "http://elasticsearch:920",
