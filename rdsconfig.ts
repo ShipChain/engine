@@ -22,7 +22,7 @@ const config = require('config');
 const ENV = config.util.getEnv('NODE_CONFIG_ENV')
 
 export async function getRDSconfig() {
-    if(ENV==='LOCAL' || ENV==='TEST') {
+    if(!(ENV==='LOCAL' || ENV==='TEST')) {
 
         let rdsCreds = await getAwsSecret('ENGINE_RDS_'+ENV);
 
