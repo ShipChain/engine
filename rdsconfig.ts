@@ -19,12 +19,12 @@ import { getAwsSecret } from "./src/shipchain/utils";
 
 const logger = Logger.get(module.filename);
 const config = require('config');
-const ENV = config.util.getEnv('NODE_CONFIG_ENV')
+const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV')
 
 export async function getRDSconfig() {
-    if(!(ENV==='LOCAL' || ENV==='TEST')) {
+    if(!(ENVIRONMENT==='LOCAL' || ENVIRONMENT==='test')) {
 
-        let rdsCreds = await getAwsSecret('ENGINE_RDS_'+ENV);
+        let rdsCreds = await getAwsSecret('ENGINE_RDS_'+ENVIRONMENT);
 
         const rdsUrl = `psql://${rdsCreds.username}:${rdsCreds.password}@${rdsCreds.host}:${rdsCreds.port}/${rdsCreds.dbname}`;
 
