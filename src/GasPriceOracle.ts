@@ -49,9 +49,6 @@ export class GasPriceOracle {
     private readonly gasPriceMetrics: GasPriceOracleMetrics;
 
     private constructor() {
-        if (!GETH_NODE) {
-            throw new Error('No setting for GETH_NODE found!');
-        }
         this.web3 = new Web3(GETH_NODE);
 
         // Default gas price in case no services are returning values (likely will never be used)
@@ -109,7 +106,6 @@ export class GasPriceOracle {
         let ethGasStationCalculation: EthGasStationCalculation;
 
         // Only include EthGasStation request if we're running against Mainnet
-        // (PROD)
         if (config.get('GPO_ETH_GAS_STATION')) {
             ethGasStationCalculation = await this.getEthGasStationBestPrice();
 

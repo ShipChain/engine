@@ -19,9 +19,15 @@ import { PrivateKeyDBFieldEncryption } from '../entity/encryption/PrivateKeyDBFi
 import EthCrypto from 'eth-crypto';
 import { getAwsSecret } from './utils';
 const config = require('config');
+const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV');
+const IS_DEPLOYED_STAGE = config.get('IS_DEPLOYED_STAGE');
 
 export class AwsPrivateKeyDBFieldEncryption extends PrivateKeyDBFieldEncryption {
     static async getInstance(): Promise<DBFieldEncryption> {
+        if (!IS_DEPLOYED_STAGE) {
+            throw new Error(`AwsPrivateKeyDBFieldEncryption only allowed in deployed environments`);
+        }
+
         if (!this._instance) {
             let instance = new AwsPrivateKeyDBFieldEncryption();
 
@@ -35,7 +41,7 @@ export class AwsPrivateKeyDBFieldEncryption extends PrivateKeyDBFieldEncryption 
     }
 
     protected async getMasterPrivateKey(): Promise<string> {
-        let secret = await getAwsSecret('ENGINE_SECRET_KEY_' + config.util.getEnv('NODE_CONFIG_ENV'));
+        let secret = await getAwsSecret(`ENGINE_SECRET_KEY_${ENVIRONMENT}`);
         return secret.SECRET_KEY;
     }
 }

@@ -36,9 +36,10 @@ const config = require('config');
 const ENGINE_LOGGER_NAME = 'engine';
 const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV');
 
-const LOGGING_LEVEL = config.get('LOGGING_LEVEL');
-const CLOUDWATCH_LEVEL = config.get('CLOUDWATCH_LEVEL');
-const ELASTICSEARCH_LEVEL = config.get('ELASTICSEARCH_LEVEL');
+const IS_DEPLOYED_STAGE = config.get('IS_DEPLOYED_STAGE');
+const LOGGING_LEVEL = config.get('LOGGING_LEVELS.DEFAULT');
+const CLOUDWATCH_LEVEL = config.get('LOGGING_LEVELS.CLOUDWATCH');
+const ELASTICSEARCH_LEVEL = config.get('LOGGING_LEVELS.ELASTICSEARCH');
 
 const PROCESS_UNIQUENESS = uuidv4();
 
@@ -150,7 +151,7 @@ export class Logger {
 
         // Add ElasticSearch if we're running in a deployed environment
         // ------------------------------------------------------------
-        if (config.has('ELASTICSEARCH_URL')) {
+        if (IS_DEPLOYED_STAGE && config.has('ELASTICSEARCH_URL')) {
             const ELASTICSEARCH_URL: string = config.get('ELASTICSEARCH_URL');
             es_enabled = true;
 
@@ -170,7 +171,7 @@ export class Logger {
 
         // Add CloudWatch if we're running in a deployed environment
         // ---------------------------------------------------------
-        if (ENVIRONMENT === 'DEV' || ENVIRONMENT === 'STAGE' || ENVIRONMENT === 'DEMO' || ENVIRONMENT === 'PROD') {
+        if (IS_DEPLOYED_STAGE) {
             cw_enabled = true;
 
             engine_transports.push(

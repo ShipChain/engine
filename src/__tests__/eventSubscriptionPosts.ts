@@ -19,7 +19,6 @@ require('./testLoggingConfig');
 
 import 'mocha';
 const nock = require('nock');
-const config = require('config');
 import { EventSubscriberAttrs, EventSubscription } from "../entity/EventSubscription";
 
 export const EventSubscriptionPostsTests = async function() {

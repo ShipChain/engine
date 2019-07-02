@@ -25,4 +25,5 @@ services:
     volumes:
       - ../:/app
     environment:
+      - ENV
       - GETH_NODE=http://geth-poa:8545

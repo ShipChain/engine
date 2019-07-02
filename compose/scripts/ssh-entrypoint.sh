@@ -2,6 +2,7 @@
 
 # Copy ECS env vars into bash profile so they're available to SSH'd users
 echo "export ENV=$ENV" >> /etc/profile
+echo "export NODE_CONFIG_ENV=$ENV" >> /etc/profile
 echo "export CERT_AUTHORITY_ARN=$CERT_AUTHORITY_ARN" >> /etc/profile
 echo "export GETH_NODE=$GETH_NODE" >> /etc/profile
 echo "export SERVICE=$SERVICE" >> /etc/profile

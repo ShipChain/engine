@@ -68,7 +68,6 @@ services:
       - LOGGING_LEVEL
       - REDIS_URL
       - SERVICE=engine-rpc
-      - NODE_CONFIG_ENV
     networks:
       default:
         aliases:

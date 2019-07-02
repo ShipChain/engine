@@ -1,5 +1,5 @@
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
-import { AwsPrivateKeyDBFieldEncryption } from '../shipchain/AwsPrivateKeyDBFieldEncryption';
+import { AwsPrivateKeyDBFieldEncryption } from './AwsPrivateKeyDBFieldEncryption';
 import { PrivateKeyDBFieldEncryption } from '../entity/encryption/PrivateKeyDBFieldEncryption';
 const config = require('config');
 

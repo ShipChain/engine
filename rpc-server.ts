@@ -45,7 +45,6 @@ import {ShipChainEncryptorContainer} from "./src/shipchain/ShipChainEncryptorCon
 
 const typeorm = require("typeorm");
 const rpc = require("json-rpc2");
-const process = require("process");
 const config = require('config');
 
 
@@ -193,6 +192,8 @@ server.expose("help", (args, opt, callback) => {
 // Start RPC Server
 // =======================
 async function startRpcServer() {
+    logger.info(`Configuration Pulled for for ${config.util.getEnv('NODE_CONFIG_ENV')}`);
+
     await ShipChainEncryptorContainer.init();
     await buildSchemaValidators();
 

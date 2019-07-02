@@ -10,8 +10,6 @@ cd "${0%/*}/.."
 echo "Running tests"
 
 export ROLE=circleci
-
-export NODE_CONFIG_ENV=TEST
 # export ROLE=circleci-es
 
 bin/dc down

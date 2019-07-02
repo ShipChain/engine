@@ -1,5 +1,10 @@
 export default {
-    "IS_DEPLOYED_STAGE" : true, 
-    "DEPLOY_CONTRACTS" : true,
-    "GETH_NETWORK" :  "ropsten"
+    "DEPLOY_CONTRACTS" : false,
+    "GETH_NETWORK" : "ropsten",
+    "IS_DEPLOYED_STAGE" : true,
+    "LOGGING_LEVELS": {
+        "CLOUDWATCH": "debug",
+        "DEFAULT": "info",
+        "ELASTICSEARCH": "info",
+    },
 }

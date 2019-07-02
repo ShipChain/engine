@@ -16,7 +16,7 @@ services:
       - minio
       - psql
     environment:
-      - GETH_NODE=http://geth-poa:8545
+      - ENV=test
       - SFTP_DRIVER_TESTS
       - SFTP_HOST=sftp
       - SFTP_PORT=22
