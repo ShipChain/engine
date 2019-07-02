@@ -72,18 +72,18 @@ export class LoadVault extends Vault {
 
     async getHistoricalShipment(author: Wallet, date: string) {
         await this.loadMetadata();
-        const contents = await this.getHistoricalData(author, LoadVault.SHIPMENT, date);
+        const contents = await this.getHistoricalDataByDate(author, LoadVault.SHIPMENT, date);
         contents.shipment = JSON.parse(contents.shipment);
         return contents;
     }
 
     async getHistoricalTracking(author: Wallet, date: string) {
         await this.loadMetadata();
-        return await this.getHistoricalData(author, LoadVault.TRACKING, date);
+        return await this.getHistoricalDataByDate(author, LoadVault.TRACKING, date);
     }
 
     async getHistoricalDocument(author: Wallet, date: string, documentName: string) {
         await this.loadMetadata();
-        return await this.getHistoricalData(author, LoadVault.DOCUMENTS, date, documentName);
+        return await this.getHistoricalDataByDate(author, LoadVault.DOCUMENTS, date, documentName);
     }
 }

@@ -607,14 +607,14 @@ export const VaultTests = async function() {
         expect(test_0).toEqual([{minute: 2}, {minute: 4}]);
 
         try {
-            let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
+            let failure = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_1);
             fail(`Should not have historical data for ${DATE_1}: '${JSON.stringify(failure)}'`);
         } catch(err){}
 
-        let test_1 = await vault.getHistoricalData(author, CONTAINER, DATE_3);
+        let test_1 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_3);
         expect(test_1[CONTAINER]).toEqual([{minute: 2}]);
 
-        let test_2 = await vault.getHistoricalData(author, CONTAINER, DATE_5);
+        let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
     });
 
@@ -649,14 +649,14 @@ export const VaultTests = async function() {
         expect(test_0).toEqual([{minute: 2}, {minute: 4}]);
 
         try {
-            let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
+            let failure = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_1);
             fail(`Should not have historical data for ${DATE_1}: '${JSON.stringify(failure)}'`);
         } catch(err){}
 
-        let test_1 = await vault.getHistoricalData(author, CONTAINER, DATE_3);
+        let test_1 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_3);
         expect(test_1[CONTAINER]).toEqual([{minute: 2}]);
 
-        let test_2 = await vault.getHistoricalData(author, CONTAINER, DATE_5);
+        let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
     });
 
@@ -691,14 +691,14 @@ export const VaultTests = async function() {
         expect(test_0).toEqual([{minute: 2}, {minute: 4}]);
 
         try {
-            let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
+            let failure = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_1);
             fail(`Should not have historical data for ${DATE_1}: '${JSON.stringify(failure)}'`);
         } catch(err){}
 
-        let test_1 = await vault.getHistoricalData(author, CONTAINER, DATE_3);
+        let test_1 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_3);
         expect(test_1[CONTAINER]).toEqual([{minute: 2}]);
 
-        let test_2 = await vault.getHistoricalData(author, CONTAINER, DATE_5);
+        let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
     });
 
@@ -731,14 +731,14 @@ export const VaultTests = async function() {
         expect(test_0).toEqual("4");
 
         try {
-            let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
+            let failure = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_1);
             fail(`Should not have historical data for ${DATE_1}: '${JSON.stringify(failure)}'`);
         } catch(err){}
 
-        let test_1 = await vault.getHistoricalData(author, CONTAINER, DATE_3);
+        let test_1 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_3);
         expect(test_1[CONTAINER]).toEqual("2");
 
-        let test_2 = await vault.getHistoricalData(author, CONTAINER, DATE_5);
+        let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual("4");
     });
 
@@ -771,14 +771,14 @@ export const VaultTests = async function() {
         expect(test_0).toEqual("4");
 
         try {
-            let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1);
+            let failure = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_1);
             fail(`Should not have historical data for ${DATE_1}: '${JSON.stringify(failure)}'`);
         } catch(err){}
 
-        let test_1 = await vault.getHistoricalData(author, CONTAINER, DATE_3);
+        let test_1 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_3);
         expect(test_1[CONTAINER]).toEqual("2");
 
-        let test_2 = await vault.getHistoricalData(author, CONTAINER, DATE_5);
+        let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual("4");
     });
 
@@ -816,25 +816,25 @@ export const VaultTests = async function() {
         expect(test_0).toEqual("2-4");
 
         try {
-            let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1, FILE_1);
+            let failure = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_1, FILE_1);
             fail(`Should not have historical data for ${DATE_1} ${FILE_1}: '${JSON.stringify(failure)}'`);
         } catch(err){}
 
         try {
-            let failure = await vault.getHistoricalData(author, CONTAINER, DATE_1, FILE_2);
+            let failure = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_1, FILE_2);
             fail(`Should not have historical data for ${DATE_1} ${FILE_2}: '${JSON.stringify(failure)}'`);
         } catch(err){}
 
-        let test_1 = await vault.getHistoricalData(author, CONTAINER, DATE_3, FILE_1);
+        let test_1 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_3, FILE_1);
         expect(test_1[CONTAINER][FILE_1]).toEqual("1-2");
 
-        let test_2 = await vault.getHistoricalData(author, CONTAINER, DATE_3, FILE_2);
+        let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_3, FILE_2);
         expect(test_2[CONTAINER][FILE_2]).toEqual("2-2");
 
-        let test_3 = await vault.getHistoricalData(author, CONTAINER, DATE_5, FILE_1);
+        let test_3 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5, FILE_1);
         expect(test_3[CONTAINER][FILE_1]).toEqual("1-4");
 
-        let test_4 = await vault.getHistoricalData(author, CONTAINER, DATE_5, FILE_2);
+        let test_4 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5, FILE_2);
         expect(test_4[CONTAINER][FILE_2]).toEqual("2-4");
     });
 

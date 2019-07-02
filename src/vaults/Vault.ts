@@ -144,7 +144,7 @@ export class Vault {
         await ledger.addIndexedEntry(author, payload);
     }
 
-    async getHistoricalData(author: Wallet, container: string = null, date: string, subFile?: string) {
+    async getHistoricalDataByDate(author: Wallet, container: string = null, date: string, subFile?: string) {
         return await this.containers[Vault.LEDGER_CONTAINER].decryptToDate(author, container, date, subFile);
     }
 
