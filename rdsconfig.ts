@@ -23,8 +23,6 @@ const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV')
 
 export async function getRDSconfig() {
     if(!(ENVIRONMENT==='LOCAL' || ENVIRONMENT==='TEST')) {
-        console.log("inside the non local");
-
         let rdsCreds = await getAwsSecret('ENGINE_RDS_'+ENVIRONMENT);
 
         const rdsUrl = `psql://${rdsCreds.username}:${rdsCreds.password}@${rdsCreds.host}:${rdsCreds.port}/${rdsCreds.dbname}`;
@@ -36,7 +34,6 @@ export async function getRDSconfig() {
     }
 
     else {
-        console.log("inside the local");
         logger.info(`Skipping AWS RDS Configuration for local or test.`);
         return {};
     }
