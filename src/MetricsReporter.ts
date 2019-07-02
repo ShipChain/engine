@@ -16,10 +16,10 @@
 
 import { InfluxDB, IPoint, IWriteOptions } from 'influx';
 import { Logger } from './Logger';
+const config = require('config');
 
 const logger = Logger.get(module.filename);
-const ENVIRONMENT = process.env.ENV || 'LOCAL';
-const INFLUXDB_URL = process.env.INFLUXDB_URL;
+const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV');
 
 export class MetricsReporter {
     private static _instance: MetricsReporter;
@@ -27,7 +27,8 @@ export class MetricsReporter {
     private readonly influx: InfluxDB = null;
 
     protected constructor() {
-        if (INFLUXDB_URL) {
+        if (config.has('INFLUXDB_URL')) {
+            const INFLUXDB_URL = config.get('INFLUXDB_URL');
             // Connect to a single host with a DSN:
             this.influx = new InfluxDB(INFLUXDB_URL);
             logger.info(`Metrics reporting is enabled`);

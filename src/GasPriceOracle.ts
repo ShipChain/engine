@@ -23,16 +23,16 @@ import { delay } from './utils';
 
 const requestPromise = require('request-promise-native');
 import Web3 from 'web3';
+const config = require('config');
 
 const logger = Logger.get(module.filename);
-const GETH_NODE = process.env.GETH_NODE;
-const ENV = process.env.ENV;
+const GETH_NODE = config.get('GETH_NODE');
 
 // Time (in minutes) that we don't want to wait longer than
 const DESIRED_WAIT_TIME: number = 2;
 
 // How often the gas price oracle re-calculates
-const CALCULATION_INTERVAL: number = Number(process.env.GPO_INTERVAL) || 1.5 * AsyncPoll.MINUTES;
+const CALCULATION_INTERVAL: number = Number(config.get('GPO_INTERVAL')) || 1.5 * AsyncPoll.MINUTES;
 
 // Gas Price Oracle service to handle background updates of the most
 // recent gas price estimates.  This will run every CALCULATION_INTERVAL
@@ -49,9 +49,6 @@ export class GasPriceOracle {
     private readonly gasPriceMetrics: GasPriceOracleMetrics;
 
     private constructor() {
-        if (!GETH_NODE) {
-            throw new Error('No setting for GETH_NODE found!');
-        }
         this.web3 = new Web3(GETH_NODE);
 
         // Default gas price in case no services are returning values (likely will never be used)
@@ -108,8 +105,8 @@ export class GasPriceOracle {
         const allPrices = [];
         let ethGasStationCalculation: EthGasStationCalculation;
 
-        // Only include EthGasStation request if we're running against Mainnet (PROD)
-        if (ENV === 'PROD') {
+        // Only include EthGasStation request if we're running against Mainnet
+        if (config.get('GPO_ETH_GAS_STATION')) {
             ethGasStationCalculation = await this.getEthGasStationBestPrice();
 
             // Weight towards the EthGasStation price since it's based on a wait time instead of just a median value

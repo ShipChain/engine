@@ -20,14 +20,13 @@ const fs = require('fs'),
     caFile = '/app/ca-bundle.crt';
 
 import { Logger } from './Logger';
-
+const config = require('config');
 const logger = Logger.get(module.filename);
-const ENV = process.env.ENV || 'LOCAL';
 
 let options = null;
 
 export async function getRequestOptions() {
-    if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') {
+    if (config.get('IS_DEPLOYED_STAGE')) {
         if (!options) {
             options = {
                 cert: fs.readFileSync(certFile),
@@ -37,7 +36,7 @@ export async function getRequestOptions() {
         }
         return options;
     } else {
-        logger.info(`Skipping certificate loading for ${ENV}`);
+        logger.info(`Skipping certificate loading for local stages`);
         return {};
     }
 }

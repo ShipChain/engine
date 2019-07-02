@@ -16,9 +16,9 @@
 
 import { Logger } from '../../Logger';
 import { DBFieldEncryption } from './DBFieldEncryption';
+const config = require('config');
 
 const logger = Logger.get(module.filename);
-const ENV = process.env.ENV || 'LOCAL';
 
 export class NoEncryptionDBFieldEncryption extends DBFieldEncryption {
     constructor() {
@@ -27,7 +27,7 @@ export class NoEncryptionDBFieldEncryption extends DBFieldEncryption {
     }
 
     private static checkUsage() {
-        if (ENV !== 'LOCAL') {
+        if (config.get('IS_DEPLOYED_STAGE')) {
             throw new Error('Invalid Encryption scheme for deployment!');
         }
     }

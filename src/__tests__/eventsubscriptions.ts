@@ -23,8 +23,8 @@ import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscrip
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
 const request = require('request');
+const config = require('config');
 const utils = require('../local-test-net-utils');
-const ES_NODE = process.env.ES_TEST_NODE_URL || false;
 
 // These are the versions we are testing
 const LATEST_SHIPTOKEN = "1.0.0";
@@ -63,7 +63,13 @@ export const EventSubscriptionEntityTests = async  function() {
     it(
         `can subscribe to ShipToken events`,
         async () => {
-            if(!ES_NODE)
+
+            let ES_NODE : string;
+            if(config.has("ES_TEST_NODE_URL"))
+            {
+                ES_NODE = config.get("ES_TEST_NODE_URL");
+            }
+            else
             {
                 console.log('\n\n' +
                     'SKIPPING - ElasticSearch EventSubscription test because ES_TEST_NODE_URL env variable is not set\n' +

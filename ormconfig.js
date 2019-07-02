@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-const ENV = process.env.ENV || 'LOCAL';
+const config = require('config');
 
 let dir = "src";
 let ext = "ts";
 
-if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD'){
+if (config.get("IS_DEPLOYED_STAGE")) {
   dir = "dist/src";
   ext = "js";
 }
@@ -34,7 +34,7 @@ const cli = {
   "subscribersDir": `${dir}/subscriber`
 };
 
-const rdsUrl = process.env.DATABASE_URL || `psql://engine:engine@psql:5432/engine`;
+const rdsUrl = config.get("DATABASE_URL");
 
 module.exports = {
   "name": "default",

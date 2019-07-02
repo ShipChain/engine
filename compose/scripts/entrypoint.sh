@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export NODE_CONFIG_ENV=$ENV
+export NODE_CONFIG_STRICT_MODE=1
+
 if [[ "$ENV" = "PROD" ]] || [[ "$ENV" = "DEMO" ]] || [[ "$ENV" = "STAGE" ]] || [[ "$ENV" = "DEV" ]];
 then
   /download-certs.sh

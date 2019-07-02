@@ -18,13 +18,13 @@ import { Logger } from './src/Logger';
 import { getAwsSecret } from "./src/shipchain/utils";
 
 const logger = Logger.get(module.filename);
-const ENV = process.env.ENV || "LOCAL";
-
+const config = require('config');
+const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV');
+const IS_DEPLOYED_STAGE = config.get('IS_DEPLOYED_STAGE');
 
 export async function getRDSconfig() {
-
-    if (ENV === "DEV" || ENV === "STAGE" || ENV === "DEMO" || ENV === "PROD") {
-        let rdsCreds = await getAwsSecret("ENGINE_RDS_" + ENV);
+    if(IS_DEPLOYED_STAGE) {
+        let rdsCreds = await getAwsSecret(`ENGINE_RDS_${ENVIRONMENT}`);
 
         const rdsUrl = `psql://${rdsCreds.username}:${rdsCreds.password}@${rdsCreds.host}:${rdsCreds.port}/${rdsCreds.dbname}`;
 
@@ -35,7 +35,7 @@ export async function getRDSconfig() {
     }
 
     else {
-        logger.info(`Skipping AWS RDS Configuration for ${ENV}`);
+        logger.info(`Skipping AWS RDS Configuration.`);
         return {};
     }
 

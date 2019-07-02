@@ -24,6 +24,7 @@ import { arrayChunker } from '../utils';
 
 const request = require('request');
 const requestPromise = require('request-promise-native');
+const config = require('config');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -222,8 +223,7 @@ export class EventSubscription extends BaseEntity {
 
     private static async sendPostEvents(eventSubscription: EventSubscription, allEvents, resolve) {
         try {
-            let EVENT_CHUNK_SIZE = +process.env.EVENT_CHUNK_SIZE || 50;
-
+            let EVENT_CHUNK_SIZE = config.get('EVENT_CHUNK_SIZE');
             let chunkedEvents = arrayChunker(allEvents, EVENT_CHUNK_SIZE);
 
             for (let chunkIndex = 0; chunkIndex < chunkedEvents.length; chunkIndex++) {

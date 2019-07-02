@@ -19,11 +19,12 @@ import { MetricsReporter } from './MetricsReporter';
 
 const redis = require('redis');
 const Redlock = require('redlock');
+const config = require('config');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:redis_pass@redis_db:6379/1';
+const REDIS_URL = config.get('REDIS_URL');
 
 let redisClient = null;
 let redlock = null;

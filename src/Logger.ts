@@ -21,6 +21,7 @@ const appRoot = require('app-root-path');
 const path = require('path');
 const ElasticSearch = require('winston-elasticsearch');
 const WinstonCloudWatch = require('winston-cloudwatch');
+const config = require('config');
 
 /**
  * We're using the default npm levels
@@ -33,12 +34,12 @@ const WinstonCloudWatch = require('winston-cloudwatch');
  */
 
 const ENGINE_LOGGER_NAME = 'engine';
-const ENV = process.env.ENV || 'LOCAL';
+const ENVIRONMENT = config.util.getEnv('NODE_CONFIG_ENV');
 
-const LOGGING_LEVEL = process.env.LOGGING_LEVEL || 'info';
-const CLOUDWATCH_LEVEL = process.env.CLOUDWATCH_LEVEL || LOGGING_LEVEL;
-const ELASTICSEARCH_LEVEL = process.env.ELASTICSEARCH_LEVEL || LOGGING_LEVEL;
-const ELASTICSEARCH_URL = process.env.ELASTICSEARCH_URL;
+const IS_DEPLOYED_STAGE = config.get('IS_DEPLOYED_STAGE');
+const LOGGING_LEVEL = config.get('LOGGING_LEVELS.DEFAULT');
+const CLOUDWATCH_LEVEL = config.get('LOGGING_LEVELS.CLOUDWATCH');
+const ELASTICSEARCH_LEVEL = config.get('LOGGING_LEVELS.ELASTICSEARCH');
 
 const PROCESS_UNIQUENESS = uuidv4();
 
@@ -105,7 +106,7 @@ export class Logger {
         transformed['message'] = logData.message;
         transformed['severity'] = logData.level;
         transformed['fields'] = {
-            Environment: ENV,
+            Environment: ENVIRONMENT,
             filename: logData.meta.filename,
         };
         return transformed;
@@ -117,7 +118,7 @@ export class Logger {
         transformed['message'] = logData.message;
         transformed['severity'] = logData.level;
         transformed['fields'] = {
-            Environment: ENV,
+            Environment: ENVIRONMENT,
             filename: logData.filename,
         };
         return JSON.stringify(transformed, null, '  ');
@@ -150,7 +151,8 @@ export class Logger {
 
         // Add ElasticSearch if we're running in a deployed environment
         // ------------------------------------------------------------
-        if ((ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') && ELASTICSEARCH_URL != null) {
+        if (IS_DEPLOYED_STAGE && config.has('ELASTICSEARCH_URL')) {
+            const ELASTICSEARCH_URL: string = config.get('ELASTICSEARCH_URL');
             es_enabled = true;
 
             engine_transports.push(
@@ -169,14 +171,14 @@ export class Logger {
 
         // Add CloudWatch if we're running in a deployed environment
         // ---------------------------------------------------------
-        if (ENV === 'DEV' || ENV === 'STAGE' || ENV === 'DEMO' || ENV === 'PROD') {
+        if (IS_DEPLOYED_STAGE) {
             cw_enabled = true;
 
             engine_transports.push(
                 new WinstonCloudWatch({
                     level: CLOUDWATCH_LEVEL,
                     messageFormatter: Logger.logCloudWatchFormat,
-                    logGroupName: `engine-node-${ENV}`,
+                    logGroupName: `engine-node-${ENVIRONMENT}`,
                     logStreamName: function() {
                         // Spread log streams across dates as the server stays up
                         let date = new Date().toISOString().split('T')[0];

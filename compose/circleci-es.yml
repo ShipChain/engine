@@ -34,6 +34,7 @@ services:
       - minio
       - psql
     environment:
+      - ENV=test
       - ES_TEST_NODE_URL=http://elasticsearch:9200
       - GETH_NODE=http://geth-poa:8545
       - SFTP_DRIVER_TESTS

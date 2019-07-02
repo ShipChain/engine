@@ -28,6 +28,7 @@ import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { GasPriceOracle } from '../GasPriceOracle';
 
+const config = require('config');
 const fs = require('fs');
 import Web3 from 'web3';
 const EthereumTx = require('ethereumjs-tx');
@@ -36,7 +37,8 @@ const requestPromise = require('request-promise-native');
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 const gasPriceOracle = GasPriceOracle.Instance;
-const GETH_NODE = process.env.GETH_NODE;
+
+const GETH_NODE = config.get('GETH_NODE');
 
 @Entity()
 export class Project extends BaseEntity {
@@ -304,9 +306,6 @@ export class Network extends BaseEntity {
 
     getDriver() {
         if (this._driver) return this._driver;
-        if (!GETH_NODE) {
-            throw new Error('No setting for GETH_NODE found!');
-        }
         const web3Options = {
             transactionBlockTimeout: 50,
             transactionConfirmationBlocks: 1,

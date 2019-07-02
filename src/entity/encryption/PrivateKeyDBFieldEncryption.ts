@@ -16,9 +16,9 @@
 
 import EthCrypto from 'eth-crypto';
 import { DBFieldEncryption } from './DBFieldEncryption';
+const config = require('config');
 
-const LOCAL_SECRET_KEY =
-    process.env.LOCAL_SECRET_KEY || '0x0000000000000000000000000000000000000000000000000000000000000001';
+const LOCAL_SECRET_KEY = config.get('LOCAL_SECRET_KEY');
 
 export class PrivateKeyDBFieldEncryption extends DBFieldEncryption {
     protected static _instance: PrivateKeyDBFieldEncryption;
