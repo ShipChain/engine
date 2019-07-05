@@ -53,6 +53,45 @@ class RPCMethodValidateOptions {
     string?: string[];
     object?: string[];
     date?: string[];
+    number?: string[];
+    requireOne?: RPCMethodValidateRequireOneOptions[];
+}
+
+class RPCMethodValidateRequireOneOptions {
+    arg1: string;
+    arg2: string;
+}
+
+class RPCMethodValidateRequireOne {
+    arg1: string;
+    arg2: string;
+
+    private __found__: number = 0;
+
+    constructor(arg1: string, arg2: string) {
+        this.arg1 = arg1;
+        this.arg2 = arg2;
+    }
+
+    public static fromRPCMethodValidateRequireOneOptions(options: RPCMethodValidateRequireOneOptions) {
+        return new RPCMethodValidateRequireOne(options.arg1, options.arg2);
+    }
+
+    public foundOne() {
+        this.__found__ += 1;
+    }
+
+    public isValid() {
+        return this.__found__ === 1;
+    }
+
+    public toString(): string {
+        let errorString = `One of the following must be provided [${this.arg1}, ${this.arg2}]`;
+        if (this.__found__ >= 1) {
+            errorString = `Only one of the following can be provided [${this.arg1}, ${this.arg2}]`;
+        }
+        return errorString;
+    }
 }
 
 export function RPCMethod(options?: RPCMethodOptions) {
@@ -204,5 +243,46 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
 
     if (failed.length > 0) {
         throw new rpc.Error.InvalidParams(`Invalid Date${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+    }
+
+    // Check Number format
+    // -------------------
+    if (validations && validations.number) {
+        for (let param of validations.number) {
+            if (args && args.hasOwnProperty(param)) {
+                if (typeof args[param] !== 'number' || isNaN(args[param])) {
+                    failed.push(param);
+                }
+            }
+        }
+    }
+
+    if (failed.length > 0) {
+        throw new rpc.Error.InvalidParams(`Invalid Number${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+    }
+
+    // Check Number format
+    // -------------------
+    if (validations && validations.requireOne) {
+        for (let requireOneOptions of validations.requireOne) {
+            let requireOne: RPCMethodValidateRequireOne = RPCMethodValidateRequireOne.fromRPCMethodValidateRequireOneOptions(
+                requireOneOptions,
+            );
+            if (args && args.hasOwnProperty(requireOne.arg1)) {
+                requireOne.foundOne();
+            }
+            if (args && args.hasOwnProperty(requireOne.arg2)) {
+                requireOne.foundOne();
+            }
+            if (!requireOne.isValid()) {
+                failed.push(`${requireOne}`);
+            }
+        }
+    }
+
+    if (failed.length > 0) {
+        throw new rpc.Error.InvalidParams(
+            `Invalid Parameter Combination${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`,
+        );
     }
 }

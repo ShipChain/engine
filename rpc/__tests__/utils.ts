@@ -105,6 +105,35 @@ export const expectInvalidDateParams = (throwable: Error, params: string[]) => {
     expect(throwable.message).toMatch(`${missingPrefix}: '${params.join(', ')}'`);
 };
 
+// RPCMethod decorator throws this error when provided argument does not match expected format
+export const expectInvalidNumberParams = (throwable: Error, params: string[]) => {
+    if(!throwable){
+        fail("No Error when one was expected!");
+        return;
+    }
+    const missingPrefix = `Invalid Number${params.length === 1 ? '' : 's'}`;
+    expect(throwable.message).toMatch(`${missingPrefix}: '${params.join(', ')}'`);
+};
+
+// RPCMethod decorator throws this error when provided argument does not match expected format
+export const expectInvalidParameterCombinationParams = (throwable: Error, options: string[][], provided: string[][]) => {
+    if(!throwable){
+        fail("No Error when one was expected!");
+        return;
+    }
+    const missingPrefix = `Invalid Parameter Combination${options.length === 1 ? '' : 's'}`;
+    let paramStrings = [];
+    for (let [index, option] of options.entries()) {
+        if (provided[index].length === 0) {
+            paramStrings.push(`One of the following must be provided [${option.join(', ')}]`);
+        }
+        if (provided[index].length === 2) {
+            paramStrings.push(`Only one of the following can be provided [${option.join(', ')}]`);
+        }
+    }
+    expect(throwable.message).toMatch(`${missingPrefix}: '${paramStrings.join(', ')}'`);
+};
+
 // RPCMethod decorated methods are called in the RPC Server context which handles
 // returning data and/or errors via callbacks.  Since we're calling these directly
 // we need a utility method to act as that callback to resolve/reject from the method
