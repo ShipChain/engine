@@ -341,10 +341,12 @@ export class RPCVault {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
             date: ['date'],
+            number: ['sequence'],
+            requireOne: [{ arg1: 'date', arg2: 'sequence' }],
         },
     })
     public static async GetHistoricalShipmentData(args) {
@@ -352,7 +354,13 @@ export class RPCVault {
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
-        const contents = await load.getHistoricalShipment(wallet, args.date);
+        let contents;
+
+        if (args.date) {
+            contents = await load.getHistoricalShipmentByDate(wallet, args.date);
+        } else {
+            contents = await load.getHistoricalShipmentBySequence(wallet, args.sequence);
+        }
 
         return {
             success: true,
@@ -363,10 +371,12 @@ export class RPCVault {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
             date: ['date'],
+            number: ['sequence'],
+            requireOne: [{ arg1: 'date', arg2: 'sequence' }],
         },
     })
     public static async GetHistoricalTrackingData(args) {
@@ -374,7 +384,13 @@ export class RPCVault {
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
-        const contents = await load.getHistoricalTracking(wallet, args.date);
+        let contents;
+
+        if (args.date) {
+            contents = await load.getHistoricalTrackingByDate(wallet, args.date);
+        } else {
+            contents = await load.getHistoricalTrackingBySequence(wallet, args.sequence);
+        }
 
         return {
             success: true,
@@ -385,11 +401,13 @@ export class RPCVault {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'date'],
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
             date: ['date'],
+            number: ['sequence'],
             string: ['documentName'],
+            requireOne: [{ arg1: 'date', arg2: 'sequence' }],
         },
     })
     public static async GetHistoricalDocument(args) {
@@ -397,7 +415,13 @@ export class RPCVault {
         const wallet = await Wallet.getById(args.vaultWallet);
 
         const load = new LoadVault(storage, args.vault);
-        const contents = await load.getHistoricalDocument(wallet, args.date, args.documentName);
+        let contents;
+
+        if (args.date) {
+            contents = await load.getHistoricalDocumentByDate(wallet, args.date, args.documentName);
+        } else {
+            contents = await load.getHistoricalDocumentBySequence(wallet, args.sequence, args.documentName);
+        }
 
         return {
             success: true,

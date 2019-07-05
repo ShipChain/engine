@@ -146,6 +146,16 @@ export class Vault {
         await ledger.addIndexedEntry(author, payload);
     }
 
+    async getHistoricalDataBySequence(author: Wallet, container: string = null, sequence: number, subFile?: string) {
+        return await this.containers[Vault.LEDGER_CONTAINER].decryptToIndex(
+            author,
+            container,
+            sequence,
+            subFile,
+            false,
+        );
+    }
+
     async getHistoricalDataByDate(author: Wallet, container: string = null, date: string, subFile?: string) {
         return await this.containers[Vault.LEDGER_CONTAINER].decryptToDate(author, container, date, subFile);
     }
@@ -1041,6 +1051,7 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
     }
 
     private paddedIndex(index: number = this.nextIndex): string {
+        // 9007199254740991 Max Safe Integer
         let paddedIndex: string = index + '';
         while (paddedIndex.length < ExternalFileLedgerContainer.INDEX_PADDING) {
             paddedIndex = '0' + paddedIndex;

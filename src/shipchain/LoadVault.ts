@@ -70,20 +70,40 @@ export class LoadVault extends Vault {
         return await this.containers[LoadVault.DOCUMENTS].listFiles();
     }
 
-    async getHistoricalShipment(author: Wallet, date: string) {
+    // Historical Retrievals
+    // =====================
+
+    async getHistoricalShipmentByDate(author: Wallet, date: string) {
         await this.loadMetadata();
         const contents = await this.getHistoricalDataByDate(author, LoadVault.SHIPMENT, date);
         contents.shipment = JSON.parse(contents.shipment);
         return contents;
     }
 
-    async getHistoricalTracking(author: Wallet, date: string) {
+    async getHistoricalTrackingByDate(author: Wallet, date: string) {
         await this.loadMetadata();
         return await this.getHistoricalDataByDate(author, LoadVault.TRACKING, date);
     }
 
-    async getHistoricalDocument(author: Wallet, date: string, documentName: string) {
+    async getHistoricalDocumentByDate(author: Wallet, date: string, documentName: string) {
         await this.loadMetadata();
         return await this.getHistoricalDataByDate(author, LoadVault.DOCUMENTS, date, documentName);
+    }
+
+    async getHistoricalShipmentBySequence(author: Wallet, sequence: number) {
+        await this.loadMetadata();
+        const contents = await this.getHistoricalDataBySequence(author, LoadVault.SHIPMENT, sequence);
+        contents.shipment = JSON.parse(contents.shipment);
+        return contents;
+    }
+
+    async getHistoricalTrackingBySequence(author: Wallet, sequence: number) {
+        await this.loadMetadata();
+        return await this.getHistoricalDataBySequence(author, LoadVault.TRACKING, sequence);
+    }
+
+    async getHistoricalDocumentBySequence(author: Wallet, sequence: number, documentName: string) {
+        await this.loadMetadata();
+        return await this.getHistoricalDataBySequence(author, LoadVault.DOCUMENTS, sequence, documentName);
     }
 }
