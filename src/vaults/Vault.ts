@@ -22,10 +22,12 @@ import * as path from 'path';
 import * as utils from '../utils';
 import { Logger } from '../Logger';
 
+import zlib from 'zlib';
+import compareVersions from 'compare-versions';
+
 // Import Moment Typings and Functions
 import { Moment } from 'moment';
 import moment from 'moment';
-import zlib from 'zlib';
 
 const logger = Logger.get(module.filename);
 
@@ -252,7 +254,7 @@ export class Vault {
     async getContainerContent(content: any, name: string): Promise<Container> {
         let container;
         let contentObject: object;
-        if (this.meta.version >= Vault.VAULT_VERSION__ZIP_CONTAINER) {
+        if (compareVersions.compare(this.meta.version, Vault.VAULT_VERSION__ZIP_CONTAINER, '>=')) {
             contentObject = JSON.parse(await this.decompressContent(content));
         } else {
             contentObject = content;
@@ -289,6 +291,14 @@ export class Vault {
         try {
             const data = await this.getFile(Vault.METADATA_FILE_NAME);
             this.meta = await JSON.parse(data);
+
+            if (compareVersions.compare(this.meta.version, Vault.CURRENT_VAULT_VERSION, '>')) {
+                throw new Error(
+                    `Vault version is not supported by this Engine.` +
+                        `[${this.meta.version}] > [${Vault.CURRENT_VAULT_VERSION}]`,
+                );
+            }
+
             this.containers = {};
             for (const name in this.meta.containers) {
                 this.containers[name] = await this.getContainerContent(this.meta.containers[name], name);
@@ -299,7 +309,7 @@ export class Vault {
             return this.meta;
         } catch (_err) {
             if (_err instanceof DriverError) {
-                throw new Error("Unable to load vault from Storage driver '" + _err.errorState + "'");
+                throw new Error(`Unable to load vault from Storage driver '${_err.errorState}'`);
             }
 
             if (_err instanceof SyntaxError) {
