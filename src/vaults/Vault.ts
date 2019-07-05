@@ -972,11 +972,58 @@ export class ExternalFileMultiContainer extends ExternalDirectoryContainer imple
     }
 }
 
+class LedgerEntry {
+    public type: string;
+    public action: string;
+    public name: string;
+
+    constructor(type: string, action: string, name: string) {
+        this.type = type;
+        this.action = action;
+        this.name = name;
+    }
+
+    public static fromIndexData(indexData: any): LedgerEntry {
+        const action = indexData.action.split('.');
+        const containerType = action[1];
+        const containerAction = action[2];
+        return new LedgerEntry(containerType, containerAction, indexData.name);
+    }
+
+    public isFileContainer(): Boolean {
+        return this.type.indexOf('_file') != -1;
+    }
+
+    public isListContainer(): Boolean {
+        return this.type.indexOf('_list') != -1;
+    }
+
+    public isMultiFileContainer(): Boolean {
+        return this.isFileContainer() && this.type.indexOf('_multi') != -1;
+    }
+
+    public isSingleFileContainer(): Boolean {
+        return this.isFileContainer() && this.type.indexOf('_multi') == -1;
+    }
+
+    public isMultiFileSetContentAction(): Boolean {
+        return this.isMultiFileContainer() && this.action.indexOf('setsinglecontent') != -1;
+    }
+
+    public isSingleFileSetContentAction(): Boolean {
+        return this.isSingleFileContainer() && this.action.indexOf('setcontents') != -1;
+    }
+
+    public isListAppendAction(): Boolean {
+        return this.isListContainer() && this.action.indexOf('append') != -1;
+    }
+}
+
 export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
     public container_type: string = 'external_file_ledger';
     private nextIndex: number;
     private static readonly INDEX_PADDING: number = 7;
-    private static readonly MOMENT_FORMAT: string = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
+    public static readonly MOMENT_FORMAT: string = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
     constructor(vault: Vault, name: string, meta?: any) {
         super(vault, name, meta);
@@ -996,65 +1043,108 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
         this.nextIndex = this.nextIndex + 1;
     }
 
-    async decryptToIndex(user: Wallet, container: string = null, index: number = this.nextIndex - 1, subFile?: string) {
+    private static getFileContent(
+        ledgerEntry: LedgerEntry,
+        indexData: any,
+        decryptedContainers: any,
+        subFile?: string,
+    ) {
+        let foundApplicableData = false;
+
+        // Multi-file containers
+        if (ledgerEntry.isMultiFileSetContentAction()) {
+            if (!decryptedContainers[ledgerEntry.name]) {
+                decryptedContainers[ledgerEntry.name] = {};
+            }
+
+            if (subFile) {
+                if (subFile === indexData.params.fileName) {
+                    decryptedContainers[ledgerEntry.name][subFile] = indexData.params.blob;
+                    foundApplicableData = true;
+                }
+            } else {
+                decryptedContainers[ledgerEntry.name][indexData.params.fileName] = indexData.params.blob;
+                foundApplicableData = true;
+            }
+        }
+
+        // Single-file containers
+        else if (ledgerEntry.isSingleFileSetContentAction()) {
+            decryptedContainers[ledgerEntry.name] = indexData.params;
+            foundApplicableData = true;
+        }
+
+        return [foundApplicableData, decryptedContainers];
+    }
+
+    async decryptToIndex(
+        user: Wallet,
+        container: string = null,
+        index: number = this.nextIndex - 1,
+        subFile?: string,
+        approximateIndex: boolean = true,
+    ) {
         let foundApplicableData: boolean = false;
         let decryptedContainers = {};
+        let ledgerEntry: LedgerEntry = null;
 
-        for (let desiredIndex = 1; desiredIndex <= index && desiredIndex < this.nextIndex; desiredIndex++) {
-            let indexData = await this.decryptContents(user, this.paddedIndex(+desiredIndex));
+        // If container type is a file, then go straight to index
+        if (!approximateIndex && container && this.vault.containers[container].container_type.indexOf('_file') != -1) {
+            let indexData = await this.decryptContents(user, this.paddedIndex(+index));
             indexData = JSON.parse(indexData);
-            const containerName = indexData.name;
 
-            if (!container || containerName === container) {
-                const action = indexData.action.split('.');
-                const containerType = action[1];
-                const containerAction = action[2];
+            ledgerEntry = LedgerEntry.fromIndexData(indexData);
 
-                // Rebuild File containers
-                if (containerType.indexOf('_file') != -1) {
-                    // Multi-file containers
-                    if (containerType.indexOf('_multi') != -1) {
-                        if (containerAction.indexOf('setsinglecontent') != -1) {
-                            if (!decryptedContainers[containerName]) {
-                                decryptedContainers[containerName] = {};
-                            }
+            if (container != ledgerEntry.name) {
+                throw new Error(`Ledger data at index ${index} is not for container ${container}`);
+            }
 
-                            if (subFile) {
-                                if (subFile === indexData.params.fileName) {
-                                    decryptedContainers[containerName][subFile] = indexData.params.blob;
-                                    foundApplicableData = true;
-                                }
-                            } else {
-                                decryptedContainers[containerName][indexData.params.fileName] = indexData.params.blob;
-                                foundApplicableData = true;
-                            }
-                        }
+            [foundApplicableData, decryptedContainers] = ExternalFileLedgerContainer.getFileContent(
+                ledgerEntry,
+                indexData,
+                decryptedContainers,
+                subFile,
+            );
+        }
+
+        // Otherwise we'll have to rebuild one by one
+        else {
+            for (let desiredIndex = 1; desiredIndex <= index && desiredIndex < this.nextIndex; desiredIndex++) {
+                let foundApplicableDataAtIndex = false;
+                let indexData = await this.decryptContents(user, this.paddedIndex(+desiredIndex));
+                indexData = JSON.parse(indexData);
+
+                ledgerEntry = LedgerEntry.fromIndexData(indexData);
+
+                if (!container || ledgerEntry.name === container) {
+                    // Rebuild File containers
+                    if (ledgerEntry.isFileContainer()) {
+                        [foundApplicableDataAtIndex, decryptedContainers] = ExternalFileLedgerContainer.getFileContent(
+                            ledgerEntry,
+                            indexData,
+                            decryptedContainers,
+                            subFile,
+                        );
                     }
 
-                    // Single-file containers
-                    else {
-                        if (containerAction.indexOf('setcontents') != -1) {
-                            decryptedContainers[containerName] = indexData.params;
-                            foundApplicableData = true;
+                    // Rebuild List containers
+                    else if (ledgerEntry.isListContainer()) {
+                        if (!decryptedContainers[container]) {
+                            decryptedContainers[container] = [];
+                        }
+                        if (ledgerEntry.isListAppendAction()) {
+                            decryptedContainers[container].push(indexData.params);
+                            foundApplicableDataAtIndex = true;
                         }
                     }
                 }
 
-                // Rebuild List containers
-                else if (containerType.indexOf('_list') != -1) {
-                    if (!decryptedContainers[containerName]) {
-                        decryptedContainers[containerName] = [];
-                    }
-                    if (containerAction.indexOf('append') != -1) {
-                        decryptedContainers[containerName].push(indexData.params);
-                        foundApplicableData = true;
-                    }
-                }
+                foundApplicableData = foundApplicableData || foundApplicableDataAtIndex;
             }
         }
 
         if (!foundApplicableData) {
-            throw new Error(`No data found for date`);
+            throw new Error(`No data found at specific sequence`);
         }
 
         return decryptedContainers;
@@ -1100,14 +1190,18 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
             }
         }
 
-        if (toIndex != -1) {
+        if (toIndex == -1) {
+            throw new Error(`No data found for date`);
+        }
+
+        try {
             return {
                 on_date: onDate,
                 ...(await this.decryptToIndex(user, container, toIndex, subFile)),
             };
+        } catch (err) {
+            throw new Error(`No data found for date`);
         }
-
-        throw new Error('No data found for date');
     }
 
     async buildMetadata(author: Wallet) {
