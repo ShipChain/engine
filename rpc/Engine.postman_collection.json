@@ -1,13 +1,12 @@
 {
 	"info": {
-		"_postman_id": "72a5b104-82ad-409a-9187-9934ec2d92a4",
+		"_postman_id": "78855f56-57b2-44a4-8e0e-dabb744fc9de",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "wallet",
-			"description": null,
 			"item": [
 				{
 					"name": "wallet.create_hosted",
@@ -125,7 +124,6 @@
 		},
 		{
 			"name": "event",
-			"description": null,
 			"item": [
 				{
 					"name": "event.subscribe",
@@ -187,7 +185,6 @@
 		},
 		{
 			"name": "storage_credentials",
-			"description": null,
 			"item": [
 				{
 					"name": "storage_credentials.create_hosted (S3)",
@@ -445,7 +442,6 @@
 		},
 		{
 			"name": "transaction",
-			"description": null,
 			"item": [
 				{
 					"name": "transaction.sign",
@@ -521,7 +517,6 @@
 		},
 		{
 			"name": "vault",
-			"description": null,
 			"item": [
 				{
 					"name": "vault.create_vault",
@@ -832,7 +827,7 @@
 					"response": []
 				},
 				{
-					"name": "vault.get_historical_document",
+					"name": "vault.get_historical_document [date]",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -860,7 +855,35 @@
 					"response": []
 				},
 				{
-					"name": "vault.get_historical_tracking_data",
+					"name": "vault.get_historical_document  [sequence]",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.get_historical_document\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"sequence\": 2,\n\t\t\"documentName\": \"example.png\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.get_historical_tracking_data [date]",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -888,7 +911,35 @@
 					"response": []
 				},
 				{
-					"name": "vault.get_historical_shipment_data",
+					"name": "vault.get_historical_tracking_data  [sequence]",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.get_historical_tracking_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"sequence\": 2\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.get_historical_shipment_data [date]",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -914,20 +965,45 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "vault.get_historical_shipment_data [sequence]",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.get_historical_shipment_data\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"a350758d-2dd8-4bab-b983-2390657bbc25\",\n\t\t\"vaultWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\",\n\t\t\"vault\": \"2ed96ba9-26d4-4f26-b3da-c45562268480\",\n\t\t\"sequence\": 2\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
 			"name": "load",
-			"description": null,
 			"item": [
 				{
 					"name": "load.1.0.2",
-					"description": null,
 					"item": [
 						{
 							"name": "tx",
-							"description": "These requests generate a transaction that needs to be signed and submitted via `transaction.sign` and `transaction.send`, respetively.\n\nGenerated transaction is stored in a Postman environment variable `tx_unsigned` by the \"Test\" script defined here.",
 							"item": [
 								{
 									"name": "load.1.0.2.create_shipment_transaction",
@@ -1330,6 +1406,7 @@
 									"response": []
 								}
 							],
+							"description": "These requests generate a transaction that needs to be signed and submitted via `transaction.sign` and `transaction.send`, respetively.\n\nGenerated transaction is stored in a Postman environment variable `tx_unsigned` by the \"Test\" script defined here.",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -1358,7 +1435,6 @@
 						},
 						{
 							"name": "status",
-							"description": null,
 							"item": [
 								{
 									"name": "load.1.0.2.get_shipment_details",
@@ -1492,11 +1568,9 @@
 				},
 				{
 					"name": "load.1.1.0",
-					"description": null,
 					"item": [
 						{
 							"name": "tx",
-							"description": null,
 							"item": [
 								{
 									"name": "load.1.1.0.create_shipment_tx",
@@ -2087,7 +2161,6 @@
 						},
 						{
 							"name": "status",
-							"description": null,
 							"item": [
 								{
 									"name": "load.1.1.0.get_shipment_data",
