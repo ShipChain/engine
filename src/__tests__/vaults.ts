@@ -616,6 +616,12 @@ export const VaultTests = async function() {
 
         let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
+
+        let test_3 = await vault.getHistoricalDataBySequence(author, CONTAINER, 1);
+        expect(test_3[CONTAINER]).toEqual([{minute: 2}]);
+
+        let test_4 = await vault.getHistoricalDataBySequence(author, CONTAINER, 2);
+        expect(test_4[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
     });
 
     it(`can view historical External List content`, async () => {
@@ -658,6 +664,12 @@ export const VaultTests = async function() {
 
         let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
+
+        let test_3 = await vault.getHistoricalDataBySequence(author, CONTAINER, 1);
+        expect(test_3[CONTAINER]).toEqual([{minute: 2}]);
+
+        let test_4 = await vault.getHistoricalDataBySequence(author, CONTAINER, 2);
+        expect(test_4[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
     });
 
     it(`can view historical External List Daily content`, async () => {
@@ -700,6 +712,12 @@ export const VaultTests = async function() {
 
         let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
+
+        let test_3 = await vault.getHistoricalDataBySequence(author, CONTAINER, 1);
+        expect(test_3[CONTAINER]).toEqual([{minute: 2}]);
+
+        let test_4 = await vault.getHistoricalDataBySequence(author, CONTAINER, 2);
+        expect(test_4[CONTAINER]).toEqual([{minute: 2}, {minute: 4}]);
     });
 
     it(`can view historical Embedded File content`, async () => {
@@ -740,6 +758,12 @@ export const VaultTests = async function() {
 
         let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual("4");
+
+        let test_3 = await vault.getHistoricalDataBySequence(author, CONTAINER, 1);
+        expect(test_3[CONTAINER]).toEqual("2");
+
+        let test_4 = await vault.getHistoricalDataBySequence(author, CONTAINER, 2);
+        expect(test_4[CONTAINER]).toEqual("4");
     });
 
     it(`can view historical External File content`, async () => {
@@ -780,6 +804,12 @@ export const VaultTests = async function() {
 
         let test_2 = await vault.getHistoricalDataByDate(author, CONTAINER, DATE_5);
         expect(test_2[CONTAINER]).toEqual("4");
+
+        let test_3 = await vault.getHistoricalDataBySequence(author, CONTAINER, 1);
+        expect(test_3[CONTAINER]).toEqual("2");
+
+        let test_4 = await vault.getHistoricalDataBySequence(author, CONTAINER, 2);
+        expect(test_4[CONTAINER]).toEqual("4");
     });
 
     it(`can view historical External File Multi content`, async () => {
