@@ -66,19 +66,22 @@ class RPCMethodValidateRequireOne {
     arg1: string;
     arg2: string;
 
-    private __found__: number = 0;
+    private readonly __found__: number = 0;
 
-    constructor(arg1: string, arg2: string) {
+    constructor(arg1: string, arg2: string, providedArgs: any) {
         this.arg1 = arg1;
         this.arg2 = arg2;
+
+        if (providedArgs && providedArgs.hasOwnProperty(this.arg1)) {
+            this.__found__ += 1;
+        }
+        if (providedArgs && providedArgs.hasOwnProperty(this.arg2)) {
+            this.__found__ += 1;
+        }
     }
 
-    public static fromRPCMethodValidateRequireOneOptions(options: RPCMethodValidateRequireOneOptions) {
-        return new RPCMethodValidateRequireOne(options.arg1, options.arg2);
-    }
-
-    public foundOne() {
-        this.__found__ += 1;
+    public static fromOptions(options: RPCMethodValidateRequireOneOptions, args: any) {
+        return new RPCMethodValidateRequireOne(options.arg1, options.arg2, args);
     }
 
     public isValid() {
@@ -265,15 +268,10 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     // -------------------
     if (validations && validations.requireOne) {
         for (let requireOneOptions of validations.requireOne) {
-            let requireOne: RPCMethodValidateRequireOne = RPCMethodValidateRequireOne.fromRPCMethodValidateRequireOneOptions(
+            let requireOne: RPCMethodValidateRequireOne = RPCMethodValidateRequireOne.fromOptions(
                 requireOneOptions,
+                args,
             );
-            if (args && args.hasOwnProperty(requireOne.arg1)) {
-                requireOne.foundOne();
-            }
-            if (args && args.hasOwnProperty(requireOne.arg2)) {
-                requireOne.foundOne();
-            }
             if (!requireOne.isValid()) {
                 failed.push(`${requireOne}`);
             }
