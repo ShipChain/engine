@@ -762,13 +762,19 @@ Listing the files included in this container is performed via:
 
 An Engine Vault contains a running Ledger of all actions taken in each Container.  This data is encrypted with a special role and is viewable by users in that Ledger role only; by default the Shipper is included in this role.  This provides the ability to generate Vault data that was present at any previous date by replaying previous actions up to the specified date.
 
-Each of the above containers (shipment, tracking, documents) support this historical retrieval and getting this prior data is handled via new RPC methods.
+Each of the above containers (shipment, tracking, documents) support this historical retrieval and getting this prior data is handled via these RPC methods.
 
  - `get_historical_shipment_data`
  - `get_historical_tracking_data`
  - `get_historical_document`
 
-These are called the same as their non-historical counterparts, except they require an additional parameter `date`. This new parameter is the date (UTC) at which you wish to view the contents. If no contents existed before the date you specify, you will receive an error indicating this. The format of this new date field follows the ISO8601 standard `YYYY-MM-DDTHH:mm:ss.SSSZ`.
+These are called the same as their non-historical counterparts, except they require one of two additional parameters `date` or `sequence`. These new parameters specify a version of the vault to get the data from; either the date (UTC) or the vault sequence at which you wish to view the contents.
+
+##### Date
+
+Specifying a Date will perform a type of "fuzzy" retrieval.  If no contents existed before the date you specify, you will receive an error indicating this. 
+However, if data has existed prior to the date you specify, then you will get the value of the data _that would have existed_ at the time, even if there 
+was no specific data storage action at that timestamp.  The format of this new date field follows the ISO8601 standard `YYYY-MM-DDTHH:mm:ss.SSSZ`.
 
 For example, to retrieve the contents of the file `example.png` as it existed in the vault as of 2:00 pm UTC on November 1st, 2018 use the following request:
 
@@ -786,6 +792,12 @@ For example, to retrieve the contents of the file `example.png` as it existed in
   "id": 0
 }
 ```
+
+##### Sequence
+
+Specifying a sequence will perform an exact lookup in the ledger.  If no data for the specified container exists at the sequence you will receive an error 
+indicating this. The only exception to this is List based containers, these will still perform a scan through the ledger to rebuild the data up to the
+specified index.
 
 ### Load Contract
 

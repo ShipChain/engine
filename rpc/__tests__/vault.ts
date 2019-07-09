@@ -30,6 +30,8 @@ import {
     expectMissingRequiredParams,
     expectInvalidUUIDParams,
     expectInvalidDateParams,
+    expectInvalidNumberParams,
+    expectInvalidParameterCombinationParams,
     cleanupEntities,
     CallRPCMethod,
 } from "./utils";
@@ -1613,7 +1615,43 @@ export const RPCVaultTests = async function() {
                 caughtError = err;
             }
 
-            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault', 'date']);
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Requires date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalShipmentData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [[]]);
+        }));
+
+        it(`Requires only date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalShipmentData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_1,
+                    sequence: 1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [['date', 'sequence']]);
         }));
 
         it(`Validates UUID parameters`, mochaAsync(async () => {
@@ -1650,6 +1688,24 @@ export const RPCVaultTests = async function() {
             }
 
             expectInvalidDateParams(caughtError, ['date']);
+        }));
+
+        it(`Validates Number parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalShipmentData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 'not a number',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidNumberParams(caughtError, ['sequence']);
         }));
 
         it(`Validates StorageCredentials exists`, mochaAsync(async () => {
@@ -1780,6 +1836,63 @@ export const RPCVaultTests = async function() {
                 fail(`Should not have thrown [${err}]`);
             }
         }));
+
+        it(`Throws when sequence is not for container`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalShipmentData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Ledger data at index 1 is not for container shipment`);
+            }
+        }));
+
+        it(`Returns intermediate data at a sequence for shipment data`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalShipmentData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 2,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    shipment: {
+                        id: knownShipmentSchemaId,
+                        version: '0.0.1',
+                    },
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
+        it(`Returns other data at a sequence for shipment data`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalShipmentData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 6,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    shipment: {
+                        id: knownShipmentSchemaId,
+                        version: '0.0.2',
+                    },
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
     });
 
     describe('GetHistoricalTrackingData', function() {
@@ -1793,7 +1906,43 @@ export const RPCVaultTests = async function() {
                 caughtError = err;
             }
 
-            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault', 'date']);
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Requires date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTrackingData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [[]]);
+        }));
+
+        it(`Requires only date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTrackingData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_1,
+                    sequence: 1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [['date', 'sequence']]);
         }));
 
         it(`Validates UUID parameters`, mochaAsync(async () => {
@@ -1830,6 +1979,24 @@ export const RPCVaultTests = async function() {
             }
 
             expectInvalidDateParams(caughtError, ['date']);
+        }));
+
+        it(`Validates Number parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTrackingData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 'not a number',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidNumberParams(caughtError, ['sequence']);
         }));
 
         it(`Validates StorageCredentials exists`, mochaAsync(async () => {
@@ -1959,6 +2126,63 @@ export const RPCVaultTests = async function() {
                 fail(`Should not have thrown [${err}]`);
             }
         }));
+
+        it(`Throws when no data exists for sequence`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalTrackingData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 0,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`No data found at specific sequence`);
+            }
+        }));
+
+        it(`Returns Tracking data up to a sequence 2`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalTrackingData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 3,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    tracking: [{
+                        'some': 'data',
+                    }],
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
+        it(`Returns Tracking data up to a sequence 3`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalTrackingData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 8,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    tracking: [{
+                        'some': 'data',
+                    },{
+                        'more': 'data',
+                    }],
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
     });
 
     describe('GetHistoricalDocument', function() {
@@ -1972,7 +2196,43 @@ export const RPCVaultTests = async function() {
                 caughtError = err;
             }
 
-            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault', 'date']);
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Requires date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [[]]);
+        }));
+
+        it(`Requires only date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_1,
+                    sequence: 1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [['date', 'sequence']]);
         }));
 
         it(`Validates UUID parameters`, mochaAsync(async () => {
@@ -2009,6 +2269,24 @@ export const RPCVaultTests = async function() {
             }
 
             expectInvalidDateParams(caughtError, ['date']);
+        }));
+
+        it(`Validates Number parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 'not a number',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidNumberParams(caughtError, ['sequence']);
         }));
 
         it(`Validates documentName is string if provided`, mochaAsync(async () => {
@@ -2192,6 +2470,59 @@ export const RPCVaultTests = async function() {
                 fail("Did not Throw"); return;
             } catch (err) {
                 expect(err.message).toEqual(`No data found for date`);
+            }
+        }));
+
+        it(`Throws when sequence is not for container`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 1,
+                    documentName: 'none.png',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`Ledger data at index 1 is not for container documents`);
+            }
+        }));
+
+        it(`Throws when no data for specific document exists for sequence`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 3,
+                    documentName: 'none.png',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toEqual(`No data found at specific sequence`);
+            }
+        }));
+
+        it(`Returns data at a sequence for specific document when exists`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalDocument, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 3,
+                    documentName: 'test.png',
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    documents: {
+                        'test.png': knownDocumentContent,
+                    },
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
             }
         }));
     });
