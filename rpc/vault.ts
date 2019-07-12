@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { RemoteVault } from '../src/vaults/RemoteVault';
+
 const AWS = require('aws-sdk');
 
 import { Wallet } from '../src/entity/Wallet';
@@ -429,5 +431,13 @@ export class RPCVault {
             load_id: args.vault,
             historical_data: contents,
         };
+    }
+
+    @RPCMethod({
+        require: ['linkEntry'],
+    })
+    public static async GetLinkedData(args) {
+        const remoteVault = new RemoteVault(args.linkEntry);
+        return await remoteVault.getLinkedDataInternally();
     }
 }

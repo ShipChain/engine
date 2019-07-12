@@ -20,6 +20,7 @@ import { Vault } from './Vault';
 import { EmbeddedFileContainer, EmbeddedListContainer } from './containers/EmbeddedContainer';
 import { ExternalFileContainer, ExternalListContainer } from './containers/ExternalContainer';
 import { ExternalFileMultiContainer, ExternalListDailyContainer } from './containers/ExternalDirectoryContainer';
+import { LinkContainer } from "./containers/LinkContainer";
 import { ExternalFileLedgerContainer } from './containers/LedgerContainer';
 
 export class ContainerFactory<T extends Container> {
@@ -45,6 +46,10 @@ export class ContainerFactory<T extends Container> {
                 return new ExternalListContainer(vault, name, meta);
             case 'external_list_daily':
                 return new ExternalListDailyContainer(vault, name, meta);
+
+            // Link Container
+            case 'link':
+                return new LinkContainer(vault, name, meta);
 
             // Ledger Container
             // ----------------
