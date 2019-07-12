@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import { StorageDriverFactory } from "../storage/StorageDriverFactory";
-import { DriverError, StorageDriver } from "../storage/StorageDriver";
-import { Container } from "./Container";
-import { Wallet } from "../entity/Wallet";
+import { StorageDriverFactory } from '../storage/StorageDriverFactory';
+import { DriverError, StorageDriver } from '../storage/StorageDriver';
+import { ContainerFactory } from './ContainerFactory';
+import { Container } from './Container';
+import { Wallet } from '../entity/Wallet';
 
-import { ResourceLock } from "../redis";
-import * as path from "path";
-import * as utils from "../utils";
-import { Logger } from "../Logger";
+import { ResourceLock } from '../redis';
+import * as path from 'path';
+import * as utils from '../utils';
+import { Logger } from '../Logger';
 
-import zlib from "zlib";
-import compareVersions from "compare-versions";
-
+import zlib from 'zlib';
+import compareVersions from 'compare-versions';
 
 const logger = Logger.get(module.filename);
 
@@ -268,7 +268,7 @@ export class Vault {
         } else {
             contentObject = content;
         }
-        container = Container.typeFactory(contentObject['container_type'], this, name, contentObject);
+        container = ContainerFactory.create(contentObject['container_type'], this, name, contentObject);
         return container;
     }
 
@@ -382,7 +382,7 @@ export class Vault {
     getOrCreateContainer(author: Wallet, name: string, container_type?: string, meta?: any) {
         if (this.containers[name] instanceof Container) return this.containers[name];
         this.logAction(author, 'create_container', { name, container_type });
-        const container = Container.typeFactory(container_type || 'embedded_file', this, name, meta);
+        const container = ContainerFactory.create(container_type || 'embedded_file', this, name, meta);
         this.containers[name] = container;
         return container;
     }
