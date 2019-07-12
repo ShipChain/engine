@@ -20,7 +20,7 @@ import { StorageCredential } from '../entity/StorageCredential';
 import { Wallet } from '../entity/Wallet';
 
 import { URL } from 'url';
-import { LinkEntry } from "./containers/LinkContainer";
+import { LinkEntry } from './containers/LinkContainer';
 
 const rpc = require('json-rpc2');
 
@@ -28,7 +28,7 @@ const logger = Logger.get(module.filename);
 
 export class RemoteVault {
     private readonly linkEntry: LinkEntry;
-    constructor(linkEntry: LinkEntry){
+    constructor(linkEntry: LinkEntry) {
         this.linkEntry = linkEntry;
     }
 
@@ -41,7 +41,6 @@ export class RemoteVault {
             result = await this.getLinkedDataInternally();
         }
 
-        // return this.linkEntry.isJson ? JSON.parse(result) : result;
         return result;
     }
 
@@ -51,15 +50,19 @@ export class RemoteVault {
 
         // Call RPC for remote Engine
         await new Promise((resolve, reject) => {
-            client.call('vaults.linked.get_linked_data', {
-                'linkEntry': this.linkEntry,
-            }, (err, data) => {
-                if (err) {
-                    reject(`Remote Engine unable to load linked data [${err && err.message ? err.message : err}]`);
-                } else {
-                    resolve(data);
-                }
-            });
+            client.call(
+                'vaults.linked.get_linked_data',
+                {
+                    linkEntry: this.linkEntry,
+                },
+                (err, data) => {
+                    if (err) {
+                        reject(`Remote Engine unable to load linked data [${err && err.message ? err.message : err}]`);
+                    } else {
+                        resolve(data);
+                    }
+                },
+            );
         });
     }
 
@@ -68,6 +71,19 @@ export class RemoteVault {
         const wallet = await Wallet.getById(this.linkEntry.remoteWallet);
         const vault = new Vault(storage, this.linkEntry.remoteVault);
         await vault.loadMetadata();
-        return await vault.getHistoricalDataBySequence(wallet, this.linkEntry.container, this.linkEntry.revision, this.linkEntry.subFile);
+        let vaultData = await vault.getHistoricalDataBySequence(
+            wallet,
+            this.linkEntry.container,
+            this.linkEntry.revision,
+            this.linkEntry.subFile,
+        );
+
+        vaultData = vaultData[this.linkEntry.container];
+
+        if (this.linkEntry.subFile) {
+            vaultData = vaultData[this.linkEntry.subFile];
+        }
+
+        return vaultData;
     }
 }

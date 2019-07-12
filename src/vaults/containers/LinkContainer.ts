@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Container } from "../Container";
-import { Vault } from "../Vault";
-import { RemoteVault } from "../RemoteVault";
-import { Wallet } from "../../entity/Wallet";
+import { Container } from '../Container';
+import { Vault } from '../Vault';
+import { RemoteVault } from '../RemoteVault';
+import { Wallet } from '../../entity/Wallet';
 
 import * as utils from '../../utils';
 
@@ -32,11 +32,10 @@ export class LinkEntry {
     hash: string;
 
     subFile?: string;
-    isJson: boolean = false;
 }
 
 export class LinkContainer extends Container {
-    public container_type: string = "link";
+    public container_type: string = 'link';
     public linkEntries: { string?: LinkEntry } = null;
 
     constructor(vault: Vault, name: string, meta?: any) {
@@ -55,10 +54,20 @@ export class LinkContainer extends Container {
         return await otherVault.getLinkedData();
     }
 
-    async addLink(author: Wallet, linkEntry: LinkEntry) {
-        this.linkEntries[utils.uuidv4()] = linkEntry;
+    async getLinkEntry(linkId: string) {
+        const linkEntry: LinkEntry = this.linkEntries[linkId];
+
+        if (!linkEntry) {
+            throw new Error(`LinkID [${linkId}] not found!`);
+        }
+
+        return linkEntry;
+    }
+
+    async addLink(author: Wallet, linkEntry: LinkEntry, linkId: string) {
+        this.linkEntries[linkId] = linkEntry;
         const hash = utils.objectHash(linkEntry);
-        await this.updateLedger(author, "addlink", linkEntry, { hash });
+        await this.updateLedger(author, 'addlink', linkEntry, { hash });
     }
 
     async encryptContents() {

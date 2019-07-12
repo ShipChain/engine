@@ -20,7 +20,7 @@ import { Vault } from './Vault';
 import { EmbeddedFileContainer, EmbeddedListContainer } from './containers/EmbeddedContainer';
 import { ExternalFileContainer, ExternalListContainer } from './containers/ExternalContainer';
 import { ExternalFileMultiContainer, ExternalListDailyContainer } from './containers/ExternalDirectoryContainer';
-import { LinkContainer } from "./containers/LinkContainer";
+import { LinkContainer } from './containers/LinkContainer';
 import { ExternalFileLedgerContainer } from './containers/LedgerContainer';
 
 export class ContainerFactory<T extends Container> {
