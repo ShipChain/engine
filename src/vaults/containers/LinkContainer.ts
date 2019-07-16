@@ -23,12 +23,12 @@ import * as utils from '../../utils';
 
 export class LinkEntry {
     remoteUrl?: string;
-    remoteWallet?: string;
-    remoteStorage?: string;
 
     remoteVault: string;
-    revision: number;
+    remoteWallet: string;
+    remoteStorage: string;
     container: string;
+    revision: number;
     hash: string;
 
     subFile?: string;
