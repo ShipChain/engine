@@ -22,9 +22,9 @@ require('./testLoggingConfig');
 import 'mocha';
 import { Vault } from '../vaults/Vault';
 import { Wallet } from '../entity/Wallet';
-import { PrivateKeyDBFieldEncryption } from "../entity/encryption/PrivateKeyDBFieldEncryption";
 import { CloseConnection } from "../redis";
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
+import { StorageCredential } from "../entity/StorageCredential";
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 const CONTAINER = 'test2';
@@ -576,6 +576,363 @@ export const VaultTests = async function() {
 
         expect(arrayUri[2]).toEqual(storageWithId.__id);
         expect(arrayUri[3]).toEqual(storageWithId.id);
+    });
+
+    it('Can add and retrieve linkEntry from a link container', async () => {
+        const linkId = 'Link_ID';
+        let author = await Wallet.generate_entity();
+
+        let vault = new Vault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+
+        const linkEntry = {
+            remoteVault: 'vault.id',
+            remoteWallet: 'author.id',
+            remoteStorage: 'storage.id',
+            revision: 1337,
+            container: 'a_container',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_driver, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const returnedLinkEntry = await linkContainer.getLinkEntry(linkId);
+
+        expect(returnedLinkEntry).toEqual(linkEntry);
+    });
+
+    it('Can add and retrieve from a link container -- embedded_list', async () => {
+        const listData = 'linked data to be returned';
+        const linkId = 'linkId';
+
+        let author = await Wallet.generate_entity();
+        let storage = await StorageCredential.generate_entity({
+            ...storage_driver,
+            title: 'test credentials',
+        });
+
+        await storage.save();
+        await author.save();
+        const storage_options = await storage.getDriverOptions();
+
+        let vault = new Vault(storage_options);
+        await vault.getOrCreateMetadata(author);
+
+        let fileContainer = vault.getOrCreateContainer(author, 'list_test', 'embedded_list');
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+        await fileContainer.append(author, listData);
+
+        const linkEntry = {
+            remoteVault: vault.id,
+            remoteWallet: author.id,
+            remoteStorage: storage.id,
+            revision: 1,
+            container: 'list_test',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_options, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const remoteData = await linkContainer.getLinkedContent(linkId);
+
+        expect(remoteData).toEqual([listData]);
+    });
+
+    it('Can add and retrieve from a link container -- external_list', async () => {
+        const listData = 'linked data to be returned';
+        const linkId = 'linkId';
+
+        let author = await Wallet.generate_entity();
+        let storage = await StorageCredential.generate_entity({
+            ...storage_driver,
+            title: 'test credentials',
+        });
+
+        await storage.save();
+        await author.save();
+        const storage_options = await storage.getDriverOptions();
+
+        let vault = new Vault(storage_options);
+        await vault.getOrCreateMetadata(author);
+
+        let fileContainer = vault.getOrCreateContainer(author, 'list_test', 'external_list');
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+        await fileContainer.append(author, listData);
+
+        const linkEntry = {
+            remoteVault: vault.id,
+            remoteWallet: author.id,
+            remoteStorage: storage.id,
+            revision: 1,
+            container: 'list_test',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_options, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const remoteData = await linkContainer.getLinkedContent(linkId);
+
+        expect(remoteData).toEqual([listData]);
+    });
+
+    it('Can add and retrieve from a link container -- external_list_daily', async () => {
+        const listData = 'linked data to be returned';
+        const linkId = 'linkId';
+
+        let author = await Wallet.generate_entity();
+        let storage = await StorageCredential.generate_entity({
+            ...storage_driver,
+            title: 'test credentials',
+        });
+
+        await storage.save();
+        await author.save();
+        const storage_options = await storage.getDriverOptions();
+
+        let vault = new Vault(storage_options);
+        await vault.getOrCreateMetadata(author);
+
+        let fileContainer = vault.getOrCreateContainer(author, 'list_test', 'external_list_daily');
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+        await fileContainer.append(author, listData);
+
+        const linkEntry = {
+            remoteVault: vault.id,
+            remoteWallet: author.id,
+            remoteStorage: storage.id,
+            revision: 1,
+            container: 'list_test',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_options, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const remoteData = await linkContainer.getLinkedContent(linkId);
+
+        expect(remoteData).toEqual([listData]);
+    });
+
+    it('Can add and retrieve from a link container -- embedded_file', async () => {
+        const fileData = 'linked data to be returned';
+        const linkId = 'linkId';
+
+        let author = await Wallet.generate_entity();
+        let storage = await StorageCredential.generate_entity({
+            ...storage_driver,
+            title: 'test credentials',
+        });
+
+        await storage.save();
+        await author.save();
+        const storage_options = await storage.getDriverOptions();
+
+        let vault = new Vault(storage_options);
+        await vault.getOrCreateMetadata(author);
+
+        let fileContainer = vault.getOrCreateContainer(author, 'file_test', 'embedded_file');
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+        await fileContainer.setContents(author, fileData);
+
+        const linkEntry = {
+            remoteVault: vault.id,
+            remoteWallet: author.id,
+            remoteStorage: storage.id,
+            revision: 1,
+            container: 'file_test',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_options, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const remoteData = await linkContainer.getLinkedContent(linkId);
+
+        expect(remoteData).toEqual(fileData);
+    });
+
+    it('Can add and retrieve from a link container -- external_file', async () => {
+        const fileData = 'linked data to be returned';
+        const linkId = 'linkId';
+
+        let author = await Wallet.generate_entity();
+        let storage = await StorageCredential.generate_entity({
+            ...storage_driver,
+            title: 'test credentials',
+        });
+
+        await storage.save();
+        await author.save();
+        const storage_options = await storage.getDriverOptions();
+
+        let vault = new Vault(storage_options);
+        await vault.getOrCreateMetadata(author);
+
+        let fileContainer = vault.getOrCreateContainer(author, 'file_test', 'external_file');
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+        await fileContainer.setContents(author, fileData);
+
+        const linkEntry = {
+            remoteVault: vault.id,
+            remoteWallet: author.id,
+            remoteStorage: storage.id,
+            revision: 1,
+            container: 'file_test',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_options, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const remoteData = await linkContainer.getLinkedContent(linkId);
+
+        expect(remoteData).toEqual(fileData);
+    });
+
+    it('Can add and retrieve from a link container -- external_file_multi', async () => {
+        const fileData = 'linked data to be returned';
+        const linkId = 'linkId';
+
+        let author = await Wallet.generate_entity();
+        let storage = await StorageCredential.generate_entity({
+            ...storage_driver,
+            title: 'test credentials',
+        });
+
+        await storage.save();
+        await author.save();
+        const storage_options = await storage.getDriverOptions();
+
+        let vault = new Vault(storage_options);
+        await vault.getOrCreateMetadata(author);
+
+        let fileContainer = vault.getOrCreateContainer(author, 'file_test', 'external_file_multi');
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+        await fileContainer.setSingleContent(author, 'test.txt', fileData);
+
+        const linkEntry = {
+            remoteVault: vault.id,
+            remoteWallet: author.id,
+            remoteStorage: storage.id,
+            revision: 1,
+            container: 'file_test',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_options, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const remoteData = await linkContainer.getLinkedContent(linkId);
+
+        expect(remoteData).toEqual({'test.txt':fileData});
+    });
+
+    it('Can add and retrieve from a link container -- external_file_multi subFile', async () => {
+        const fileData = 'linked data to be returned';
+        const linkId = 'linkId';
+
+        let author = await Wallet.generate_entity();
+        let storage = await StorageCredential.generate_entity({
+            ...storage_driver,
+            title: 'test credentials',
+        });
+
+        await storage.save();
+        await author.save();
+        const storage_options = await storage.getDriverOptions();
+
+        let vault = new Vault(storage_options);
+        await vault.getOrCreateMetadata(author);
+
+        let fileContainer = vault.getOrCreateContainer(author, 'file_test', 'external_file_multi');
+        let linkContainer = vault.getOrCreateContainer(author, 'links_test', 'link');
+
+        await fileContainer.setSingleContent(author, 'test.txt', fileData);
+
+        const linkEntry = {
+            remoteVault: vault.id,
+            remoteWallet: author.id,
+            remoteStorage: storage.id,
+            revision: 1,
+            container: 'file_test',
+            subFile: 'test.txt',
+        };
+
+        await linkContainer.addLink(author, linkEntry, linkId);
+
+        // Write out the contents of all containers
+        await vault.writeMetadata(author);
+        expect(await vault.verify()).toBe(true);
+
+        // Reopen the vault
+        let re_open = new Vault(storage_options, vault.id);
+        await re_open.loadMetadata();
+
+        linkContainer = re_open.getOrCreateContainer(author, 'links_test', 'link');
+        const remoteData = await linkContainer.getLinkedContent(linkId);
+
+        expect(remoteData).toEqual(fileData);
     });
 
     it(`can view historical Embedded List content`, async () => {

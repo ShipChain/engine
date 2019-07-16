@@ -172,6 +172,10 @@ server.expose("vault", {
     "get_historical_document": RPCVault.GetHistoricalDocument,
 });
 
+server.expose("vaults.linked", {
+    "get_linked_data": RPCVault.GetLinkedData,
+});
+
 server.expose("event", {
     "subscribe": RPCEvent.Subscribe,
     "unsubscribe": RPCEvent.Unsubscribe,
