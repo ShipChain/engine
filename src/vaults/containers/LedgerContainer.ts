@@ -73,7 +73,7 @@ class LedgerEntry {
 export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
     public container_type: string = 'external_file_ledger';
     private nextIndex: number;
-    private static readonly INDEX_PADDING: number = 7;
+    private static readonly INDEX_PADDING: number = 16;
     public static readonly MOMENT_FORMAT: string = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
     constructor(vault: Vault, name: string, meta?: any) {
@@ -83,6 +83,10 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
 
     private paddedIndex(index: number = this.nextIndex): string {
         // 9007199254740991 Max Safe Integer
+        if (index === Number.MAX_SAFE_INTEGER) {
+            throw new Error(`Vault max size reached [index: ${index}]`);
+        }
+
         let paddedIndex: string = index + '';
         while (paddedIndex.length < ExternalFileLedgerContainer.INDEX_PADDING) {
             paddedIndex = '0' + paddedIndex;
