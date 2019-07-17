@@ -380,6 +380,7 @@ export const RPCVaultTests = async function() {
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.vault_signed).toBeDefined();
+                expect(result.vault_revision).toEqual(1);
                 expect(fs.existsSync(`./${testableLocalVaultId}/tracking/20180101.json`)).toBeTruthy();
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
@@ -619,6 +620,7 @@ export const RPCVaultTests = async function() {
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.vault_signed).toBeDefined();
+                expect(result.vault_revision).toEqual(2);
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }
@@ -845,6 +847,7 @@ export const RPCVaultTests = async function() {
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.vault_signed).toBeDefined();
+                expect(result.vault_revision).toEqual(3);
                 expect(fs.existsSync(`./${testableLocalVaultId}/documents/test.png.json`)).toBeTruthy();
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
@@ -1166,6 +1169,7 @@ export const RPCVaultTests = async function() {
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.vault_signed).toBeDefined();
+                expect(result.vault_revision).toEqual(4);
                 expect(fs.existsSync(`./${testableLocalVaultId}/documents/s3png.png.json`)).toBeTruthy();
 
                 const getResult: any = await CallRPCMethod(RPCVault.GetDocument, {
@@ -1202,6 +1206,7 @@ export const RPCVaultTests = async function() {
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.vault_signed).toBeDefined();
+                expect(result.vault_revision).toEqual(5);
                 expect(fs.existsSync(`./${testableLocalVaultId}/documents/s3octet.png.json`)).toBeTruthy();
 
                 const getResult: any = await CallRPCMethod(RPCVault.GetDocument, {
