@@ -145,6 +145,11 @@ export class Vault {
         await ledger.addIndexedEntry(author, payload);
     }
 
+    getCurrentRevision(author: Wallet): number {
+        const ledger = this.getOrCreateLedger(author);
+        return ledger.meta.nextIndex;
+    }
+
     async getHistoricalDataBySequence(author: Wallet, container: string = null, sequence: number, subFile?: string) {
         return await this.containers[Vault.LEDGER_CONTAINER].decryptToIndex(
             author,
@@ -329,7 +334,7 @@ export class Vault {
         }
     }
 
-    async writeMetadata(author: Wallet) {
+    async writeMetadata(author: Wallet): Promise<VaultWriteResponse> {
         logger.info(`Writing Vault ${this.id} Metadata`);
         this.meta.version = Vault.CURRENT_VAULT_VERSION;
         await this.updateContainerMetadata(author);
@@ -338,7 +343,10 @@ export class Vault {
             this.meta.containers[name] = await this.compressContent(this.meta.containers[name]);
         }
         await this.putFile(Vault.METADATA_FILE_NAME, utils.stringify(this.meta));
-        return this.meta.signed;
+        return {
+            vault_signed: this.meta.signed,
+            vault_revision: this.getCurrentRevision(author),
+        };
     }
 
     async deleteEverything() {
@@ -386,4 +394,9 @@ export class Vault {
         this.containers[name] = container;
         return container;
     }
+}
+
+interface VaultWriteResponse {
+    vault_signed: utils.Signature;
+    vault_revision: number;
 }

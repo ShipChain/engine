@@ -46,12 +46,12 @@ export class RPCVault {
             await vault.authorize(shipperWallet, LoadVault.OWNERS_ROLE, carrierWallet.public_key);
         }
 
-        const signature = await vault.writeMetadata(shipperWallet);
+        const vaultWriteResponse = await vault.writeMetadata(shipperWallet);
 
         return {
+            ...vaultWriteResponse,
             success: true,
             vault_id: vault.id,
-            vault_signed: signature,
             vault_uri: vault.getVaultMetaFileUri(),
         };
     }
@@ -91,11 +91,11 @@ export class RPCVault {
         const load = new LoadVault(storage, args.vault);
 
         await load.addTrackingData(wallet, args.payload);
-        const signature = await load.writeMetadata(wallet);
+        const vaultWriteResponse = await load.writeMetadata(wallet);
 
         return {
+            ...vaultWriteResponse,
             success: true,
-            vault_signed: signature,
         };
     }
 
@@ -136,11 +136,11 @@ export class RPCVault {
         const load = new LoadVault(storage, args.vault);
 
         await load.addShipmentData(wallet, args.shipment);
-        const signature = await load.writeMetadata(wallet);
+        const vaultWriteResponse = await load.writeMetadata(wallet);
 
         return {
+            ...vaultWriteResponse,
             success: true,
-            vault_signed: signature,
         };
     }
 
@@ -180,11 +180,11 @@ export class RPCVault {
         const load = new LoadVault(storage, args.vault);
 
         await load.addDocument(wallet, args.documentName, args.documentContent);
-        const signature = await load.writeMetadata(wallet);
+        const vaultWriteResponse = await load.writeMetadata(wallet);
 
         return {
+            ...vaultWriteResponse,
             success: true,
-            vault_signed: signature,
         };
     }
 
@@ -204,11 +204,11 @@ export class RPCVault {
         const documentContent = await RPCVault.getFileFromS3(args.bucket, args.key);
 
         await load.addDocument(wallet, args.documentName, documentContent);
-        const signature = await load.writeMetadata(wallet);
+        const vaultWriteResponse = await load.writeMetadata(wallet);
 
         return {
+            ...vaultWriteResponse,
             success: true,
-            vault_signed: signature,
         };
     }
 

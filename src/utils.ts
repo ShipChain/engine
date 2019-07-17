@@ -58,7 +58,15 @@ export function objectHash(obj: any, at?: Date, alg?: string) {
     return stringHash(s_cleaned + s_at, alg);
 }
 
-export function objectSignature(author, obj, at?) {
+export interface Signature {
+    author: string;
+    hash: string;
+    at: string;
+    signature: string;
+    alg: string;
+}
+
+export function objectSignature(author, obj, at?): Signature {
     at = at || new Date();
     const hash = objectHash(obj, at, obj.signature && obj.signed.alg ? obj.signed.alg : DEFAULT_HASH_ALG);
 
