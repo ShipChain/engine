@@ -15,8 +15,7 @@
  */
 
 import { Logger } from '../src/Logger';
-
-const rpc = require('json-rpc2');
+import { throwInvalidParams } from "./decorators";
 
 const logger = Logger.get(module.filename);
 
@@ -77,6 +76,6 @@ export function validateShipmentArgs(shipment) {
 
     let valid = shipmentValidator(shipment);
     if (!valid) {
-        throw new rpc.Error.InvalidParams('Shipment Invalid: ' + ajv.errorsText(shipmentValidator.errors));
+        throwInvalidParams('Shipment Invalid: ' + ajv.errorsText(shipmentValidator.errors));
     }
 }

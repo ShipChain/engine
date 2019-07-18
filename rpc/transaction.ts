@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-const rpc = require('json-rpc2');
-
 import { Wallet } from '../src/entity/Wallet';
 import { BaseContract } from '../src/contracts/BaseContract';
 import { TransmissionConfirmationCallback } from '../src/shipchain/TransmissionConfirmationCallback';
 
 import { LoadedContracts } from './contracts';
-import { RPCMethod, RPCNamespace } from './decorators';
+import { RPCMethod, RPCNamespace, throwInvalidParams } from "./decorators";
 
 const loadedContracts = LoadedContracts.Instance;
 
@@ -36,7 +34,7 @@ export class RPCTransaction {
     public static async Sign(args) {
         if (typeof args.txUnsigned !== 'object') {
             // TODO: Validate arg as EthereumTx object
-            throw new rpc.Error.InvalidParams('Invalid Ethereum Transaction format');
+            throwInvalidParams('Invalid Ethereum Transaction format');
         }
 
         const signerWallet = await Wallet.getById(args.signerWallet);
@@ -53,7 +51,7 @@ export class RPCTransaction {
     public static async Send(args) {
         if (typeof args.txSigned !== 'object') {
             // TODO: Validate arg as EthereumTx object
-            throw new rpc.Error.InvalidParams('Invalid Ethereum Transaction format');
+            throw throwInvalidParams('Invalid Ethereum Transaction format');
         }
 
         let callbacks = new TransmissionConfirmationCallback(args.callbackUrl);
