@@ -22,7 +22,7 @@ import { Wallet } from '../entity/Wallet';
 import { URL } from 'url';
 import { LinkEntry } from './containers/LinkContainer';
 
-const rpc = require('json-rpc2');
+import { Client } from 'jayson';
 
 const logger = Logger.get(module.filename);
 
@@ -46,11 +46,25 @@ export class RemoteVault {
 
     private async sendOutgoingRequestToRemote(): Promise<any> {
         const parsedUrl = new URL(this.linkEntry.remoteUrl);
-        const client = rpc.Client.$create(parsedUrl.port, parsedUrl.hostname);
+        let client: Client;
+
+        if (parsedUrl.protocol === 'https:') {
+            client = Client.https({
+                host: parsedUrl.hostname,
+                port: +parsedUrl.port,
+            });
+        } else if (parsedUrl.protocol === 'http:') {
+            client = Client.http({
+                host: parsedUrl.hostname,
+                port: +parsedUrl.port,
+            });
+        } else {
+            throw new Error(`Invalid protocol in linkEntry [${parsedUrl.protocol}]`);
+        }
 
         // Call RPC for remote Engine
-        await new Promise((resolve, reject) => {
-            client.call(
+        return await new Promise((resolve, reject) => {
+            client.request(
                 'vaults.linked.get_linked_data',
                 {
                     linkEntry: this.linkEntry,
@@ -59,7 +73,7 @@ export class RemoteVault {
                     if (err) {
                         reject(`Remote Engine unable to load linked data [${err && err.message ? err.message : err}]`);
                     } else {
-                        resolve(data);
+                        resolve(data.result);
                     }
                 },
             );
