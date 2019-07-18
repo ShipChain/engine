@@ -15,7 +15,6 @@
  */
 
 import { Logger } from '../src/Logger';
-import { throwInvalidParams } from "./decorators";
 
 const logger = Logger.get(module.filename);
 
@@ -76,6 +75,6 @@ export function validateShipmentArgs(shipment) {
 
     let valid = shipmentValidator(shipment);
     if (!valid) {
-        throwInvalidParams('Shipment Invalid: ' + ajv.errorsText(shipmentValidator.errors));
+        throw new Error('Shipment Invalid: ' + ajv.errorsText(shipmentValidator.errors));
     }
 }
