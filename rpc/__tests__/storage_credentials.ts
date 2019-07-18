@@ -82,7 +82,7 @@ export const RPCStorageCredentialsTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Driver type: INVALID, not allowed!');
+                expect(err.message).toContain('Driver type: INVALID, not allowed!');
             }
 
             expect(await StorageCredential.count()).toEqual(initialCount);
@@ -168,7 +168,7 @@ export const RPCStorageCredentialsTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Driver type: INVALID, not allowed!');
+                expect(err.message).toContain('Driver type: INVALID, not allowed!');
             }
 
             expect(await StorageCredential.count()).toEqual(initialCount);

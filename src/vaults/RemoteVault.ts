@@ -22,7 +22,7 @@ import { Wallet } from '../entity/Wallet';
 import { URL } from 'url';
 import { LinkEntry } from './containers/LinkContainer';
 
-const rpc = require('json-rpc2');
+import { Client } from 'jayson/promise';
 
 const logger = Logger.get(module.filename);
 
@@ -46,24 +46,34 @@ export class RemoteVault {
 
     private async sendOutgoingRequestToRemote(): Promise<any> {
         const parsedUrl = new URL(this.linkEntry.remoteUrl);
-        const client = rpc.Client.$create(parsedUrl.port, parsedUrl.hostname);
+        let client: Client;
+
+        if (parsedUrl.protocol === 'https:') {
+            client = Client.https({
+                host: parsedUrl.hostname,
+                port: +parsedUrl.port,
+            });
+        } else if (parsedUrl.protocol === 'http:') {
+            client = Client.http({
+                host: parsedUrl.hostname,
+                port: +parsedUrl.port,
+            });
+        } else {
+            throw new Error(`Invalid protocol in linkEntry [${parsedUrl.protocol}]`);
+        }
 
         // Call RPC for remote Engine
-        await new Promise((resolve, reject) => {
-            client.call(
-                'vaults.linked.get_linked_data',
-                {
-                    linkEntry: this.linkEntry,
-                },
-                (err, data) => {
-                    if (err) {
-                        reject(`Remote Engine unable to load linked data [${err && err.message ? err.message : err}]`);
-                    } else {
-                        resolve(data);
-                    }
-                },
+        logger.debug(`Calling remote Engine ${this.linkEntry.remoteUrl}`);
+        const resp = await client.request('vaults.linked.get_linked_data', { linkEntry: this.linkEntry });
+
+        if (!resp.result) {
+            throw new Error(
+                `Remote Engine unable to load linked data [${
+                    resp && resp.error && resp.error.message ? resp.error.message : resp
+                }]`,
             );
-        });
+        }
+        return resp.result;
     }
 
     async getLinkedDataInternally(): Promise<any> {

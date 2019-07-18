@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { Method } from 'jayson';
+
 // https://staxmanade.com/2015/11/testing-asyncronous-code-with-mochajs-and-es7-async-await/
 // Automatically wrap a test case with try/catch and call the async done() when it's complete
 export const mochaAsync = fn => {
@@ -151,7 +153,8 @@ const resolveCallback = (resolve: any, reject: any) => {
 // result of the RPC method or raises an error with the rejection of the promise
 export const CallRPCMethod = async (method: any, args: any = null): Promise<any> => {
     return new Promise((resolve, reject) => {
-        method(args, null, resolveCallback(resolve, reject))
+        const jaysonMethod: Method = method;
+        jaysonMethod.getHandler().call(null, ...[args, resolveCallback(resolve, reject)]);
     });
 };
 

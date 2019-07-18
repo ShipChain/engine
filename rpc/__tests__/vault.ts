@@ -203,7 +203,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -216,7 +216,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -229,7 +229,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -310,7 +310,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -324,7 +324,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -338,7 +338,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -352,7 +352,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid Object: 'payload'`);
+                expect(err.message).toContain(`Invalid Object: 'payload'`);
             }
 
             try {
@@ -364,7 +364,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid Object: 'payload'`);
+                expect(err.message).toContain(`Invalid Object: 'payload'`);
             }
         }));
 
@@ -428,7 +428,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -441,7 +441,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -454,7 +454,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -531,7 +531,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -545,7 +545,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -559,7 +559,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -573,7 +573,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid Object: 'shipment'`);
+                expect(err.message).toContain(`Invalid Object: 'shipment'`);
             }
 
             try {
@@ -585,7 +585,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid Object: 'shipment'`);
+                expect(err.message).toContain(`Invalid Object: 'shipment'`);
             }
         }));
 
@@ -603,7 +603,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Shipment Invalid: data should NOT have additional properties`);
+                expect(err.message).toContain(`Shipment Invalid: data should NOT have additional properties`);
             }
         }));
 
@@ -667,7 +667,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -680,7 +680,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -693,7 +693,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -706,7 +706,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Container contents empty`);
+                expect(err.message).toContain(`Container contents empty`);
             }
         }));
 
@@ -772,7 +772,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -787,7 +787,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -802,7 +802,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -817,7 +817,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'documentName'`);
+                expect(err.message).toContain(`Invalid String: 'documentName'`);
             }
         }));
 
@@ -832,7 +832,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'documentContent'`);
+                expect(err.message).toContain(`Invalid String: 'documentContent'`);
             }
         }));
 
@@ -897,7 +897,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -911,7 +911,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -925,7 +925,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -939,7 +939,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'documentName'`);
+                expect(err.message).toContain(`Invalid String: 'documentName'`);
             }
         }));
 
@@ -953,7 +953,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unauthorized access to vault contents`);
+                expect(err.message).toContain(`Unauthorized access to vault contents`);
             }
         }));
 
@@ -1030,7 +1030,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'documentName'`);
+                expect(err.message).toContain(`Invalid String: 'documentName'`);
             }
         }));
 
@@ -1046,7 +1046,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'key'`);
+                expect(err.message).toContain(`Invalid String: 'key'`);
             }
         }));
 
@@ -1062,7 +1062,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'bucket'`);
+                expect(err.message).toContain(`Invalid String: 'bucket'`);
             }
         }));
 
@@ -1078,7 +1078,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -1094,7 +1094,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -1119,7 +1119,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -1144,7 +1144,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('S3 Read File: File Not Found [Mocked failure]');
+                expect(err.message).toContain('S3 Read File: File Not Found [Mocked failure]');
             }
         }));
 
@@ -1277,7 +1277,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'documentName'`);
+                expect(err.message).toContain(`Invalid String: 'documentName'`);
             }
         }));
 
@@ -1293,7 +1293,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'key'`);
+                expect(err.message).toContain(`Invalid String: 'key'`);
             }
         }));
 
@@ -1309,7 +1309,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'bucket'`);
+                expect(err.message).toContain(`Invalid String: 'bucket'`);
             }
         }));
 
@@ -1325,7 +1325,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -1341,7 +1341,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -1366,7 +1366,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -1391,7 +1391,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Unauthorized access to vault contents');
+                expect(err.message).toContain('Unauthorized access to vault contents');
             }
         }));
 
@@ -1416,7 +1416,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Write File to s3: File Not Found [Mocked failure]');
+                expect(err.message).toContain('Write File to s3: File Not Found [Mocked failure]');
             }
         }));
 
@@ -1492,7 +1492,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -1504,7 +1504,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -1579,7 +1579,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -1591,7 +1591,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -1723,7 +1723,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -1737,7 +1737,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -1751,7 +1751,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -1765,7 +1765,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`No data found for date`);
+                expect(err.message).toContain(`No data found for date`);
             }
         }));
 
@@ -1853,7 +1853,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Ledger data at index 1 is not for container shipment`);
+                expect(err.message).toContain(`Ledger data at index 1 is not for container shipment`);
             }
         }));
 
@@ -2014,7 +2014,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -2028,7 +2028,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -2042,7 +2042,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -2056,7 +2056,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`No data found for date`);
+                expect(err.message).toContain(`No data found for date`);
             }
         }));
 
@@ -2143,7 +2143,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`No data found at specific sequence`);
+                expect(err.message).toContain(`No data found at specific sequence`);
             }
         }));
 
@@ -2305,7 +2305,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Invalid String: 'documentName'`);
+                expect(err.message).toContain(`Invalid String: 'documentName'`);
             }
         }));
 
@@ -2319,7 +2319,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('StorageCredentials not found');
+                expect(err.message).toContain('StorageCredentials not found');
             }
         }));
 
@@ -2333,7 +2333,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -2347,7 +2347,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Unable to load vault from Storage driver 'File Not Found'`);
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
             }
         }));
 
@@ -2361,7 +2361,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`No data found for date`);
+                expect(err.message).toContain(`No data found for date`);
             }
         }));
 
@@ -2474,7 +2474,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`No data found for date`);
+                expect(err.message).toContain(`No data found for date`);
             }
         }));
 
@@ -2490,7 +2490,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`Ledger data at index 1 is not for container documents`);
+                expect(err.message).toContain(`Ledger data at index 1 is not for container documents`);
             }
         }));
 
@@ -2506,7 +2506,7 @@ export const RPCVaultTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual(`No data found at specific sequence`);
+                expect(err.message).toContain(`No data found at specific sequence`);
             }
         }));
 

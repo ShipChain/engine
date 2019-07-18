@@ -17,13 +17,12 @@
 import { validateUuid } from './validators';
 import { MetricsReporter } from '../src/MetricsReporter';
 import { Logger } from '../src/Logger';
+import { Method, Server } from 'jayson';
 
 // Import Moment Typings and Functions
 import { Moment } from 'moment';
 import moment from 'moment';
 const MOMENT_FORMAT: string = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
-
-const rpc = require('json-rpc2');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -107,33 +106,41 @@ export function RPCMethod(options?: RPCMethodOptions) {
         const originalMethod = descriptor.value;
 
         //editing the descriptor/value parameter
-        descriptor.value = function() {
-            let context = this;
+        descriptor.value = new Method({
+            handler: function(args: any, done: any) {
+                let context = this;
 
-            // We cannot check this at compile time due to the class-decorator not being
-            // fully applied yet while the methods are being defined within the class
-            if (!target.__isRpcClass) {
-                logger.error(
-                    `@RPCMethod '${propertyKey}' used outside of @RPCNamespace in '${target.name ||
-                        target.constructor.name}'`,
-                );
-            }
+                // We cannot check this at compile time due to the class-decorator not being
+                // fully applied yet while the methods are being defined within the class
+                if (!target.__isRpcClass) {
+                    logger.error(
+                        `@RPCMethod '${propertyKey}' used outside of @RPCNamespace in '${target.name ||
+                            target.constructor.name}'`,
+                    );
+                }
 
-            metrics.methodCall(target.__rpcNamespace + '.' + propertyKey);
+                metrics.methodCall(target.__rpcNamespace + '.' + propertyKey);
 
-            checkOptions(arguments, options);
+                try {
+                    checkOptions(arguments, options);
+                } catch (err) {
+                    done(err);
+                    return;
+                }
 
-            const callback = arguments[2];
-
-            logger.debug(`Invoking RPCMethod: '${propertyKey}' in '${target.name || target.constructor.name}'`);
-            originalMethod
-                .apply(context, arguments)
-                .then(resolve => callback(null, resolve))
-                .catch(reject => {
-                    metrics.methodFail(target.__rpcNamespace + '.' + propertyKey);
-                    callback(reject);
-                });
-        };
+                logger.debug(`Invoking RPCMethod: '${propertyKey}' in '${target.name || target.constructor.name}'`);
+                originalMethod
+                    .apply(context, arguments)
+                    .then(resolve => done(null, resolve))
+                    .catch(reject => {
+                        metrics.methodFail(target.__rpcNamespace + '.' + propertyKey);
+                        const errType = Server.errors.INVALID_REQUEST;
+                        const errMsg = Server.errorMessages[errType];
+                        const err = Server.prototype.error(errType, `${errMsg} [${reject}]`);
+                        done(err);
+                    });
+            },
+        });
 
         // Add the RPCMethod options that are validated as a property on the method
         Object.defineProperty(descriptor.value, 'rpcOptions', {
@@ -158,6 +165,12 @@ function checkOptions(args, options: RPCMethodOptions) {
     }
 }
 
+export function throwInvalidParams(message: string) {
+    const errType = Server.errors.INVALID_PARAMS;
+    const errMsg = Server.errorMessages[errType];
+    throw Server.prototype.error(errType, `${errMsg} [${message}]`);
+}
+
 function checkRequiredParameters(args, required: string[]) {
     let missing: string[] = [];
 
@@ -168,9 +181,7 @@ function checkRequiredParameters(args, required: string[]) {
     }
 
     if (missing.length > 0) {
-        throw new rpc.Error.InvalidParams(
-            `Missing required parameter${missing.length === 1 ? '' : 's'}: '${missing.join(', ')}'`,
-        );
+        throwInvalidParams(`Missing required parameter${missing.length === 1 ? '' : 's'}: '${missing.join(', ')}'`);
     }
 }
 
@@ -188,7 +199,7 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throw new rpc.Error.InvalidParams(`Invalid UUID${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+        throwInvalidParams(`Invalid UUID${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 
     // Check String format
@@ -202,7 +213,7 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throw new rpc.Error.InvalidParams(`Invalid String${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+        throwInvalidParams(`Invalid String${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 
     // Check Object format
@@ -224,7 +235,7 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throw new rpc.Error.InvalidParams(`Invalid Object${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+        throwInvalidParams(`Invalid Object${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 
     // Check Date format
@@ -245,7 +256,7 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throw new rpc.Error.InvalidParams(`Invalid Date${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+        throwInvalidParams(`Invalid Date${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 
     // Check Number format
@@ -261,7 +272,7 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throw new rpc.Error.InvalidParams(`Invalid Number${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+        throwInvalidParams(`Invalid Number${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 
     // Check Number format
@@ -279,8 +290,6 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throw new rpc.Error.InvalidParams(
-            `Invalid Parameter Combination${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`,
-        );
+        throwInvalidParams(`Invalid Parameter Combination${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 }
