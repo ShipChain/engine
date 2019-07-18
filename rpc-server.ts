@@ -139,26 +139,6 @@ const methods = {
         "list": RPCWallet.List,
         "balance": RPCWallet.Balance,
     },
-
-    // Self-documenting Help method to display RPCOptions for each endpoint
-    "help": new Method({
-        handler: (args, callback) => {
-            if (args && args.namespace) {
-                callback(null, Object.assign(
-                    {},
-                    ...[].concat(
-                        ...Object.keys(helpMap).map((k: string) => {
-                            if(k.match(`^${args.namespace}`)) {
-                                return ({[k]: helpMap[k]})
-                            }
-                        })
-                    )
-                ));
-            } else {
-                callback(null, helpMap);
-            }
-        }
-    }),
 };
 
 // Jayson requires a flat object of methods
@@ -194,18 +174,35 @@ const server = new Server(methodMap, {
     collect: false // don't collect params in a single argument
 });
 
-// const server = rpc.Server.$create({
-//     "websocket": true, // is true by default
-//     "headers": { // allow custom headers is empty by default
-//         "Access-Control-Allow-Origin": "*"
-//     }
-// });
-//
-// server.on("error", function(err) {
-//     logger.error(`${err}`);
-// });
-//
-//
+// Self-Documenting Help response
+// ------------------------------
+server.method('help', new Method({
+    handler: (args, callback) => {
+        if (args && args.namespace) {
+            callback(null, Object.assign(
+                {},
+                ...[].concat(
+                    ...Object.keys(helpMap).map((k: string) => {
+                        if(k.match(`^${args.namespace}`)) {
+                            return ({[k]: helpMap[k]})
+                        }
+                    })
+                )
+            ));
+        } else {
+            callback(null, helpMap);
+        }
+    }
+}));
+
+// Error event logger setup
+// ------------------------
+// @ts-ignore
+server.on('response', (args, response) => {
+    if (response && response.error && response.error.message) {
+        logger.error(`${response.error.message}`);
+    }
+});
 
 // Build Schema Validators
 // Connect to TypeORM
