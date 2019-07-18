@@ -19,7 +19,7 @@ import { BaseContract } from '../src/contracts/BaseContract';
 import { TransmissionConfirmationCallback } from '../src/shipchain/TransmissionConfirmationCallback';
 
 import { LoadedContracts } from './contracts';
-import { RPCMethod, RPCNamespace, throwInvalidParams } from './decorators';
+import { RPCMethod, RPCNamespace } from './decorators';
 
 const loadedContracts = LoadedContracts.Instance;
 
@@ -34,7 +34,7 @@ export class RPCTransaction {
     public static async Sign(args) {
         if (typeof args.txUnsigned !== 'object') {
             // TODO: Validate arg as EthereumTx object
-            throwInvalidParams('Invalid Ethereum Transaction format');
+            throw new Error('Invalid Ethereum Transaction format');
         }
 
         const signerWallet = await Wallet.getById(args.signerWallet);
@@ -51,7 +51,7 @@ export class RPCTransaction {
     public static async Send(args) {
         if (typeof args.txSigned !== 'object') {
             // TODO: Validate arg as EthereumTx object
-            throw throwInvalidParams('Invalid Ethereum Transaction format');
+            throw new Error('Invalid Ethereum Transaction format');
         }
 
         let callbacks = new TransmissionConfirmationCallback(args.callbackUrl);
