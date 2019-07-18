@@ -107,7 +107,7 @@ export function RPCMethod(options?: RPCMethodOptions) {
 
         //editing the descriptor/value parameter
         descriptor.value = new Method({
-            handler: function(args:any, done:any) {
+            handler: function(args: any, done: any) {
                 let context = this;
 
                 // We cannot check this at compile time due to the class-decorator not being
@@ -181,9 +181,7 @@ function checkRequiredParameters(args, required: string[]) {
     }
 
     if (missing.length > 0) {
-        throwInvalidParams(
-            `Missing required parameter${missing.length === 1 ? '' : 's'}: '${missing.join(', ')}'`,
-        );
+        throwInvalidParams(`Missing required parameter${missing.length === 1 ? '' : 's'}: '${missing.join(', ')}'`);
     }
 }
 
@@ -292,8 +290,6 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     }
 
     if (failed.length > 0) {
-        throwInvalidParams(
-            `Invalid Parameter Combination${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`,
-        );
+        throwInvalidParams(`Invalid Parameter Combination${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 }

@@ -19,7 +19,7 @@ import { BaseContract } from '../src/contracts/BaseContract';
 import { TransmissionConfirmationCallback } from '../src/shipchain/TransmissionConfirmationCallback';
 
 import { LoadedContracts } from './contracts';
-import { RPCMethod, RPCNamespace, throwInvalidParams } from "./decorators";
+import { RPCMethod, RPCNamespace, throwInvalidParams } from './decorators';
 
 const loadedContracts = LoadedContracts.Instance;
 
