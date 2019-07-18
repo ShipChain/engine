@@ -22,7 +22,7 @@ import { Wallet } from '../entity/Wallet';
 import { URL } from 'url';
 import { LinkEntry } from './containers/LinkContainer';
 
-import { Client } from 'jayson';
+import { Client } from 'jayson/promise';
 
 const logger = Logger.get(module.filename);
 
@@ -63,21 +63,17 @@ export class RemoteVault {
         }
 
         // Call RPC for remote Engine
-        return await new Promise((resolve, reject) => {
-            client.request(
-                'vaults.linked.get_linked_data',
-                {
-                    linkEntry: this.linkEntry,
-                },
-                (err, data) => {
-                    if (err) {
-                        reject(`Remote Engine unable to load linked data [${err && err.message ? err.message : err}]`);
-                    } else {
-                        resolve(data.result);
-                    }
-                },
+        logger.debug(`Calling remote Engine ${this.linkEntry.remoteUrl}`);
+        const resp = await client.request('vaults.linked.get_linked_data', { linkEntry: this.linkEntry });
+
+        if (!resp.result) {
+            throw new Error(
+                `Remote Engine unable to load linked data [${
+                    resp && resp.error && resp.error.message ? resp.error.message : resp
+                }]`,
             );
-        });
+        }
+        return resp.result;
     }
 
     async getLinkedDataInternally(): Promise<any> {
