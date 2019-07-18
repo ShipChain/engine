@@ -97,7 +97,7 @@ export const RPCTransactions = async function() {
                 });
                 fail('Did not Throw');
             } catch (err){
-                expect(err.message).toEqual('Invalid Ethereum Transaction format');
+                expect(err.message).toContain('Invalid Ethereum Transaction format');
             }
         }));
 
@@ -109,7 +109,7 @@ export const RPCTransactions = async function() {
                 });
                 fail('Did not Throw');
             } catch (err){
-                expect(err.message).toEqual('Wallet not found');
+                expect(err.message).toContain('Wallet not found');
             }
         }));
 
@@ -155,7 +155,7 @@ export const RPCTransactions = async function() {
                 });
                 fail('Did not Throw');
             } catch (err){
-                expect(err.message).toEqual('Invalid Ethereum Transaction format');
+                expect(err.message).toContain('Invalid Ethereum Transaction format');
             }
         }));
 

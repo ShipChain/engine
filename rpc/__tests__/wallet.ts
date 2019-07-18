@@ -83,7 +83,7 @@ export const RPCWalletTests = async function() {
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
-                expect(err.message).toEqual('private key length is invalid');
+                expect(err.message).toContain('private key length is invalid');
             }
 
             expect(await Wallet.count()).toEqual(initialCount);

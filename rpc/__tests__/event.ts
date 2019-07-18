@@ -57,7 +57,7 @@ export const RPCEventTests = async function() {
                 });
                 fail('Did not Throw');
             } catch (err){
-                expect(err.message).toEqual('Contract \'not a project\' not registered');
+                expect(err.message).toContain('Contract \'not a project\' not registered');
             }
         }));
 
@@ -104,7 +104,7 @@ export const RPCEventTests = async function() {
                 });
                 fail('Did not Throw');
             } catch (err){
-                expect(err.message).toEqual('EventSubscription not found');
+                expect(err.message).toContain('EventSubscription not found');
             }
         }));
 
