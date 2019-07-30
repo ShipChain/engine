@@ -18,6 +18,7 @@ import { Wallet } from '../entity/Wallet';
 import { Vault } from './Vault';
 
 export abstract class Container {
+    static EMBEDDED_REFERENCE: string = 'VAULTREF#';
     public vault: Vault;
     public name: string;
     public meta: any;
