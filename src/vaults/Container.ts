@@ -28,9 +28,7 @@ export abstract class Container {
     protected constructor(vault: Vault, name: string, meta?: any) {
         this.vault = vault;
         this.name = name;
-        this.meta = meta || {
-            roles: [Vault.OWNERS_ROLE],
-        };
+        this.meta = Object.assign({ roles: [Vault.OWNERS_ROLE] }, meta);
     }
 
     // authorize_role(author: Wallet, role: string) {

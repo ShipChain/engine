@@ -19,7 +19,7 @@ import { Logger } from '../Logger';
 import { StorageCredential } from '../entity/StorageCredential';
 import { Wallet } from '../entity/Wallet';
 import { LinkEntry } from './containers/LinkContainer';
-import { Container } from "./Container";
+import { Container } from './Container';
 
 import { URL } from 'url';
 import { Client } from 'jayson/promise';
@@ -97,11 +97,10 @@ export class RemoteVault {
         return vaultData;
     }
 
-
     // Parse string and return
     // ==================================================================
     static buildLinkEntry(embeddedLink: string): LinkEntry {
-        const UUID_REGEX = /\/?([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}[^\/]*)\/?/ig;
+        const UUID_REGEX = /\/?([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}[^\/]*)\/?/gi;
         const VAULT_REV_HASH_REGEX = /^(?<vaultId>[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})(?:#(?<vaultRevision>\d+))?(?:@(?<vaultHash>0x[a-f0-9]{64}))?\/?$/i;
 
         const linkEntry: LinkEntry = new LinkEntry();
@@ -134,7 +133,7 @@ export class RemoteVault {
             linkEntry.remoteStorage = matches[1].replace(/\//g, '');
             linkEntry.remoteWallet = matches[2].replace(/\//g, '');
         } else {
-            throw new Error(`Unable to parse ${Container.EMBEDDED_REFERENCE} link`)
+            throw new Error(`Unable to parse ${Container.EMBEDDED_REFERENCE} link`);
         }
 
         // Find Revision and Hash from Vault
@@ -166,19 +165,19 @@ export class RemoteVault {
         }
 
         return returnedContent;
-    };
+    }
 
     private static async _processObjectForLinks(content: any): Promise<any> {
-        for (let property of content){
+        for (let property of content) {
             if (content.hasOwnProperty(property)) {
                 content[property] = await RemoteVault.processContentForLinks(content[property]);
             }
         }
 
         return content;
-    };
+    }
 
-   static async processContentForLinks(content: any): Promise<any> {
+    static async processContentForLinks(content: any): Promise<any> {
         if (typeof content === 'string') {
             return await RemoteVault._processStringForLinks(content);
         } else {
