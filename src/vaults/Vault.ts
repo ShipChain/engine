@@ -70,18 +70,20 @@ export class Vault {
         return this.meta;
     }
 
-    protected async initializeMetadata(author: Wallet, roles?) {
+    protected async initializeMetadata(author: Wallet, additionalMeta?: any) {
         this.meta = {
             id: this.id,
             version: Vault.CURRENT_VAULT_VERSION,
             created: new Date(),
-            roles: roles || {},
+            roles: {},
             containers: {},
         };
 
+        this.meta = Object.assign(this.meta, additionalMeta);
+
         this.containers = {};
 
-        this.logAction(author, 'initialize', { roles });
+        this.logAction(author, 'initialize', {});
 
         await this.createRole(author, Vault.OWNERS_ROLE);
         await this.createRole(author, Vault.LEDGER_ROLE);
