@@ -37,7 +37,7 @@ for (schema of schemas) {
     if (!error && response.statusCode === 200) {
 
       // Capture the schema for building validators
-      fs.writeFileSync("rpc/primitives/" + schema + "Schema.json", schemaString);
+      fs.writeFileSync("rpc/primitives/schema/" + schema + ".json", schemaString);
 
     }
   });
