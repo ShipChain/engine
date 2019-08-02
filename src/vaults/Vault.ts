@@ -267,16 +267,17 @@ export class Vault {
         });
     }
 
-    async getContainerContent(content: any, name: string): Promise<Container> {
-        let container;
-        let contentObject: object;
+    protected async decompressContainerMeta(content: any): Promise<any> {
         if (compareVersions.compare(this.meta.version, Vault.VAULT_VERSION__ZIP_CONTAINER, '>=')) {
-            contentObject = JSON.parse(await this.decompressContent(content));
+            return JSON.parse(await this.decompressContent(content));
         } else {
-            contentObject = content;
+            return content;
         }
-        container = ContainerFactory.create(contentObject['container_type'], this, name, contentObject);
-        return container;
+    }
+
+    async getContainerContent(content: any, name: string): Promise<Container> {
+        let contentObject: object = await this.decompressContainerMeta(content);
+        return ContainerFactory.create(contentObject['container_type'], this, name, contentObject);
     }
 
     async encryptForRole(role: string, message: any) {
