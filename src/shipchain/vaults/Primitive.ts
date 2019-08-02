@@ -22,3 +22,14 @@ export abstract class Primitive extends Container {
         this.meta['isPrimitive'] = true;
     }
 }
+
+export abstract class PrimitiveCollection extends Primitive {
+    linkEntries: any;
+    count(): number {
+        return Object.keys(this.linkEntries).length;
+    }
+
+    list(): String[] {
+        return Object.keys(this.linkEntries);
+    }
+}

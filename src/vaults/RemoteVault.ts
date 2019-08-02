@@ -168,7 +168,7 @@ export class RemoteVault {
     }
 
     private static async _processObjectForLinks(content: any): Promise<any> {
-        for (let property of content) {
+        for (let property in content) {
             if (content.hasOwnProperty(property)) {
                 content[property] = await RemoteVault.processContentForLinks(content[property]);
             }
