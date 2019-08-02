@@ -20,6 +20,7 @@ import { StorageCredential } from '../entity/StorageCredential';
 import { Wallet } from '../entity/Wallet';
 import { LinkEntry } from './containers/LinkContainer';
 import { Container } from './Container';
+import { splitRemainder } from "../utils";
 
 import { URL } from 'url';
 import { Client } from 'jayson/promise';
@@ -149,7 +150,7 @@ export class RemoteVault {
 
         // Find Container and subFile
         // --------------------------
-        [linkEntry.container, linkEntry.subFile] = ref.split('.');
+        [linkEntry.container, linkEntry.subFile] = splitRemainder(ref, '.', 1);
 
         return linkEntry;
     }
