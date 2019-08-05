@@ -19,6 +19,7 @@ import { Vault } from './Vault';
 
 export abstract class Container {
     static EMBEDDED_REFERENCE: string = 'VAULTREF#';
+    static EMBEDDED_B64_REFERENCE: string = 'VAULTREFB64#';
     public vault: Vault;
     public name: string;
     public meta: any;

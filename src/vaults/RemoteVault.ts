@@ -100,7 +100,7 @@ export class RemoteVault {
 
     // Parse string and return
     // ==================================================================
-    static buildLinkEntry(embeddedLink: string): LinkEntry {
+    static buildLinkEntryFromString(embeddedLink: string): LinkEntry {
         const UUID_REGEX = /\/?([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}[^\/]*)\/?/gi;
         const VAULT_REV_HASH_REGEX = /^(?<vaultId>[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})(?:#(?<vaultRevision>\d+))?(?:@(?<vaultHash>0x[a-f0-9]{64}))?\/?$/i;
 
@@ -155,11 +155,26 @@ export class RemoteVault {
         return linkEntry;
     }
 
+    static buildLinkEntryFromBase64(embeddedLink: string): LinkEntry {
+        const ref: string = embeddedLink.slice(Container.EMBEDDED_B64_REFERENCE.length);
+
+        const decodedB64: string = Buffer.from(ref, 'base64').toString();
+
+        return JSON.parse(decodedB64) as LinkEntry;
+    }
+
     private static async _processStringForLinks(content: string): Promise<any> {
         let returnedContent: any = content;
 
         if (content.startsWith(Container.EMBEDDED_REFERENCE)) {
-            const linkEntry = RemoteVault.buildLinkEntry(content);
+            const linkEntry = RemoteVault.buildLinkEntryFromString(content);
+
+            const remoteVault = new RemoteVault(linkEntry);
+            returnedContent = remoteVault.getLinkedData();
+        }
+
+        if (content.startsWith(Container.EMBEDDED_B64_REFERENCE)) {
+            const linkEntry = RemoteVault.buildLinkEntryFromBase64(content);
 
             const remoteVault = new RemoteVault(linkEntry);
             returnedContent = remoteVault.getLinkedData();
