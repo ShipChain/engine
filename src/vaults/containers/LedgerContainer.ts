@@ -136,13 +136,17 @@ export class ExternalFileLedgerContainer extends ExternalFileMultiContainer {
     async decryptToIndex(
         user: Wallet,
         container: string = null,
-        index: number = this.nextIndex - 1,
-        subFile?: string,
+        index: number = null,
+        subFile: string = null,
         approximateIndex: boolean = true,
     ) {
         let foundApplicableData: boolean = false;
         let decryptedContainers = {};
         let ledgerEntry: LedgerEntry = null;
+
+        if (index === null || index === undefined) {
+            index = this.nextIndex - 1;
+        }
 
         // If container type is a file, then go straight to index
         if (!approximateIndex && container && this.vault.containers[container].container_type.indexOf('_file') != -1) {

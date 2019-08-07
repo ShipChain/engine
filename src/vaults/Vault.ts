@@ -158,7 +158,7 @@ export class Vault {
             container,
             sequence,
             subFile,
-            false,
+            sequence === null || sequence === undefined,
         );
     }
 
