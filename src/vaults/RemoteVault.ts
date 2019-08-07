@@ -163,19 +163,24 @@ export class RemoteVault {
         return JSON.parse(decodedB64) as LinkEntry;
     }
 
-    private static async _processStringForLinks(content: string): Promise<any> {
-        let returnedContent: any = content;
-
+    static buildLinkEntry(content: string): LinkEntry {
         if (content.startsWith(Container.EMBEDDED_REFERENCE)) {
-            const linkEntry = RemoteVault.buildLinkEntryFromString(content);
-
-            const remoteVault = new RemoteVault(linkEntry);
-            returnedContent = remoteVault.getLinkedData();
+            return RemoteVault.buildLinkEntryFromString(content);
         }
 
         if (content.startsWith(Container.EMBEDDED_B64_REFERENCE)) {
-            const linkEntry = RemoteVault.buildLinkEntryFromBase64(content);
+            return RemoteVault.buildLinkEntryFromBase64(content);
+        }
 
+        return null;
+    }
+
+    private static async _processStringForLinks(content: string): Promise<any> {
+        let returnedContent: any = content;
+
+        const linkEntry: LinkEntry = RemoteVault.buildLinkEntry(content);
+
+        if (linkEntry) {
             const remoteVault = new RemoteVault(linkEntry);
             returnedContent = remoteVault.getLinkedData();
         }
