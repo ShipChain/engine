@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-
 import { Wallet } from '../../src/entity/Wallet';
 import { StorageCredential } from '../../src/entity/StorageCredential';
 
 import { RPCMethod, RPCNamespace } from '../decorators';
-import { ShipChainVault } from "../../src/shipchain/vaults/ShipChainVault";
-import { PrimitiveType } from "../../src/shipchain/vaults/PrimitiveType";
-import { ShipmentCollection } from "../../src/shipchain/vaults/primitives/ShipmentCollection";
+import { ShipChainVault } from '../../src/shipchain/vaults/ShipChainVault';
+import { PrimitiveType } from '../../src/shipchain/vaults/PrimitiveType';
+import { ShipmentCollection } from '../../src/shipchain/vaults/primitives/ShipmentCollection';
 
 @RPCNamespace({ name: 'ShipmentCollection' })
 export class RPCShipmentCollection {
-
     @RPCMethod({
         require: ['storageCredentials', 'vaultWallet', 'vault', 'linkId'],
         validate: {
@@ -121,5 +119,4 @@ export class RPCShipmentCollection {
             shipment_collection: shipments.list(),
         };
     }
-
 }

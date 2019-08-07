@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { Primitive, PrimitiveCollection } from "../Primitive";
+import { Primitive, PrimitiveCollection, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
 
-import { LinkContainer, LinkEntry } from "../../../vaults/containers/LinkContainer";
-import { applyMixins } from "../../../utils";
+import { LinkContainer, LinkEntry } from '../../../vaults/containers/LinkContainer';
+import { applyMixins } from '../../../utils';
 
-import { Wallet } from "../../../entity/Wallet";
-import { RemoteVault } from "../../../vaults/RemoteVault";
+import { Wallet } from '../../../entity/Wallet';
+import { RemoteVault } from '../../../vaults/RemoteVault';
 
 export class ShipmentCollection extends LinkContainer implements Primitive, PrimitiveCollection {
     constructor(vault: ShipChainVault, meta?: any) {
@@ -42,10 +42,17 @@ export class ShipmentCollection extends LinkContainer implements Primitive, Prim
 
     // Primitive Mixin placeholders
     // ----------------------------
-    linkEntries: any;
     injectContainerMetadata(): void {}
-    count(): number {return 0;}
-    list(): String[] {return [];}
+    async _getData(klass: PrimitiveProperties, wallet: Wallet): Promise<any> {
+        return undefined;
+    }
+    linkEntries: any;
+    count(): number {
+        return 0;
+    }
+    list(): String[] {
+        return [];
+    }
 }
 
 applyMixins(ShipmentCollection, [Primitive, PrimitiveCollection]);

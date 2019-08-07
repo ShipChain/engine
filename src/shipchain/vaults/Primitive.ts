@@ -15,11 +15,24 @@
  */
 
 // Primitive Mixin
-import { Container } from "../../vaults/Container";
+import { Container } from '../../vaults/Container';
+import { Wallet } from '../../entity/Wallet';
 
 export abstract class Primitive extends Container {
     injectContainerMetadata() {
         this.meta['isPrimitive'] = true;
+    }
+
+    async _getData(klass: typeof PrimitiveProperties, wallet: Wallet): Promise<any> {
+        let primitive;
+        try {
+            primitive = await this.decryptContents(wallet);
+            primitive = JSON.parse(primitive);
+        } catch (err) {
+            primitive = {};
+        }
+
+        return new klass(primitive);
     }
 }
 
@@ -31,5 +44,18 @@ export abstract class PrimitiveCollection extends Primitive {
 
     list(): String[] {
         return Object.keys(this.linkEntries);
+    }
+}
+
+export class PrimitiveProperties {
+    constructor(initializingJson: any = {}, initializeCallback?: any) {
+        if (initializeCallback) {
+            initializeCallback(this);
+        }
+        for (let property in initializingJson) {
+            if (initializingJson.hasOwnProperty(property) && (!initializeCallback || this.hasOwnProperty(property))) {
+                this[property] = initializingJson[property];
+            }
+        }
     }
 }

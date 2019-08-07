@@ -139,7 +139,24 @@ const methods = {
             create: RPCShipChainVault.Create,
             shipment: {
                 get: RPCShipment.Get,
-                set: RPCShipment.Set,
+                fields: {
+                    get: RPCShipment.GetFields,
+                    set: RPCShipment.SetFields,
+                },
+                documents: {
+                    list: RPCShipment.ListDocument,
+                    get: RPCShipment.GetDocument,
+                    add: RPCShipment.AddDocument,
+                },
+                tracking: {
+                    get: RPCShipment.GetTracking,
+                    set: RPCShipment.SetTracking,
+                },
+                items: {
+                    list: RPCShipment.ListItems,
+                    get: RPCShipment.GetItem,
+                    add: RPCShipment.AddItem,
+                },
             },
             shipmentCollection: {
                 get: RPCShipmentCollection.Get,
