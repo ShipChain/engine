@@ -53,9 +53,9 @@ export class RPCShipmentCollection {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'linkEntry'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'linkId', 'linkEntry'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault', 'linkId'],
         },
     })
     public static async Add(args) {
@@ -66,13 +66,12 @@ export class RPCShipmentCollection {
         await vault.loadMetadata();
 
         const shipments: ShipmentCollection = await vault.getPrimitive(PrimitiveType.ShipmentCollection.name);
-        const linkId: string = await shipments.addShipment(wallet, args.linkEntry);
+        await shipments.addShipment(wallet, args.linkId, args.linkEntry);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 
         return {
             ...vaultWriteResponse,
-            link_id: linkId,
             success: true,
         };
     }

@@ -30,10 +30,8 @@ export class ShipmentCollection extends LinkContainer implements Primitive, Prim
         this.injectContainerMetadata();
     }
 
-    async addShipment(wallet: Wallet, linkEntry: LinkEntry): Promise<string> {
-        const linkId: string = Object.keys(this.linkEntries).length.toString();
-        await this.addLink(wallet, linkEntry, linkId);
-        return linkId;
+    async addShipment(wallet: Wallet, shipmentId: string, shipmentLink: LinkEntry): Promise<void> {
+        await this.addLink(wallet, shipmentId, shipmentLink);
     }
 
     async getShipment(linkId: string): Promise<string> {
