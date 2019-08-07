@@ -20,7 +20,7 @@ import { StorageCredential } from '../entity/StorageCredential';
 import { Wallet } from '../entity/Wallet';
 import { LinkEntry } from './containers/LinkContainer';
 import { Container } from './Container';
-import { splitRemainder } from "../utils";
+import { splitRemainder } from '../utils';
 
 import { URL } from 'url';
 import { Client } from 'jayson/promise';

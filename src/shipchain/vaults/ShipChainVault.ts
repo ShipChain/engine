@@ -20,7 +20,6 @@ import { Container } from '../../vaults/Container';
 import { Primitive } from './Primitive';
 import { PrimitiveType } from './PrimitiveType';
 
-
 export class ShipChainVault extends Vault {
     constructor(storage_driver, id?) {
         super(storage_driver, id);

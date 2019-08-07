@@ -103,7 +103,6 @@ export function arrayChunker(array, size) {
     return chunked_arr;
 }
 
-
 /* https://coderwall.com/p/pq0usg/javascript-string-split-that-ll-return-the-remainder
  *
  * A function that splits a string `limit` times and adds the remainder as a final array index.
@@ -117,7 +116,7 @@ export function arrayChunker(array, size) {
 export function splitRemainder(str, separator, limit) {
     str = str.split(separator);
 
-    if(str.length > limit) {
+    if (str.length > limit) {
         let ret = str.splice(0, limit);
         ret.push(str.join(separator));
         return ret;

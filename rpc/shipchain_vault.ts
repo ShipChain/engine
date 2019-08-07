@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-
 import { Wallet } from '../src/entity/Wallet';
 import { StorageCredential } from '../src/entity/StorageCredential';
 
 import { RPCMethod, RPCNamespace } from './decorators';
-import { ShipChainVault } from "../src/shipchain/vaults/ShipChainVault";
+import { ShipChainVault } from '../src/shipchain/vaults/ShipChainVault';
 
 @RPCNamespace({ name: 'ShipChainVault' })
 export class RPCShipChainVault {
@@ -32,7 +31,6 @@ export class RPCShipChainVault {
     public static async Create(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const shipperWallet = await Wallet.getById(args.shipperWallet);
-
 
         const vault = new ShipChainVault(storage);
         await vault.getOrCreateMetadata(shipperWallet);

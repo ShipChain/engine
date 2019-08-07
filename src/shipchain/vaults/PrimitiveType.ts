@@ -20,7 +20,6 @@ import { ShipChainVault } from './ShipChainVault';
 import { Shipment } from './primitives/Shipment';
 import { ShipmentCollection } from './primitives/ShipmentCollection';
 
-
 export class PrimitiveType {
     static readonly Shipment = new PrimitiveType('Shipment', Shipment);
     static readonly ShipmentCollection = new PrimitiveType('ShipmentCollection', ShipmentCollection);
@@ -33,9 +32,7 @@ export class PrimitiveType {
     }
 
     static isValid(primitiveType: string): boolean {
-        return primitiveType &&
-            PrimitiveType[primitiveType] &&
-            PrimitiveType[primitiveType].name === primitiveType;
+        return primitiveType && PrimitiveType[primitiveType] && PrimitiveType[primitiveType].name === primitiveType;
     }
 
     toString() {
