@@ -64,7 +64,7 @@ export class LinkContainer extends Container {
         return linkEntry;
     }
 
-    async addLink(author: Wallet, linkEntry: LinkEntry, linkId: string) {
+    async addLink(author: Wallet, linkId: string, linkEntry: LinkEntry) {
         this.linkEntries[linkId] = linkEntry;
         const hash = utils.objectHash(linkEntry);
         await this.updateLedger(author, 'addlink', linkEntry, { hash });
