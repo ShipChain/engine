@@ -17,6 +17,7 @@
 import { Primitive, PrimitiveCollection, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
+import { ShipmentProperties } from "./Shipment";
 
 import { LinkContainer, LinkEntry } from '../../../vaults/containers/LinkContainer';
 import { applyMixins } from '../../../utils';
@@ -34,10 +35,12 @@ export class ShipmentCollection extends LinkContainer implements Primitive, Prim
         await this.addLink(wallet, shipmentId, shipmentLink);
     }
 
-    async getShipment(linkId: string): Promise<string> {
-        let shipment = await this.getLinkedContent(linkId);
-        shipment = JSON.parse(shipment);
-        return await RemoteVault.processContentForLinks(shipment);
+    async getShipment(linkId: string): Promise<ShipmentProperties> {
+        let content: string = await this.getLinkedContent(linkId);
+        let shipment: ShipmentProperties = new ShipmentProperties(JSON.parse(content));
+        shipment = await RemoteVault.processContentForLinks(shipment);
+        shipment.processDocuments();
+        return shipment;
     }
 
     // Primitive Mixin placeholders

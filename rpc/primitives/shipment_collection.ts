@@ -21,6 +21,7 @@ import { RPCMethod, RPCNamespace } from '../decorators';
 import { ShipChainVault } from '../../src/shipchain/vaults/ShipChainVault';
 import { PrimitiveType } from '../../src/shipchain/vaults/PrimitiveType';
 import { ShipmentCollection } from '../../src/shipchain/vaults/primitives/ShipmentCollection';
+import { RemoteVault } from "../../src/vaults/RemoteVault";
 
 @RPCNamespace({ name: 'ShipmentCollection' })
 export class RPCShipmentCollection {
@@ -64,6 +65,12 @@ export class RPCShipmentCollection {
         await vault.loadMetadata();
 
         const shipments: ShipmentCollection = await vault.getPrimitive(PrimitiveType.ShipmentCollection.name);
+        if (typeof args.linkEntry === 'string') {
+            args.linkEntry = RemoteVault.buildLinkEntry(args.linkEntry);
+            if (!args.linkEntry) {
+                throw new Error(`Invalid LinkEntry provided`);
+            }
+        }
         await shipments.addShipment(wallet, args.linkId, args.linkEntry);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
