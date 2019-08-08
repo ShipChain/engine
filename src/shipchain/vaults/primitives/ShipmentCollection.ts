@@ -26,7 +26,7 @@ import { RemoteVault } from '../../../vaults/RemoteVault';
 
 export class ShipmentCollection extends LinkContainer implements Primitive, PrimitiveCollection {
     constructor(vault: ShipChainVault, meta?: any) {
-        super(vault, PrimitiveType.Shipment.name, meta);
+        super(vault, PrimitiveType.ShipmentCollection.name, meta);
         this.injectContainerMetadata();
     }
 

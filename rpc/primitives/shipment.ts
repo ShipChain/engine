@@ -94,7 +94,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         await shipment.setFields(wallet, args.shipment);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
@@ -121,7 +121,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         const content: string[] = await shipment.listDocuments(wallet);
 
         return {
@@ -146,7 +146,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         const content = await shipment.getDocument(wallet, args.documentName);
 
         return {
@@ -171,7 +171,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         await shipment.addDocument(wallet, args.documentName, args.documentLink);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
@@ -198,7 +198,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         const content = await shipment.getTracking(wallet);
 
         return {
@@ -223,7 +223,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         await shipment.setTracking(wallet, args.trackingLink);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
@@ -250,7 +250,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         const content = await shipment.listItems(wallet);
 
         return {
@@ -274,7 +274,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         const content = await shipment.getItem(wallet, args.itemId);
 
         return {
@@ -300,7 +300,7 @@ export class RPCShipment {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipment: Shipment = (await vault.getPrimitive(PrimitiveType.Shipment.name)) as Shipment;
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
         await shipment.addItem(wallet, args.itemId, args.itemLink, args.quantity);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
