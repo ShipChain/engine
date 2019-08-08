@@ -21,12 +21,16 @@ import { Shipment } from './primitives/Shipment';
 import { ShipmentCollection } from './primitives/ShipmentCollection';
 import { Document } from './primitives/Document';
 import { DocumentCollection } from './primitives/DocumentCollection';
+import { Product } from './primitives/Product';
+import { ProductCollection } from './primitives/ProductCollection';
 
 export class PrimitiveType {
     static readonly Shipment = new PrimitiveType('Shipment', Shipment);
     static readonly ShipmentCollection = new PrimitiveType('ShipmentCollection', ShipmentCollection);
     static readonly Document = new PrimitiveType('Document', Document);
     static readonly DocumentCollection = new PrimitiveType('DocumentCollection', DocumentCollection);
+    static readonly Product = new PrimitiveType('Product', Product);
+    static readonly ProductCollection = new PrimitiveType('ProductCollection', ProductCollection);
 
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly primitiveClass: any) {}

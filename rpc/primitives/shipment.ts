@@ -86,7 +86,7 @@ export class RPCShipment {
         },
     })
     public static async SetFields(args) {
-        validateShipmentArgs(args.shipment);
+        validateShipmentArgs(args.fields);
 
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
@@ -95,7 +95,7 @@ export class RPCShipment {
         await vault.loadMetadata();
 
         const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
-        await shipment.setFields(wallet, args.shipment);
+        await shipment.setFields(wallet, args.fields);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 

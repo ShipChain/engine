@@ -29,11 +29,15 @@ declare global {
 import { buildSchemaValidators } from "./rpc/validators";
 import { loadContractFixtures } from "./rpc/contracts";
 import { RPCVault } from "./rpc/vault";
+
 import { RPCShipChainVault } from "./rpc/shipchain_vault";
 import { RPCShipment } from "./rpc/primitives/shipment";
-import { RPCShipmentCollection } from "./rpc/primitives/shipment_collection";
 import { RPCDocument } from "./rpc/primitives/document";
+import { RPCProduct } from "./rpc/primitives/product";
+import { RPCShipmentCollection } from "./rpc/primitives/shipment_collection";
 import { RPCDocumentCollection } from "./rpc/primitives/document_collection";
+import { RPCProductCollection } from "./rpc/primitives/product_collection";
+
 import { RPCLoad as RPCLoad_1_0_2 } from "./rpc/Load/1.0.2/RPCLoad";
 import { RPCLoad as RPCLoad_1_1_0 } from "./rpc/Load/1.1.0/RPCLoad";
 import { RPCEvent, startEventSubscriptions } from "./rpc/event";
@@ -186,6 +190,25 @@ const methods = {
                 add: RPCDocumentCollection.Add,
                 list: RPCDocumentCollection.List,
                 count: RPCDocumentCollection.Count,
+            },
+            // Product Primitive
+            product: {
+                get: RPCProduct.Get,
+                fields: {
+                    get: RPCProduct.GetFields,
+                    set: RPCProduct.SetFields,
+                },
+                documents: {
+                    list: RPCProduct.ListDocument,
+                    get: RPCProduct.GetDocument,
+                    add: RPCProduct.AddDocument,
+                },
+            },
+            productCollection: {
+                get: RPCProductCollection.Get,
+                add: RPCProductCollection.Add,
+                list: RPCProductCollection.List,
+                count: RPCProductCollection.Count,
             },
         },
     },
