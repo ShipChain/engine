@@ -79,10 +79,10 @@ export class RPCShipment {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'shipment'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'fields'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
-            object: ['shipment'],
+            object: ['fields'],
         },
     })
     public static async SetFields(args) {

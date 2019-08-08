@@ -17,6 +17,7 @@
 import { Primitive, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
+import { DocumentProperties } from "./Document";
 
 import { EmbeddedFileContainer } from '../../../vaults/containers/EmbeddedContainer';
 import { applyMixins } from '../../../utils';
@@ -27,9 +28,9 @@ import { RemoteVault } from '../../../vaults/RemoteVault';
 export class ShipmentProperties extends PrimitiveProperties {
     fields: {};
     documents: {
-        bill_of_lading?: string;
-        waybill?: string;
-        commercial_invoice?: string;
+        bill_of_lading?: string | DocumentProperties;
+        waybill?: string | DocumentProperties;
+        commercial_invoice?: string | DocumentProperties;
     };
     tracking: string;
     items: {};
@@ -43,6 +44,14 @@ export class ShipmentProperties extends PrimitiveProperties {
         primitive.tracking = null;
         primitive.items = {};
     }
+
+    processDocuments() {
+        for (let document in this.documents) {
+            if (this.documents.hasOwnProperty(document)) {
+                this.documents[document] = new DocumentProperties(JSON.parse(this.documents[document]));
+            }
+        }
+    }
 }
 
 export class Shipment extends EmbeddedFileContainer implements Primitive {
@@ -55,7 +64,9 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
     // ====================
     async getShipment(wallet: Wallet): Promise<ShipmentProperties> {
         let shipment: ShipmentProperties = await this._getData(ShipmentProperties, wallet);
-        return await RemoteVault.processContentForLinks(shipment);
+        shipment = await RemoteVault.processContentForLinks(shipment);
+        shipment.processDocuments();
+        return shipment;
     }
 
     // FIELD ACCESS
@@ -78,12 +89,14 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
         return Object.keys(shipment.documents);
     }
 
-    async getDocument(wallet: Wallet, documentName: string): Promise<string> {
+    async getDocument(wallet: Wallet, documentName: string): Promise<DocumentProperties> {
         let shipment: ShipmentProperties = await this._getData(ShipmentProperties, wallet);
         if (shipment && shipment.documents && shipment.documents.hasOwnProperty(documentName)) {
-            const singleDocument: ShipmentProperties = new ShipmentProperties();
+            let singleDocument: ShipmentProperties = new ShipmentProperties();
             singleDocument.documents[documentName] = shipment.documents[documentName];
-            return await RemoteVault.processContentForLinks(singleDocument.documents);
+            singleDocument = await RemoteVault.processContentForLinks(singleDocument);
+            singleDocument.processDocuments();
+            return singleDocument.documents[documentName];
         } else {
             throw new Error(`Document '${documentName}' not found in Shipment`);
         }
