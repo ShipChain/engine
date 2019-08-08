@@ -55,4 +55,33 @@ export class RPCShipChainVault {
             vault_uri: vault.getVaultMetaFileUri(),
         };
     }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'primitives'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async InjectPrimitives(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const vault = new ShipChainVault(storage, args.vault);
+        await vault.loadMetadata();
+
+        if (args.primitives && args.primitives.length) {
+            for (let primitive of args.primitives) {
+                vault.injectPrimitive(primitive);
+            }
+        } else {
+            throw new Error(`Invalid argument '${args.primitives}'`);
+        }
+
+        const vaultWriteResponse = await vault.writeMetadata(wallet);
+
+        return {
+            ...vaultWriteResponse,
+            success: true,
+        };
+    }
 }

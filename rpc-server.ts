@@ -137,6 +137,8 @@ const methods = {
         },
         shipchain: {
             create: RPCShipChainVault.Create,
+            inject: RPCShipChainVault.InjectPrimitives,
+            // Shipment Primitive
             shipment: {
                 get: RPCShipment.Get,
                 fields: {
