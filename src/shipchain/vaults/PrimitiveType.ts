@@ -19,10 +19,12 @@ import { ShipChainVault } from './ShipChainVault';
 
 import { Shipment } from './primitives/Shipment';
 import { ShipmentCollection } from './primitives/ShipmentCollection';
+import { Document } from './primitives/Document';
 
 export class PrimitiveType {
     static readonly Shipment = new PrimitiveType('Shipment', Shipment);
     static readonly ShipmentCollection = new PrimitiveType('ShipmentCollection', ShipmentCollection);
+    static readonly Document = new PrimitiveType('Document', Document);
 
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly primitiveClass: any) {}

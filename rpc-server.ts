@@ -32,6 +32,7 @@ import { RPCVault } from "./rpc/vault";
 import { RPCShipChainVault } from "./rpc/shipchain_vault";
 import { RPCShipment } from "./rpc/primitives/shipment";
 import { RPCShipmentCollection } from "./rpc/primitives/shipment_collection";
+import { RPCDocument } from "./rpc/primitives/document";
 import { RPCLoad as RPCLoad_1_0_2 } from "./rpc/Load/1.0.2/RPCLoad";
 import { RPCLoad as RPCLoad_1_1_0 } from "./rpc/Load/1.1.0/RPCLoad";
 import { RPCEvent, startEventSubscriptions } from "./rpc/event";
@@ -165,6 +166,19 @@ const methods = {
                 add: RPCShipmentCollection.Add,
                 list: RPCShipmentCollection.List,
                 count: RPCShipmentCollection.Count,
+            },
+            // Document Primitive
+            document: {
+                get: RPCDocument.Get,
+                set: RPCDocument.Set,
+                fields: {
+                    get: RPCDocument.GetFields,
+                    set: RPCDocument.SetFields,
+                },
+                content: {
+                    get: RPCDocument.GetContent,
+                    set: RPCDocument.SetContent,
+                },
             },
         },
     },
