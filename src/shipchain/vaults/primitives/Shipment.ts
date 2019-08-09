@@ -18,12 +18,36 @@ import { Primitive, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
 import { DocumentProperties } from "./Document";
+import { ItemProperties } from "./Item";
 
 import { EmbeddedFileContainer } from '../../../vaults/containers/EmbeddedContainer';
 import { applyMixins } from '../../../utils';
 
 import { Wallet } from '../../../entity/Wallet';
 import { RemoteVault } from '../../../vaults/RemoteVault';
+
+export class ShipmentItemProperties extends PrimitiveProperties {
+    quantity: number;
+    item: string | ItemProperties;
+
+    constructor(initializingJson: any = {}) {
+        super(initializingJson, ShipmentItemProperties.initializeProperties);
+    }
+    static initializeProperties(primitive: any) {
+        primitive.quantity = 1;
+        primitive.item = null;
+    }
+
+    async processItem() {
+        if (this.item) {
+            if (typeof this.item === "string") {
+                this.item = new ItemProperties(JSON.parse(this.item));
+                this.item = await RemoteVault.processContentForLinks(this.item) as ItemProperties;
+                await this.item.processProduct();
+            }
+        }
+    }
+}
 
 export class ShipmentProperties extends PrimitiveProperties {
     fields: {};
@@ -52,6 +76,15 @@ export class ShipmentProperties extends PrimitiveProperties {
             }
         }
     }
+
+    async processItems() {
+        for (let item in this.items) {
+            if (this.items.hasOwnProperty(item)) {
+                this.items[item] = new ShipmentItemProperties(this.items[item]);
+                await this.items[item].processItem();
+            }
+        }
+    }
 }
 
 export class Shipment extends EmbeddedFileContainer implements Primitive {
@@ -66,6 +99,7 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
         let shipment: ShipmentProperties = await this._getData(ShipmentProperties, wallet);
         shipment = await RemoteVault.processContentForLinks(shipment);
         shipment.processDocuments();
+        await shipment.processItems();
         return shipment;
     }
 
@@ -132,12 +166,14 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
         return Object.keys(shipment.items);
     }
 
-    async getItem(wallet: Wallet, itemId: number): Promise<any> {
+    async getItem(wallet: Wallet, itemId: number): Promise<ShipmentItemProperties> {
         let shipment: ShipmentProperties = await this._getData(ShipmentProperties, wallet);
         if (shipment && shipment.items && shipment.items.hasOwnProperty(itemId)) {
-            const singleItem: ShipmentProperties = new ShipmentProperties();
+            let singleItem: ShipmentProperties = new ShipmentProperties();
             singleItem.items[itemId] = shipment.items[itemId];
-            return await RemoteVault.processContentForLinks(singleItem.items);
+            singleItem = await RemoteVault.processContentForLinks(singleItem);
+            await singleItem.processItems();
+            return singleItem.items[itemId];
         } else {
             throw new Error(`Item '${itemId}' not found in Shipment`);
         }
@@ -145,10 +181,10 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
 
     async addItem(wallet: Wallet, itemId: string, itemLink: string, quantity: number = 1): Promise<void> {
         let shipment: ShipmentProperties = await this._getData(ShipmentProperties, wallet);
-        shipment.items[itemId] = {
+        shipment.items[itemId] = new ShipmentItemProperties({
             quantity: quantity,
             item: itemLink,
-        };
+        });
         await this.setContents(wallet, JSON.stringify(shipment));
     }
 

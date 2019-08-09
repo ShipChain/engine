@@ -40,6 +40,7 @@ export class ShipmentCollection extends LinkContainer implements Primitive, Prim
         let shipment: ShipmentProperties = new ShipmentProperties(JSON.parse(content));
         shipment = await RemoteVault.processContentForLinks(shipment);
         shipment.processDocuments();
+        await shipment.processItems();
         return shipment;
     }
 
