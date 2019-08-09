@@ -103,9 +103,9 @@ export class Product extends EmbeddedFileContainer implements Primitive {
         }
     }
 
-    async addDocument(wallet: Wallet, documentName: string, documentLink: string): Promise<void> {
+    async addDocument(wallet: Wallet, documentId: string, documentLink: string): Promise<void> {
         let product: ProductProperties = await this._getData(ProductProperties, wallet);
-        product.documents[documentName] = documentLink;
+        product.documents[documentId] = documentLink;
         await this.setContents(wallet, JSON.stringify(product));
     }
 

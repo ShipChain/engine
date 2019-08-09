@@ -111,7 +111,7 @@ export class RPCProduct {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
         },
     })
-    public static async ListDocument(args) {
+    public static async ListDocuments(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
@@ -130,10 +130,9 @@ export class RPCProduct {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentId'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
-            string: ['documentName'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault', 'documentId'],
         },
     })
     public static async GetDocument(args) {
@@ -144,7 +143,7 @@ export class RPCProduct {
         await vault.loadMetadata();
 
         const product: Product = await vault.getPrimitive(PrimitiveType.Product.name);
-        const content = await product.getDocument(wallet, args.documentName);
+        const content = await product.getDocument(wallet, args.documentId);
 
         return {
             success: true,
@@ -155,10 +154,10 @@ export class RPCProduct {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'documentLink'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentId', 'documentLink'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
-            string: ['documentName', 'documentLink'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault', 'documentId'],
+            string: ['documentLink'],
         },
     })
     public static async AddDocument(args) {
@@ -169,7 +168,7 @@ export class RPCProduct {
         await vault.loadMetadata();
 
         const product: Product = await vault.getPrimitive(PrimitiveType.Product.name);
-        await product.addDocument(wallet, args.documentName, args.documentLink);
+        await product.addDocument(wallet, args.documentId, args.documentLink);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 

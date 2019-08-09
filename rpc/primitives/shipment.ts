@@ -114,7 +114,7 @@ export class RPCShipment {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
         },
     })
-    public static async ListDocument(args) {
+    public static async ListDocuments(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 
@@ -133,10 +133,9 @@ export class RPCShipment {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentId'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
-            string: ['documentName'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault', 'documentId'],
         },
     })
     public static async GetDocument(args) {
@@ -147,7 +146,7 @@ export class RPCShipment {
         await vault.loadMetadata();
 
         const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
-        const content = await shipment.getDocument(wallet, args.documentName);
+        const content = await shipment.getDocument(wallet, args.documentId);
 
         return {
             success: true,
@@ -158,10 +157,10 @@ export class RPCShipment {
     }
 
     @RPCMethod({
-        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentName', 'documentLink'],
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'documentId', 'documentLink'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
-            string: ['documentName', 'documentLink'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault', 'documentId'],
+            string: ['documentLink'],
         },
     })
     public static async AddDocument(args) {
@@ -172,7 +171,7 @@ export class RPCShipment {
         await vault.loadMetadata();
 
         const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
-        await shipment.addDocument(wallet, args.documentName, args.documentLink);
+        await shipment.addDocument(wallet, args.documentId, args.documentLink);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 

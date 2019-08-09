@@ -178,7 +178,7 @@ const methods = {
                     set: RPCShipment.SetFields,
                 },
                 documents: {
-                    list: RPCShipment.ListDocument,
+                    list: RPCShipment.ListDocuments,
                     get: RPCShipment.GetDocument,
                     add: RPCShipment.AddDocument,
                 },
@@ -225,7 +225,7 @@ const methods = {
                     set: RPCProduct.SetFields,
                 },
                 documents: {
-                    list: RPCProduct.ListDocument,
+                    list: RPCProduct.ListDocuments,
                     get: RPCProduct.GetDocument,
                     add: RPCProduct.AddDocument,
                 },

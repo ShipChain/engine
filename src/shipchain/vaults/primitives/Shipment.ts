@@ -51,11 +51,7 @@ export class ShipmentItemProperties extends PrimitiveProperties {
 
 export class ShipmentProperties extends PrimitiveProperties {
     fields: {};
-    documents: {
-        bill_of_lading?: string | DocumentProperties;
-        waybill?: string | DocumentProperties;
-        commercial_invoice?: string | DocumentProperties;
-    };
+    documents: {};
     tracking: string;
     items: {};
 
@@ -123,22 +119,22 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
         return Object.keys(shipment.documents);
     }
 
-    async getDocument(wallet: Wallet, documentName: string): Promise<DocumentProperties> {
+    async getDocument(wallet: Wallet, documentId: string): Promise<DocumentProperties> {
         let shipment: ShipmentProperties = await this._getData(ShipmentProperties, wallet);
-        if (shipment && shipment.documents && shipment.documents.hasOwnProperty(documentName)) {
+        if (shipment && shipment.documents && shipment.documents.hasOwnProperty(documentId)) {
             let singleDocument: ShipmentProperties = new ShipmentProperties();
-            singleDocument.documents[documentName] = shipment.documents[documentName];
+            singleDocument.documents[documentId] = shipment.documents[documentId];
             singleDocument = await RemoteVault.processContentForLinks(singleDocument);
             singleDocument.processDocuments();
-            return singleDocument.documents[documentName];
+            return singleDocument.documents[documentId];
         } else {
-            throw new Error(`Document '${documentName}' not found in Shipment`);
+            throw new Error(`Document '${documentId}' not found in Shipment`);
         }
     }
 
-    async addDocument(wallet: Wallet, documentName: string, documentLink: string): Promise<void> {
+    async addDocument(wallet: Wallet, documentId: string, documentLink: string): Promise<void> {
         let shipment: ShipmentProperties = await this._getData(ShipmentProperties, wallet);
-        shipment.documents[documentName] = documentLink;
+        shipment.documents[documentId] = documentLink;
         await this.setContents(wallet, JSON.stringify(shipment));
     }
 
