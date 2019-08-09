@@ -31,6 +31,7 @@ import { loadContractFixtures } from "./rpc/contracts";
 import { RPCVault } from "./rpc/vault";
 
 import { RPCShipChainVault } from "./rpc/shipchain_vault";
+import { RPCProcurement } from "./rpc/primitives/procurement";
 import { RPCShipment } from "./rpc/primitives/shipment";
 import { RPCDocument } from "./rpc/primitives/document";
 import { RPCProduct } from "./rpc/primitives/product";
@@ -146,6 +147,29 @@ const methods = {
         shipchain: {
             create: RPCShipChainVault.Create,
             inject: RPCShipChainVault.InjectPrimitives,
+            // Procurement Primitive
+            procurement: {
+                get: RPCProcurement.Get,
+                fields: {
+                    get: RPCProcurement.GetFields,
+                    set: RPCProcurement.SetFields,
+                },
+                shipments: {
+                    list: RPCProcurement.ListShipments,
+                    get: RPCProcurement.GetShipment,
+                    add: RPCProcurement.AddShipment,
+                },
+                documents: {
+                    list: RPCProcurement.ListDocuments,
+                    get: RPCProcurement.GetDocument,
+                    add: RPCProcurement.AddDocument,
+                },
+                products: {
+                    list: RPCProcurement.ListProducts,
+                    get: RPCProcurement.GetProduct,
+                    add: RPCProcurement.AddProduct,
+                },
+            },
             // Shipment Primitive
             shipment: {
                 get: RPCShipment.Get,
