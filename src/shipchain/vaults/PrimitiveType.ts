@@ -22,6 +22,7 @@ import { Shipment } from './primitives/Shipment';
 import { Document } from './primitives/Document';
 import { Product } from './primitives/Product';
 import { Item } from './primitives/Item';
+import { ProcurementCollection } from './primitives/ProcurementCollection';
 import { ShipmentCollection } from './primitives/ShipmentCollection';
 import { DocumentCollection } from './primitives/DocumentCollection';
 import { ProductCollection } from './primitives/ProductCollection';
@@ -33,6 +34,7 @@ export class PrimitiveType {
     static readonly Document = new PrimitiveType('Document', Document);
     static readonly Product = new PrimitiveType('Product', Product);
     static readonly Item = new PrimitiveType('Item', Item);
+    static readonly ProcurementCollection = new PrimitiveType('ProcurementCollection', ProcurementCollection);
     static readonly ShipmentCollection = new PrimitiveType('ShipmentCollection', ShipmentCollection);
     static readonly DocumentCollection = new PrimitiveType('DocumentCollection', DocumentCollection);
     static readonly ProductCollection = new PrimitiveType('ProductCollection', ProductCollection);

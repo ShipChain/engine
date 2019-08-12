@@ -36,6 +36,7 @@ import { RPCShipment } from "./rpc/primitives/shipment";
 import { RPCDocument } from "./rpc/primitives/document";
 import { RPCProduct } from "./rpc/primitives/product";
 import { RPCItem } from "./rpc/primitives/item";
+import { RPCProcurementCollection } from "./rpc/primitives/procurement_collection";
 import { RPCShipmentCollection } from "./rpc/primitives/shipment_collection";
 import { RPCDocumentCollection } from "./rpc/primitives/document_collection";
 import { RPCProductCollection } from "./rpc/primitives/product_collection";
@@ -169,6 +170,12 @@ const methods = {
                     get: RPCProcurement.GetProduct,
                     add: RPCProcurement.AddProduct,
                 },
+            },
+            procurementCollection: {
+                get: RPCProcurementCollection.Get,
+                add: RPCProcurementCollection.Add,
+                list: RPCProcurementCollection.List,
+                count: RPCProcurementCollection.Count,
             },
             // Shipment Primitive
             shipment: {
