@@ -17,7 +17,7 @@
 import { Primitive, PrimitiveCollection, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
-import { ProcurementProperties } from "./Procurement";
+import { ProcurementProperties } from './Procurement';
 
 import { LinkContainer, LinkEntry } from '../../../vaults/containers/LinkContainer';
 import { applyMixins } from '../../../utils';
@@ -46,7 +46,10 @@ export class ProcurementCollection extends LinkContainer implements Primitive, P
     // Primitive Mixin placeholders
     // ----------------------------
     injectContainerMetadata(): void {}
-    async _getData(klass: typeof PrimitiveProperties, wallet: Wallet): Promise<any> {
+    async getPrimitiveProperties<T extends PrimitiveProperties>(
+        klass: new (...args: any[]) => T,
+        wallet: Wallet,
+    ): Promise<any> {
         return undefined;
     }
     linkEntries: any;

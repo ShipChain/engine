@@ -35,10 +35,11 @@ export class DocumentProperties extends PrimitiveProperties {
     constructor(initializingJson: any = {}) {
         super(initializingJson, DocumentProperties.initializeProperties);
     }
-    static initializeProperties(primitive: any) {
+    static initializeProperties(primitive: DocumentProperties) {
         primitive.fields = {};
         primitive.content = null;
     }
+    async process() {}
 }
 
 export class Document extends EmbeddedFileContainer implements Primitive {
@@ -50,7 +51,7 @@ export class Document extends EmbeddedFileContainer implements Primitive {
     // FULL DOCUMENT ACCESS
     // ====================
     async getDocument(wallet: Wallet): Promise<DocumentProperties> {
-        let document: DocumentProperties = await this._getData(DocumentProperties, wallet);
+        let document: DocumentProperties = await this.getPrimitiveProperties(DocumentProperties, wallet);
         return await RemoteVault.processContentForLinks(document);
     }
 
@@ -65,12 +66,12 @@ export class Document extends EmbeddedFileContainer implements Primitive {
     // FIELD ACCESS
     // ============
     async getFields(wallet: Wallet): Promise<string> {
-        let document: DocumentProperties = await this._getData(DocumentProperties, wallet);
+        let document: DocumentProperties = await this.getPrimitiveProperties(DocumentProperties, wallet);
         return await RemoteVault.processContentForLinks(document.fields);
     }
 
     async setFields(wallet: Wallet, documentFields: any): Promise<void> {
-        let document: DocumentProperties = await this._getData(DocumentProperties, wallet);
+        let document: DocumentProperties = await this.getPrimitiveProperties(DocumentProperties, wallet);
         document.fields = documentFields;
         await this.setContents(wallet, JSON.stringify(document));
     }
@@ -78,12 +79,12 @@ export class Document extends EmbeddedFileContainer implements Primitive {
     // CONTENT ACCESS
     // ==============
     async getContent(wallet: Wallet): Promise<string> {
-        let document: DocumentProperties = await this._getData(DocumentProperties, wallet);
+        let document: DocumentProperties = await this.getPrimitiveProperties(DocumentProperties, wallet);
         return await RemoteVault.processContentForLinks(document.content);
     }
 
     async setContent(wallet: Wallet, documentContent: string): Promise<void> {
-        let document: DocumentProperties = await this._getData(DocumentProperties, wallet);
+        let document: DocumentProperties = await this.getPrimitiveProperties(DocumentProperties, wallet);
         document.content = documentContent;
         await this.setContents(wallet, JSON.stringify(document));
     }
@@ -91,7 +92,10 @@ export class Document extends EmbeddedFileContainer implements Primitive {
     // Primitive Mixin placeholders
     // ----------------------------
     injectContainerMetadata(): void {}
-    async _getData(klass: typeof PrimitiveProperties, wallet: Wallet): Promise<any> {
+    async getPrimitiveProperties<T extends PrimitiveProperties>(
+        klass: new (...args: any[]) => T,
+        wallet: Wallet,
+    ): Promise<any> {
         return;
     }
 }

@@ -21,7 +21,7 @@ import { RPCMethod, RPCNamespace } from '../decorators';
 import { ShipChainVault } from '../../src/shipchain/vaults/ShipChainVault';
 import { PrimitiveType } from '../../src/shipchain/vaults/PrimitiveType';
 import { ProcurementCollection } from '../../src/shipchain/vaults/primitives/ProcurementCollection';
-import { RemoteVault } from "../../src/vaults/RemoteVault";
+import { RemoteVault } from '../../src/vaults/RemoteVault';
 
 @RPCNamespace({ name: 'ProcurementCollection' })
 export class RPCProcurementCollection {

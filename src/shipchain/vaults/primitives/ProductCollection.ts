@@ -17,7 +17,7 @@
 import { Primitive, PrimitiveCollection, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
-import { ProductProperties } from "./Product";
+import { ProductProperties } from './Product';
 
 import { LinkContainer, LinkEntry } from '../../../vaults/containers/LinkContainer';
 import { applyMixins } from '../../../utils';
@@ -39,14 +39,17 @@ export class ProductCollection extends LinkContainer implements Primitive, Primi
         let content: string = await this.getLinkedContent(linkId);
         let product: ProductProperties = new ProductProperties(JSON.parse(content));
         product = await RemoteVault.processContentForLinks(product);
-        product.processDocuments();
+        await product.process();
         return product;
     }
 
     // Primitive Mixin placeholders
     // ----------------------------
     injectContainerMetadata(): void {}
-    async _getData(klass: PrimitiveProperties, wallet: Wallet): Promise<any> {
+    async getPrimitiveProperties<T extends PrimitiveProperties>(
+        klass: new (...args: any[]) => T,
+        wallet: Wallet,
+    ): Promise<any> {
         return undefined;
     }
     linkEntries: any;

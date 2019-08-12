@@ -85,7 +85,6 @@ export class RPCProcurement {
         },
     })
     public static async SetFields(args) {
-
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
         const wallet = await Wallet.getById(args.vaultWallet);
 

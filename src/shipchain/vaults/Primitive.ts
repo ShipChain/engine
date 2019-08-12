@@ -23,7 +23,10 @@ export abstract class Primitive extends Container {
         this.meta['isPrimitive'] = true;
     }
 
-    async _getData(klass: typeof PrimitiveProperties, wallet: Wallet): Promise<any> {
+    async getPrimitiveProperties<T extends PrimitiveProperties>(
+        klass: new (...args: any[]) => T,
+        wallet: Wallet,
+    ): Promise<T> {
         let primitive;
         try {
             primitive = await this.decryptContents(wallet);
@@ -47,8 +50,8 @@ export abstract class PrimitiveCollection extends Primitive {
     }
 }
 
-export class PrimitiveProperties {
-    constructor(initializingJson: any = {}, initializeCallback?: any) {
+export abstract class PrimitiveProperties {
+    protected constructor(initializingJson: any = {}, initializeCallback?: any) {
         if (initializeCallback) {
             initializeCallback(this);
         }
@@ -58,4 +61,6 @@ export class PrimitiveProperties {
             }
         }
     }
+
+    abstract async process();
 }

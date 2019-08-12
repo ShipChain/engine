@@ -17,7 +17,7 @@
 import { Primitive, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
-import { ProductProperties } from "./Product";
+import { ProductProperties } from './Product';
 
 import { EmbeddedFileContainer } from '../../../vaults/containers/EmbeddedContainer';
 import { applyMixins } from '../../../utils';
@@ -25,31 +25,30 @@ import { applyMixins } from '../../../utils';
 import { Wallet } from '../../../entity/Wallet';
 import { RemoteVault } from '../../../vaults/RemoteVault';
 
-
 export class ItemProperties extends PrimitiveProperties {
     fields: {
-        serial_number: string;
-        batch_id: string;
-        lot_number: string;
-        price: string;
-        expiration_date: string;
+        serial_number?: string;
+        batch_id?: string;
+        lot_number?: string;
+        price?: string;
+        expiration_date?: string;
     };
     product: string | ProductProperties;
 
     constructor(initializingJson: any = {}) {
         super(initializingJson, ItemProperties.initializeProperties);
     }
-    static initializeProperties(primitive: any) {
+    static initializeProperties(primitive: ItemProperties) {
         primitive.fields = {};
         primitive.product = null;
     }
 
-    async processProduct() {
+    async process() {
         if (this.product) {
-            if (typeof this.product === "string") {
+            if (typeof this.product === 'string') {
                 this.product = new ProductProperties(JSON.parse(this.product));
-                this.product = await RemoteVault.processContentForLinks(this.product) as ProductProperties;
-                this.product.processDocuments();
+                this.product = (await RemoteVault.processContentForLinks(this.product)) as ProductProperties;
+                await this.product.process();
             }
         }
     }
@@ -64,21 +63,21 @@ export class Item extends EmbeddedFileContainer implements Primitive {
     // FULL ITEM ACCESS
     // ================
     async getItem(wallet: Wallet): Promise<ItemProperties> {
-        let item: ItemProperties = await this._getData(ItemProperties, wallet);
+        let item: ItemProperties = await this.getPrimitiveProperties(ItemProperties, wallet);
         item = await RemoteVault.processContentForLinks(item);
-        await item.processProduct();
+        await item.process();
         return item;
     }
 
     // FIELD ACCESS
     // ============
     async getFields(wallet: Wallet): Promise<string> {
-        let item: ItemProperties = await this._getData(ItemProperties, wallet);
+        let item: ItemProperties = await this.getPrimitiveProperties(ItemProperties, wallet);
         return await RemoteVault.processContentForLinks(item.fields);
     }
 
     async setFields(wallet: Wallet, itemFields: any): Promise<void> {
-        let item: ItemProperties = await this._getData(ItemProperties, wallet);
+        let item: ItemProperties = await this.getPrimitiveProperties(ItemProperties, wallet);
         item.fields = itemFields;
         await this.setContents(wallet, JSON.stringify(item));
     }
@@ -86,10 +85,10 @@ export class Item extends EmbeddedFileContainer implements Primitive {
     // PRODUCT ACCESS
     // ==============
     async getProduct(wallet: Wallet): Promise<ProductProperties> {
-        let item: ItemProperties = await this._getData(ItemProperties, wallet);
+        let item: ItemProperties = await this.getPrimitiveProperties(ItemProperties, wallet);
         if (item && item.product) {
             item = await RemoteVault.processContentForLinks(item);
-            await item.processProduct();
+            await item.process();
             return item.product as ProductProperties;
         } else {
             throw new Error(`Product not found in Item`);
@@ -97,7 +96,7 @@ export class Item extends EmbeddedFileContainer implements Primitive {
     }
 
     async setProduct(wallet: Wallet, productLink: string): Promise<void> {
-        let item: ItemProperties = await this._getData(ItemProperties, wallet);
+        let item: ItemProperties = await this.getPrimitiveProperties(ItemProperties, wallet);
         item.product = productLink;
         await this.setContents(wallet, JSON.stringify(item));
     }
@@ -105,7 +104,10 @@ export class Item extends EmbeddedFileContainer implements Primitive {
     // Primitive Mixin placeholders
     // ----------------------------
     injectContainerMetadata(): void {}
-    async _getData(klass: typeof PrimitiveProperties, wallet: Wallet): Promise<any> {
+    async getPrimitiveProperties<T extends PrimitiveProperties>(
+        klass: new (...args: any[]) => T,
+        wallet: Wallet,
+    ): Promise<any> {
         return;
     }
 }

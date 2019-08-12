@@ -23,7 +23,7 @@ import { applyMixins } from '../../../utils';
 
 import { Wallet } from '../../../entity/Wallet';
 import { RemoteVault } from '../../../vaults/RemoteVault';
-import { DocumentProperties } from "./Document";
+import { DocumentProperties } from './Document';
 
 export class DocumentCollection extends LinkContainer implements Primitive, PrimitiveCollection {
     constructor(vault: ShipChainVault, meta?: any) {
@@ -44,7 +44,10 @@ export class DocumentCollection extends LinkContainer implements Primitive, Prim
     // Primitive Mixin placeholders
     // ----------------------------
     injectContainerMetadata(): void {}
-    async _getData(klass: PrimitiveProperties, wallet: Wallet): Promise<any> {
+    async getPrimitiveProperties<T extends PrimitiveProperties>(
+        klass: new (...args: any[]) => T,
+        wallet: Wallet,
+    ): Promise<any> {
         return undefined;
     }
     linkEntries: any;
