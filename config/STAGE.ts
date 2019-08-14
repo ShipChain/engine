@@ -7,4 +7,5 @@ export default {
         "DEFAULT": "info",
         "ELASTICSEARCH": "info",
     },
+    "USE_JS_ORM_ENTITIES": true,
 }
