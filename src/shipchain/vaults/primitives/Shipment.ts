@@ -153,7 +153,7 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
     }
 
     async setTracking(wallet: Wallet, trackingLink: string): Promise<any> {
-        // Primitive.validateLinkedPrimitive(trackingLink, PrimitiveType.Tracking.name);
+        Primitive.validateLinkedPrimitive(trackingLink, PrimitiveType.Tracking.name);
         let shipment: ShipmentProperties = await this.getPrimitiveProperties(ShipmentProperties, wallet);
         shipment.tracking = trackingLink;
         await this.setContents(wallet, JSON.stringify(shipment));

@@ -19,6 +19,7 @@ import { ShipChainVault } from './ShipChainVault';
 
 import { Procurement } from './primitives/Procurement';
 import { Shipment } from './primitives/Shipment';
+import { Tracking } from './primitives/Tracking';
 import { Document } from './primitives/Document';
 import { Product } from './primitives/Product';
 import { Item } from './primitives/Item';
@@ -31,6 +32,7 @@ import { ItemCollection } from './primitives/ItemCollection';
 export class PrimitiveType {
     static readonly Procurement = new PrimitiveType('Procurement', Procurement);
     static readonly Shipment = new PrimitiveType('Shipment', Shipment);
+    static readonly Tracking = new PrimitiveType('Tracking', Tracking);
     static readonly Document = new PrimitiveType('Document', Document);
     static readonly Product = new PrimitiveType('Product', Product);
     static readonly Item = new PrimitiveType('Item', Item);

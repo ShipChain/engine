@@ -33,6 +33,7 @@ import { RPCVault } from "./rpc/vault";
 import { RPCShipChainVault } from "./rpc/shipchain_vault";
 import { RPCProcurement } from "./rpc/primitives/procurement";
 import { RPCShipment } from "./rpc/primitives/shipment";
+import { RPCTracking } from "./rpc/primitives/tracking";
 import { RPCDocument } from "./rpc/primitives/document";
 import { RPCProduct } from "./rpc/primitives/product";
 import { RPCItem } from "./rpc/primitives/item";
@@ -204,6 +205,11 @@ const methods = {
                 add: RPCShipmentCollection.Add,
                 list: RPCShipmentCollection.List,
                 count: RPCShipmentCollection.Count,
+            },
+            // Tracking Primitive
+            tracking: {
+                get: RPCTracking.Get,
+                add: RPCTracking.Add,
             },
             // Document Primitive
             document: {
