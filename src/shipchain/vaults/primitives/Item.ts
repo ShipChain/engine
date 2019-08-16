@@ -96,6 +96,7 @@ export class Item extends EmbeddedFileContainer implements Primitive {
     }
 
     async setProduct(wallet: Wallet, productLink: string): Promise<void> {
+        Primitive.validateLinkedPrimitive(productLink, PrimitiveType.Product.name);
         let item: ItemProperties = await this.getPrimitiveProperties(ItemProperties, wallet);
         item.product = productLink;
         await this.setContents(wallet, JSON.stringify(item));

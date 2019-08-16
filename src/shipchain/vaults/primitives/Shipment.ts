@@ -135,6 +135,7 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
     }
 
     async addDocument(wallet: Wallet, documentId: string, documentLink: string): Promise<void> {
+        Primitive.validateLinkedPrimitive(documentLink, PrimitiveType.Document.name);
         let shipment: ShipmentProperties = await this.getPrimitiveProperties(ShipmentProperties, wallet);
         shipment.documents[documentId] = documentLink;
         await this.setContents(wallet, JSON.stringify(shipment));
@@ -152,6 +153,7 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
     }
 
     async setTracking(wallet: Wallet, trackingLink: string): Promise<any> {
+        // Primitive.validateLinkedPrimitive(trackingLink, PrimitiveType.Tracking.name);
         let shipment: ShipmentProperties = await this.getPrimitiveProperties(ShipmentProperties, wallet);
         shipment.tracking = trackingLink;
         await this.setContents(wallet, JSON.stringify(shipment));
@@ -178,6 +180,7 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
     }
 
     async addItem(wallet: Wallet, itemId: string, itemLink: string, quantity: number = 1): Promise<void> {
+        Primitive.validateLinkedPrimitive(itemLink, PrimitiveType.Item.name);
         let shipment: ShipmentProperties = await this.getPrimitiveProperties(ShipmentProperties, wallet);
         shipment.items[itemId] = new ShipmentItemProperties({
             quantity: quantity,

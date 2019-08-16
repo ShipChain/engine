@@ -152,6 +152,7 @@ export class Procurement extends EmbeddedFileContainer implements Primitive {
     }
 
     async addShipment(wallet: Wallet, shipmentId: string, shipmentLink: string): Promise<void> {
+        Primitive.validateLinkedPrimitive(shipmentLink, PrimitiveType.Shipment.name);
         let procurement: ProcurementProperties = await this.getPrimitiveProperties(ProcurementProperties, wallet);
         procurement.shipments[shipmentId] = shipmentLink;
         await this.setContents(wallet, JSON.stringify(procurement));
@@ -178,6 +179,7 @@ export class Procurement extends EmbeddedFileContainer implements Primitive {
     }
 
     async addDocument(wallet: Wallet, documentName: string, documentLink: string): Promise<void> {
+        Primitive.validateLinkedPrimitive(documentLink, PrimitiveType.Document.name);
         let procurement: ProcurementProperties = await this.getPrimitiveProperties(ProcurementProperties, wallet);
         procurement.documents[documentName] = documentLink;
         await this.setContents(wallet, JSON.stringify(procurement));
@@ -204,6 +206,7 @@ export class Procurement extends EmbeddedFileContainer implements Primitive {
     }
 
     async addProduct(wallet: Wallet, productId: string, productLink: string, quantity: number = 1): Promise<void> {
+        Primitive.validateLinkedPrimitive(productLink, PrimitiveType.Product.name);
         let procurement: ProcurementProperties = await this.getPrimitiveProperties(ProcurementProperties, wallet);
         procurement.products[productId] = new ProcurementProductProperties({
             quantity: quantity,
