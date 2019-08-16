@@ -41,7 +41,7 @@ export class RPCItemCollection {
 
         const items: ItemCollection = await vault.getPrimitive(PrimitiveType.ItemCollection.name);
 
-        const content = await items.getItem(args.linkId);
+        const content = await items.getEntity(args.linkId);
 
         return {
             success: true,
@@ -71,7 +71,7 @@ export class RPCItemCollection {
                 throw new Error(`Invalid LinkEntry provided`);
             }
         }
-        await items.addItem(wallet, args.linkId, args.linkEntry);
+        await items.addEntity(wallet, args.linkId, args.linkEntry);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 

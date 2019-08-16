@@ -34,14 +34,22 @@ export class PrimitiveType {
     static readonly Document = new PrimitiveType('Document', Document);
     static readonly Product = new PrimitiveType('Product', Product);
     static readonly Item = new PrimitiveType('Item', Item);
-    static readonly ProcurementCollection = new PrimitiveType('ProcurementCollection', ProcurementCollection);
-    static readonly ShipmentCollection = new PrimitiveType('ShipmentCollection', ShipmentCollection);
-    static readonly DocumentCollection = new PrimitiveType('DocumentCollection', DocumentCollection);
-    static readonly ProductCollection = new PrimitiveType('ProductCollection', ProductCollection);
-    static readonly ItemCollection = new PrimitiveType('ItemCollection', ItemCollection);
+    static readonly ProcurementCollection = new PrimitiveType(
+        'ProcurementCollection',
+        ProcurementCollection,
+        'Procurement',
+    );
+    static readonly ShipmentCollection = new PrimitiveType('ShipmentCollection', ShipmentCollection, 'Shipment');
+    static readonly DocumentCollection = new PrimitiveType('DocumentCollection', DocumentCollection, 'Document');
+    static readonly ProductCollection = new PrimitiveType('ProductCollection', ProductCollection, 'Product');
+    static readonly ItemCollection = new PrimitiveType('ItemCollection', ItemCollection, 'Item');
 
     // private to disallow creating other instances of this type
-    private constructor(public readonly name: string, public readonly primitiveClass: any) {}
+    private constructor(
+        public readonly name: string,
+        public readonly primitiveClass: any,
+        public readonly collectionOf?: string,
+    ) {}
 
     create(vault: ShipChainVault, meta?: any): Primitive {
         return <Primitive>new this.primitiveClass(vault, meta);

@@ -41,7 +41,7 @@ export class RPCDocumentCollection {
 
         const documents: DocumentCollection = await vault.getPrimitive(PrimitiveType.DocumentCollection.name);
 
-        const content = await documents.getDocument(args.linkId);
+        const content = await documents.getEntity(args.linkId);
 
         return {
             success: true,
@@ -71,7 +71,7 @@ export class RPCDocumentCollection {
                 throw new Error(`Invalid LinkEntry provided`);
             }
         }
-        await shipments.addDocument(wallet, args.linkId, args.linkEntry);
+        await shipments.addEntity(wallet, args.linkId, args.linkEntry);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 

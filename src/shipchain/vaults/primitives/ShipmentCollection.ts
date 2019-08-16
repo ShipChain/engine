@@ -23,24 +23,12 @@ import { LinkContainer, LinkEntry } from '../../../vaults/containers/LinkContain
 import { applyMixins } from '../../../utils';
 
 import { Wallet } from '../../../entity/Wallet';
-import { RemoteVault } from '../../../vaults/RemoteVault';
 
 export class ShipmentCollection extends LinkContainer implements Primitive, PrimitiveCollection {
     constructor(vault: ShipChainVault, meta?: any) {
         super(vault, PrimitiveType.ShipmentCollection.name, meta);
         this.injectContainerMetadata();
-    }
-
-    async addShipment(wallet: Wallet, shipmentId: string, shipmentLink: LinkEntry): Promise<void> {
-        await this.addLink(wallet, shipmentId, shipmentLink);
-    }
-
-    async getShipment(linkId: string): Promise<ShipmentProperties> {
-        let content: string = await this.getLinkedContent(linkId);
-        let shipment: ShipmentProperties = new ShipmentProperties(JSON.parse(content));
-        shipment = await RemoteVault.processContentForLinks(shipment);
-        await shipment.process();
-        return shipment;
+        this.propertiesKlass = ShipmentProperties;
     }
 
     // Primitive Mixin placeholders
@@ -53,6 +41,13 @@ export class ShipmentCollection extends LinkContainer implements Primitive, Prim
         return undefined;
     }
     linkEntries: any;
+    propertiesKlass: { new (...args: any[]): PrimitiveProperties };
+    async addEntity(wallet: Wallet, entityId: string, entityLink: LinkEntry): Promise<void> {
+        return undefined;
+    }
+    async getEntity(linkId: string): Promise<PrimitiveProperties> {
+        return undefined;
+    }
     count(): number {
         return 0;
     }
@@ -61,4 +56,4 @@ export class ShipmentCollection extends LinkContainer implements Primitive, Prim
     }
 }
 
-applyMixins(ShipmentCollection, [Primitive, PrimitiveCollection]);
+applyMixins(ShipmentCollection, [PrimitiveCollection, Primitive]);

@@ -17,6 +17,9 @@
 // Primitive Mixin
 import { Container } from '../../vaults/Container';
 import { Wallet } from '../../entity/Wallet';
+import { LinkContainer, LinkEntry } from '../../vaults/containers/LinkContainer';
+import { RemoteVault } from '../../vaults/RemoteVault';
+import { PrimitiveType } from './PrimitiveType';
 
 export abstract class Primitive extends Container {
     injectContainerMetadata() {
@@ -37,16 +40,50 @@ export abstract class Primitive extends Container {
 
         return new klass(primitive);
     }
+
+    static validateLinkedPrimitive(linkEntry: LinkEntry | string, primitiveType: string): void {
+        if (typeof linkEntry === 'string') {
+            linkEntry = RemoteVault.buildLinkEntry(linkEntry);
+        }
+        if (linkEntry.container !== primitiveType) {
+            throw new Error(`Expecting Link to [${primitiveType}] instead received [${linkEntry.container}]`);
+        }
+    }
 }
 
-export abstract class PrimitiveCollection extends Primitive {
+export abstract class PrimitiveCollection extends LinkContainer implements Primitive {
     linkEntries: any;
+    propertiesKlass: new (...args: any[]) => PrimitiveProperties;
+
+    async addEntity(wallet: Wallet, entityId: string, entityLink: LinkEntry): Promise<void> {
+        const thisPrimitiveType: PrimitiveType = PrimitiveType[this.name];
+        Primitive.validateLinkedPrimitive(entityLink, thisPrimitiveType.collectionOf);
+        await this.addLink(wallet, entityId, entityLink);
+    }
+
+    async getEntity(linkId: string): Promise<PrimitiveProperties> {
+        let content: string = await this.getLinkedContent(linkId);
+        let procurement: PrimitiveProperties = new this.propertiesKlass(JSON.parse(content));
+        procurement = await RemoteVault.processContentForLinks(procurement);
+        await procurement.process();
+        return procurement;
+    }
     count(): number {
         return Object.keys(this.linkEntries).length;
     }
 
     list(): String[] {
         return Object.keys(this.linkEntries);
+    }
+
+    // Primitive Mixin placeholders
+    // ----------------------------
+    injectContainerMetadata(): void {}
+    async getPrimitiveProperties<T extends PrimitiveProperties>(
+        klass: new (...args: any[]) => T,
+        wallet: Wallet,
+    ): Promise<any> {
+        return undefined;
     }
 }
 

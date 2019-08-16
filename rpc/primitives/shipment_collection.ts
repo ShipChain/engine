@@ -41,7 +41,7 @@ export class RPCShipmentCollection {
 
         const shipments: ShipmentCollection = await vault.getPrimitive(PrimitiveType.ShipmentCollection.name);
 
-        const content = await shipments.getShipment(args.linkId);
+        const content = await shipments.getEntity(args.linkId);
 
         return {
             success: true,
@@ -71,7 +71,7 @@ export class RPCShipmentCollection {
                 throw new Error(`Invalid LinkEntry provided`);
             }
         }
-        await shipments.addShipment(wallet, args.linkId, args.linkEntry);
+        await shipments.addEntity(wallet, args.linkId, args.linkEntry);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 

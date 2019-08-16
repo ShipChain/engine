@@ -41,7 +41,7 @@ export class RPCProcurementCollection {
 
         const procurements: ProcurementCollection = await vault.getPrimitive(PrimitiveType.ProcurementCollection.name);
 
-        const content = await procurements.getProcurement(args.linkId);
+        const content = await procurements.getEntity(args.linkId);
 
         return {
             success: true,
@@ -71,7 +71,7 @@ export class RPCProcurementCollection {
                 throw new Error(`Invalid LinkEntry provided`);
             }
         }
-        await procurements.addProcurement(wallet, args.linkId, args.linkEntry);
+        await procurements.addEntity(wallet, args.linkId, args.linkEntry);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 

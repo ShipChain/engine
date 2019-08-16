@@ -17,28 +17,18 @@
 import { Primitive, PrimitiveCollection, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
+import { DocumentProperties } from './Document';
 
 import { LinkContainer, LinkEntry } from '../../../vaults/containers/LinkContainer';
 import { applyMixins } from '../../../utils';
 
 import { Wallet } from '../../../entity/Wallet';
-import { RemoteVault } from '../../../vaults/RemoteVault';
-import { DocumentProperties } from './Document';
 
 export class DocumentCollection extends LinkContainer implements Primitive, PrimitiveCollection {
     constructor(vault: ShipChainVault, meta?: any) {
         super(vault, PrimitiveType.DocumentCollection.name, meta);
         this.injectContainerMetadata();
-    }
-
-    async addDocument(wallet: Wallet, documentId: string, documentLink: LinkEntry): Promise<void> {
-        await this.addLink(wallet, documentId, documentLink);
-    }
-
-    async getDocument(linkId: string): Promise<DocumentProperties> {
-        let content = await this.getLinkedContent(linkId);
-        let document: DocumentProperties = new DocumentProperties(JSON.parse(content));
-        return await RemoteVault.processContentForLinks(document);
+        this.propertiesKlass = DocumentProperties;
     }
 
     // Primitive Mixin placeholders
@@ -51,6 +41,13 @@ export class DocumentCollection extends LinkContainer implements Primitive, Prim
         return undefined;
     }
     linkEntries: any;
+    propertiesKlass: { new (...args: any[]): PrimitiveProperties };
+    async addEntity(wallet: Wallet, entityId: string, entityLink: LinkEntry): Promise<void> {
+        return undefined;
+    }
+    async getEntity(linkId: string): Promise<PrimitiveProperties> {
+        return undefined;
+    }
     count(): number {
         return 0;
     }
@@ -59,4 +56,4 @@ export class DocumentCollection extends LinkContainer implements Primitive, Prim
     }
 }
 
-applyMixins(DocumentCollection, [Primitive, PrimitiveCollection]);
+applyMixins(DocumentCollection, [PrimitiveCollection, Primitive]);
