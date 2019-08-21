@@ -46,6 +46,7 @@ import { RPCItemList } from "./rpc/primitives/item_list";
 
 import { RPCLoad as RPCLoad_1_0_2 } from "./rpc/Load/1.0.2/RPCLoad";
 import { RPCLoad as RPCLoad_1_1_0 } from "./rpc/Load/1.1.0/RPCLoad";
+import { RPCLoad as RPCLoad_1_2_0 } from "./rpc/Load/1.2.0/RPCLoad";
 import { RPCEvent, startEventSubscriptions } from "./rpc/event";
 import { RPCWallet } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
@@ -76,7 +77,27 @@ const methods = {
         unsubscribe: RPCEvent.Unsubscribe,
     },
     load: {
-        create_shipment_tx: RPCLoad_1_1_0.CreateShipmentTx,
+        create_shipment_tx: RPCLoad_1_2_0.CreateShipmentTx,
+        "create_shipment2_tx": RPCLoad_1_2_0.CreateShipment2Tx,
+        "1.2.0": {
+            // Transactional methods
+            "create_shipment2_tx": RPCLoad_1_2_0.CreateShipment2Tx,
+            "create_shipment_tx": RPCLoad_1_2_0.CreateShipmentTx,
+            "set_carrier_tx": RPCLoad_1_2_0.SetCarrierTx,
+            "set_moderator_tx": RPCLoad_1_2_0.SetModeratorTx,
+            "set_in_progress_tx": RPCLoad_1_2_0.SetInProgressTx,
+            "set_complete_tx": RPCLoad_1_2_0.SetCompleteTx,
+            "set_canceled_tx": RPCLoad_1_2_0.SetCanceledTx,
+            "fund_escrow_tx": RPCLoad_1_2_0.FundEscrowTx,
+            "fund_escrow_ether_tx": RPCLoad_1_2_0.FundEscrowEtherTx,
+            "fund_escrow_ship_tx": RPCLoad_1_2_0.FundEscrowShipTx,
+            "release_escrow_tx": RPCLoad_1_2_0.ReleaseEscrowTx,
+            "withdraw_escrow_tx": RPCLoad_1_2_0.WithdrawEscrowTx,
+            "refund_escrow_tx": RPCLoad_1_2_0.RefundEscrowTx,
+            // View methods
+            "get_shipment_data": RPCLoad_1_2_0.GetShipmentData,
+            "get_escrow_data": RPCLoad_1_2_0.GetEscrowData,
+        },
         "1.1.0": {
             //Transactional methods
             create_shipment_tx: RPCLoad_1_1_0.CreateShipmentTx,

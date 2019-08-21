@@ -16,14 +16,14 @@
 
 //import {LoadContract} from '../1.1.0/LoadContract' as LoadContract_1_1_0;
 import { Wallet } from '../../../../entity/Wallet';
-import { LoadContract } from '../1.1.0/LoadContract';
+import { LoadContract as LoadContract_1_1_0 } from '../1.1.0/LoadContract';
 
 export enum EscrowFundingType {
     NO_FUNDING = 0,
     SHIP = 1,
     ETHER = 2,
 }
-export class LoadContract_1_2_0 extends LoadContract {
+export class LoadContract extends LoadContract_1_1_0 {
     constructor(network: string, version: string) {
         super(network, version);
     }
@@ -33,7 +33,7 @@ export class LoadContract_1_2_0 extends LoadContract {
         shipmentUuid: string,
         fundingType: EscrowFundingType = EscrowFundingType.NO_FUNDING,
         contractedAmount: number = 0,
-        carrier: string,
+        carrier: string = '',
     ) {
         return await this.buildTransactionForWallet(senderWallet, 'createNewShipment2', [
             LoadContract.convertShipmentUuidToBytes16(shipmentUuid),

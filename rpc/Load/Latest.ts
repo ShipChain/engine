@@ -15,4 +15,4 @@
  */
 
 // This is the latest supported version of the LOAD contract being exposed by the Engine RPC Server
-export const latest = '1.1.0';
+export const latest = '1.2.0';
