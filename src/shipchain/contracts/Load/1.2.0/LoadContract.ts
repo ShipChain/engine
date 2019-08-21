@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+//import {LoadContract} from '../1.1.0/LoadContract' as LoadContract_1_1_0;
 import { Wallet } from '../../../../entity/Wallet';
 import { LoadContract as LoadContract_1_1_0 } from '../1.1.0/LoadContract';
 
@@ -27,18 +28,18 @@ export class LoadContract extends LoadContract_1_1_0 {
         super(network, version);
     }
 
-    async createNewShipmentTx(
+    async createNewShipment2Tx(
         senderWallet: Wallet,
         shipmentUuid: string,
         fundingType: EscrowFundingType = EscrowFundingType.NO_FUNDING,
         contractedAmount: number = 0,
-        carrierAddress: string = '0x0000000000000000000000000000000000000000',
+        carrier: string = '',
     ) {
-        return await this.buildTransactionForWallet(senderWallet, 'createNewShipment', [
+        return await this.buildTransactionForWallet(senderWallet, 'createNewShipment2', [
             LoadContract.convertShipmentUuidToBytes16(shipmentUuid),
             fundingType,
             contractedAmount,
-            carrierAddress,
+            carrier,
         ]);
     }
 
