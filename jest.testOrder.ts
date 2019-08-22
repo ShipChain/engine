@@ -50,6 +50,11 @@ import { UtilsTests } from "./src/__tests__/utils";
 // ===============
 import { LoadVaultTests } from './src/shipchain/__tests__/loadvault';
 import { ShipChainVaultTests } from "./src/shipchain/__tests__/shipchainvault";
+import { DocumentPrimitiveTests } from "./src/shipchain/__tests__/document";
+import { ItemPrimitiveTests } from "./src/shipchain/__tests__/item";
+import { ProductPrimitiveTests } from "./src/shipchain/__tests__/product";
+import { TrackingPrimitiveTests } from "./src/shipchain/__tests__/tracking";
+import { ShipmentPrimitiveTests } from "./src/shipchain/__tests__/shipment";
 
 describe('RPC', async () => {
 
@@ -141,5 +146,10 @@ describe('ShipChain', async () => {
 
     describe('LOAD Vault', LoadVaultTests);
     describe('ShipChain Vault', ShipChainVaultTests);
+    describe('Document Primitive', DocumentPrimitiveTests);
+    describe('Item Primitive', ItemPrimitiveTests);
+    describe('Product Primitive', ProductPrimitiveTests);
+    describe('Tracking Primitive', TrackingPrimitiveTests);
+    describe('Shipment Primitive', ShipmentPrimitiveTests);
 
 });

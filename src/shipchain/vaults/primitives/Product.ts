@@ -71,7 +71,7 @@ export class Product extends EmbeddedFileContainer implements Primitive {
 
     // FIELD ACCESS
     // ============
-    async getFields(wallet: Wallet): Promise<string> {
+    async getFields(wallet: Wallet): Promise<any> {
         let product: ProductProperties = await this.getPrimitiveProperties(ProductProperties, wallet);
         return await RemoteVault.processContentForLinks(product.fields);
     }
@@ -111,7 +111,9 @@ export class Product extends EmbeddedFileContainer implements Primitive {
 
     // Primitive Mixin placeholders
     // ----------------------------
+    /* istanbul ignore next */
     injectContainerMetadata(): void {}
+    /* istanbul ignore next */
     async getPrimitiveProperties<T extends PrimitiveProperties>(
         klass: new (...args: any[]) => T,
         wallet: Wallet,

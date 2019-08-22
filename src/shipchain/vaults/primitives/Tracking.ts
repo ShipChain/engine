@@ -41,7 +41,9 @@ export class Tracking extends ExternalListDailyContainer implements Primitive {
 
     // Primitive Mixin placeholders
     // ----------------------------
+    /* istanbul ignore next */
     injectContainerMetadata(): void {}
+    /* istanbul ignore next */
     async getPrimitiveProperties<T extends PrimitiveProperties>(
         klass: new (...args: any[]) => T,
         wallet: Wallet,
