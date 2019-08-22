@@ -30,7 +30,6 @@ const VERSION = '1.2.0';
 
 @RPCNamespace({ name: 'Load.1.2.0' })
 export class RPCLoad {
-
     @RPCMethod({
         require: ['shipmentUuid', 'senderWallet'],
         validate: {

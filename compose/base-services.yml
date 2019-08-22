@@ -11,7 +11,9 @@ services:
 
 
   geth-poa:
-    image: shipchain/geth-poa
+#    image: shipchain/geth-poa
+    image: trufflesuite/ganache-cli
+    command: ganache-cli -l 8000000
     expose:
       - 8545
     environment:
