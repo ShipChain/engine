@@ -29,7 +29,7 @@ const utils = require('../local-test-net-utils');
 
 // These are the versions we are testing
 const LATEST_SHIPTOKEN = "1.0.0";
-const LATEST_LOAD = "1.1.0";
+const LATEST_LOAD = "1.2.0";
 
 function AsyncSleep(time) {
     return new Promise(resolve => {

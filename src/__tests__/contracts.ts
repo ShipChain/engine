@@ -26,7 +26,7 @@ const utils = require('../local-test-net-utils');
 
 // These are the versions we are testing
 const LATEST_SHIPTOKEN = "1.0.0";
-const LATEST_LOAD = "1.1.0";
+const LATEST_LOAD = "1.2.0";
 
 
 export const ContractEntityTests = async function() {
@@ -37,7 +37,7 @@ export const ContractEntityTests = async function() {
 
     it(`loads contract fixtures`, async () => {
         await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
-        expect(await Project.count()).toEqual(2);
+        expect(await Project.count()).toEqual(3);
         expect(await Network.count()).toEqual(3);
         expect(await Version.count()).toEqual(3);
         expect(await Contract.count()).toEqual(9);
