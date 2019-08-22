@@ -57,13 +57,14 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['shipmentUuid', 'senderWallet'],
+        require: ['shipmentUuid', 'senderWallet' ],
         validate: {
-            uuid: ['shipmentUuid', 'senderWallet'],
+            uuid: ['shipmentUuid', 'senderWallet', 'carrierWallet'],
         },
     })
     public static async CreateShipment2Tx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
+        const carrierWallet = await Wallet.getById(args.carrierWallet);
 
         // Creating a new Shipment always requires the latest version of the contract
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
@@ -73,7 +74,7 @@ export class RPCLoad {
             args.shipmentUuid,
             args.fundingType,
             args.contractedAmount,
-            args.carrier,
+            carrierWallet.address,
         );
 
         return {
