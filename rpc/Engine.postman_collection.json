@@ -2058,7 +2058,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment2_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 10000000000000, \n\t\t\"carrier\": \"0x07b4402D9Ae489da5E7d5eF2E0dc56e3947C88D5\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment2_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 10000000000000, \n\t\t\"carrierWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "http://localhost:2000/",

@@ -57,7 +57,7 @@ export class RPCLoad {
     }
 
     @RPCMethod({
-        require: ['shipmentUuid', 'senderWallet' ],
+        require: ['shipmentUuid', 'senderWallet'],
         validate: {
             uuid: ['shipmentUuid', 'senderWallet', 'carrierWallet'],
         },
