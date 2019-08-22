@@ -34,6 +34,14 @@ export class ShipChainVault extends Vault {
         super.initializeMetadata(author, meta);
     }
 
+    async loadMetadata() {
+        await super.loadMetadata();
+        if (!this.meta.isShipChainVault) {
+            throw new Error(`Vault ${this.id} is not a ShipChainVault`);
+        }
+        return this.meta;
+    }
+
     async getContainerContent(content: any, name: string): Promise<Container | Primitive> {
         if (PrimitiveType.isValid(name)) {
             return PrimitiveType[name].create(this, await this.decompressContainerMeta(content));

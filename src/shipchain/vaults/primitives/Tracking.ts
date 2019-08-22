@@ -21,7 +21,7 @@ import { ShipChainVault } from '../ShipChainVault';
 import { applyMixins } from '../../../utils';
 
 import { Wallet } from '../../../entity/Wallet';
-import { ExternalListDailyContainer } from "../../../vaults/containers/ExternalDirectoryContainer";
+import { ExternalListDailyContainer } from '../../../vaults/containers/ExternalDirectoryContainer';
 
 export class Tracking extends ExternalListDailyContainer implements Primitive {
     constructor(vault: ShipChainVault, meta?: any) {
