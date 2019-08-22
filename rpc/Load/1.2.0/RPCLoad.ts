@@ -21,9 +21,6 @@ import { LoadedContracts } from '../../contracts';
 import { LoadContract } from '../../../src/shipchain/contracts/Load/1.2.0/LoadContract';
 import { ShipTokenContract } from '../../../src/shipchain/contracts/ShipToken/1.0.0/ShipTokenContract';
 
-//use an alias here because did not find a way to do import as in Typescript
-//type LoadContract = LoadContract_1_2_0;
-
 const loadedContracts = LoadedContracts.Instance;
 const PROJECT = 'LOAD';
 const VERSION = '1.2.0';
