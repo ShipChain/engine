@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-//import {LoadContract} from '../1.1.0/LoadContract' as LoadContract_1_1_0;
 import { Wallet } from '../../../../entity/Wallet';
 import { LoadContract as LoadContract_1_1_0 } from '../1.1.0/LoadContract';
 
