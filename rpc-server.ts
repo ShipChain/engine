@@ -78,10 +78,8 @@ const methods = {
     },
     load: {
         create_shipment_tx: RPCLoad_1_2_0.CreateShipmentTx,
-        "create_shipment2_tx": RPCLoad_1_2_0.CreateShipment2Tx,
         "1.2.0": {
             // Transactional methods
-            "create_shipment2_tx": RPCLoad_1_2_0.CreateShipment2Tx,
             "create_shipment_tx": RPCLoad_1_2_0.CreateShipmentTx,
             "set_carrier_tx": RPCLoad_1_2_0.SetCarrierTx,
             "set_moderator_tx": RPCLoad_1_2_0.SetModeratorTx,

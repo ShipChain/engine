@@ -30,11 +30,16 @@ export class RPCLoad {
     @RPCMethod({
         require: ['shipmentUuid', 'senderWallet'],
         validate: {
-            uuid: ['shipmentUuid', 'senderWallet'],
+            uuid: ['shipmentUuid', 'senderWallet', 'carrierWallet'],
         },
     })
     public static async CreateShipmentTx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
+
+        let carrierWallet;
+        if (args.carrierWallet) {
+            carrierWallet = await Wallet.getById(args.carrierWallet);
+        }
 
         // Creating a new Shipment always requires the latest version of the contract
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
@@ -44,45 +49,8 @@ export class RPCLoad {
             args.shipmentUuid,
             args.fundingType,
             args.contractedAmount,
+            carrierWallet ? carrierWallet.address : undefined,
         );
-
-        return {
-            success: true,
-            contractVersion: LOAD_CONTRACT.getContractVersion(),
-            transaction: txUnsigned,
-        };
-    }
-
-    @RPCMethod({
-        require: ['shipmentUuid', 'senderWallet'],
-        validate: {
-            uuid: ['shipmentUuid', 'senderWallet', 'carrierWallet'],
-        },
-    })
-    public static async CreateShipment2Tx(args) {
-        const senderWallet = await Wallet.getById(args.senderWallet);
-        const carrierWallet = await Wallet.getById(args.carrierWallet);
-
-        // Creating a new Shipment always requires the latest version of the contract
-        const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
-        let txUnsigned;
-        if (args.carrierWallet) {
-            txUnsigned = await LOAD_CONTRACT.createNewShipment2Tx(
-                senderWallet,
-                args.shipmentUuid,
-                args.fundingType,
-                args.contractedAmount,
-                carrierWallet.address,
-            );
-        } else {
-            txUnsigned = await LOAD_CONTRACT.createNewShipment2Tx(
-                senderWallet,
-                args.shipmentUuid,
-                args.fundingType,
-                args.contractedAmount,
-                '0x0000000000000000000000000000000000000000',
-            );
-        }
 
         return {
             success: true,

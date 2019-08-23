@@ -27,18 +27,18 @@ export class LoadContract extends LoadContract_1_1_0 {
         super(network, version);
     }
 
-    async createNewShipment2Tx(
+    async createNewShipmentTx(
         senderWallet: Wallet,
         shipmentUuid: string,
         fundingType: EscrowFundingType = EscrowFundingType.NO_FUNDING,
         contractedAmount: number = 0,
-        carrier: string = '',
+        carrierAddress: string = '0x0000000000000000000000000000000000000000',
     ) {
-        return await this.buildTransactionForWallet(senderWallet, 'createNewShipment2', [
+        return await this.buildTransactionForWallet(senderWallet, 'createNewShipment', [
             LoadContract.convertShipmentUuidToBytes16(shipmentUuid),
             fundingType,
             contractedAmount,
-            carrier,
+            carrierAddress,
         ]);
     }
 
