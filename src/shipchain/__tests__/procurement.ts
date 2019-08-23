@@ -28,62 +28,9 @@ import { Wallet } from '../../entity/Wallet';
 import { CloseConnection } from "../../redis";
 import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
 
+import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
+
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
-
-const nock = require('nock');
-const nockedUrl = 'http://nocked-url:2000';
-
-
-const nockedDocumentResponse = {
-    'jsonrpc': '2.0',
-    'result': '{"fields":{"name":"Remote Document"},"content": null}',
-    'id': 0,
-};
-
-const validDocumentLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Document`;
-
-const nockedProductResponse = {
-    'jsonrpc': '2.0',
-    'result': `{"fields":{"name":"Remote Product"},"documents":{"docId": "${validDocumentLink}"}}`,
-    'id': 0,
-};
-const validProductLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Product`;
-
-
-const nockedTrackingResponse = {
-    'jsonrpc': '2.0',
-    'result': [{"one": 1}],
-    'id': 0,
-};
-const nockedItemResponse = {
-    'jsonrpc': '2.0',
-    'result': `{"fields":{"serial_number":"Remote Item Serial #"},"product": "${validProductLink}"}`,
-    'id': 0,
-};
-
-const validTrackingLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Tracking`;
-const validItemLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Item`;
-
-const nockedShipmentResponse = {
-    'jsonrpc': '2.0',
-    'result': JSON.stringify({
-        "fields": {
-            "id":"c70a9b2f-bad9-4ace-b981-807cbb44782d"
-        },
-        "documents": {
-            "docId": validDocumentLink
-        },
-        "tracking": validTrackingLink,
-        "items": {
-            "itemId": {
-                "quantity": 1,
-                "item": validItemLink
-            }
-        }
-    }),
-    'id': 0,
-};
-const validShipmentLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Shipment`;
 
 
 export const ProcurementPrimitiveTests = async function() {
@@ -194,68 +141,32 @@ export const ProcurementPrimitiveTests = async function() {
 
         it(`can add`, async () => {
             let procurement = await injectPrimitive();
-            await procurement.addShipment(author, 'shipId', validShipmentLink);
+            await procurement.addShipment(author, 'shipId', getNockableLink('Shipment'));
         });
 
         it(`can be retrieved`, async () => {
             let procurement = await injectPrimitive();
-            await procurement.addShipment(author, 'shipId', validShipmentLink);
+            await procurement.addShipment(author, 'shipId', getNockableLink('Shipment'));
 
             procurement = await refreshPrimitive();
 
-            const thisDocumentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Document';
-                })
-                .twice()
-                .reply(200, nockedDocumentResponse);
-
-            const thisItemNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Item';
-                }).reply(200, nockedItemResponse);
-
-            const thisProductNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Product';
-                }).reply(200, nockedProductResponse);
-
-            const thisTrackingNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Tracking';
-                }).reply(200, nockedTrackingResponse);
-
-            const thisShipmentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Shipment';
-                }).reply(200, nockedShipmentResponse);
+            const thisDocumentNock = nockLinkedData('Document', 2);
+            const thisItemNock = nockLinkedData('Item');
+            const thisProductNock = nockLinkedData('Product');
+            const thisTrackingNock = nockLinkedData('Tracking');
+            const thisShipmentNock = nockLinkedData('Shipment');
 
             let shipmentProperties: ShipmentProperties = await procurement.getShipment(author, 'shipId');
 
             //@ts-ignore
-            expect(shipmentProperties.fields.id).toEqual('c70a9b2f-bad9-4ace-b981-807cbb44782d');
-            expect(shipmentProperties.documents['docId'].fields.name).toEqual('Remote Document');
+            expect(shipmentProperties.fields.id).toEqual(getPrimitiveData('Shipment').fields.id);
+            expect(shipmentProperties.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
             expect(shipmentProperties.items['itemId'].quantity).toEqual(1);
-            expect(shipmentProperties.items['itemId'].item.fields.serial_number).toEqual('Remote Item Serial #');
-            expect(shipmentProperties.items['itemId'].item.product.fields.name).toEqual('Remote Product');
-            expect(shipmentProperties.items['itemId'].item.product.documents['docId'].fields.name).toEqual('Remote Document');
-            expect(shipmentProperties.tracking.length).toEqual(1);
-            expect(shipmentProperties.tracking[0]).toEqual({one: 1});
+            expect(shipmentProperties.items['itemId'].item.fields.serial_number).toEqual(getPrimitiveData('Item').fields.serial_number);
+            expect(shipmentProperties.items['itemId'].item.product.fields.name).toEqual(getPrimitiveData('Product').fields.name);
+            expect(shipmentProperties.items['itemId'].item.product.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
+            expect(shipmentProperties.tracking.length).toEqual(getPrimitiveData('Tracking').length);
+            expect(shipmentProperties.tracking[0]).toEqual(getPrimitiveData('Tracking')[0]);
 
             expect(thisShipmentNock.isDone()).toBeTruthy();
             expect(thisDocumentNock.isDone()).toBeTruthy();
@@ -269,7 +180,7 @@ export const ProcurementPrimitiveTests = async function() {
             let list = await procurement.listShipments(author);
             expect(list).toEqual([]);
 
-            await procurement.addShipment(author, 'shipId', validShipmentLink);
+            await procurement.addShipment(author, 'shipId', getNockableLink('Shipment'));
 
             procurement = await refreshPrimitive();
 
@@ -311,23 +222,20 @@ export const ProcurementPrimitiveTests = async function() {
 
         it(`can add`, async () => {
             let procurement = await injectPrimitive();
-            await procurement.addDocument(author, 'docId', validDocumentLink);
+            await procurement.addDocument(author, 'docId', getNockableLink('Document'));
         });
 
         it(`can be retrieved`, async () => {
             let procurement = await injectPrimitive();
-            await procurement.addDocument(author, 'docId', validDocumentLink);
+            await procurement.addDocument(author, 'docId', getNockableLink('Document'));
 
             procurement = await refreshPrimitive();
 
-            const thisNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data';
-                }).reply(200, nockedDocumentResponse);
+            const thisDocumentNock = nockLinkedData('Document');
 
             let document = await procurement.getDocument(author, 'docId');
-            expect(document.fields.name).toEqual('Remote Document');
-            expect(thisNock.isDone()).toBeTruthy();
+            expect(document.fields.name).toEqual(getPrimitiveData('Document').fields.name);
+            expect(thisDocumentNock.isDone()).toBeTruthy();
         });
 
         it(`can list`, async () => {
@@ -335,7 +243,7 @@ export const ProcurementPrimitiveTests = async function() {
             let list = await procurement.listDocuments(author);
             expect(list).toEqual([]);
 
-            await procurement.addDocument(author, 'docId', validDocumentLink);
+            await procurement.addDocument(author, 'docId', getNockableLink('Document'));
 
             procurement = await refreshPrimitive();
 
@@ -377,37 +285,24 @@ export const ProcurementPrimitiveTests = async function() {
 
         it(`can add`, async () => {
             let procurement = await injectPrimitive();
-            await procurement.addProduct(author, 'productId', validProductLink);
+            await procurement.addProduct(author, 'productId', getNockableLink('Product'));
         });
 
         it(`can be retrieved`, async () => {
             let procurement = await injectPrimitive();
-            await procurement.addProduct(author, 'productId', validProductLink);
+            await procurement.addProduct(author, 'productId', getNockableLink('Product'));
 
             procurement = await refreshPrimitive();
 
-            const thisDocumentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Document';
-                }).reply(200, nockedDocumentResponse);
-
-            const thisProductNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Product';
-                }).reply(200, nockedProductResponse);
+            const thisDocumentNock = nockLinkedData('Document');
+            const thisProductNock = nockLinkedData('Product');
 
             let procurementProductProperties: ProcurementProductProperties = await procurement.getProduct(author, 'productId');
             let productProperties: ProductProperties = procurementProductProperties.product as ProductProperties;
 
             expect(procurementProductProperties.quantity).toEqual(1);
-            expect(productProperties.fields.name).toEqual('Remote Product');
-            expect(productProperties.documents['docId'].fields.name).toEqual('Remote Document');
+            expect(productProperties.fields.name).toEqual(getPrimitiveData('Product').fields.name);
+            expect(productProperties.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
 
             expect(thisDocumentNock.isDone()).toBeTruthy();
             expect(thisProductNock.isDone()).toBeTruthy();
@@ -415,25 +310,12 @@ export const ProcurementPrimitiveTests = async function() {
 
         it(`can have a variable quantity`, async () => {
             let procurement = await injectPrimitive();
-            await procurement.addProduct(author, 'productId', validProductLink, 7);
+            await procurement.addProduct(author, 'productId', getNockableLink('Product'), 7);
 
             procurement = await refreshPrimitive();
 
-            const thisDocumentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Document';
-                }).reply(200, nockedDocumentResponse);
-
-            const thisProductNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Product';
-                }).reply(200, nockedProductResponse);
+            const thisDocumentNock = nockLinkedData('Document');
+            const thisProductNock = nockLinkedData('Product');
 
             let procurementProductProperties: ProcurementProductProperties = await procurement.getProduct(author, 'productId');
 
@@ -448,7 +330,7 @@ export const ProcurementPrimitiveTests = async function() {
             let list = await procurement.listProducts(author);
             expect(list).toEqual([]);
 
-            await procurement.addProduct(author, 'productId', validProductLink);
+            await procurement.addProduct(author, 'productId', getNockableLink('Product'));
 
             procurement = await refreshPrimitive();
 
@@ -464,76 +346,37 @@ export const ProcurementPrimitiveTests = async function() {
             await procurement.setFields(author, {
                 name: 'procurement name',
             });
-            await procurement.addShipment(author, 'shipId', validShipmentLink);
-            await procurement.addDocument(author, 'docId', validDocumentLink);
-            await procurement.addProduct(author, 'productId', validProductLink);
+            await procurement.addShipment(author, 'shipId', getNockableLink('Shipment'));
+            await procurement.addDocument(author, 'docId', getNockableLink('Document'));
+            await procurement.addProduct(author, 'productId', getNockableLink('Product'));
 
             procurement = await refreshPrimitive();
 
-            const thisDocumentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Document';
-                })
-                .times(4)
-                .reply(200, nockedDocumentResponse);
-
-            const thisItemNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Item';
-                }).reply(200, nockedItemResponse);
-
-            const thisProductNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Product';
-                })
-                .times(2)
-                .reply(200, nockedProductResponse);
-
-            const thisTrackingNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Tracking';
-                }).reply(200, nockedTrackingResponse);
-
-            const thisShipmentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Shipment';
-                }).reply(200, nockedShipmentResponse);
-
+            const thisDocumentNock = nockLinkedData('Document', 4);
+            const thisItemNock = nockLinkedData('Item');
+            const thisProductNock = nockLinkedData('Product', 2);
+            const thisTrackingNock = nockLinkedData('Tracking');
+            const thisShipmentNock = nockLinkedData('Shipment');
 
             let fullProcurement = await procurement.getProcurement(author);
 
             //@ts-ignore
             expect(fullProcurement.fields.name).toEqual('procurement name');
 
-            expect(fullProcurement.shipments['shipId'].fields.id).toEqual('c70a9b2f-bad9-4ace-b981-807cbb44782d');
-            expect(fullProcurement.shipments['shipId'].documents['docId'].fields.name).toEqual('Remote Document');
+            expect(fullProcurement.shipments['shipId'].fields.id).toEqual(getPrimitiveData('Shipment').fields.id);
+            expect(fullProcurement.shipments['shipId'].documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
             expect(fullProcurement.shipments['shipId'].items['itemId'].quantity).toEqual(1);
-            expect(fullProcurement.shipments['shipId'].items['itemId'].item.fields.serial_number).toEqual('Remote Item Serial #');
-            expect(fullProcurement.shipments['shipId'].items['itemId'].item.product.fields.name).toEqual('Remote Product');
-            expect(fullProcurement.shipments['shipId'].items['itemId'].item.product.documents['docId'].fields.name).toEqual('Remote Document');
-            expect(fullProcurement.shipments['shipId'].tracking.length).toEqual(1);
-            expect(fullProcurement.shipments['shipId'].tracking[0]).toEqual({one: 1});
+            expect(fullProcurement.shipments['shipId'].items['itemId'].item.fields.serial_number).toEqual(getPrimitiveData('Item').fields.serial_number);
+            expect(fullProcurement.shipments['shipId'].items['itemId'].item.product.fields.name).toEqual(getPrimitiveData('Product').fields.name);
+            expect(fullProcurement.shipments['shipId'].items['itemId'].item.product.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
+            expect(fullProcurement.shipments['shipId'].tracking.length).toEqual(getPrimitiveData('Tracking').length);
+            expect(fullProcurement.shipments['shipId'].tracking[0]).toEqual(getPrimitiveData('Tracking')[0]);
 
-            expect(fullProcurement.documents['docId'].fields.name).toEqual('Remote Document');
+            expect(fullProcurement.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
 
             expect(fullProcurement.products['productId'].quantity).toEqual(1);
-            expect(fullProcurement.products['productId'].product.fields.name).toEqual('Remote Product');
-            expect(fullProcurement.products['productId'].product.documents['docId'].fields.name).toEqual('Remote Document');
+            expect(fullProcurement.products['productId'].product.fields.name).toEqual(getPrimitiveData('Product').fields.name);
+            expect(fullProcurement.products['productId'].product.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
 
             expect(thisShipmentNock.isDone()).toBeTruthy();
             expect(thisDocumentNock.isDone()).toBeTruthy();
