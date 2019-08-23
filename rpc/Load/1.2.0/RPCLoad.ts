@@ -65,14 +65,24 @@ export class RPCLoad {
 
         // Creating a new Shipment always requires the latest version of the contract
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
-
-        const txUnsigned = await LOAD_CONTRACT.createNewShipment2Tx(
-            senderWallet,
-            args.shipmentUuid,
-            args.fundingType,
-            args.contractedAmount,
-            carrierWallet.address,
-        );
+        let txUnsigned;
+        if (args.carrierWallet) {
+            txUnsigned = await LOAD_CONTRACT.createNewShipment2Tx(
+                senderWallet,
+                args.shipmentUuid,
+                args.fundingType,
+                args.contractedAmount,
+                carrierWallet.address,
+            );
+        } else {
+            txUnsigned = await LOAD_CONTRACT.createNewShipment2Tx(
+                senderWallet,
+                args.shipmentUuid,
+                args.fundingType,
+                args.contractedAmount,
+                '0x0000000000000000000000000000000000000000',
+            );
+        }
 
         return {
             success: true,
