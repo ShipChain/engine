@@ -51,11 +51,15 @@ export const DocumentPrimitiveTests = async function() {
         CloseConnection();
     });
 
-    let injectPrimitive = async (): Promise<Document> => {
-        vault.injectPrimitive('Document');
+    let refreshPrimitive = async(): Promise<Document> => {
         await vault.writeMetadata(author);
         await vault.loadMetadata();
         return vault.getPrimitive('Document');
+    };
+
+    let injectPrimitive = async (): Promise<Document> => {
+        vault.injectPrimitive('Document');
+        return await refreshPrimitive();
     };
 
     it(`can be created`, async () => {
@@ -91,8 +95,7 @@ export const DocumentPrimitiveTests = async function() {
                 description: 'document description',
             });
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            document = await refreshPrimitive();
 
             let documentFields = await document.getFields(author);
             expect(documentFields.name).toEqual('document name');
@@ -110,8 +113,7 @@ export const DocumentPrimitiveTests = async function() {
             let document = await injectPrimitive();
             await document.setContent(author, "document content");
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            document = await refreshPrimitive();
 
             let documentContent = await document.getContent(author);
             expect(documentContent).toEqual('document content');
@@ -134,13 +136,13 @@ export const DocumentPrimitiveTests = async function() {
                 description: 'document description',
             }, 'document content');
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            document = await refreshPrimitive();
 
-            let documentFields = await document.getDocument(author);
-            expect(documentFields.fields.name).toEqual('document name');
-            expect(documentFields.fields.description).toEqual('document description');
-            expect(documentFields.content).toEqual('document content');
+            let fullDocument = await document.getDocument(author);
+
+            expect(fullDocument.fields.name).toEqual('document name');
+            expect(fullDocument.fields.description).toEqual('document description');
+            expect(fullDocument.content).toEqual('document content');
         });
     });
 

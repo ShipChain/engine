@@ -60,11 +60,15 @@ export const ProductPrimitiveTests = async function() {
         CloseConnection();
     });
 
-    let injectPrimitive = async (): Promise<Product> => {
-        vault.injectPrimitive('Product');
+    let refreshPrimitive = async(): Promise<Product> => {
         await vault.writeMetadata(author);
         await vault.loadMetadata();
         return vault.getPrimitive('Product');
+    };
+
+    let injectPrimitive = async (): Promise<Product> => {
+        vault.injectPrimitive('Product');
+        return await refreshPrimitive();
     };
 
     it(`can be created`, async () => {
@@ -100,8 +104,7 @@ export const ProductPrimitiveTests = async function() {
                 name: 'product name',
             });
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            product = await refreshPrimitive();
 
             let productFields = await product.getFields(author);
             expect(productFields.name).toEqual('product name');
@@ -148,8 +151,7 @@ export const ProductPrimitiveTests = async function() {
             let product = await injectPrimitive();
             await product.addDocument(author, 'docId', validDocumentLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            product = await refreshPrimitive();
 
             const thisNock = nock(nockedUrl)
                 .post('', (body) => {
@@ -168,8 +170,7 @@ export const ProductPrimitiveTests = async function() {
 
             await product.addDocument(author, 'docId', validDocumentLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            product = await refreshPrimitive();
 
             list = await product.listDocuments(author);
             expect(list).toEqual(['docId']);
@@ -185,16 +186,17 @@ export const ProductPrimitiveTests = async function() {
             });
             await product.addDocument(author, 'docId', validDocumentLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            product = await refreshPrimitive();
 
             const thisNock = nock(nockedUrl)
                 .post('', (body) => {
                     return body.method === 'vaults.linked.get_linked_data';
                 }).reply(200, nockedResponse);
 
-            let document = await product.getDocument(author, 'docId');
-            expect(document.fields.name).toEqual('Remote Document');
+            let fullProduct = await product.getProduct(author);
+
+            expect(fullProduct.fields.name).toEqual('product name');
+            expect(fullProduct.documents['docId'].fields.name).toEqual('Remote Document');
             expect(thisNock.isDone()).toBeTruthy();
         });
     });

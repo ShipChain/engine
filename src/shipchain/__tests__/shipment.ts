@@ -17,13 +17,13 @@
 
 
 
-import { ItemProperties } from "../vaults/primitives/Item";
-
 require('../../__tests__/testLoggingConfig');
 
 import 'mocha';
 import { ShipChainVault } from '../vaults/ShipChainVault';
 import { Shipment, ShipmentItemProperties } from "../vaults/primitives/Shipment";
+import { ItemProperties } from "../vaults/primitives/Item";
+import { ProductProperties } from "../vaults/primitives/Product";
 import { Wallet } from '../../entity/Wallet';
 import { CloseConnection } from "../../redis";
 import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
@@ -33,11 +33,23 @@ const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' 
 const nock = require('nock');
 const nockedUrl = 'http://nocked-url:2000';
 
+
 const nockedDocumentResponse = {
     'jsonrpc': '2.0',
     'result': '{"fields":{"name":"Remote Document"},"content": null}',
     'id': 0,
 };
+
+const validDocumentLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Document`;
+
+const nockedProductResponse = {
+    'jsonrpc': '2.0',
+    'result': `{"fields":{"name":"Remote Product"},"documents":{"docId": "${validDocumentLink}"}}`,
+    'id': 0,
+};
+const validProductLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Product`;
+
+
 const nockedTrackingResponse = {
     'jsonrpc': '2.0',
     'result': [{"one": 1}],
@@ -45,11 +57,10 @@ const nockedTrackingResponse = {
 };
 const nockedItemResponse = {
     'jsonrpc': '2.0',
-    'result': '{"fields":{"serial_number":"Remote Item Serial #"},"product": null}',
+    'result': `{"fields":{"serial_number":"Remote Item Serial #"},"product": "${validProductLink}"}`,
     'id': 0,
 };
 
-const validDocumentLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Document`;
 const validTrackingLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Tracking`;
 const validItemLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Item`;
 
@@ -76,11 +87,15 @@ export const ShipmentPrimitiveTests = async function() {
         CloseConnection();
     });
 
-    let injectPrimitive = async (): Promise<Shipment> => {
-        vault.injectPrimitive('Shipment');
+    let refreshPrimitive = async(): Promise<Shipment> => {
         await vault.writeMetadata(author);
         await vault.loadMetadata();
         return vault.getPrimitive('Shipment');
+    };
+
+    let injectPrimitive = async (): Promise<Shipment> => {
+        vault.injectPrimitive('Shipment');
+        return await refreshPrimitive();
     };
 
     it(`can be created`, async () => {
@@ -118,8 +133,7 @@ export const ShipmentPrimitiveTests = async function() {
                 id: 'c70a9b2f-bad9-4ace-b981-807cbb44782d',
             });
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            shipment = await refreshPrimitive();
 
             let shipmentFields = await shipment.getFields(author);
             expect(shipmentFields.id).toEqual('c70a9b2f-bad9-4ace-b981-807cbb44782d');
@@ -166,8 +180,7 @@ export const ShipmentPrimitiveTests = async function() {
             let shipment = await injectPrimitive();
             await shipment.addDocument(author, 'docId', validDocumentLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            shipment = await refreshPrimitive();
 
             const thisNock = nock(nockedUrl)
                 .post('', (body) => {
@@ -186,8 +199,7 @@ export const ShipmentPrimitiveTests = async function() {
 
             await shipment.addDocument(author, 'docId', validDocumentLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            shipment = await refreshPrimitive();
 
             list = await shipment.listDocuments(author);
             expect(list).toEqual(['docId']);
@@ -234,18 +246,85 @@ export const ShipmentPrimitiveTests = async function() {
             let shipment = await injectPrimitive();
             await shipment.addItem(author, 'itemId', validItemLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            shipment = await refreshPrimitive();
 
-            const thisNock = nock(nockedUrl)
+            const thisItemNock = nock(nockedUrl)
                 .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data';
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Item';
                 }).reply(200, nockedItemResponse);
+
+            const thisDocumentNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Document';
+                }).reply(200, nockedDocumentResponse);
+
+            const thisProductNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Product';
+                }).reply(200, nockedProductResponse);
 
             let shipmentItemProperties: ShipmentItemProperties = await shipment.getItem(author, 'itemId');
             let itemProperties: ItemProperties = shipmentItemProperties.item as ItemProperties;
+            let productProperties: ProductProperties = itemProperties.product as ProductProperties;
+
             expect(itemProperties.fields.serial_number).toEqual('Remote Item Serial #');
-            expect(thisNock.isDone()).toBeTruthy();
+            expect(productProperties.fields.name).toEqual('Remote Product');
+            expect(productProperties.documents['docId'].fields.name).toEqual('Remote Document');
+
+            expect(thisItemNock.isDone()).toBeTruthy();
+            expect(thisDocumentNock.isDone()).toBeTruthy();
+            expect(thisProductNock.isDone()).toBeTruthy();
+        });
+
+        it(`can have a variable quantity`, async () => {
+            let shipment = await injectPrimitive();
+            await shipment.addItem(author, 'itemId', validItemLink, 7);
+
+            shipment = await refreshPrimitive();
+
+
+            const thisItemNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Item';
+                }).reply(200, nockedItemResponse);
+
+            const thisDocumentNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Document';
+                }).reply(200, nockedDocumentResponse);
+
+            const thisProductNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Product';
+                }).reply(200, nockedProductResponse);
+
+            let shipmentItemProperties: ShipmentItemProperties = await shipment.getItem(author, 'itemId');
+            let itemProperties: ItemProperties = shipmentItemProperties.item as ItemProperties;
+
+            expect(shipmentItemProperties.quantity).toEqual(7);
+            expect(itemProperties.fields.serial_number).toEqual('Remote Item Serial #');
+
+            expect(thisItemNock.isDone()).toBeTruthy();
+            expect(thisDocumentNock.isDone()).toBeTruthy();
+            expect(thisProductNock.isDone()).toBeTruthy();
         });
 
         it(`can list`, async () => {
@@ -255,8 +334,7 @@ export const ShipmentPrimitiveTests = async function() {
 
             await shipment.addItem(author, 'itemId', validItemLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            shipment = await refreshPrimitive();
 
             list = await shipment.listItems(author);
             expect(list).toEqual(['itemId']);
@@ -303,8 +381,7 @@ export const ShipmentPrimitiveTests = async function() {
             let shipment = await injectPrimitive();
             await shipment.setTracking(author, validTrackingLink);
 
-            await vault.writeMetadata(author);
-            await vault.loadMetadata();
+            shipment = await refreshPrimitive();
 
             const thisNock = nock(nockedUrl)
                 .post('', (body) => {
@@ -318,27 +395,70 @@ export const ShipmentPrimitiveTests = async function() {
         });
     });
 
-    // describe(`full primitive`, async () => {
-    //
-    //     it(`can be retrieved`, async () => {
-    //         let shipment = await injectPrimitive();
-    //         await shipment.setFields(author, {
-    //             serial_number: 'serial #',
-    //         });
-    //         await shipment.setProduct(author, validProductLink);
-    //
-    //         await vault.writeMetadata(author);
-    //         await vault.loadMetadata();
-    //
-    //         const thisNock = nock(nockedUrl)
-    //             .post('', (body) => {
-    //                 return body.method === 'vaults.linked.get_linked_data';
-    //             }).reply(200, nockedDocumentResponse);
-    //
-    //         let product = await shipment.getProduct(author);
-    //         expect(product.fields.name).toEqual('Remote Product');
-    //         expect(thisNock.isDone()).toBeTruthy();
-    //     });
-    // });
+    describe(`full primitive`, async () => {
+
+        it(`can be retrieved`, async () => {
+            let shipment = await injectPrimitive();
+            await shipment.setFields(author, {
+                id: 'c70a9b2f-bad9-4ace-b981-807cbb44782d',
+            });
+            await shipment.addDocument(author, 'docId', validDocumentLink);
+            await shipment.addItem(author, 'itemId', validItemLink);
+            await shipment.setTracking(author, validTrackingLink);
+
+            shipment = await refreshPrimitive();
+
+            const thisDocumentNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Document';
+                })
+                .twice()
+                .reply(200, nockedDocumentResponse);
+
+            const thisItemNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Item';
+                }).reply(200, nockedItemResponse);
+
+            const thisProductNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Product';
+                }).reply(200, nockedProductResponse);
+
+            const thisTrackingNock = nock(nockedUrl)
+                .post('', (body) => {
+                    return body.method === 'vaults.linked.get_linked_data' &&
+                        body.params &&
+                        body.params.linkEntry &&
+                        body.params.linkEntry.container === 'Tracking';
+                }).reply(200, nockedTrackingResponse);
+
+            let fullShipment = await shipment.getShipment(author);
+
+            //@ts-ignore
+            expect(fullShipment.fields.id).toEqual('c70a9b2f-bad9-4ace-b981-807cbb44782d');
+            expect(fullShipment.documents['docId'].fields.name).toEqual('Remote Document');
+            expect(fullShipment.items['itemId'].quantity).toEqual(1);
+            expect(fullShipment.items['itemId'].item.fields.serial_number).toEqual('Remote Item Serial #');
+            expect(fullShipment.items['itemId'].item.product.fields.name).toEqual('Remote Product');
+            expect(fullShipment.items['itemId'].item.product.documents['docId'].fields.name).toEqual('Remote Document');
+            expect(fullShipment.tracking.length).toEqual(1);
+            expect(fullShipment.tracking[0]).toEqual({one: 1});
+
+            expect(thisDocumentNock.isDone()).toBeTruthy();
+            expect(thisItemNock.isDone()).toBeTruthy();
+            expect(thisProductNock.isDone()).toBeTruthy();
+            expect(thisTrackingNock.isDone()).toBeTruthy();
+        });
+    });
 
 };

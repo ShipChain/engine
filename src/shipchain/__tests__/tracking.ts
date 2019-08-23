@@ -51,11 +51,15 @@ export const TrackingPrimitiveTests = async function() {
         CloseConnection();
     });
 
-    let injectPrimitive = async (): Promise<Tracking> => {
-        vault.injectPrimitive('Tracking');
+    let refreshPrimitive = async(): Promise<Tracking> => {
         await vault.writeMetadata(author);
         await vault.loadMetadata();
         return vault.getPrimitive('Tracking');
+    };
+
+    let injectPrimitive = async (): Promise<Tracking> => {
+        vault.injectPrimitive('Tracking');
+        return await refreshPrimitive();
     };
 
     it(`can be created`, async () => {
@@ -81,9 +85,7 @@ export const TrackingPrimitiveTests = async function() {
             "one": 1,
         });
 
-        await vault.writeMetadata(author);
-        await vault.loadMetadata();
-        tracking = vault.getPrimitive('Tracking');
+        tracking = await refreshPrimitive();
 
         let trackingData = await tracking.getTracking(author);
         expect(trackingData.length).toEqual(1);
@@ -102,9 +104,7 @@ export const TrackingPrimitiveTests = async function() {
             "two": 2,
         });
 
-        await vault.writeMetadata(author);
-        await vault.loadMetadata();
-        tracking = vault.getPrimitive('Tracking');
+        tracking = await refreshPrimitive();
 
         let trackingData = await tracking.getTracking(author);
         expect(trackingData.length).toEqual(2);
