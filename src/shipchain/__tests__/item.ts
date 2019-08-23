@@ -27,24 +27,9 @@ import { Wallet } from '../../entity/Wallet';
 import { CloseConnection } from "../../redis";
 import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
 
+import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
+
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
-
-const nock = require('nock');
-const nockedUrl = 'http://nocked-url:2000';
-
-const nockedDocumentResponse = {
-    'jsonrpc': '2.0',
-    'result': '{"fields":{"name":"Remote Document"},"content": null}',
-    'id': 0,
-};
-const validDocumentLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Document`;
-
-const nockedProductResponse = {
-    'jsonrpc': '2.0',
-    'result': `{"fields":{"name":"Remote Product"},"documents":{"docId": "${validDocumentLink}"}}`,
-    'id': 0,
-};
-const validProductLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Product`;
 
 
 export const ItemPrimitiveTests = async function() {
@@ -153,34 +138,22 @@ export const ItemPrimitiveTests = async function() {
 
         it(`can be set`, async () => {
             let item = await injectPrimitive();
-            await item.setProduct(author, validProductLink);
+            await item.setProduct(author, getNockableLink('Product'));
         });
 
         it(`can be retrieved`, async () => {
             let item = await injectPrimitive();
-            await item.setProduct(author, validProductLink);
+            await item.setProduct(author, getNockableLink('Product'));
 
             item = await refreshPrimitive();
 
-            const thisDocumentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Document';
-                }).reply(200, nockedDocumentResponse);
-
-            const thisProductNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Product';
-                }).reply(200, nockedProductResponse);
+            const thisProductNock = nockLinkedData('Product');
+            const thisDocumentNock = nockLinkedData('Document');
 
             let product = await item.getProduct(author);
-            expect(product.fields.name).toEqual('Remote Product');
-            expect(product.documents['docId'].fields.name).toEqual('Remote Document');
+
+            expect(product.fields.name).toEqual(getPrimitiveData('Product').fields.name);
+            expect(product.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
 
             expect(thisProductNock.isDone()).toBeTruthy();
             expect(thisDocumentNock.isDone()).toBeTruthy();
@@ -194,32 +167,19 @@ export const ItemPrimitiveTests = async function() {
             await item.setFields(author, {
                 serial_number: 'serial #',
             });
-            await item.setProduct(author, validProductLink);
+            await item.setProduct(author, getNockableLink('Product'));
 
             item = await refreshPrimitive();
 
-            const thisDocumentNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Document';
-                }).reply(200, nockedDocumentResponse);
-
-            const thisProductNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data' &&
-                        body.params &&
-                        body.params.linkEntry &&
-                        body.params.linkEntry.container === 'Product';
-                }).reply(200, nockedProductResponse);
+            const thisProductNock = nockLinkedData('Product');
+            const thisDocumentNock = nockLinkedData('Document');
 
             let fullItem = await item.getItem(author);
             let fullItemProduct = fullItem.product as ProductProperties;
 
             expect(fullItem.fields.serial_number).toEqual('serial #');
-            expect(fullItemProduct.fields.name).toEqual('Remote Product');
-            expect(fullItemProduct.documents['docId'].fields.name).toEqual('Remote Document');
+            expect(fullItemProduct.fields.name).toEqual(getPrimitiveData('Product').fields.name);
+            expect(fullItemProduct.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
 
             expect(thisProductNock.isDone()).toBeTruthy();
             expect(thisDocumentNock.isDone()).toBeTruthy();

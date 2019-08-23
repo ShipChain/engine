@@ -26,16 +26,9 @@ import { Wallet } from '../../entity/Wallet';
 import { CloseConnection } from "../../redis";
 import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
 
-const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
+import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 
-const nock = require('nock');
-const nockedUrl = 'http://nocked-url:2000';
-const nockedResponse = {
-    'jsonrpc': '2.0',
-    'result': '{"fields":{"name":"Remote Document"},"content": null}',
-    'id': 0,
-};
-const validDocumentLink = `VAULTREF#${nockedUrl}/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/00000000-0000-4000-b000-000000000000/Document`;
+const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
 export const ProductPrimitiveTests = async function() {
@@ -144,23 +137,21 @@ export const ProductPrimitiveTests = async function() {
 
         it(`can add`, async () => {
             let product = await injectPrimitive();
-            await product.addDocument(author, 'docId', validDocumentLink);
+            await product.addDocument(author, 'docId', getNockableLink('Document'));
         });
 
         it(`can be retrieved`, async () => {
             let product = await injectPrimitive();
-            await product.addDocument(author, 'docId', validDocumentLink);
+            await product.addDocument(author, 'docId', getNockableLink('Document'));
 
             product = await refreshPrimitive();
 
-            const thisNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data';
-                }).reply(200, nockedResponse);
+            const thisDocumentNock = nockLinkedData('Document');
 
             let document = await product.getDocument(author, 'docId');
-            expect(document.fields.name).toEqual('Remote Document');
-            expect(thisNock.isDone()).toBeTruthy();
+
+            expect(document.fields.name).toEqual(getPrimitiveData('Document').fields.name);
+            expect(thisDocumentNock.isDone()).toBeTruthy();
         });
 
         it(`can list`, async () => {
@@ -168,11 +159,12 @@ export const ProductPrimitiveTests = async function() {
             let list = await product.listDocuments(author);
             expect(list).toEqual([]);
 
-            await product.addDocument(author, 'docId', validDocumentLink);
+            await product.addDocument(author, 'docId', getNockableLink('Document'));
 
             product = await refreshPrimitive();
 
             list = await product.listDocuments(author);
+
             expect(list).toEqual(['docId']);
         });
     });
@@ -184,20 +176,17 @@ export const ProductPrimitiveTests = async function() {
             await product.setFields(author, {
                 name: 'product name',
             });
-            await product.addDocument(author, 'docId', validDocumentLink);
+            await product.addDocument(author, 'docId', getNockableLink('Document'));
 
             product = await refreshPrimitive();
 
-            const thisNock = nock(nockedUrl)
-                .post('', (body) => {
-                    return body.method === 'vaults.linked.get_linked_data';
-                }).reply(200, nockedResponse);
+            const thisDocumentNock = nockLinkedData('Document');
 
             let fullProduct = await product.getProduct(author);
 
             expect(fullProduct.fields.name).toEqual('product name');
-            expect(fullProduct.documents['docId'].fields.name).toEqual('Remote Document');
-            expect(thisNock.isDone()).toBeTruthy();
+            expect(fullProduct.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
+            expect(thisDocumentNock.isDone()).toBeTruthy();
         });
     });
 
