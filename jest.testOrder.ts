@@ -55,6 +55,7 @@ import { ItemPrimitiveTests } from "./src/shipchain/__tests__/item";
 import { ProductPrimitiveTests } from "./src/shipchain/__tests__/product";
 import { TrackingPrimitiveTests } from "./src/shipchain/__tests__/tracking";
 import { ShipmentPrimitiveTests } from "./src/shipchain/__tests__/shipment";
+import { ProcurementPrimitiveTests } from "./src/shipchain/__tests__/procurement";
 
 describe('RPC', async () => {
 
@@ -151,5 +152,6 @@ describe('ShipChain', async () => {
     describe('Product Primitive', ProductPrimitiveTests);
     describe('Tracking Primitive', TrackingPrimitiveTests);
     describe('Shipment Primitive', ShipmentPrimitiveTests);
+    describe('Procurement Primitive', ProcurementPrimitiveTests);
 
 });
