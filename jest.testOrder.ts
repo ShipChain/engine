@@ -55,8 +55,10 @@ import { DocumentListPrimitiveTests } from "./src/shipchain/__tests__/documentli
 import { ItemPrimitiveTests } from "./src/shipchain/__tests__/item";
 import { ItemListPrimitiveTests } from "./src/shipchain/__tests__/itemlist";
 import { ProductPrimitiveTests } from "./src/shipchain/__tests__/product";
+import { ProductListPrimitiveTests } from "./src/shipchain/__tests__/productlist";
 import { TrackingPrimitiveTests } from "./src/shipchain/__tests__/tracking";
 import { ShipmentPrimitiveTests } from "./src/shipchain/__tests__/shipment";
+import { ShipmentListPrimitiveTests } from "./src/shipchain/__tests__/shipmentlist";
 import { ProcurementPrimitiveTests } from "./src/shipchain/__tests__/procurement";
 
 describe('RPC', async () => {
@@ -154,8 +156,10 @@ describe('ShipChain', async () => {
     describe('Item Primitive', ItemPrimitiveTests);
     describe('ItemList Primitive', ItemListPrimitiveTests);
     describe('Product Primitive', ProductPrimitiveTests);
+    describe('ProductList Primitive', ProductListPrimitiveTests);
     describe('Tracking Primitive', TrackingPrimitiveTests);
     describe('Shipment Primitive', ShipmentPrimitiveTests);
+    describe('ShipmentList Primitive', ShipmentListPrimitiveTests);
     describe('Procurement Primitive', ProcurementPrimitiveTests);
 
 });
