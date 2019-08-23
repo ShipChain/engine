@@ -61,9 +61,9 @@ export abstract class PrimitiveList extends LinkContainer implements Primitive {
         await this.addLink(wallet, entityId, entityLink);
     }
 
-    async getEntity(linkId: string): Promise<PrimitiveProperties> {
+    async getEntity<T extends PrimitiveProperties>(linkId: string): Promise<T> {
         let content: string = await this.getLinkedContent(linkId);
-        let procurement: PrimitiveProperties = new this.propertiesKlass(JSON.parse(content));
+        let procurement: T = new this.propertiesKlass(JSON.parse(content)) as T;
         procurement = await RemoteVault.processContentForLinks(procurement);
         await procurement.process();
         return procurement;
@@ -82,7 +82,7 @@ export abstract class PrimitiveList extends LinkContainer implements Primitive {
     async getPrimitiveProperties<T extends PrimitiveProperties>(
         klass: new (...args: any[]) => T,
         wallet: Wallet,
-    ): Promise<any> {
+    ): Promise<T> {
         return undefined;
     }
 }

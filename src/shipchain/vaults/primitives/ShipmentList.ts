@@ -33,24 +33,30 @@ export class ShipmentList extends LinkContainer implements Primitive, PrimitiveL
 
     // Primitive Mixin placeholders
     // ----------------------------
+    /* istanbul ignore next */
     injectContainerMetadata(): void {}
+    /* istanbul ignore next */
     async getPrimitiveProperties<T extends PrimitiveProperties>(
         klass: new (...args: any[]) => T,
         wallet: Wallet,
-    ): Promise<any> {
+    ): Promise<T> {
         return undefined;
     }
     linkEntries: any;
     propertiesKlass: { new (...args: any[]): PrimitiveProperties };
+    /* istanbul ignore next */
     async addEntity(wallet: Wallet, entityId: string, entityLink: LinkEntry): Promise<void> {
         return undefined;
     }
-    async getEntity(linkId: string): Promise<PrimitiveProperties> {
+    /* istanbul ignore next */
+    async getEntity<T extends PrimitiveProperties>(linkId: string): Promise<T> {
         return undefined;
     }
+    /* istanbul ignore next */
     count(): number {
         return 0;
     }
+    /* istanbul ignore next */
     list(): String[] {
         return [];
     }

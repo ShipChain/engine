@@ -117,7 +117,7 @@ export class Product extends EmbeddedFileContainer implements Primitive {
     async getPrimitiveProperties<T extends PrimitiveProperties>(
         klass: new (...args: any[]) => T,
         wallet: Wallet,
-    ): Promise<any> {
+    ): Promise<T> {
         return;
     }
 }
