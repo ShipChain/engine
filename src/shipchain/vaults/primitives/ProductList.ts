@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import { Primitive, PrimitiveCollection, PrimitiveProperties } from '../Primitive';
+import { Primitive, PrimitiveList, PrimitiveProperties } from '../Primitive';
 import { PrimitiveType } from '../PrimitiveType';
 import { ShipChainVault } from '../ShipChainVault';
-import { DocumentProperties } from './Document';
+import { ProductProperties } from './Product';
 
 import { LinkContainer, LinkEntry } from '../../../vaults/containers/LinkContainer';
 import { applyMixins } from '../../../utils';
 
 import { Wallet } from '../../../entity/Wallet';
 
-export class DocumentCollection extends LinkContainer implements Primitive, PrimitiveCollection {
+export class ProductList extends LinkContainer implements Primitive, PrimitiveList {
     constructor(vault: ShipChainVault, meta?: any) {
-        super(vault, PrimitiveType.DocumentCollection.name, meta);
+        super(vault, PrimitiveType.ProductList.name, meta);
         this.injectContainerMetadata();
-        this.propertiesKlass = DocumentProperties;
+        this.propertiesKlass = ProductProperties;
     }
 
     // Primitive Mixin placeholders
@@ -56,4 +56,4 @@ export class DocumentCollection extends LinkContainer implements Primitive, Prim
     }
 }
 
-applyMixins(DocumentCollection, [PrimitiveCollection, Primitive]);
+applyMixins(ProductList, [PrimitiveList, Primitive]);

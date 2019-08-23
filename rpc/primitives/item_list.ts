@@ -20,11 +20,11 @@ import { StorageCredential } from '../../src/entity/StorageCredential';
 import { RPCMethod, RPCNamespace } from '../decorators';
 import { ShipChainVault } from '../../src/shipchain/vaults/ShipChainVault';
 import { PrimitiveType } from '../../src/shipchain/vaults/PrimitiveType';
-import { ShipmentCollection } from '../../src/shipchain/vaults/primitives/ShipmentCollection';
+import { ItemList } from '../../src/shipchain/vaults/primitives/ItemList';
 import { RemoteVault } from '../../src/vaults/RemoteVault';
 
-@RPCNamespace({ name: 'ShipmentCollection' })
-export class RPCShipmentCollection {
+@RPCNamespace({ name: 'ItemList' })
+export class RPCItemList {
     @RPCMethod({
         require: ['storageCredentials', 'vaultWallet', 'vault', 'linkId'],
         validate: {
@@ -39,15 +39,15 @@ export class RPCShipmentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipments: ShipmentCollection = await vault.getPrimitive(PrimitiveType.ShipmentCollection.name);
+        const items: ItemList = await vault.getPrimitive(PrimitiveType.ItemList.name);
 
-        const content = await shipments.getEntity(args.linkId);
+        const content = await items.getEntity(args.linkId);
 
         return {
             success: true,
             wallet_id: wallet.id,
             vault_id: args.vault,
-            shipment: content,
+            item: content,
         };
     }
 
@@ -64,14 +64,14 @@ export class RPCShipmentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipments: ShipmentCollection = await vault.getPrimitive(PrimitiveType.ShipmentCollection.name);
+        const items: ItemList = await vault.getPrimitive(PrimitiveType.ItemList.name);
         if (typeof args.linkEntry === 'string') {
             args.linkEntry = RemoteVault.buildLinkEntry(args.linkEntry);
             if (!args.linkEntry) {
                 throw new Error(`Invalid LinkEntry provided`);
             }
         }
-        await shipments.addEntity(wallet, args.linkId, args.linkEntry);
+        await items.addEntity(wallet, args.linkId, args.linkEntry);
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
 
@@ -94,13 +94,13 @@ export class RPCShipmentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipments: ShipmentCollection = await vault.getPrimitive(PrimitiveType.ShipmentCollection.name);
+        const items: ItemList = await vault.getPrimitive(PrimitiveType.ItemList.name);
 
         return {
             success: true,
             wallet_id: wallet.id,
             vault_id: args.vault,
-            count: shipments.count(),
+            count: items.count(),
         };
     }
 
@@ -117,13 +117,13 @@ export class RPCShipmentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipments: ShipmentCollection = await vault.getPrimitive(PrimitiveType.ShipmentCollection.name);
+        const items: ItemList = await vault.getPrimitive(PrimitiveType.ItemList.name);
 
         return {
             success: true,
             wallet_id: wallet.id,
             vault_id: args.vault,
-            shipment_collection: shipments.list(),
+            item_list: items.list(),
         };
     }
 }

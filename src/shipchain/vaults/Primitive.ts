@@ -51,13 +51,13 @@ export abstract class Primitive extends Container {
     }
 }
 
-export abstract class PrimitiveCollection extends LinkContainer implements Primitive {
+export abstract class PrimitiveList extends LinkContainer implements Primitive {
     linkEntries: any;
     propertiesKlass: new (...args: any[]) => PrimitiveProperties;
 
     async addEntity(wallet: Wallet, entityId: string, entityLink: LinkEntry): Promise<void> {
         const thisPrimitiveType: PrimitiveType = PrimitiveType[this.name];
-        Primitive.validateLinkedPrimitive(entityLink, thisPrimitiveType.collectionOf);
+        Primitive.validateLinkedPrimitive(entityLink, thisPrimitiveType.listOf);
         await this.addLink(wallet, entityId, entityLink);
     }
 

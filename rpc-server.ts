@@ -37,11 +37,11 @@ import { RPCTracking } from "./rpc/primitives/tracking";
 import { RPCDocument } from "./rpc/primitives/document";
 import { RPCProduct } from "./rpc/primitives/product";
 import { RPCItem } from "./rpc/primitives/item";
-import { RPCProcurementCollection } from "./rpc/primitives/procurement_collection";
-import { RPCShipmentCollection } from "./rpc/primitives/shipment_collection";
-import { RPCDocumentCollection } from "./rpc/primitives/document_collection";
-import { RPCProductCollection } from "./rpc/primitives/product_collection";
-import { RPCItemCollection } from "./rpc/primitives/item_collection";
+import { RPCProcurementList } from "./rpc/primitives/procurement_list";
+import { RPCShipmentList } from "./rpc/primitives/shipment_list";
+import { RPCDocumentList } from "./rpc/primitives/document_list";
+import { RPCProductList } from "./rpc/primitives/product_list";
+import { RPCItemList } from "./rpc/primitives/item_list";
 
 import { RPCLoad as RPCLoad_1_0_2 } from "./rpc/Load/1.0.2/RPCLoad";
 import { RPCLoad as RPCLoad_1_1_0 } from "./rpc/Load/1.1.0/RPCLoad";
@@ -172,11 +172,11 @@ const methods = {
                     add: RPCProcurement.AddProduct,
                 },
             },
-            procurementCollection: {
-                get: RPCProcurementCollection.Get,
-                add: RPCProcurementCollection.Add,
-                list: RPCProcurementCollection.List,
-                count: RPCProcurementCollection.Count,
+            procurementList: {
+                get: RPCProcurementList.Get,
+                add: RPCProcurementList.Add,
+                list: RPCProcurementList.List,
+                count: RPCProcurementList.Count,
             },
             // Shipment Primitive
             shipment: {
@@ -200,11 +200,11 @@ const methods = {
                     add: RPCShipment.AddItem,
                 },
             },
-            shipmentCollection: {
-                get: RPCShipmentCollection.Get,
-                add: RPCShipmentCollection.Add,
-                list: RPCShipmentCollection.List,
-                count: RPCShipmentCollection.Count,
+            shipmentList: {
+                get: RPCShipmentList.Get,
+                add: RPCShipmentList.Add,
+                list: RPCShipmentList.List,
+                count: RPCShipmentList.Count,
             },
             // Tracking Primitive
             tracking: {
@@ -224,11 +224,11 @@ const methods = {
                     set: RPCDocument.SetContent,
                 },
             },
-            documentCollection: {
-                get: RPCDocumentCollection.Get,
-                add: RPCDocumentCollection.Add,
-                list: RPCDocumentCollection.List,
-                count: RPCDocumentCollection.Count,
+            documentList: {
+                get: RPCDocumentList.Get,
+                add: RPCDocumentList.Add,
+                list: RPCDocumentList.List,
+                count: RPCDocumentList.Count,
             },
             // Product Primitive
             product: {
@@ -243,11 +243,11 @@ const methods = {
                     add: RPCProduct.AddDocument,
                 },
             },
-            productCollection: {
-                get: RPCProductCollection.Get,
-                add: RPCProductCollection.Add,
-                list: RPCProductCollection.List,
-                count: RPCProductCollection.Count,
+            productList: {
+                get: RPCProductList.Get,
+                add: RPCProductList.Add,
+                list: RPCProductList.List,
+                count: RPCProductList.Count,
             },
             // Item Primitive
             item: {
@@ -261,11 +261,11 @@ const methods = {
                     set: RPCItem.SetProduct,
                 },
             },
-            itemCollection: {
-                get: RPCItemCollection.Get,
-                add: RPCItemCollection.Add,
-                list: RPCItemCollection.List,
-                count: RPCItemCollection.Count,
+            itemList: {
+                get: RPCItemList.Get,
+                add: RPCItemList.Add,
+                list: RPCItemList.List,
+                count: RPCItemList.Count,
             },
         },
     },

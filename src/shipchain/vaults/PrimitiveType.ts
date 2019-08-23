@@ -23,11 +23,11 @@ import { Tracking } from './primitives/Tracking';
 import { Document } from './primitives/Document';
 import { Product } from './primitives/Product';
 import { Item } from './primitives/Item';
-import { ProcurementCollection } from './primitives/ProcurementCollection';
-import { ShipmentCollection } from './primitives/ShipmentCollection';
-import { DocumentCollection } from './primitives/DocumentCollection';
-import { ProductCollection } from './primitives/ProductCollection';
-import { ItemCollection } from './primitives/ItemCollection';
+import { ProcurementList } from './primitives/ProcurementList';
+import { ShipmentList } from './primitives/ShipmentList';
+import { DocumentList } from './primitives/DocumentList';
+import { ProductList } from './primitives/ProductList';
+import { ItemList } from './primitives/ItemList';
 
 export class PrimitiveType {
     static readonly Procurement = new PrimitiveType('Procurement', Procurement);
@@ -36,21 +36,17 @@ export class PrimitiveType {
     static readonly Document = new PrimitiveType('Document', Document);
     static readonly Product = new PrimitiveType('Product', Product);
     static readonly Item = new PrimitiveType('Item', Item);
-    static readonly ProcurementCollection = new PrimitiveType(
-        'ProcurementCollection',
-        ProcurementCollection,
-        'Procurement',
-    );
-    static readonly ShipmentCollection = new PrimitiveType('ShipmentCollection', ShipmentCollection, 'Shipment');
-    static readonly DocumentCollection = new PrimitiveType('DocumentCollection', DocumentCollection, 'Document');
-    static readonly ProductCollection = new PrimitiveType('ProductCollection', ProductCollection, 'Product');
-    static readonly ItemCollection = new PrimitiveType('ItemCollection', ItemCollection, 'Item');
+    static readonly ProcurementList = new PrimitiveType('ProcurementList', ProcurementList, 'Procurement');
+    static readonly ShipmentList = new PrimitiveType('ShipmentList', ShipmentList, 'Shipment');
+    static readonly DocumentList = new PrimitiveType('DocumentList', DocumentList, 'Document');
+    static readonly ProductList = new PrimitiveType('ProductList', ProductList, 'Product');
+    static readonly ItemList = new PrimitiveType('ItemList', ItemList, 'Item');
 
     // private to disallow creating other instances of this type
     private constructor(
         public readonly name: string,
         public readonly primitiveClass: any,
-        public readonly collectionOf?: string,
+        public readonly listOf?: string,
     ) {}
 
     create(vault: ShipChainVault, meta?: any): Primitive {

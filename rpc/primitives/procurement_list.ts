@@ -20,11 +20,11 @@ import { StorageCredential } from '../../src/entity/StorageCredential';
 import { RPCMethod, RPCNamespace } from '../decorators';
 import { ShipChainVault } from '../../src/shipchain/vaults/ShipChainVault';
 import { PrimitiveType } from '../../src/shipchain/vaults/PrimitiveType';
-import { ProcurementCollection } from '../../src/shipchain/vaults/primitives/ProcurementCollection';
+import { ProcurementList } from '../../src/shipchain/vaults/primitives/ProcurementList';
 import { RemoteVault } from '../../src/vaults/RemoteVault';
 
-@RPCNamespace({ name: 'ProcurementCollection' })
-export class RPCProcurementCollection {
+@RPCNamespace({ name: 'ProcurementList' })
+export class RPCProcurementList {
     @RPCMethod({
         require: ['storageCredentials', 'vaultWallet', 'vault', 'linkId'],
         validate: {
@@ -39,7 +39,7 @@ export class RPCProcurementCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const procurements: ProcurementCollection = await vault.getPrimitive(PrimitiveType.ProcurementCollection.name);
+        const procurements: ProcurementList = await vault.getPrimitive(PrimitiveType.ProcurementList.name);
 
         const content = await procurements.getEntity(args.linkId);
 
@@ -64,7 +64,7 @@ export class RPCProcurementCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const procurements: ProcurementCollection = await vault.getPrimitive(PrimitiveType.ProcurementCollection.name);
+        const procurements: ProcurementList = await vault.getPrimitive(PrimitiveType.ProcurementList.name);
         if (typeof args.linkEntry === 'string') {
             args.linkEntry = RemoteVault.buildLinkEntry(args.linkEntry);
             if (!args.linkEntry) {
@@ -94,7 +94,7 @@ export class RPCProcurementCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const procurements: ProcurementCollection = await vault.getPrimitive(PrimitiveType.ProcurementCollection.name);
+        const procurements: ProcurementList = await vault.getPrimitive(PrimitiveType.ProcurementList.name);
 
         return {
             success: true,
@@ -117,13 +117,13 @@ export class RPCProcurementCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const procurements: ProcurementCollection = await vault.getPrimitive(PrimitiveType.ProcurementCollection.name);
+        const procurements: ProcurementList = await vault.getPrimitive(PrimitiveType.ProcurementList.name);
 
         return {
             success: true,
             wallet_id: wallet.id,
             vault_id: args.vault,
-            procurement_collection: procurements.list(),
+            procurement_list: procurements.list(),
         };
     }
 }

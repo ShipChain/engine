@@ -20,11 +20,11 @@ import { StorageCredential } from '../../src/entity/StorageCredential';
 import { RPCMethod, RPCNamespace } from '../decorators';
 import { ShipChainVault } from '../../src/shipchain/vaults/ShipChainVault';
 import { PrimitiveType } from '../../src/shipchain/vaults/PrimitiveType';
-import { DocumentCollection } from '../../src/shipchain/vaults/primitives/DocumentCollection';
+import { DocumentList } from '../../src/shipchain/vaults/primitives/DocumentList';
 import { RemoteVault } from '../../src/vaults/RemoteVault';
 
-@RPCNamespace({ name: 'DocumentCollection' })
-export class RPCDocumentCollection {
+@RPCNamespace({ name: 'DocumentList' })
+export class RPCDocumentList {
     @RPCMethod({
         require: ['storageCredentials', 'vaultWallet', 'vault', 'linkId'],
         validate: {
@@ -39,7 +39,7 @@ export class RPCDocumentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const documents: DocumentCollection = await vault.getPrimitive(PrimitiveType.DocumentCollection.name);
+        const documents: DocumentList = await vault.getPrimitive(PrimitiveType.DocumentList.name);
 
         const content = await documents.getEntity(args.linkId);
 
@@ -64,7 +64,7 @@ export class RPCDocumentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const shipments: DocumentCollection = await vault.getPrimitive(PrimitiveType.DocumentCollection.name);
+        const shipments: DocumentList = await vault.getPrimitive(PrimitiveType.DocumentList.name);
         if (typeof args.linkEntry === 'string') {
             args.linkEntry = RemoteVault.buildLinkEntry(args.linkEntry);
             if (!args.linkEntry) {
@@ -94,7 +94,7 @@ export class RPCDocumentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const documents: DocumentCollection = await vault.getPrimitive(PrimitiveType.DocumentCollection.name);
+        const documents: DocumentList = await vault.getPrimitive(PrimitiveType.DocumentList.name);
 
         return {
             success: true,
@@ -117,13 +117,13 @@ export class RPCDocumentCollection {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        const documents: DocumentCollection = await vault.getPrimitive(PrimitiveType.DocumentCollection.name);
+        const documents: DocumentList = await vault.getPrimitive(PrimitiveType.DocumentList.name);
 
         return {
             success: true,
             wallet_id: wallet.id,
             vault_id: args.vault,
-            document_collection: documents.list(),
+            document_list: documents.list(),
         };
     }
 }
