@@ -28,8 +28,7 @@ export class RPCProcurementList {
     @RPCMethod({
         require: ['storageCredentials', 'vaultWallet', 'vault', 'linkId'],
         validate: {
-            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
-            string: ['linkId'],
+            uuid: ['storageCredentials', 'vaultWallet', 'vault', 'linkId'],
         },
     })
     public static async Get(args) {
