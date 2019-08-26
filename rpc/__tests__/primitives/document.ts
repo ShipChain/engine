@@ -23,7 +23,6 @@ const fs = require('fs');
 
 import 'mocha';
 import * as typeorm from "typeorm";
-const AWS = require('aws-sdk');
 import {
     mochaAsync,
     expectMissingRequiredParams,
@@ -41,13 +40,11 @@ import { uuidv4 } from "../../../src/utils";
 import { StorageCredential } from "../../../src/entity/StorageCredential";
 import { Wallet } from "../../../src/entity/Wallet";
 import { EncryptorContainer } from '../../../src/entity/encryption/EncryptorContainer';
-import { ShipChainVault } from "../../../src/shipchain/vaults/ShipChainVault";
 
 const DATE_1 = '2018-01-01T01:00:00.000Z';
 
 export const RPCDocumentPrimitiveTests = async function() {
     const RealDate = Date;
-    const RealAwsS3 = AWS.S3;
 
     function mockDate(isoDate) {
         // @ts-ignore
@@ -107,8 +104,6 @@ export const RPCDocumentPrimitiveTests = async function() {
 
     afterAll(async() => {
         await cleanupEntities(typeorm);
-        AWS.S3.mockRestore();
-        AWS.S3 = RealAwsS3;
     });
 
     describe('Get', function() {
