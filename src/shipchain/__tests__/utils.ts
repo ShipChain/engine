@@ -36,14 +36,14 @@ export function getNockableLink(linkedPrimitive: string): string {
 
 const documentResponseData = {
     "fields": {
-        "name":"Remote Document",
+        "name": "Remote Document",
     },
     "content": null,
 };
 
 const productResponseData = {
     "fields": {
-        "name":"Remote Product",
+        "name": "Remote Product",
     },
     "documents": {
         "docId": getNockableLink("Document"),
@@ -63,7 +63,7 @@ const itemResponseData = {
 
 const shipmentResponseData = {
     "fields": {
-        "id":"c70a9b2f-bad9-4ace-b981-807cbb44782d",
+        "id": "c70a9b2f-bad9-4ace-b981-807cbb44782d",
     },
     "documents": {
         "docId": getNockableLink("Document"),
@@ -73,6 +73,24 @@ const shipmentResponseData = {
         "itemId": {
             "quantity": 1,
             "item": getNockableLink("Item"),
+        },
+    },
+};
+
+const ProcurementResponseData = {
+    "fields": {
+        "name": "Remote Procurement",
+    },
+    "shipments": {
+        "shipmentId": getNockableLink("Shipment"),
+    },
+    "documents": {
+        "docId": getNockableLink("Document"),
+    },
+    "products": {
+        "productId": {
+            "quantity": 1,
+            "product": getNockableLink("Product"),
         },
     },
 };
@@ -89,6 +107,8 @@ export function getPrimitiveData(linkedPrimitive: string): any {
             return itemResponseData;
         case 'Shipment':
             return shipmentResponseData;
+        case 'Procurement':
+            return ProcurementResponseData;
         default:
             throw new Error(`Unit Test requested invalid linkedPrimitive: [${linkedPrimitive}]`);
     }
