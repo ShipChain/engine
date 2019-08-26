@@ -31,6 +31,7 @@ import { RPCVaultTests } from './rpc/__tests__/vault';
 import { RPCStorageCredentialsTests } from './rpc/__tests__/storage_credentials';
 import { RPCTransactions } from './rpc/__tests__/transaction';
 import { RPCWalletTests } from './rpc/__tests__/wallet';
+import { RPCShipChainVaultTests } from './rpc/__tests__/shipchainvault';
 
 
 // SRC Tests
@@ -91,6 +92,7 @@ describe('RPC', async () => {
     describe('Storage', RPCStorageCredentialsTests);
     describe('Transactions', RPCTransactions);
     describe('Wallets', RPCWalletTests);
+    describe('ShipChainVault', RPCShipChainVaultTests);
 
 });
 
