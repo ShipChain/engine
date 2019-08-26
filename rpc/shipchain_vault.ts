@@ -26,6 +26,7 @@ export class RPCShipChainVault {
         require: ['storageCredentials', 'shipperWallet'],
         validate: {
             uuid: ['storageCredentials', 'shipperWallet', 'carrierWallet'],
+            stringArray: ['primitives'],
         },
     })
     public static async Create(args) {
@@ -60,6 +61,7 @@ export class RPCShipChainVault {
         require: ['storageCredentials', 'vaultWallet', 'vault', 'primitives'],
         validate: {
             uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            stringArray: ['primitives'],
         },
     })
     public static async InjectPrimitives(args) {
@@ -69,12 +71,8 @@ export class RPCShipChainVault {
         const vault = new ShipChainVault(storage, args.vault);
         await vault.loadMetadata();
 
-        if (args.primitives && args.primitives.length) {
-            for (let primitive of args.primitives) {
-                vault.injectPrimitive(primitive);
-            }
-        } else {
-            throw new Error(`Invalid argument '${args.primitives}'`);
+        for (let primitive of args.primitives) {
+            vault.injectPrimitive(primitive);
         }
 
         const vaultWriteResponse = await vault.writeMetadata(wallet);
