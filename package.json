@@ -53,7 +53,8 @@
   },
   "resolutions": {
     "handlebars": "4.1.2",
-    "js-yaml": "3.13.1"
+    "js-yaml": "3.13.1",
+    "set-value": "^3.0.1"
   },
   "scripts": {
     "lint": "eslint 'src/**/*.ts' 'rpc/**/*.ts' ",
