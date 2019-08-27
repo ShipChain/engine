@@ -34,6 +34,7 @@ import { RPCWalletTests } from './rpc/__tests__/wallet';
 import { RPCShipChainVaultTests } from './rpc/__tests__/shipchainvault';
 import { RPCDocumentPrimitiveTests } from './rpc/__tests__/primitives/document';
 import { RPCDocumentListPrimitiveTests } from './rpc/__tests__/primitives/document_list';
+import { RPCItemPrimitiveTests } from './rpc/__tests__/primitives/item';
 import { RPCItemListPrimitiveTests } from './rpc/__tests__/primitives/item_list';
 import { RPCProductListPrimitiveTests } from './rpc/__tests__/primitives/product_list';
 import { RPCShipmentListPrimitiveTests } from './rpc/__tests__/primitives/shipment_list';
@@ -101,6 +102,7 @@ describe('RPC', async () => {
     describe('ShipChainVault', RPCShipChainVaultTests);
     describe('Document Primitive', RPCDocumentPrimitiveTests);
     describe('DocumentList Primitive', RPCDocumentListPrimitiveTests);
+    describe('Item Primitive', RPCItemPrimitiveTests);
     describe('ItemList Primitive', RPCItemListPrimitiveTests);
     describe('ProductList Primitive', RPCProductListPrimitiveTests);
     describe('ShipmentList Primitive', RPCShipmentListPrimitiveTests);
