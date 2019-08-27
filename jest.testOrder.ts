@@ -40,6 +40,7 @@ import { RPCProductPrimitiveTests } from './rpc/__tests__/primitives/product';
 import { RPCProductListPrimitiveTests } from './rpc/__tests__/primitives/product_list';
 import { RPCShipmentPrimitiveTests } from './rpc/__tests__/primitives/shipment';
 import { RPCShipmentListPrimitiveTests } from './rpc/__tests__/primitives/shipment_list';
+import { RPCProcurementPrimitiveTests } from './rpc/__tests__/primitives/procurement';
 import { RPCProcurementListPrimitiveTests } from './rpc/__tests__/primitives/procurement_list';
 
 
@@ -110,6 +111,7 @@ describe('RPC', async () => {
     describe('ProductList Primitive', RPCProductListPrimitiveTests);
     describe('Shipment Primitive', RPCShipmentPrimitiveTests);
     describe('ShipmentList Primitive', RPCShipmentListPrimitiveTests);
+    describe('Procurement Primitive', RPCProcurementPrimitiveTests);
     describe('ProcurementList Primitive', RPCProcurementListPrimitiveTests);
 
 });
