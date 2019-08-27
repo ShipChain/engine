@@ -46,7 +46,11 @@ export abstract class Primitive extends Container {
             linkEntry = RemoteVault.buildLinkEntry(linkEntry);
         }
         if (!linkEntry || linkEntry.container !== primitiveType) {
-            throw new Error(`Expecting Link to [${primitiveType}] instead received [${linkEntry ? linkEntry.container : 'invalid linkEntry'}]`);
+            throw new Error(
+                `Expecting Link to [${primitiveType}] instead received [${
+                    linkEntry ? linkEntry.container : 'invalid linkEntry'
+                }]`,
+            );
         }
     }
 }

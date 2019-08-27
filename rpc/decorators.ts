@@ -299,7 +299,13 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
     if (validations && validations.stringArray) {
         for (let param of validations.stringArray) {
             if (args && args.hasOwnProperty(param)) {
-                if (!(Array.isArray(args[param]) && args[param].length && args[param].every(item => typeof item === "string"))) {
+                if (
+                    !(
+                        Array.isArray(args[param]) &&
+                        args[param].length &&
+                        args[param].every(item => typeof item === 'string')
+                    )
+                ) {
                     failed.push(param);
                 }
             }
