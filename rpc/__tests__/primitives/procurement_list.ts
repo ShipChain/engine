@@ -205,7 +205,7 @@ export const RPCProcurementListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Gets valid Document data`, mochaAsync(async () => {
+        it(`Gets valid Procurement data`, mochaAsync(async () => {
             try {
                 const storage = await StorageCredential.getOptionsById(localStorage.id);
                 const vault = new ShipChainVault(storage, vaultId);
@@ -388,7 +388,7 @@ export const RPCProcurementListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Sets Document data`, mochaAsync(async () => {
+        it(`Adds Procurement Link`, mochaAsync(async () => {
             try {
                 const result: any = await CallRPCMethod(RPCProcurementList.Add, {
                     storageCredentials: localStorage.id,
@@ -521,7 +521,7 @@ export const RPCProcurementListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Counts Documents in List`, mochaAsync(async () => {
+        it(`Counts Procurements in List`, mochaAsync(async () => {
             try {
                 let result: any = await CallRPCMethod(RPCProcurementList.Count, {
                     storageCredentials: localStorage.id,
@@ -630,7 +630,7 @@ export const RPCProcurementListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Counts Documents in List`, mochaAsync(async () => {
+        it(`Lists Procurements`, mochaAsync(async () => {
             try {
                 let result: any = await CallRPCMethod(RPCProcurementList.List, {
                     storageCredentials: localStorage.id,

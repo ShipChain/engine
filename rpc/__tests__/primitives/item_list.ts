@@ -370,7 +370,7 @@ export const RPCItemListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Sets Document data`, mochaAsync(async () => {
+        it(`Add Item Link`, mochaAsync(async () => {
             try {
                 let result: any = await CallRPCMethod(RPCItemList.Add, {
                     storageCredentials: localStorage.id,
@@ -485,7 +485,7 @@ export const RPCItemListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Counts Documents in List`, mochaAsync(async () => {
+        it(`Counts Items in List`, mochaAsync(async () => {
             try {
                 let result: any = await CallRPCMethod(RPCItemList.Count, {
                     storageCredentials: localStorage.id,
@@ -594,7 +594,7 @@ export const RPCItemListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Counts Items in List`, mochaAsync(async () => {
+        it(`Lists Items`, mochaAsync(async () => {
             try {
                 let result: any = await CallRPCMethod(RPCItemList.List, {
                     storageCredentials: localStorage.id,

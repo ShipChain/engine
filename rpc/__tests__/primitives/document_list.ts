@@ -584,7 +584,7 @@ export const RPCDocumentListPrimitiveTests = async function() {
             }
         }));
 
-        it(`Counts Documents in List`, mochaAsync(async () => {
+        it(`Lists Documents`, mochaAsync(async () => {
             try {
                 let result: any = await CallRPCMethod(RPCDocumentList.List, {
                     storageCredentials: localStorage.id,
