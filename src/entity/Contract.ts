@@ -39,6 +39,7 @@ const metrics = MetricsReporter.Instance;
 const gasPriceOracle = GasPriceOracle.Instance;
 
 const GETH_NODE = config.get('GETH_NODE');
+const TRANSACTION_CONFIRMATION_BLOCKS = config.get('WEB3_OPTIONS.TRANSACTION_CONFIRMATION_BLOCKS');
 
 @Entity()
 export class Project extends BaseEntity {
@@ -308,7 +309,7 @@ export class Network extends BaseEntity {
         if (this._driver) return this._driver;
         const web3Options = {
             transactionBlockTimeout: 50,
-            transactionConfirmationBlocks: 1,
+            transactionConfirmationBlocks: TRANSACTION_CONFIRMATION_BLOCKS,
             transactionPollingTimeout: 480,
         };
         this._driver = new Web3(GETH_NODE, null, web3Options);

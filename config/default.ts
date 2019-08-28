@@ -18,4 +18,7 @@ export default {
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "RPC_SERVER_PORT" : 2000,
     "USE_JS_ORM_ENTITIES": false,
+    "WEB3_OPTIONS": {
+        "TRANSACTION_CONFIRMATION_BLOCKS": 1,
+    },
 }
