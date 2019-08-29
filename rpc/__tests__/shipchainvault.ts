@@ -102,8 +102,8 @@ export const RPCShipChainVaultTests = async function() {
     async function getEmptyVaultId() {
         const result: any = await CallRPCMethod(RPCShipChainVault.Create, {
             storageCredentials: localStorage.id,
-            shipperWallet: fullWallet1.id,
-            carrierWallet: fullWallet2.id,
+            vaultWallet: fullWallet1.id,
+            additionalWallet: fullWallet2.id,
         });
         return result.vault_id;
     }
@@ -119,7 +119,7 @@ export const RPCShipChainVaultTests = async function() {
                 caughtError = err;
             }
 
-            expectMissingRequiredParams(caughtError, ['storageCredentials', 'shipperWallet']);
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet']);
         }));
 
         it(`Validates UUID parameters`, mochaAsync(async () => {
@@ -128,15 +128,15 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: '123',
-                    shipperWallet: '123',
-                    carrierWallet: '123',
+                    vaultWallet: '123',
+                    additionalWallet: '123',
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
                 caughtError = err;
             }
 
-            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'shipperWallet', 'carrierWallet']);
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'additionalWallet']);
         }));
 
         it(`Validates UUID parameters`, mochaAsync(async () => {
@@ -145,23 +145,23 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: '123',
-                    shipperWallet: '123',
-                    carrierWallet: '123',
+                    vaultWallet: '123',
+                    additionalWallet: '123',
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
                 caughtError = err;
             }
 
-            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'shipperWallet', 'carrierWallet']);
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'additionalWallet']);
         }));
 
         it(`Validates StorageCredentials exists`, mochaAsync(async () => {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: uuidv4(),
-                    shipperWallet: fullWallet1.id,
-                    carrierWallet: fullWallet2.id,
+                    vaultWallet: fullWallet1.id,
+                    additionalWallet: fullWallet2.id,
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
@@ -173,7 +173,7 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: uuidv4(),
+                    vaultWallet: uuidv4(),
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
@@ -185,8 +185,8 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: fullWallet1.id,
-                    carrierWallet: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    additionalWallet: uuidv4(),
                 });
                 fail("Did not Throw"); return;
             } catch (err) {
@@ -198,7 +198,7 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 const result: any = await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: fullWallet1.id,
+                    vaultWallet: fullWallet1.id,
                 });
 
                 expect(result.success).toBeTruthy();
@@ -223,8 +223,8 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: fullWallet1.id,
-                    carrierWallet: fullWallet2.id,
+                    vaultWallet: fullWallet1.id,
+                    additionalWallet: fullWallet2.id,
                     primitives: {},
                 });
                 fail("Did not Throw"); return;
@@ -237,8 +237,8 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: fullWallet1.id,
-                    carrierWallet: fullWallet2.id,
+                    vaultWallet: fullWallet1.id,
+                    additionalWallet: fullWallet2.id,
                     primitives: [],
                 });
                 fail("Did not Throw"); return;
@@ -251,8 +251,8 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: fullWallet1.id,
-                    carrierWallet: fullWallet2.id,
+                    vaultWallet: fullWallet1.id,
+                    additionalWallet: fullWallet2.id,
                     primitives: ["one", 2],
                 });
                 fail("Did not Throw"); return;
@@ -265,8 +265,8 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: fullWallet1.id,
-                    carrierWallet: fullWallet2.id,
+                    vaultWallet: fullWallet1.id,
+                    additionalWallet: fullWallet2.id,
                     primitives: ["UnknownPrimitive"],
                 });
                 fail("Did not Throw"); return;
@@ -279,8 +279,8 @@ export const RPCShipChainVaultTests = async function() {
             try {
                 const result: any = await CallRPCMethod(RPCShipChainVault.Create, {
                     storageCredentials: localStorage.id,
-                    shipperWallet: fullWallet1.id,
-                    carrierWallet: fullWallet2.id,
+                    vaultWallet: fullWallet1.id,
+                    additionalWallet: fullWallet2.id,
                     primitives: ["Shipment"],
                 });
 

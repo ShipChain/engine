@@ -23,18 +23,18 @@ import { ShipChainVault } from '../src/shipchain/vaults/ShipChainVault';
 @RPCNamespace({ name: 'ShipChainVault' })
 export class RPCShipChainVault {
     @RPCMethod({
-        require: ['storageCredentials', 'shipperWallet'],
+        require: ['storageCredentials', 'vaultWallet'],
         validate: {
-            uuid: ['storageCredentials', 'shipperWallet', 'carrierWallet'],
+            uuid: ['storageCredentials', 'vaultWallet', 'additionalWallet'],
             stringArray: ['primitives'],
         },
     })
     public static async Create(args) {
         const storage = await StorageCredential.getOptionsById(args.storageCredentials);
-        const shipperWallet = await Wallet.getById(args.shipperWallet);
+        const vaultWallet = await Wallet.getById(args.vaultWallet);
 
         const vault = new ShipChainVault(storage);
-        await vault.getOrCreateMetadata(shipperWallet);
+        await vault.getOrCreateMetadata(vaultWallet);
 
         if (args.primitives && args.primitives.length) {
             for (let primitive of args.primitives) {
@@ -42,12 +42,12 @@ export class RPCShipChainVault {
             }
         }
 
-        if (args.carrierWallet) {
-            const carrierWallet = await Wallet.getById(args.carrierWallet);
-            await vault.authorize(shipperWallet, ShipChainVault.OWNERS_ROLE, carrierWallet.public_key);
+        if (args.additionalWallet) {
+            const additionalWallet = await Wallet.getById(args.additionalWallet);
+            await vault.authorize(vaultWallet, ShipChainVault.OWNERS_ROLE, additionalWallet.public_key);
         }
 
-        const vaultWriteResponse = await vault.writeMetadata(shipperWallet);
+        const vaultWriteResponse = await vault.writeMetadata(vaultWallet);
 
         return {
             ...vaultWriteResponse,
