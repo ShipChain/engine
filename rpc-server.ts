@@ -157,6 +157,19 @@ const methods = {
         list: RPCStorageCredentials.List,
         test: RPCStorageCredentials.TestConnectivity,
         update: RPCStorageCredentials.Update,
+   "notary": {
+        "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
+        "1.0.0": {
+            // Transactional methods
+            "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx
+        }
+    },
+    "storage_credentials": {
+        "create_hosted": RPCStorageCredentials.Create,
+        "validate_create": RPCStorageCredentials.TestAndStore,
+        "list": RPCStorageCredentials.List,
+        "test": RPCStorageCredentials.TestConnectivity,
+        "update": RPCStorageCredentials.Update,
     },
     transaction: {
         sign: RPCTransaction.Sign,
