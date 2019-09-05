@@ -7,8 +7,8 @@ tracking data.
 #### Create
 
 A vault's location is defined within the context of a Storage Driver. When defining a vault, you
-must provide an ID of a [Storage Credential](#storage-credentials) as well as the Owner of the vault
-(the Shipper)
+must provide an ID of a [Storage Credential](HostedEntities.md#storage-credentials) as well as the
+Owner of the vault (the Shipper)
 
 ```JSON
 {

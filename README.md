@@ -152,14 +152,27 @@ prerequisites for connecting to a separate management container when running in 
 Before you can begin using Engine, you may need to do some configuration depending on your specific
 requirements.
 
-#### Smart Contracts
+#### Configuration Files
 
-When the main Engine RPC server starts, it will download the latest version of ShipChain's smart
-contract metadata from a [public URL](https://s3.amazonaws.com/shipchain-contracts/meta.json). This
-metadata contains the deployed contract addresses for public Ethereum networks as well as the ABI
-and compiled binary data. All relevant information will be parsed and loaded in to Engine's included
-Postgres database for later use. There should be no further steps if you are using ShipChain's smart
-contracts.
+Inside the `config` folder, there are configuration files there is a `default.ts` which provides a
+baseline for configuration settings as well as several files for specific deployed environments
+which follow this format `<ENV>.ts`. All the default configuration values should go into the
+default.ts. The specific stages will inherit the values of entries from default.ts by default, while
+overwriting them if some entries re-defined in a specific STAGE_NAME.ts.
+
+Besides the above, you can write a local.ts file to overwrite any configuration
+for your local run, which will overwrite  However, DO NOT add the local.ts to
+the git repository. 
+
+For more details of the precedence of different configuration options, you can
+refer to [File Load Order](https://github.com/lorenwest/node-config/wiki/Configuration-Files#file-load-order)
+and [Command Line Overrides](https://github.com/lorenwest/node-config/wiki/Command-Line-Overrides)
+
+Some of the configuration settings are overridable via environment variables. For these to take
+effect, they configuration setting -> environment variable mapping has to be made in
+`config/custom-environment-variables.ts`. See the
+[documentation](https://github.com/lorenwest/node-config/wiki/Environment-Variables#custom-environment-variables)
+on this feature for more details.
 
 #### Environment Variables
 
@@ -235,33 +248,6 @@ but in a local development environment, you are required to specify your own by 
  - `LOCAL_SECRET_KEY` - This needs to be a properly formatted Ethereum private key (beginning with
    `0x`). The default value if none is specified is
    `0x0000000000000000000000000000000000000000000000000000000000000001`
-
-### Using Configuration Files
-
-Inside the config folder, there are ts configuration files that are named either
-"default.ts" or "STAGE_NAME.ts". All the default configuration values should go
-into the default.ts. The specific stages will inherit the values of entries from default.ts
-by default, while overwriting them if some entries re-defined in a specific STAGE_NAME.ts.
-
-Besides the above, you can write a local.ts file to overwrite any configuration
-for your local run, which will overwrite  However, DO NOT add the local.ts to
-the git repository. 
-
-For more details of the precedence of different configuration options, you can
-refer to [File Load Order](https://github.com/lorenwest/node-config/wiki/Configuration-Files#file-load-order)
-and [Command Line Overrides](https://github.com/lorenwest/node-config/wiki/Command-Line-Overrides)
-
-Some rules of the current configuration setting:
-
-Some optional configurations are commented out in the ts files, for example the 
-"ES_TEST_NODE_URL". Some other optional entires include,
-
-* INFLUXDB_URL
-* ELASTICSEARCH_URL
-* ES_TEST_NODE_URL
-* GETH_NETWORK
-
-You need to define GETH_NODE in your local.ts. 
 
 ## Running the tests
 
@@ -424,265 +410,16 @@ This indicates that there are 4 methods to call in the `wallet` namespace. `crea
 `import_hosted`, `list`, and `balance`. From this you can also tell that `create_hosted` requires no
 parameters and `balance` requires a `wallet` parameter that is a valid UUID.
 
-### Wallet Management
+### Database Entities
 
-Most Engine requests will require the ID of a Wallet that is hosted within Engine. Engine provides
-the ability to generate a new Wallet or you may import one by private key.
-
-#### Create
-
-Engine can generate a Wallet for you, including the public key, private key, and address. No
-additional parameters are required.
-
-```JSON
-{
-  "method": "wallet.create_hosted",
-  "params": {},
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### Import
-
-You can allowing Engine to safely store information to sign and send transactions with your existing
-Wallet. The private key of your wallet is the only parameter.
-
-```JSON
-{
-  "method": "wallet.import_hosted",
-  "params": {
-      "privateKey": "0x0000000000000000000000000000000000000000000000000000000000000001"
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### List
-
-List the IDs and Addresses of the Wallets hosted in Engine. This does not return the private key of
-the Wallets.
-
-```JSON
-{
-  "method": "wallet.list",
-  "params": {},
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### Balances
-
-Retrieve the current SHIP Token and Ether balance of a Wallet.
-
-```JSON
-{
-  "method": "wallet.balance",
-  "params": {
-      "wallet": "0863ac87-bed7-4dbc-b7d6-01adae523913"
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-### Storage Credentials
-
-Part of ShipChain's Load Contract is the secured external [Vault](#vaults) for storing any documents
-or tracking data related to a shipment. Engine manages the information in these Vaults and will
-require credentials to connect to the location where the vault files are stored.
-
-#### Create
-
-Currently Engine supports connection to vaults in Local Storage, S3 Buckets (or S3 compatible), and
-SFTP servers. Each of these has a different Storage Driver handling the I/O and slightly different
-parameters to creating the Storage Credentials.
-
-These parameters are common to all Storage Credential creations:
-
- - `driver_type` One of `s3`, `sftp`, or `local`. These may have additional parameters described
-   below.
- - `title` Friendly title to remember this connection by.
- - `base_path` Path within the storage driver where the vaults will be created. Defaults to the root
-   directory.
-
-##### S3
-
- - `Bucket` _Required_ Name of the bucket in which you want to store the vaults
- - `acl` Access Control List of the created vaults. Defaults to `public-read` to allow 3rd party
-   verification of Vault hashes
- - `client` Additional connection parameters. Any options listed in AWS Javascript SDK documentation
-   for an
-   [S3 Constructor](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#constructor-property)
-   are valid here.
-
-```JSON
-{
-  "method": "storage_credentials.create_hosted",
-  "params": {
-    "driver_type": "s3",
-    "title": "My S3 Bucket",
-    "options": {
-        "Bucket": "my-bucket",
-        "client": {
-          "accessKeyId": "MYACCESSID",
-          "secretAccessKey": "MySupERSecREt@Cce55KkeY"
-        }
-    }
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-During local development, if you do not have or do not wish to use your own AWS S3 Buckets for
-storage, you can utilize the provided S3 compatible Minio service as a storage provider, use the
-following options:
-
-```JSON
-{
-    "method": "storage_credentials.create_hosted",
-    "params": {
-        "title": "Test Minio",
-        "driver_type": "s3",
-        "options": {
-            "Bucket": "test-bucket.mycompany.com",
-            "client": {
-                "endpoint": "http://minio:9000",
-                "accessKeyId": "myMinioAccessKey",
-                "secretAccessKey": "myMinioSecretKey",
-                "s3ForcePathStyle": true,
-                "signatureVersion": "v4"
-            }
-        }
-    },
-    "jsonrpc": "2.0",
-    "id": 0
-}
-```
-
-To view the Minio interface to the Buckets containing the vault files, navigate to
-[http://localhost:9099](http://localhost:9099) when you have the services running.
-
-##### SFTP
-
- - `credentials` _Required_ Connection parameters. Any options listed in the SSH2 Documetation for
-   the [connect](https://github.com/mscdex/ssh2#client-methods) method are valid here. Most commonly
-   this will include:
-    - `host`
-    - `port`
-    - `username`
-    - `password`
-
-```JSON
-{
-  "method": "storage_credentials.create_hosted",
-  "params": {
-    "driver_type": "sftp",
-    "title": "My SFTP Server",
-    "base_path": "vaults",
-    "options": {
-      "credentials": {
-        "host": "sftp.example.com",
-        "port": "22",
-        "username": "rmunroe",
-        "password": "Tr0ub4dor&3"
-      }
-    }
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### Validate and Create
-
-Engine also provides the ability to Validate Storage Credential options prior to creating the
-entity. This is useful for testing permissions, base path, authentication, etc without needing to
-create the entity first and then call a separate rpc method to test. If the connectivity test is
-performed successfully, the entity will be created. If the test fails, the entity is not created and
-the error response will contain information regarding the failure.
-
-The arguments to this endpoint are identical to those in the `"method":
-"storage_credentials.create_hosted"` method. The only difference in invoking this endpoint is the
-method name.
-
-```JSON
-{
-  "method": "storage_credentials.validate_create",
-  "params": {
-    ...
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### List
-
-List the Title, Driver Type, and Base path of the Storage Credentials hosted in Engine. This does
-not return any secrets used in connecting to the backing Storage Driver.
-
-```JSON
-{
-  "method": "storage_credentials.list",
-  "params": {},
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### Update
-
-Modify the Title or Options of an existing Storage Credentials hosted in Engine. The `base_path` and
-`driver_type` of a saved StorageCredentials can not be updated as that change would likely make
-existing Vaults accessed with the StorageCredentials unreachable.
-
-```JSON
-{
-  "method": "storage_credentials.update",
-  "params": {
-    "storageCredentials": "7cc34443-64af-4d48-b9f2-0bcdf488f1e3",
-    "title": "Optional Updated Title",
-    "options": {
-      "credentials": {
-        "host": "sftp.example.com",
-        "port": "22",
-        "username": "rmunroe",
-        "password": "correcthorsebatterystaple"
-      }
-    }
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### Test
-
-After creating a StorageCredential, you may want to test connectivity prior to utilizing it for
-storing Vaults. To do this, use the following method with the ID of the created Storage Credential.
-
-```JSON
-{
-  "method": "storage_credentials.test",
-  "params": {
-    "storageCredentials": "7cc34443-64af-4d48-b9f2-0bcdf488f1e3"
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-The return from this method will include a `"valid": true` if a files was successfully created with
-the storage driver, or `"valid": false` and potentially a `"message": <reason>` indicating what went
-wrong.
+When interacting with Engine via RPC, most of the methods invoked will require a reference to some
+known entity. Typically a Wallet or a StorageCredential. These are the only user-managed persistent
+data objects stored within Engine's RDBMS (Postgres by default). See the full description of these
+entities in [HostedEntities.md](docs/HostedEntities.md)
 
 ### Vaults
 
-Many types of documents and data points need to be tied to a Shipment. However, storing large
+Many types of documents and data points need to be tied to a tracked entity. However, storing large
 amounts of data on the blockchain is prohibitively expensive. To combat the high cost of data
 storage while maintaining the guarantee of data integrity for a shipment's related data, Engine has
 Vaults.
@@ -696,20 +433,21 @@ appropriate role-based access).
 
 #### Load Vault
 
-See legacy Load Vault documentation in [LOADVAULT.md](LOADVAULT.md)
+See legacy Load Vault documentation in [LoadVault.md](docs/LoadVault.md)
 
 #### ShipChain Vault
 
 A more flexible vault has been created that supports Primitive data structures. See
-[PRIMITIVES.md](PRIMITIVES.md) for details on the Primitive definitions. Ideally, a ShipChainVault
-will contain one Primitive and a collection of ShipChainVaults will be utilized for the supply chain
+[Primitives.md](docs/Primitives.md) for details on the Primitive definitions. Ideally, a ShipChainVault will
+contain one Primitive and a collection of ShipChainVaults will be utilized for the supply chain
 lifecycle (including the Procurement, one or more Shipments, Tracking data, specific Items in a
 Shipment, Documents, etc)
 
 ##### Create
 
 A vault's location is defined within the context of a Storage Driver. When defining a vault, you
-must provide an ID of a [Storage Credential](#storage-credentials) as well as the Owner of the vault
+must provide an ID of a [Storage Credential](docs/HostedEntities.md#storage-credentials) as well as
+the Owner of the vault
 
 ```JSON
 {
@@ -752,198 +490,26 @@ additional Primitives can be injected to an existing vault
 }
 ```
 
-### Load Contract
+### Smart Contracts
 
-The Load Contract is versioned using [SemVer](https://semver.org/). The latest supported version in
-Engine is `1.1.0`. However, Engine supports interacting with multiple versions of the Load Contract
-via different RPC Namespaces.
+When the main Engine RPC server starts, it will download the latest version of ShipChain's smart
+contract metadata from a [public URL](https://s3.amazonaws.com/shipchain-contracts/meta.json). This
+metadata contains the deployed contract addresses for public Ethereum networks as well as the ABI
+and compiled binary data. All relevant information will be parsed and loaded in to Engine's included
+Postgres database for later use. There should be no further steps if you are using ShipChain's smart
+contracts.
 
-Every call to interact with a Shipment via the Load Contract will need to provide a ShipmentUUID.
-This is currently managed via Transmission for ShipChain's instance of Engine. This UUID will be
-transformed in to the byte16 lookup in to the Shipment Mapping in the contract.
+Engine currently supports these Smart Contracts:
+- [Load 1.1.0](docs/LoadContract_1.1.0.md)
 
-NOTE: The methods outlined below are for the latest `1.1.0` version only.
 
-#### Helpful Information
-
-During interaction with ShipChain's Load Contract, you will need to know the following. Additional
-information will be available when the contract's source is released.
-
-<!-- TODO: Include link to smart-contracts -->
-
-##### Contract Version
-
-In the response from creating a new Shipment, the Load Contract version is returned
-(`contractVersion`). This will be used in interacting with the created shipment through the course
-of the shipment's lifetime. Append the `contractVersion` to the RPC Namespace `load` prior to
-specifying the RPC Method.
-
-For example, when retrieving Shipment Data for Load Contraction version 1.1.0, instead of calling
-`load.get_shipment_data`, you will need to use the contract specific version
-`load.1.1.0.get_shipment_data`
-
-```JSON
-{
-  "method": "load.1.1.0.get_shipment_data",
-  "params": {...},
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
 
 ##### Multiple Requests Needed
 
 Until this point, most actions in Engine required a single RPC Method invocation. When interacting
 with the Smart Contracts you will need to perform _three_ separate requests for most actions. Any
-Load RPC method that ends with `_tx` will only generate the _transaction_ for the request. You will
-still need to Sign and Send this transaction via the [Transaction](#transactions) RPC Namespace
-methods.
-
-##### Escrow Funding Types
-
-When creating a Shipment, you will need to specify the type of Escrow you desire. NO_FUNDING will
-prevent funds from being sent to the Escrow for a Shipment. SHIP and ETHER will require the Escrow
-to be funded with only SHIP or ETH, respectively.
-
-```JS
-export enum EscrowFundingType {
-    NO_FUNDING = 0,
-    SHIP = 1,
-    ETHER = 2,
-}
-```
-
-##### Shipment States
-
-The state of the Basic Shipment.
-
-```JS
-export enum ShipmentState {
-    NOT_CREATED = 0,
-    CREATED = 1,
-    IN_PROGRESS = 2,
-    COMPLETE = 3,
-    CANCELED = 4,
-}
-```
-
-##### Escrow States
-
-The state of the Escrow _within_ the Shipment. This is tightly coupled
-with the Shipment State. I.E. Funds in an Escrow cannot be distributed
-if the Shipment is IN_PROGRESS.
-
-```JS
-export enum EscrowState {
-    NOT_CREATED = 0,
-    CREATED = 1,
-    FUNDED = 2,
-    RELEASED = 3,
-    REFUNDED = 4,
-    WITHDRAWN = 5,
-}
-```
-
-#### Create
-
-Creating a new Shipment is performed via the non-versioned RPC
-Namespace. Previous versions of the load contract are not guaranteed to
-support creating new Shipments once newer versions are released, but the
-non-versioned method will _always_ create shipments against the latest
-supported version of the contract.
-
-```JSON
-{
-  "method": "load.create_shipment_tx",
-  "params": {
-    "shipmentUuid": "77777777-25fe-465e-8458-0e9f8ffa2cdd",
-    "senderWallet": "a245bf61-6669-4d5a-b305-e8a6c39993e7",
-    "fundingType": 1,
-    "contractedAmount": 1000000000000000000
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-A successful response will follow this structure. Note the `contractVersion` included in the
-response. This will be used in generating the `method` names for **all remaining interactions with
-this shipment**. The `transaction` object in the response will need to be passed to the
-`transaction.sign` method outlined in the [Transactions](#transactions) section
-
-```JSON
-{
-  "jsonrpc": "2.0",
-  "result": {
-    "success": true,
-    "contractVersion": "1.1.0",
-    "transaction": {
-      "nonce": "0xc4",
-      "chainId": 1337,
-      "to": "0xeB6FAce10d2e9ebeEf55f42Cb78834908D5B8a2B",
-      "gasPrice": "0x4a817c800",
-      "gasLimit": "0x7a120",
-      "value": "0x0",
-      "data": "0xb5a42b877777777725fe465e84580e9f8ffa2cdd0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000de0b6b3a7640000"
-    }
-  },
-  "id": 0
-}
-```
-
-#### Get Data
-
-There are two types of data stored within the Shipment on the Load Contract.
-
-##### Shipment Data
-
-The basic Shipment data (including the Wallet address of the Shipper, Carrier, and optional
-Moderator, as well as the current State of the Shipment).
-
-```JSON
-{
-  "method": "load.1.1.0.get_shipment_data",
-  "params": {
-    "shipmentUuid": "77777777-25fe-465e-8458-0e9f8ffa2cdd"
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-##### Escrow Data
-
-The Shipment's Escrow data (including the contractedAmount, fundedAmount, createdAt Time,
-fundingType, refundAddress, and the current State of the Escrow).
-
-```JSON
-{
-  "method": "load.1.1.0.get_escrow_data",
-  "params": {
-    "shipmentUuid": "77777777-25fe-465e-8458-0e9f8ffa2cdd"
-  },
-  "jsonrpc": "2.0",
-  "id": 0
-}
-```
-
-#### _Documentation in progress..._
-
-```
-set_vault_uri_tx
-set_vault_hash_tx
-set_carrier_tx
-set_moderator_tx
-set_in_progress_tx
-set_complete_tx
-set_canceled_tx
-fund_escrow_tx
-fund_escrow_ether_tx
-fund_escrow_ship_tx
-release_escrow_tx
-withdraw_escrow_tx
-refund_escrow_tx
-```
+Smart Contract RPC method that ends with `_tx` will only generate the _transaction_ for the request.
+You will still need to Sign and Send this transaction via the Transaction RPC Namespace methods.
 
 ### Transactions
 
