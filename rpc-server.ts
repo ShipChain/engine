@@ -47,6 +47,8 @@ import { RPCItemList } from "./rpc/primitives/item_list";
 import { RPCLoad as RPCLoad_1_0_2 } from "./rpc/Load/1.0.2/RPCLoad";
 import { RPCLoad as RPCLoad_1_1_0 } from "./rpc/Load/1.1.0/RPCLoad";
 import { RPCLoad as RPCLoad_1_2_0 } from "./rpc/Load/1.2.0/RPCLoad";
+import { RPCVaultNotary as RPCVaultNotary_1_0_0 } from "./rpc/VaultNotary/1.0.0/RPCVaultNotary";
+
 import { RPCEvent, startEventSubscriptions } from "./rpc/event";
 import { RPCWallet } from "./rpc/wallet";
 import { RPCTransaction } from "./rpc/transaction";
@@ -133,6 +135,13 @@ const methods = {
             get_escrow_status: RPCLoad_1_0_2.GetEscrowStatus,
             get_contract_flags: RPCLoad_1_0_2.GetContractFlags,
         },
+    },
+    "notary": {
+        "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
+        "1.0.0": {
+            // Transactional methods
+            "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx
+        }
     },
     storage_credentials: {
         create_hosted: RPCStorageCredentials.Create,
