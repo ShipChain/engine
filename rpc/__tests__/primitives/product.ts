@@ -94,8 +94,8 @@ export const RPCProductPrimitiveTests = async function() {
 
         const result: any = await CallRPCMethod(RPCShipChainVault.Create, {
             storageCredentials: localStorage.id,
-            shipperWallet: fullWallet1.id,
-            carrierWallet: fullWallet2.id,
+            vaultWallet: fullWallet1.id,
+            additionalWallet: fullWallet2.id,
             primitives: ["Product"],
         });
         vaultId = result.vault_id;
