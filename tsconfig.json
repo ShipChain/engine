@@ -15,6 +15,6 @@
     "exclude": [
         "node_modules",
         "jest.testOrder.ts",
-        "**/__tests__/*.ts"
+        "**/__tests__/**/*.ts"
     ]
 }
