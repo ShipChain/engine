@@ -113,7 +113,7 @@ The Item primitive contains the following official fields:
 - Price
 - Expiration Date
 
-An Item can contain a links to a single:
+An Item can contain a link to a single:
 
 - Product
 
