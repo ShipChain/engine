@@ -22,6 +22,7 @@ import { Contract, Version, Project, Network } from '../entity/Contract';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 import { EthereumService } from "../eth/EthereumService";
 
+import { latest as LATEST_NOTARY } from '../../rpc/VaultNotary/Latest';
 const utils = require('../local-test-net-utils');
 
 // These are the versions we are testing
@@ -39,7 +40,7 @@ export const ContractEntityTests = async function() {
         await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
         expect(await Project.count()).toEqual(3);
         expect(await Network.count()).toEqual(3);
-        expect(await Version.count()).toEqual(4);
+        expect(await Version.count()).toEqual(5);
         expect(await Contract.count()).toEqual(9);
     });
 
@@ -50,7 +51,7 @@ export const ContractEntityTests = async function() {
             const owner = await Wallet.generate_entity();
             const other = await Wallet.generate_entity();
 
-            const local = await utils.setupLocalTestNetContracts({ ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD }, [owner]);
+            const local = await utils.setupLocalTestNetContracts({ ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD, NOTARY: LATEST_NOTARY }, [owner]);
             const network: Network = await Network.getLocalTestNet();
             const ethereumService: EthereumService = network.getEthereumService();
 
