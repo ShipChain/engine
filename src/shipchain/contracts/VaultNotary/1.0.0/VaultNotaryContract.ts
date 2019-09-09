@@ -43,4 +43,7 @@ export class VaultNotaryContract extends BaseContract {
             addressToGrant,
         ]);
     }
+
+    //view methods
+    // =====================
 }

@@ -2001,46 +2001,6 @@
 											"listen": "test",
 											"script": {
 												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
-												"type": "text/javascript",
-												"exec": [
-													""
-												]
-											}
-										}
-									],
-									"request": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"a245bf61-6669-4d5a-b305-e8a6c39993e7\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 1000000000000000000\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
-										},
-										"url": {
-											"raw": "http://localhost:2000/",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "2000",
-											"path": [
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "load.1.2.0.create_shipment2_tx",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
 												"exec": [
 													""
 												],
@@ -2058,7 +2018,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment2_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 10000000000000, \n\t\t\"carrierWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"8ca1e0df-26ff-4331-86f7-61a1cdcb06c9\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 10000000000000, \n\t\t\"carrierWallet\": \"8595c618-a448-4ba8-810f-6fc090da7f40\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "http://localhost:2000/",
@@ -4637,6 +4597,88 @@
 								}
 							},
 							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+        },
+        {
+			"name": "notary",
+			"item": [
+				{
+					"name": "notary.1.0.0",
+					"item": [
+						{
+							"name": "tx",
+							"item": [
+								{
+									"name": "notary.1.0.0.set_vault_uri_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.register_vault_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "status",
+							"item": [],
+							"_postman_isSubFolder": true
 						}
 					],
 					"protocolProfileBehavior": {},
