@@ -5613,6 +5613,87 @@
 			],
 			"protocolProfileBehavior": {}
 		},
+        {		"name": "notary",
+			"item": [
+				{
+					"name": "notary.1.0.0",
+					"item": [
+						{
+							"name": "tx",
+							"item": [
+								{
+									"name": "notary.1.0.0.set_vault_uri_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.register_vault_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "status",
+							"item": [],
+							"_postman_isSubFolder": true
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
 		{
 			"name": "help",
 			"event": [

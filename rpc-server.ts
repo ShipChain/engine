@@ -161,7 +161,10 @@ const methods = {
         "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
         "1.0.0": {
             // Transactional methods
-            "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx
+            "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
+            "set_vault_uri_tx": RPCVaultNotary_1_0_0.SetVaultUriTx,
+            "set_vault_hash_tx": RPCVaultNotary_1_0_0.SetVaultHashTx,
+            // View methods
         }
     },
     "storage_credentials": {
