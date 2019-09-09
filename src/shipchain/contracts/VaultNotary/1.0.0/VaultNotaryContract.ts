@@ -3,15 +3,19 @@ import { BaseContract } from '../../../../contracts/BaseContract';
 
 export class VaultNotaryContract extends BaseContract {
     constructor(network: string, version: string) {
-        super('VaultNotary', network, version);
+        super('NOTARY', network, version);
     }
 
-    protected static convertShipmentUuidToBytes16(shipmentUuid: string): string {
-        return '0x' + shipmentUuid.replace(/-/g, '');
+    protected static convertShipmentUuidToBytes16(id: string): string {
+        return '0x' + id.replace(/-/g, '');
     }
 
-    async registerVaultTx(senderWallet: Wallet, vaultId: number, vaultUri: string, vaultHash: string) {
-        return await this.buildTransactionForWallet(senderWallet, 'registerVault', [vaultId, vaultUri, vaultHash]);
+    async registerVaultTx(senderWallet: Wallet, vaultId: string, vaultUri: string, vaultHash: string) {
+        return await this.buildTransactionForWallet(senderWallet, 'registerVault', [
+            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
+            vaultUri,
+            vaultHash,
+        ]);
     }
 
     // Uri/Hash Update Methods

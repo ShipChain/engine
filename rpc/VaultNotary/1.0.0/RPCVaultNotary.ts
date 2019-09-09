@@ -49,4 +49,30 @@ export class RPCVaultNotary {
             transaction: txUnsigned,
         };
     }
+
+    public static async SetVaultUriTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await NOTARY_CONTRACT.setVaultUriTx(senderWallet, args.vaultId, args.vaultUri);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    public static async SetVaultHashTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
+
+        const txUnsigned = await NOTARY_CONTRACT.setVaultHashTx(senderWallet, args.vaultId, args.vaultHash);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
 }

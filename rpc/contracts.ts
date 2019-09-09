@@ -109,7 +109,7 @@ async function getNetwork(contractMetaData) {
         logger.info(`Deploying local contracts`);
 
         const deployedContracts = await test_net_utils.setupLocalTestNetContracts(
-            { LOAD: LATEST_LOAD, ShipToken: LATEST_SHIPTOKEN, NOTARY: LATEST_NOTARY},
+            { LOAD: LATEST_LOAD, ShipToken: LATEST_SHIPTOKEN, NOTARY: LATEST_NOTARY },
             await typeorm
                 .getConnection()
                 .getRepository(Wallet)
@@ -169,7 +169,9 @@ export async function loadContractFixtures() {
     const TokenContract = (await import(`../src/shipchain/contracts/ShipToken/${LATEST_SHIPTOKEN}/ShipTokenContract`))
         .ShipTokenContract;
     const LoadContract = (await import(`../src/shipchain/contracts/Load/${LATEST_LOAD}/LoadContract`)).LoadContract;
-    const VaultNotaryContract = (await import(`../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`)).VaultNotaryContract;
+    const VaultNotaryContract = (await import(
+        `../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`
+    )).VaultNotaryContract;
 
     const TOKEN_CONTRACT = new TokenContract(network, LATEST_SHIPTOKEN);
     const LOAD_CONTRACT = new LoadContract(network, LATEST_LOAD);

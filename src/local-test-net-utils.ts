@@ -24,11 +24,13 @@ const logger = Logger.get(module.filename);
 class LatestContractFormat {
     ShipToken: string;
     LOAD: string;
+    NOTARY: string;
 }
 
 interface SetupTestNetResponse {
     ShipToken: Contract;
     LOAD: Contract;
+    NOTARY: Contract;
 }
 
 export async function setupLocalTestNetContracts(
@@ -37,6 +39,7 @@ export async function setupLocalTestNetContracts(
 ): Promise<SetupTestNetResponse> {
     const tokenVersion: Version = await Version.getByProjectAndTitle('ShipToken', latest.ShipToken);
     const loadVersion: Version = await Version.getByProjectAndTitle('LOAD', latest.LOAD);
+    const notaryVersion: Version = await Version.getByProjectAndTitle('NOTARY', latest.NOTARY);
 
     if (!tokenVersion) {
         throw new Error('ShipToken Version cannot be found');
@@ -44,9 +47,14 @@ export async function setupLocalTestNetContracts(
     if (!loadVersion) {
         throw new Error('LOAD Version cannot be found');
     }
+    if (!notaryVersion) {
+        throw new Error('NOTARY Version cannot be found');
+    }
+
 
     const tokenContractEntity: Contract = await tokenVersion.deployToLocalTestNet();
     const loadContractEntity: Contract = await loadVersion.deployToLocalTestNet();
+    const notaryContractEntity: Contract = await notaryVersion.deployToLocalTestNet();
 
     const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
 
@@ -63,6 +71,7 @@ export async function setupLocalTestNetContracts(
     return {
         ShipToken: tokenContractEntity,
         LOAD: loadContractEntity,
+        NOTARY: notaryContractEntity,
     };
 }
 
