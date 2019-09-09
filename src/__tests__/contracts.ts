@@ -40,7 +40,7 @@ export const ContractEntityTests = async function() {
         await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
         expect(await Project.count()).toEqual(3);
         expect(await Network.count()).toEqual(3);
-        expect(await Version.count()).toEqual(4);
+        expect(await Version.count()).toEqual(5);
         expect(await Contract.count()).toEqual(9);
     });
 
