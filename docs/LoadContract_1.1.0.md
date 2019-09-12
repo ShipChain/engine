@@ -5,7 +5,7 @@ multiple versions of the Load Contract via different RPC Namespaces.
 
 Every call to interact with a Shipment via the Load Contract will need to provide a ShipmentUUID.
 This is currently managed via Transmission for ShipChain's instance of Engine. This UUID will be
-transformed in to the byte16 lookup in to the Shipment Mapping in the contract.
+transformed into the byte16 value used in to the Shipment Mapping in the contract.
 
 NOTE: The methods outlined below are for version 1.1.0 only.
 
@@ -88,6 +88,8 @@ Namespace. Previous versions of the load contract are not guaranteed to
 support creating new Shipments once newer versions are released, but the
 non-versioned method will _always_ create shipments against the latest
 supported version of the contract.
+
+The following example will create a Shipment to be paid for with 1 SHIP token.
 
 ```JSON
 {

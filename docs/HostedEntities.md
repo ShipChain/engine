@@ -25,7 +25,7 @@ additional parameters are required.
 
 #### Import
 
-You can allowing Engine to safely store information to sign and send transactions with your existing
+You can allow Engine to safely store information to sign and send transactions with your existing
 Wallet. The private key of your wallet is the only parameter.
 
 ```JSON
@@ -70,9 +70,10 @@ Retrieve the current SHIP Token and Ether balance of a Wallet.
 
 ### Storage Credentials
 
-Part of ShipChain's Load Contract is the secured external [Vaults](../README.md#vaults) for storing
-any documents or tracking data related to a shipment. Engine manages the information in these Vaults
-and will require credentials to connect to the location where the vault files are stored.
+Part of ShipChain's ecosystem is the secured external [Vaults](../README.md#vaults) for storing data
+fields, documents, or tracking data involved with the supply chain life cycle. Engine manages the
+information in these Vaults and will require credentials to connect to the location where the vault
+files are stored.
 
 #### Create
 
