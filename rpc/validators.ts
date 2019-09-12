@@ -51,7 +51,7 @@ export async function buildSchemaValidators() {
     });
 
     return new Promise((resolve, reject) => {
-        fs.readFile('rpc/primitives/shipment.json', 'utf8', (err, data) => {
+        fs.readFile('rpc/primitives/schema/shipment.json', 'utf8', (err, data) => {
             ajv.compileAsync(JSON.parse(data)).then(validate => {
                 shipmentValidator = validate;
                 resolve();

@@ -18,10 +18,11 @@ import { Vault } from './Vault';
 import { Logger } from '../Logger';
 import { StorageCredential } from '../entity/StorageCredential';
 import { Wallet } from '../entity/Wallet';
+import { LinkEntry } from './containers/LinkContainer';
+import { Container } from './Container';
+import { splitRemainder } from '../utils';
 
 import { URL } from 'url';
-import { LinkEntry } from './containers/LinkContainer';
-
 import { Client } from 'jayson/promise';
 
 const logger = Logger.get(module.filename);
@@ -95,5 +96,113 @@ export class RemoteVault {
         }
 
         return vaultData;
+    }
+
+    // Parse string and return
+    // ==================================================================
+    static buildLinkEntryFromString(embeddedLink: string): LinkEntry {
+        const UUID_REGEX = /\/?([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}[^\/]*)\/?/gi;
+        const VAULT_REV_HASH_REGEX = /^(?<vaultId>[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})(?:#(?<vaultRevision>\d+))?(?:@(?<vaultHash>0x[a-f0-9]{64}))?\/?$/i;
+
+        const linkEntry: LinkEntry = new LinkEntry();
+
+        // Remove the leading EMBEDDED_REFERENCE
+        // -------------------------------------
+        let ref: string = embeddedLink.slice(Container.EMBEDDED_REFERENCE.length);
+
+        // Check for URL
+        // -------------
+        try {
+            const parsedUrl = new URL(ref);
+            linkEntry.remoteUrl = parsedUrl.origin;
+            ref = ref.replace(linkEntry.remoteUrl, '');
+        } catch (err) {
+            // No URL, will be local Engine
+        } finally {
+            if (ref.startsWith('/')) {
+                ref = ref.slice(1);
+            }
+        }
+
+        // Find UUIDs and map to Vault/Storage/Wallet
+        // ------------------------------------------
+        let matches = ref.match(UUID_REGEX);
+        ref = ref.replace(UUID_REGEX, '');
+
+        if (matches.length === 3) {
+            linkEntry.remoteVault = matches[0];
+            linkEntry.remoteStorage = matches[1].replace(/\//g, '');
+            linkEntry.remoteWallet = matches[2].replace(/\//g, '');
+        } else {
+            throw new Error(`Unable to parse ${Container.EMBEDDED_REFERENCE} link`);
+        }
+
+        // Find Revision and Hash from Vault
+        // ---------------------------------
+        matches = linkEntry.remoteVault.match(VAULT_REV_HASH_REGEX);
+        if (matches && matches.groups) {
+            linkEntry.remoteVault = matches.groups.vaultId;
+            linkEntry.revision = Number(matches.groups.vaultRevision);
+            linkEntry.hash = matches.groups.vaultHash;
+        } else {
+            throw new Error(`Unable to find vaultId in [${linkEntry.remoteVault}]`);
+        }
+
+        // Find Container and subFile
+        // --------------------------
+        [linkEntry.container, linkEntry.subFile] = splitRemainder(ref, '.', 1);
+
+        return linkEntry;
+    }
+
+    static buildLinkEntryFromBase64(embeddedLink: string): LinkEntry {
+        const ref: string = embeddedLink.slice(Container.EMBEDDED_B64_REFERENCE.length);
+
+        const decodedB64: string = Buffer.from(ref, 'base64').toString();
+
+        return JSON.parse(decodedB64) as LinkEntry;
+    }
+
+    static buildLinkEntry(content: string): LinkEntry {
+        if (content.startsWith(Container.EMBEDDED_REFERENCE)) {
+            return RemoteVault.buildLinkEntryFromString(content);
+        }
+
+        if (content.startsWith(Container.EMBEDDED_B64_REFERENCE)) {
+            return RemoteVault.buildLinkEntryFromBase64(content);
+        }
+
+        return null;
+    }
+
+    private static async _processStringForLinks(content: string): Promise<any> {
+        let returnedContent: any = content;
+
+        const linkEntry: LinkEntry = RemoteVault.buildLinkEntry(content);
+
+        if (linkEntry) {
+            const remoteVault = new RemoteVault(linkEntry);
+            returnedContent = remoteVault.getLinkedData();
+        }
+
+        return returnedContent;
+    }
+
+    private static async _processObjectForLinks(content: any): Promise<any> {
+        for (let property in content) {
+            if (content.hasOwnProperty(property)) {
+                content[property] = await RemoteVault.processContentForLinks(content[property]);
+            }
+        }
+
+        return content;
+    }
+
+    static async processContentForLinks(content: any): Promise<any> {
+        if (typeof content === 'string') {
+            return await RemoteVault._processStringForLinks(content);
+        } else {
+            return await RemoteVault._processObjectForLinks(content);
+        }
     }
 }

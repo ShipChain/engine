@@ -70,18 +70,20 @@ export class Vault {
         return this.meta;
     }
 
-    protected async initializeMetadata(author: Wallet, roles?) {
+    protected async initializeMetadata(author: Wallet, additionalMeta?: any) {
         this.meta = {
             id: this.id,
             version: Vault.CURRENT_VAULT_VERSION,
             created: new Date(),
-            roles: roles || {},
+            roles: {},
             containers: {},
         };
 
+        this.meta = Object.assign(this.meta, additionalMeta);
+
         this.containers = {};
 
-        this.logAction(author, 'initialize', { roles });
+        this.logAction(author, 'initialize', {});
 
         await this.createRole(author, Vault.OWNERS_ROLE);
         await this.createRole(author, Vault.LEDGER_ROLE);
@@ -156,7 +158,7 @@ export class Vault {
             container,
             sequence,
             subFile,
-            false,
+            sequence === null || sequence === undefined,
         );
     }
 
@@ -265,16 +267,17 @@ export class Vault {
         });
     }
 
-    async getContainerContent(content: any, name: string): Promise<Container> {
-        let container;
-        let contentObject: object;
+    protected async decompressContainerMeta(content: any): Promise<any> {
         if (compareVersions.compare(this.meta.version, Vault.VAULT_VERSION__ZIP_CONTAINER, '>=')) {
-            contentObject = JSON.parse(await this.decompressContent(content));
+            return JSON.parse(await this.decompressContent(content));
         } else {
-            contentObject = content;
+            return content;
         }
-        container = ContainerFactory.create(contentObject['container_type'], this, name, contentObject);
-        return container;
+    }
+
+    async getContainerContent(content: any, name: string): Promise<Container> {
+        let contentObject: object = await this.decompressContainerMeta(content);
+        return ContainerFactory.create(contentObject['container_type'], this, name, contentObject);
     }
 
     async encryptForRole(role: string, message: any) {

@@ -54,6 +54,11 @@ export abstract class EmbeddedContainer extends Container {
     }
 
     async decryptContents(user: Wallet) {
+        if (this.modified_raw_contents) {
+            logger.debug(`Modified Raw Contents not yet encrypted.  Returning Raw data.`);
+            return this.getRawContents();
+        }
+
         const roles = this.vault.authorized_roles(user.public_key);
 
         for (const role of roles) {

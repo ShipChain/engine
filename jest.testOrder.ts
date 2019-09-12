@@ -31,6 +31,18 @@ import { RPCVaultTests } from './rpc/__tests__/vault';
 import { RPCStorageCredentialsTests } from './rpc/__tests__/storage_credentials';
 import { RPCTransactions } from './rpc/__tests__/transaction';
 import { RPCWalletTests } from './rpc/__tests__/wallet';
+import { RPCShipChainVaultTests } from './rpc/__tests__/shipchainvault';
+import { RPCDocumentPrimitiveTests } from './rpc/__tests__/primitives/document';
+import { RPCDocumentListPrimitiveTests } from './rpc/__tests__/primitives/document_list';
+import { RPCItemPrimitiveTests } from './rpc/__tests__/primitives/item';
+import { RPCItemListPrimitiveTests } from './rpc/__tests__/primitives/item_list';
+import { RPCProductPrimitiveTests } from './rpc/__tests__/primitives/product';
+import { RPCProductListPrimitiveTests } from './rpc/__tests__/primitives/product_list';
+import { RPCTrackingPrimitiveTests } from './rpc/__tests__/primitives/tracking';
+import { RPCShipmentPrimitiveTests } from './rpc/__tests__/primitives/shipment';
+import { RPCShipmentListPrimitiveTests } from './rpc/__tests__/primitives/shipment_list';
+import { RPCProcurementPrimitiveTests } from './rpc/__tests__/primitives/procurement';
+import { RPCProcurementListPrimitiveTests } from './rpc/__tests__/primitives/procurement_list';
 
 
 // SRC Tests
@@ -49,7 +61,18 @@ import { UtilsTests } from "./src/__tests__/utils";
 // ShipChain Tests
 // ===============
 import { LoadVaultTests } from './src/shipchain/__tests__/loadvault';
-
+import { ShipChainVaultTests } from "./src/shipchain/__tests__/shipchainvault";
+import { DocumentPrimitiveTests } from "./src/shipchain/__tests__/document";
+import { DocumentListPrimitiveTests } from "./src/shipchain/__tests__/documentlist";
+import { ItemPrimitiveTests } from "./src/shipchain/__tests__/item";
+import { ItemListPrimitiveTests } from "./src/shipchain/__tests__/itemlist";
+import { ProductPrimitiveTests } from "./src/shipchain/__tests__/product";
+import { ProductListPrimitiveTests } from "./src/shipchain/__tests__/productlist";
+import { TrackingPrimitiveTests } from "./src/shipchain/__tests__/tracking";
+import { ShipmentPrimitiveTests } from "./src/shipchain/__tests__/shipment";
+import { ShipmentListPrimitiveTests } from "./src/shipchain/__tests__/shipmentlist";
+import { ProcurementPrimitiveTests } from "./src/shipchain/__tests__/procurement";
+import { ProcurementListPrimitiveTests } from "./src/shipchain/__tests__/procurementlist";
 
 describe('RPC', async () => {
 
@@ -80,6 +103,18 @@ describe('RPC', async () => {
     describe('Storage', RPCStorageCredentialsTests);
     describe('Transactions', RPCTransactions);
     describe('Wallets', RPCWalletTests);
+    describe('ShipChainVault', RPCShipChainVaultTests);
+    describe('Document Primitive', RPCDocumentPrimitiveTests);
+    describe('DocumentList Primitive', RPCDocumentListPrimitiveTests);
+    describe('Item Primitive', RPCItemPrimitiveTests);
+    describe('ItemList Primitive', RPCItemListPrimitiveTests);
+    describe('Product Primitive', RPCProductPrimitiveTests);
+    describe('ProductList Primitive', RPCProductListPrimitiveTests);
+    describe('Tracking Primitive', RPCTrackingPrimitiveTests);
+    describe('Shipment Primitive', RPCShipmentPrimitiveTests);
+    describe('ShipmentList Primitive', RPCShipmentListPrimitiveTests);
+    describe('Procurement Primitive', RPCProcurementPrimitiveTests);
+    describe('ProcurementList Primitive', RPCProcurementListPrimitiveTests);
 
 });
 
@@ -140,5 +175,17 @@ describe('ShipChain', async () => {
     }, 10000);
 
     describe('LOAD Vault', LoadVaultTests);
+    describe('ShipChain Vault', ShipChainVaultTests);
+    describe('Document Primitive', DocumentPrimitiveTests);
+    describe('DocumentList Primitive', DocumentListPrimitiveTests);
+    describe('Item Primitive', ItemPrimitiveTests);
+    describe('ItemList Primitive', ItemListPrimitiveTests);
+    describe('Product Primitive', ProductPrimitiveTests);
+    describe('ProductList Primitive', ProductListPrimitiveTests);
+    describe('Tracking Primitive', TrackingPrimitiveTests);
+    describe('Shipment Primitive', ShipmentPrimitiveTests);
+    describe('ShipmentList Primitive', ShipmentListPrimitiveTests);
+    describe('Procurement Primitive', ProcurementPrimitiveTests);
+    describe('Procurement List Primitive', ProcurementListPrimitiveTests);
 
 });

@@ -40,7 +40,7 @@ export abstract class ExternalDirectoryContainer extends ExternalContainer {
         }
     }
 
-    async decryptContents(user: Wallet, fileName: string) {
+    async decryptContents(user: Wallet, fileName?: string) {
         const decrypted = await super.decryptContents(user, fileName);
         return (this.raw_contents[fileName] = decrypted);
     }

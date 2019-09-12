@@ -54,6 +54,7 @@ class RPCMethodValidateOptions {
     date?: string[];
     number?: string[];
     requireOne?: RPCMethodValidateRequireOneOptions[];
+    stringArray?: string[];
 }
 
 class RPCMethodValidateRequireOneOptions {
@@ -291,5 +292,27 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
 
     if (failed.length > 0) {
         throwInvalidParams(`Invalid Parameter Combination${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
+    }
+
+    // Check String Array format
+    // -------------------------
+    if (validations && validations.stringArray) {
+        for (let param of validations.stringArray) {
+            if (args && args.hasOwnProperty(param)) {
+                if (
+                    !(
+                        Array.isArray(args[param]) &&
+                        args[param].length &&
+                        args[param].every(item => typeof item === 'string')
+                    )
+                ) {
+                    failed.push(param);
+                }
+            }
+        }
+    }
+
+    if (failed.length > 0) {
+        throwInvalidParams(`Invalid String Array${failed.length === 1 ? '' : 's'}: '${failed.join(', ')}'`);
     }
 }

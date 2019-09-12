@@ -18,6 +18,8 @@ import { Wallet } from '../entity/Wallet';
 import { Vault } from './Vault';
 
 export abstract class Container {
+    static EMBEDDED_REFERENCE: string = 'VAULTREF#';
+    static EMBEDDED_B64_REFERENCE: string = 'VAULTREFB64#';
     public vault: Vault;
     public name: string;
     public meta: any;
@@ -27,9 +29,7 @@ export abstract class Container {
     protected constructor(vault: Vault, name: string, meta?: any) {
         this.vault = vault;
         this.name = name;
-        this.meta = meta || {
-            roles: [Vault.OWNERS_ROLE],
-        };
+        this.meta = Object.assign({ roles: [Vault.OWNERS_ROLE] }, meta);
     }
 
     // authorize_role(author: Wallet, role: string) {

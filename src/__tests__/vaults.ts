@@ -596,7 +596,7 @@ export const VaultTests = async function() {
             container: 'a_container',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);
@@ -642,7 +642,7 @@ export const VaultTests = async function() {
             container: 'list_test',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);
@@ -688,7 +688,7 @@ export const VaultTests = async function() {
             container: 'list_test',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);
@@ -734,7 +734,7 @@ export const VaultTests = async function() {
             container: 'list_test',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);
@@ -780,7 +780,7 @@ export const VaultTests = async function() {
             container: 'file_test',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);
@@ -826,7 +826,7 @@ export const VaultTests = async function() {
             container: 'file_test',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);
@@ -872,7 +872,7 @@ export const VaultTests = async function() {
             container: 'file_test',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);
@@ -919,7 +919,7 @@ export const VaultTests = async function() {
             subFile: 'test.txt',
         };
 
-        await linkContainer.addLink(author, linkEntry, linkId);
+        await linkContainer.addLink(author, linkId, linkEntry);
 
         // Write out the contents of all containers
         await vault.writeMetadata(author);

@@ -18,6 +18,7 @@ module.exports = {
         "rpc/**/*.ts",
         "src/**/*.ts",
         "!<rootDir>/rpc/__tests__/*",
+        "!<rootDir>/rpc/__tests__/primitives/*",
         "!<rootDir>/rpc/Load/1.0.2/*",
         "!<rootDir>/src/__tests__/*",
         "!<rootDir>/src/Logger.ts",
