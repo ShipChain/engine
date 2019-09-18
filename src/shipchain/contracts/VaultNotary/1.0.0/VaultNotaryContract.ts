@@ -37,13 +37,18 @@ export class VaultNotaryContract extends BaseContract {
 
     // ACL methods
     // =====================
-    async grantUpdateHashPermissionTx(senderWallet: Wallet, vaultId: number, addressToGrant: string) {
+    async grantUpdateHashPermissionTx(senderWallet: Wallet, vaultId: string, addressToGrant: string) {
         return await this.buildTransactionForWallet(senderWallet, 'grantUpdateHashPermission', [
-            vaultId,
+            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
             addressToGrant,
         ]);
     }
 
     //view methods
     // =====================
+    async getVaultNotaryDetails(vaultId: string) {
+        return await this.callStatic('getVaultNotaryDetails', [
+            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
+        ]);
+    }
 }

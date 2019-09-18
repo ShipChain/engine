@@ -50,6 +50,12 @@ export class RPCVaultNotary {
         };
     }
 
+    @RPCMethod({
+        require: ['vaultId', 'senderWallet', 'vaultUri'],
+        validate: {
+            uuid: ['vaultId', 'senderWallet'],
+        },
+    })
     public static async SetVaultUriTx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
 
@@ -63,6 +69,12 @@ export class RPCVaultNotary {
         };
     }
 
+    @RPCMethod({
+        require: ['vaultId', 'senderWallet', 'vaultHash'],
+        validate: {
+            uuid: ['vaultId', 'senderWallet'],
+        },
+    })
     public static async SetVaultHashTx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
 
@@ -73,6 +85,21 @@ export class RPCVaultNotary {
         return {
             success: true,
             transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['vaultId'],
+        validate: {
+            uuid: ['vaultId'],
+        },
+    })
+    public static async GetVaultNotaryDetails(args) {
+        const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
+
+        return {
+            success: true,
+            details: await NOTARY_CONTRACT.getVaultNotaryDetails(args.vaultId),
         };
     }
 }

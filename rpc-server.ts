@@ -144,6 +144,7 @@ const methods = {
             "set_vault_uri_tx": RPCVaultNotary_1_0_0.SetVaultUriTx,
             "set_vault_hash_tx": RPCVaultNotary_1_0_0.SetVaultHashTx,
             // View methods
+            "get_vault_notary_details": RPCVaultNotary_1_0_0.GetVaultNotaryDetails,
         }
     },
     storage_credentials: {
