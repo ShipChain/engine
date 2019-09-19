@@ -38,12 +38,8 @@ export const EventSubscriptionPostsTests = async function() {
 
         const subscriber = await EventSubscription.getOrCreate(subscriberAttrs);
 
-        let posted = new Promise (async (resolve, reject) => {
-            //@ts-ignore
-            await EventSubscription.sendPostEvents(subscriber, EVENTS, resolve);
-        });
-
-        await posted;
+        //@ts-ignore
+        await EventSubscription.sendPostEvents(subscriber, EVENTS);
 
         expect(+subscriber.lastBlock).toEqual(0);
 
@@ -65,12 +61,8 @@ export const EventSubscriptionPostsTests = async function() {
 
         const subscriber = await EventSubscription.getOrCreate(subscriberAttrs);
 
-        let posted = new Promise (async (resolve, reject) => {
-            //@ts-ignore
-            await EventSubscription.sendPostEvents(subscriber, EVENTS, resolve);
-        });
-
-        await posted;
+        //@ts-ignore
+        await EventSubscription.sendPostEvents(subscriber, EVENTS);
 
         expect(+subscriber.lastBlock).toEqual(1);
 
@@ -92,12 +84,8 @@ export const EventSubscriptionPostsTests = async function() {
 
         const subscriber = await EventSubscription.getOrCreate(subscriberAttrs);
 
-        let posted = new Promise (async (resolve, reject) => {
-            //@ts-ignore
-            await EventSubscription.sendPostEvents(subscriber, EVENTS, resolve);
-        });
-
-        await posted;
+        //@ts-ignore
+        await EventSubscription.sendPostEvents(subscriber, EVENTS);
 
         expect(+subscriber.lastBlock).toEqual(2);
 

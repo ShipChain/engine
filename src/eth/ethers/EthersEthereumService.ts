@@ -37,7 +37,7 @@ export class EthersEthereumService extends EthereumService {
             logger.debug(`Connecting Ethers.js to [${network}]`);
 
             // Add Infura provider if we have a projectId
-            if (config.has("INFURA_PROJECT_ID")) {
+            if (config.has('INFURA_PROJECT_ID')) {
                 const projectId = config.get('INFURA_PROJECT_ID');
 
                 logger.debug(`Adding InfuraProvider [${projectId}]`);
@@ -45,7 +45,7 @@ export class EthersEthereumService extends EthereumService {
             }
 
             // Add Etherscan provider if we have an apiKey
-            if (config.has("ETHERSCAN_API_KEY")) {
+            if (config.has('ETHERSCAN_API_KEY')) {
                 const apiKey = config.get('ETHERSCAN_API_KEY');
 
                 logger.debug(`Adding EtherscanProvider [${apiKey}]`);
@@ -67,7 +67,6 @@ export class EthersEthereumService extends EthereumService {
             }
 
             this.provider = new ethers.providers.FallbackProvider(applicableProviders);
-
         } else {
             const GETH_NODE = config.get('GETH_NODE');
 
@@ -193,7 +192,6 @@ export class EthersEthereumService extends EthereumService {
                 logger.debug(`Transaction ${tx.hash} confirmed`);
                 eventHandlers.confirmation(confirmation);
             }
-
         } catch (err) {
             if (eventHandlers.error) {
                 eventHandlers.error(err);

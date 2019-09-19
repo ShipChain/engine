@@ -20,6 +20,7 @@ import 'mocha';
 import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
+import { EthereumService } from "../eth/EthereumService";
 
 const utils = require('../local-test-net-utils');
 
@@ -50,32 +51,30 @@ export const ContractEntityTests = async function() {
             const other = await Wallet.generate_entity();
 
             const local = await utils.setupLocalTestNetContracts({ ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD }, [owner]);
+            const network: Network = await Network.getLocalTestNet();
+            const ethereumService: EthereumService = network.getEthereumService();
 
-            const SHIP = 10 ** 18;
-            const ETH = 10 ** 18;
-            const TOTAL = 500 * SHIP;
+            expect(Number(await local.ShipToken.call_static('balanceOf', [owner.address]))).toEqual(ethereumService.unitToWei(500, 'ether'));
 
-            expect(Number(await local.ShipToken.call_static('balanceOf', [owner.address]))).toEqual(TOTAL);
-
-            expect(Number(await local.web3.eth.getBalance(owner.address))).toEqual(5 * ETH);
+            expect(Number(await ethereumService.getBalance(owner.address))).toEqual(ethereumService.unitToWei(5, 'ether'));
 
             const txParams = await owner.add_tx_params(
-                local.network,
-                await local.ShipToken.build_transaction('transfer', [other.address, local.web3.utils.toBN(100 * SHIP).toString()]),
+                network,
+                await local.ShipToken.build_transaction('transfer', [other.address, ethereumService.unitToWei(100, 'ether').toString()]),
             );
 
             const [signed_tx, txHash] = await owner.sign_tx(txParams);
 
-            const receipt = await local.network.send_tx(signed_tx);
+            const receipt: any = await network.send_tx(signed_tx);
 
             expect(receipt.transactionHash.length).toEqual(66);
 
             const new_owner_balance = await local.ShipToken.call_static('balanceOf', [owner.address]);
             const new_other_balance = await local.ShipToken.call_static('balanceOf', [other.address]);
 
-            expect(Number(new_owner_balance)).toEqual(TOTAL - 100 * SHIP);
+            expect(Number(new_owner_balance)).toEqual(ethereumService.unitToWei(400, 'ether'));
 
-            expect(Number(new_other_balance)).toEqual(100 * SHIP);
+            expect(Number(new_other_balance)).toEqual(ethereumService.unitToWei(100, 'ether'));
         },
         10000,
     );

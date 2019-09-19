@@ -26,7 +26,15 @@ class LatestContractFormat {
     LOAD: string;
 }
 
-export async function setupLocalTestNetContracts(latest: LatestContractFormat, wallets: Wallet[] = []) {
+interface SetupTestNetResponse {
+    ShipToken: Contract;
+    LOAD: Contract;
+}
+
+export async function setupLocalTestNetContracts(
+    latest: LatestContractFormat,
+    wallets: Wallet[] = [],
+): Promise<SetupTestNetResponse> {
     const tokenVersion: Version = await Version.getByProjectAndTitle('ShipToken', latest.ShipToken);
     const loadVersion: Version = await Version.getByProjectAndTitle('LOAD', latest.LOAD);
 
