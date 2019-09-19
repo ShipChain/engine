@@ -10,7 +10,4 @@ export default {
         "ELASTICSEARCH": "info",
     },
     "USE_JS_ORM_ENTITIES": true,
-    "WEB3_OPTIONS": {
-        "TRANSACTION_CONFIRMATION_BLOCKS": 24,
-    },
 }
