@@ -39,7 +39,6 @@ export abstract class EthereumService {
 
     // Contract Instances and Calls
     // ============================
-    abstract async deployContract(abi, bytecode): Promise<DeployedContractResult>;
     abstract async createContractInstance(abi, address, providerOrSigner?);
     abstract async callStaticMethod(contract: any, method: string, args: any[]);
     abstract async encodeTransaction(contract: any, method: string, args: any[]);
@@ -49,6 +48,7 @@ export abstract class EthereumService {
 
     // Local Network Node Interactions
     // ===============================
+    abstract async deployContract(abi, bytecode): Promise<DeployedContractResult>;
     abstract async sendWeiFromNodeAccount(address, amount);
     abstract async callContractFromNodeAccount(contract: any, method: string, args: any[]);
 
