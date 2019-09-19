@@ -392,7 +392,9 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"value": "application/json"
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -415,12 +417,19 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"value": "application/json"
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"transaction.send\",\n\t\"params\": {\n\t\t\"txSigned\": {{tx_signed}}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"transaction.send\",\n\t\"params\": {\n\t\t\"txSigned\": {{tx_signed}}\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{engine_url}}",
@@ -4626,7 +4635,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\", \n\t\t\"vaultUri\": \"uri1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4655,13 +4664,18 @@
 											{
 												"key": "Content-Type",
 												"name": "Content-Type",
-												"type": "text",
-												"value": "application/json"
+												"value": "application/json",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_hash_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultHash\": \"hash1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_hash_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultHash\": \"hash3\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
 										},
 										"url": {
 											"raw": "http://localhost:2000/",
@@ -4825,13 +4839,18 @@
 											{
 												"key": "Content-Type",
 												"name": "Content-Type",
-												"type": "text",
-												"value": "application/json"
+												"value": "application/json",
+												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"notary.1.0.0.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
 										},
 										"url": {
 											"raw": "http://localhost:2000/",
