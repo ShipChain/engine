@@ -82,21 +82,21 @@ const methods = {
         create_shipment_tx: RPCLoad_1_2_0.CreateShipmentTx,
         "1.2.0": {
             // Transactional methods
-            "create_shipment_tx": RPCLoad_1_2_0.CreateShipmentTx,
-            "set_carrier_tx": RPCLoad_1_2_0.SetCarrierTx,
-            "set_moderator_tx": RPCLoad_1_2_0.SetModeratorTx,
-            "set_in_progress_tx": RPCLoad_1_2_0.SetInProgressTx,
-            "set_complete_tx": RPCLoad_1_2_0.SetCompleteTx,
-            "set_canceled_tx": RPCLoad_1_2_0.SetCanceledTx,
-            "fund_escrow_tx": RPCLoad_1_2_0.FundEscrowTx,
-            "fund_escrow_ether_tx": RPCLoad_1_2_0.FundEscrowEtherTx,
-            "fund_escrow_ship_tx": RPCLoad_1_2_0.FundEscrowShipTx,
-            "release_escrow_tx": RPCLoad_1_2_0.ReleaseEscrowTx,
-            "withdraw_escrow_tx": RPCLoad_1_2_0.WithdrawEscrowTx,
-            "refund_escrow_tx": RPCLoad_1_2_0.RefundEscrowTx,
+            create_shipment_tx: RPCLoad_1_2_0.CreateShipmentTx,
+            set_carrier_tx: RPCLoad_1_2_0.SetCarrierTx,
+            set_moderator_tx: RPCLoad_1_2_0.SetModeratorTx,
+            set_in_progress_tx: RPCLoad_1_2_0.SetInProgressTx,
+            set_complete_tx: RPCLoad_1_2_0.SetCompleteTx,
+            set_canceled_tx: RPCLoad_1_2_0.SetCanceledTx,
+            fund_escrow_tx: RPCLoad_1_2_0.FundEscrowTx,
+            fund_escrow_ether_tx: RPCLoad_1_2_0.FundEscrowEtherTx,
+            fund_escrow_ship_tx: RPCLoad_1_2_0.FundEscrowShipTx,
+            release_escrow_tx: RPCLoad_1_2_0.ReleaseEscrowTx,
+            withdraw_escrow_tx: RPCLoad_1_2_0.WithdrawEscrowTx,
+            refund_escrow_tx: RPCLoad_1_2_0.RefundEscrowTx,
             // View methods
-            "get_shipment_data": RPCLoad_1_2_0.GetShipmentData,
-            "get_escrow_data": RPCLoad_1_2_0.GetEscrowData,
+            get_shipment_data: RPCLoad_1_2_0.GetShipmentData,
+            get_escrow_data: RPCLoad_1_2_0.GetEscrowData,
         },
         "1.1.0": {
             //Transactional methods
@@ -136,19 +136,20 @@ const methods = {
             get_contract_flags: RPCLoad_1_0_2.GetContractFlags,
         },
     },
-    "notary": {
-        "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
+
+   notary: {
+        register_vault_tx: RPCVaultNotary_1_0_0.RegisterVaultTx,
         "1.0.0": {
             // Transactional methods
-            "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
-            "set_vault_uri_tx": RPCVaultNotary_1_0_0.SetVaultUriTx,
-            "set_vault_hash_tx": RPCVaultNotary_1_0_0.SetVaultHashTx,
-            "grant_update_hash_permission_tx": RPCVaultNotary_1_0_0.GrantUpdateHashPermissionTx,
-            "revoke_update_hash_permission_tx": RPCVaultNotary_1_0_0.RevokeUpdateHashPermissionTx,
-            "grant_update_uri_permission_tx": RPCVaultNotary_1_0_0.GrantUpdateUriPermissionTx,
-            "revoke_update_uri_permission_tx": RPCVaultNotary_1_0_0.RevokeUpdateUriPermissionTx,
+            register_vault_tx: RPCVaultNotary_1_0_0.RegisterVaultTx,
+            set_vault_uri_tx: RPCVaultNotary_1_0_0.SetVaultUriTx,
+            set_vault_hash_tx: RPCVaultNotary_1_0_0.SetVaultHashTx,
+            grant_update_hash_permission_tx: RPCVaultNotary_1_0_0.GrantUpdateHashPermissionTx,
+            revoke_update_hash_permission_tx: RPCVaultNotary_1_0_0.RevokeUpdateHashPermissionTx,
+            grant_update_uri_permission_tx: RPCVaultNotary_1_0_0.GrantUpdateUriPermissionTx,
+            revoke_update_uri_permission_tx: RPCVaultNotary_1_0_0.RevokeUpdateUriPermissionTx,
             // View methods
-            "get_vault_notary_details": RPCVaultNotary_1_0_0.GetVaultNotaryDetails,
+            get_vault_notary_details: RPCVaultNotary_1_0_0.GetVaultNotaryDetails,
         }
     },
     storage_credentials: {
@@ -157,27 +158,6 @@ const methods = {
         list: RPCStorageCredentials.List,
         test: RPCStorageCredentials.TestConnectivity,
         update: RPCStorageCredentials.Update,
-   "notary": {
-        "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
-        "1.0.0": {
-            // Transactional methods
-            "register_vault_tx": RPCVaultNotary_1_0_0.RegisterVaultTx,
-            "set_vault_uri_tx": RPCVaultNotary_1_0_0.SetVaultUriTx,
-            "set_vault_hash_tx": RPCVaultNotary_1_0_0.SetVaultHashTx,
-            "grant_update_hash_permission_tx": RPCVaultNotary_1_0_0.GrantUpdateHashPermissionTx,
-            "revoke_update_hash_permission_tx": RPCVaultNotary_1_0_0.RevokeUpdateHashPermissionTx,
-            "grant_update_uri_permission_tx": RPCVaultNotary_1_0_0.GrantUpdateUriPermissionTx,
-            "revoke_update_uri_permission_tx": RPCVaultNotary_1_0_0.RevokeUpdateUriPermissionTx,
-            // View methods
-            "get_vault_notary_details": RPCVaultNotary_1_0_0.GetVaultNotaryDetails,
-        }
-    },
-    "storage_credentials": {
-        "create_hosted": RPCStorageCredentials.Create,
-        "validate_create": RPCStorageCredentials.TestAndStore,
-        "list": RPCStorageCredentials.List,
-        "test": RPCStorageCredentials.TestConnectivity,
-        "update": RPCStorageCredentials.Update,
     },
     transaction: {
         sign: RPCTransaction.Sign,
