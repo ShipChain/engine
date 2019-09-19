@@ -54,9 +54,9 @@ export const ContractEntityTests = async function() {
             const network: Network = await Network.getLocalTestNet();
             const ethereumService: EthereumService = network.getEthereumService();
 
-            expect(Number(await local.ShipToken.call_static('balanceOf', [owner.address]))).toEqual(ethereumService.unitToWei(500, 'ether'));
+            expect(await local.ShipToken.call_static('balanceOf', [owner.address])).toEqual(ethereumService.unitToWei(500, 'ether'));
 
-            expect(Number(await ethereumService.getBalance(owner.address))).toEqual(ethereumService.unitToWei(5, 'ether'));
+            expect(await ethereumService.getBalance(owner.address)).toEqual(ethereumService.unitToWei(5, 'ether').toString());
 
             const txParams = await owner.add_tx_params(
                 network,
@@ -72,9 +72,9 @@ export const ContractEntityTests = async function() {
             const new_owner_balance = await local.ShipToken.call_static('balanceOf', [owner.address]);
             const new_other_balance = await local.ShipToken.call_static('balanceOf', [other.address]);
 
-            expect(Number(new_owner_balance)).toEqual(ethereumService.unitToWei(400, 'ether'));
+            expect(new_owner_balance).toEqual(ethereumService.unitToWei(400, 'ether'));
 
-            expect(Number(new_other_balance)).toEqual(ethereumService.unitToWei(100, 'ether'));
+            expect(new_other_balance).toEqual(ethereumService.unitToWei(100, 'ether'));
         },
         10000,
     );
