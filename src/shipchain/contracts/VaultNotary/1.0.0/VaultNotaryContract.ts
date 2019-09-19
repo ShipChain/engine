@@ -6,13 +6,13 @@ export class VaultNotaryContract extends BaseContract {
         super('NOTARY', network, version);
     }
 
-    protected static convertShipmentUuidToBytes16(id: string): string {
+    protected static convertUuidToBytes16(id: string): string {
         return '0x' + id.replace(/-/g, '');
     }
 
     async registerVaultTx(senderWallet: Wallet, vaultId: string, vaultUri: string, vaultHash: string) {
         return await this.buildTransactionForWallet(senderWallet, 'registerVault', [
-            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
+            VaultNotaryContract.convertUuidToBytes16(vaultId),
             vaultUri,
             vaultHash,
         ]);
@@ -23,32 +23,51 @@ export class VaultNotaryContract extends BaseContract {
 
     async setVaultUriTx(senderWallet: Wallet, vaultId: string, vaultUri: string) {
         return await this.buildTransactionForWallet(senderWallet, 'setVaultUri', [
-            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
+            VaultNotaryContract.convertUuidToBytes16(vaultId),
             vaultUri,
         ]);
     }
 
     async setVaultHashTx(senderWallet: Wallet, vaultId: string, vaultHash: string) {
         return await this.buildTransactionForWallet(senderWallet, 'setVaultHash', [
-            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
+            VaultNotaryContract.convertUuidToBytes16(vaultId),
             vaultHash,
         ]);
     }
 
     // ACL methods
     // =====================
-    async grantUpdateHashPermissionTx(senderWallet: Wallet, vaultId: string, addressToGrant: string) {
+    async grantUpdateUriPermissionTx(senderWallet: Wallet, vaultId: string, toGrantWallet: Wallet) {
+        return await this.buildTransactionForWallet(senderWallet, 'grantUpdateUriPermission', [
+            VaultNotaryContract.convertUuidToBytes16(vaultId),
+            toGrantWallet.address,
+        ]);
+    }
+
+    async revokeUpdateUriPermissionTx(senderWallet: Wallet, vaultId: string, toRevokeWallet: Wallet) {
+        return await this.buildTransactionForWallet(senderWallet, 'revokeUpdateUriPermission', [
+            VaultNotaryContract.convertUuidToBytes16(vaultId),
+            toRevokeWallet.address,
+        ]);
+    }
+
+    async grantUpdateHashPermissionTx(senderWallet: Wallet, vaultId: string, toGrantWallet: Wallet) {
         return await this.buildTransactionForWallet(senderWallet, 'grantUpdateHashPermission', [
-            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
-            addressToGrant,
+            VaultNotaryContract.convertUuidToBytes16(vaultId),
+            toGrantWallet.address,
+        ]);
+    }
+
+    async revokeUpdateHashPermissionTx(senderWallet: Wallet, vaultId: string, toRevokeWallet: Wallet) {
+        return await this.buildTransactionForWallet(senderWallet, 'revokeUpdateHashPermission', [
+            VaultNotaryContract.convertUuidToBytes16(vaultId),
+            toRevokeWallet.address,
         ]);
     }
 
     //view methods
     // =====================
     async getVaultNotaryDetails(vaultId: string) {
-        return await this.callStatic('getVaultNotaryDetails', [
-            VaultNotaryContract.convertShipmentUuidToBytes16(vaultId),
-        ]);
+        return await this.callStatic('getVaultNotaryDetails', [VaultNotaryContract.convertUuidToBytes16(vaultId)]);
     }
 }

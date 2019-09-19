@@ -89,6 +89,98 @@ export class RPCVaultNotary {
     }
 
     @RPCMethod({
+        require: ['vaultId', 'senderWallet', 'toGrantWallet'],
+        validate: {
+            uuid: ['vaultId', 'senderWallet', 'toGrantWallet'],
+        },
+    })
+    public static async GrantUpdateUriPermissionTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
+
+        const toGrantWallet = await Wallet.getById(args.toGrantWallet);
+
+        const txUnsigned = await NOTARY_CONTRACT.grantUpdateUriPermissionTx(senderWallet, args.vaultId, toGrantWallet);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['vaultId', 'senderWallet', 'toRevokeWallet'],
+        validate: {
+            uuid: ['vaultId', 'senderWallet', 'toRevokeWallet'],
+        },
+    })
+    public static async RevokeUpdateUriPermissionTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
+
+        const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
+
+        const txUnsigned = await NOTARY_CONTRACT.revokeUpdateUriPermissionTx(
+            senderWallet,
+            args.vaultId,
+            toRevokeWallet,
+        );
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['vaultId', 'senderWallet', 'toGrantWallet'],
+        validate: {
+            uuid: ['vaultId', 'senderWallet', 'toGrantWallet'],
+        },
+    })
+    public static async GrantUpdateHashPermissionTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
+
+        const toGrantWallet = await Wallet.getById(args.toGrantWallet);
+
+        const txUnsigned = await NOTARY_CONTRACT.grantUpdateHashPermissionTx(senderWallet, args.vaultId, toGrantWallet);
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
+        require: ['vaultId', 'senderWallet', 'toRevokeWallet'],
+        validate: {
+            uuid: ['vaultId', 'senderWallet', 'toRevokeWallet'],
+        },
+    })
+    public static async RevokeUpdateHashPermissionTx(args) {
+        const senderWallet = await Wallet.getById(args.senderWallet);
+
+        const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
+
+        const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
+
+        const txUnsigned = await NOTARY_CONTRACT.revokeUpdateHashPermissionTx(
+            senderWallet,
+            args.vaultId,
+            toRevokeWallet,
+        );
+
+        return {
+            success: true,
+            transaction: txUnsigned,
+        };
+    }
+
+    @RPCMethod({
         require: ['vaultId'],
         validate: {
             uuid: ['vaultId'],
