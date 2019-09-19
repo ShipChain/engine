@@ -89,9 +89,9 @@ export class RPCWallet {
         const wallet = await Wallet.getById(args.wallet);
 
         const TOKEN_CONTRACT: BaseContract = loadedContracts.get('ShipToken');
-        const EthDriver = TOKEN_CONTRACT.getEthDriver();
+        const ethereumService = TOKEN_CONTRACT.getEthereumService();
 
-        const eth_balance = await EthDriver.getBalance(wallet.address);
+        const eth_balance = await ethereumService.getBalance(wallet.address);
         const ship_balance = await TOKEN_CONTRACT.callStatic('balanceOf', [wallet.address]);
 
         return {
