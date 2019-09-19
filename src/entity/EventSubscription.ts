@@ -21,6 +21,7 @@ import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { AsyncPoll } from '../AsyncPoll';
 import { arrayChunker } from '../utils';
+import { EthereumService } from '../eth/EthereumService';
 
 const request = require('request');
 const requestPromise = require('request-promise-native');
@@ -61,8 +62,8 @@ export class EventSubscription extends BaseEntity {
     @Column('int') errorCount: number;
     @CreateDateColumn() createdDate: Date;
 
-    private contractDriver: any;
-    private contract: Contract;
+    private contractInstance: any;
+    private contractEntity: Contract;
     private asyncPolls: any = {};
 
     static DEFAULT_INTERVAL = 30 * SECONDS;
@@ -175,8 +176,8 @@ export class EventSubscription extends BaseEntity {
     async pollOnce(contract: Contract) {
         EventSubscription.activeSubscriptions[this.id] = this;
 
-        this.contract = contract;
-        this.contractDriver = await contract.getDriver();
+        this.contractEntity = contract;
+        this.contractInstance = await contract.getContractInstance();
 
         for (let eventName of this.eventNames) {
             let pollMethod = EventSubscription.buildPoll(this, eventName);
@@ -187,8 +188,8 @@ export class EventSubscription extends BaseEntity {
     async start(contract: Contract) {
         EventSubscription.activeSubscriptions[this.id] = this;
 
-        this.contract = contract;
-        this.contractDriver = await contract.getDriver();
+        this.contractEntity = contract;
+        this.contractInstance = await contract.getContractInstance();
 
         for (let eventName of this.eventNames) {
             this.asyncPolls[eventName] = new AsyncPoll(
@@ -221,7 +222,7 @@ export class EventSubscription extends BaseEntity {
         return highestBlock;
     }
 
-    private static async sendPostEvents(eventSubscription: EventSubscription, allEvents, resolve) {
+    private static async sendPostEvents(eventSubscription: EventSubscription, allEvents) {
         try {
             let EVENT_CHUNK_SIZE = config.get('EVENT_CHUNK_SIZE');
             let chunkedEvents = arrayChunker(allEvents, EVENT_CHUNK_SIZE);
@@ -242,11 +243,8 @@ export class EventSubscription extends BaseEntity {
                     break;
                 }
             }
-
-            resolve();
         } catch (_err) {
             await eventSubscription.failed();
-            resolve();
         }
     }
 
@@ -271,110 +269,104 @@ export class EventSubscription extends BaseEntity {
         }
     }
 
-    private static async sendElasticEvents(eventSubscription: EventSubscription, events, highestBlock, resolve) {
+    private static async sendElasticEvents(eventSubscription: EventSubscription, events, highestBlock) {
         try {
             logger.info(`About to put events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url}`);
 
             await AsyncPut(eventSubscription.url + '/events/');
 
             for (let event of events) {
-                let options = {
-                    url: eventSubscription.url + '/events/_doc',
-                    json: {
-                        network_id: eventSubscription.contract.network.id,
-                        network_title: eventSubscription.contract.network.title,
-                        project_id: eventSubscription.contract.project.id,
-                        project_title: eventSubscription.contract.project.title,
-                        version_id: eventSubscription.contract.version.id,
-                        version_title: eventSubscription.contract.version.title,
-                        ...event,
-                    },
-                    timeout: 1 * SECONDS,
-                };
-                request
-                    .post(options)
-                    .on('response', async function(response) {
-                        if (response.statusCode != 201 && response.statusCode != 204) {
-                            logger.error(
-                                `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${
-                                    eventSubscription.url
-                                }]`,
-                            );
-                            await eventSubscription.failed();
-                            resolve();
-                        } else {
-                            await eventSubscription.success(highestBlock);
-                            resolve();
-                        }
-                    })
-                    .on('error', async function(err) {
-                        logger.error(
-                            `Event Subscription Failed with ${err} [${eventSubscription.project}_${
-                                eventSubscription.url
-                            }]`,
-                        );
-                        await eventSubscription.failed();
-                        resolve();
-                    });
+                await EventSubscription.sendElasticEventSingle(eventSubscription, event, highestBlock);
             }
-            resolve();
         } catch (_err) {
             logger.error(
                 `Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url} ${_err}`,
             );
             await eventSubscription.failed();
-            resolve();
         }
+    }
+
+    private static async sendElasticEventSingle(eventSubscription, event, highestBlock) {
+        let options = {
+            url: eventSubscription.url + '/events/_doc',
+            json: {
+                network_id: eventSubscription.contractEntity.network.id,
+                network_title: eventSubscription.contractEntity.network.title,
+                project_id: eventSubscription.contractEntity.project.id,
+                project_title: eventSubscription.contractEntity.project.title,
+                version_id: eventSubscription.contractEntity.version.id,
+                version_title: eventSubscription.contractEntity.version.title,
+                ...event,
+            },
+            timeout: 1 * SECONDS,
+        };
+        return new Promise(async (resolve, reject) => {
+            request
+                .post(options)
+                .on('response', async function(response) {
+                    if (response.statusCode != 201 && response.statusCode != 204) {
+                        logger.error(
+                            `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${
+                                eventSubscription.url
+                            }]`,
+                        );
+                        await eventSubscription.failed();
+                        resolve();
+                    } else {
+                        await eventSubscription.success(highestBlock);
+                        resolve();
+                    }
+                })
+                .on('error', async function(err) {
+                    logger.error(
+                        `Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`,
+                    );
+                    await eventSubscription.failed();
+                    resolve();
+                });
+        });
     }
 
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {
         async function pollMethod() {
-            return new Promise((resolve, reject) => {
-                logger.silly(
-                    `Searching for Events fromBlock ${
-                        eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0
-                    }`,
-                );
-                const startTime = Date.now();
-                eventSubscription.contractDriver.getPastEvents(
-                    eventName,
-                    {
-                        fromBlock: eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0,
-                        toBlock: 'latest',
-                    },
-                    async (error, events) => {
-                        if (error) {
-                            logger.error(`Error retrieving Events: ${error}`);
-                            reject(error);
-                        } else {
-                            if (events.length) {
-                                metrics.methodTime('getPastEvents', Date.now() - startTime, {
-                                    eventName: eventName,
-                                    web3: true,
-                                });
+            const fromBlock: number = eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0;
 
-                                logger.info(`Found ${events.length} Events`);
-                                let highestBlock = EventSubscription.findHighestBlockInEvents(
-                                    events,
-                                    eventSubscription.lastBlock,
-                                );
-                                if (eventSubscription.receiverType == 'POST')
-                                    await EventSubscription.sendPostEvents(eventSubscription, events, resolve);
-                                else if (eventSubscription.receiverType == 'ELASTIC')
-                                    await EventSubscription.sendElasticEvents(
-                                        eventSubscription,
-                                        events,
-                                        highestBlock,
-                                        resolve,
-                                    );
-                            } else {
-                                logger.silly(`Found ${events.length} Events`);
-                                resolve();
-                            }
-                        }
-                    },
+            const startTime = Date.now();
+            const ethereumService: EthereumService = await eventSubscription.contractEntity.network.getEthereumService();
+
+            try {
+                const logs = await ethereumService.getContractEvents(
+                    eventSubscription.contractInstance,
+                    fromBlock,
+                    eventName,
                 );
-            });
+
+                if (logs.length) {
+                    metrics.methodTime('getPastEvents', Date.now() - startTime, {
+                        eventName: eventName,
+                        web3: true,
+                    });
+
+                    logger.info(`Found ${logs.length} '${eventName}' Events`);
+
+                    let highestBlock = EventSubscription.findHighestBlockInEvents(logs, fromBlock);
+
+                    switch (eventSubscription.receiverType) {
+                        case 'POST':
+                            await EventSubscription.sendPostEvents(eventSubscription, logs);
+                            break;
+                        case 'ELASTIC':
+                            await EventSubscription.sendElasticEvents(eventSubscription, logs, highestBlock);
+                            break;
+                        default:
+                            throw new Error(`Unknown ReceiverType: ${eventSubscription.receiverType}`);
+                    }
+                } else {
+                    logger.silly(`Found 0 Events`);
+                }
+            } catch (err) {
+                logger.error(`Error retrieving Events: ${err}`);
+            }
         }
 
         return pollMethod;
