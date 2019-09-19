@@ -5277,6 +5277,41 @@
 										],
 										"body": {
 											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.set_vault_hash_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
 											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\", \n\t\t\"vaultUri\": \"uri1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
@@ -5635,7 +5670,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_hash_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultHash\": \"hash1\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "http://localhost:2000/",
@@ -5652,7 +5687,7 @@
 									"response": []
 								},
 								{
-									"name": "notary.register_vault_tx",
+									"name": "notary.1.0.0.grant_update_uri_permission_tx",
 									"request": {
 										"method": "POST",
 										"header": [
@@ -5665,7 +5700,147 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\",\n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.grant_update_hash_permission_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\",\n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.revoke_update_uri_permission_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\",\n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.revoke_update_hash_permission_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\",\n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.register_vault_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "http://localhost:2000/",
@@ -5682,15 +5857,105 @@
 									"response": []
 								}
 							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "f08908f7-11bf-44f8-ae1e-836c484c9beb",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "cbe651ba-1a61-4297-8d39-502b919df8a3",
+										"type": "text/javascript",
+										"exec": [
+											"var data = pm.response.json();",
+											"pm.environment.set(\"tx_unsigned\", JSON.stringify(data.result.transaction));"
+										]
+									}
+								}
+							],
 							"_postman_isSubFolder": true
 						},
 						{
 							"name": "status",
-							"item": [],
+							"item": [
+								{
+									"name": "notary.1.0.0.get_vault_notary_details",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.get_vault_notary_details\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										},
+										"description": "get the details of vault notary"
+									},
+									"response": []
+								}
+							],
 							"_postman_isSubFolder": true
 						}
 					],
 					"_postman_isSubFolder": true
+				},
+				{
+					"name": "notary.register_vault_tx",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"notary.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
