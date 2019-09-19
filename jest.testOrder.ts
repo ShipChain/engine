@@ -19,6 +19,8 @@ require('./src/__tests__/testLoggingConfig');
 
 import 'mocha';
 import * as typeorm from "typeorm";
+const nock = require('nock');
+const fs = require('fs');
 import { CloseConnection as CloseRedis } from "./src/redis";
 import { loadContractFixtures } from "./rpc/contracts";
 import { cleanupDeployedContracts } from "./rpc/__tests__/utils";
@@ -74,14 +76,26 @@ import { ShipmentListPrimitiveTests } from "./src/shipchain/__tests__/shipmentli
 import { ProcurementPrimitiveTests } from "./src/shipchain/__tests__/procurement";
 import { ProcurementListPrimitiveTests } from "./src/shipchain/__tests__/procurementlist";
 
+const CONTRACT_METADATA_URL = 'https://s3.amazonaws.com';
+const CONTRACT_METADATA_PATH = '/shipchain-contracts/meta.json';
+const STATIC_TEST_METADATA_FILE = '/app/src/__tests__/meta.json';
+
+
 describe('RPC', async () => {
 
     beforeAll(async () => {
         try {
+            const staticTestMetadata = await JSON.parse(fs.readFileSync(STATIC_TEST_METADATA_FILE));
+            const staticTestMetadataNock = nock(CONTRACT_METADATA_URL).get(CONTRACT_METADATA_PATH).reply(200, staticTestMetadata);
+
             // read connection options from ormconfig file (or ENV variables)
             const connectionOptions = await typeorm.getConnectionOptions();
             await typeorm.createConnection(connectionOptions);
             await loadContractFixtures();
+            if (!staticTestMetadataNock.isDone()) {
+                console.error(`Failed to load static metadata from ${STATIC_TEST_METADATA_FILE}`);
+                process.exit(1);
+            }
         } catch(err){
             console.error(`beforeAll Error ${err}`);
         }
