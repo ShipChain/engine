@@ -659,7 +659,7 @@ Subscription.
 
 ## Built With
 
-* [Web3.js](https://web3js.readthedocs.io/en/1.0/index.html) - Ethereum JavaScript API
+* [ethers.js](https://docs.ethers.io/ethers.js/html/) - Ethereum JavaScript API
 * [TypeORM](http://typeorm.io/) - ORM / Entity Management
 
 <!--## Contributing
