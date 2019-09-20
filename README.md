@@ -180,6 +180,16 @@ When utilizing the provided scripts in the `bin` directory to manage the Docker 
 in the base folder named `.env` is sourced. This allows you to inject environment variables in to
 the launched containers. You will need to create this file in your local environment.
 
+##### Ethereum Provider Services
+
+When connecting to a standard public network, ethers.js will use pre-defined API Access Keys for
+Infura and Etherscan. Both providers will be used at once, falling back to the other after an error
+threshold . If you want to provide your own access keys to track your usage or to handle your own
+rate limits, set one or both of the following environment variables:
+
+ - `INFURA_PROJECT_ID`
+ - `ETHERSCAN_API_KEY`
+
 ##### Database
  The Docker Compose files provided include a PostgreSQL container that is linked to Engine with
  default connection string `psql://engine:engine@psql:5432/engine`. This can be modified by setting
