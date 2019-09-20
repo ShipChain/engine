@@ -4,6 +4,7 @@
   "description": "ShipChain platform Web3 bindings and helper methods, plus an RPC server",
   "main": "index.js",
   "dependencies": {
+    "@types/node": "^10.12.10",
     "ajv": "^6.6.1",
     "app-root-path": "^2.1.0",
     "aws-sdk": "^2.366.0",
@@ -37,7 +38,6 @@
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
-    "@types/node": "^10.12.10",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "eslint": "^5.12.1",
