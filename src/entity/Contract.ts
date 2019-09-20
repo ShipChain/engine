@@ -24,22 +24,20 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
+
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { GasPriceOracle } from '../GasPriceOracle';
+import { EthereumService } from '../eth/EthereumService';
+import { EthersEthereumService } from '../eth/ethers/EthersEthereumService';
 
-const config = require('config');
 const fs = require('fs');
-import Web3 from 'web3';
 const EthereumTx = require('ethereumjs-tx');
 const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 const gasPriceOracle = GasPriceOracle.Instance;
-
-const GETH_NODE = config.get('GETH_NODE');
-const TRANSACTION_CONFIRMATION_BLOCKS = config.get('WEB3_OPTIONS.TRANSACTION_CONFIRMATION_BLOCKS');
 
 @Entity()
 export class Project extends BaseEntity {
@@ -209,7 +207,7 @@ export class Version extends BaseEntity {
         return version;
     }
 
-    async deployToLocalTestNet() {
+    async deployToLocalTestNet(): Promise<Contract> {
         const project = this.project || (await Project.findOne({ id: this.projectId }));
 
         const network = await Network.getLocalTestNet();
@@ -218,47 +216,27 @@ export class Version extends BaseEntity {
 
         const contract = await Contract.getOrCreate(project, network, this);
 
-        const eth = network.getDriver().eth;
+        const ethereumService = network.getEthereumService();
 
         if (contract.address) {
-            const code = await eth.getCode(contract.address);
+            const code = await ethereumService.getCode(contract.address);
             if (code != 0x0 && code != '0x') {
                 logger.debug(`Already Deployed to ${contract.address}!`);
-                return new Promise(resolve => {
-                    resolve(contract);
-                });
+                return contract;
             }
         }
 
         const parsed_abi = this.getABI();
 
-        const driver = new eth.Contract(parsed_abi);
+        const deployedContractResult = await ethereumService.deployContract(parsed_abi, this.bytecode);
 
-        return new Promise(async (resolve, reject) => {
-            const accounts = await eth.getAccounts();
-            let account = accounts[0];
+        contract.address = deployedContractResult.address;
+        contract.deploy_date = new Date();
+        contract.deploy_author = deployedContractResult.author;
+        contract.deploy_tx_id = deployedContractResult.hash;
+        await contract.save();
 
-            logger.debug(`Local Test Net Account: ${account}`);
-            driver
-                .deploy({ data: this.bytecode })
-                .send({ from: account, gas: 8000000 })
-                .on('receipt', receipt => {
-                    logger.debug(`Deploy Address: ${receipt.contractAddress}`);
-                    contract.address = receipt.contractAddress;
-                    contract.deploy_date = new Date();
-                    contract.deploy_author = account;
-                    contract.save().then(() => resolve(contract));
-                })
-                .on('transactionHash', async txHash => {
-                    logger.debug(`Deploy TX ID: ${txHash}`);
-                    contract.deploy_tx_id = txHash;
-                    await contract.save();
-                })
-                .on('error', err => {
-                    logger.debug(`ERROR ${err}`);
-                    reject(err);
-                });
-        });
+        return contract;
     }
 
     getABI() {
@@ -280,7 +258,7 @@ export class Network extends BaseEntity {
     @Column() title: string;
     @Column() description: string;
 
-    private _driver;
+    private _ethereumService: EthereumService;
 
     static async getOrCreate(title: string, description: string) {
         let network = await Network.findOne({ title });
@@ -300,46 +278,36 @@ export class Network extends BaseEntity {
         return await Network.getOrCreate('local', 'Local Test Net');
     }
 
-    static async getLocalTestNetAccounts() {
-        const local_net = await Network.getLocalTestNet();
-        return await local_net.getDriver().eth.getAccounts();
-    }
+    getEthereumService(): EthereumService {
+        if (this._ethereumService) return this._ethereumService;
 
-    getDriver() {
-        if (this._driver) return this._driver;
-        const web3Options = {
-            transactionBlockTimeout: 50,
-            transactionConfirmationBlocks: TRANSACTION_CONFIRMATION_BLOCKS,
-            transactionPollingTimeout: 480,
-        };
-        this._driver = new Web3(GETH_NODE, null, web3Options);
-        this._driver._entity = this;
-        return this._driver;
+        this._ethereumService = new EthersEthereumService();
+        return this._ethereumService;
     }
 
     async send_tx(signed_tx, callbacks?: GenericCallback) {
         signed_tx = new EthereumTx(signed_tx);
         const raw = '0x' + signed_tx.serialize().toString('hex');
-        const driver = this.getDriver();
+        const ethereumService = this.getEthereumService();
         const startTime = Date.now();
         return new Promise((resolve, reject) =>
-            driver.eth
-                .sendSignedTransaction(raw)
-                .on('receipt', receipt => {
+            ethereumService.sendSignedTransaction(raw, {
+                receipt: receipt => {
                     metrics.methodTime('send_tx_receipt', Date.now() - startTime, { web3: true });
                     resolve(receipt);
-                })
-                .on('confirmation', (num, obj) => {
+                },
+                confirmation: obj => {
                     if (callbacks) {
-                        callbacks.call('confirmation', [num, obj]);
+                        callbacks.call('confirmation', [obj]);
                     }
-                })
-                .on('error', err => {
+                },
+                error: err => {
                     if (callbacks) {
                         callbacks.call('error', [err]);
                     }
                     reject(err);
-                }),
+                },
+            }),
         );
     }
 }
@@ -411,78 +379,52 @@ export class Contract extends BaseEntity {
         });
     }
 
-    async getDriver() {
+    async getContractInstance() {
         if (this._driver) return this._driver;
+
         this.network = this.network || (await Network.findOne({ id: this.networkId }));
         this.version = this.version || (await Version.findOne({ id: this.versionId }));
 
-        const eth = this.network.getDriver().eth;
-        const utils = this.network.getDriver().utils;
+        const ethereumService = this.network.getEthereumService();
 
-        this._driver = new eth.Contract(this.version.getABI(), this.address);
-        this._driver._eth = eth;
-        this._driver._utils = utils;
-        this._driver._entity = this;
+        this._driver = ethereumService.createContractInstance(this.version.getABI(), this.address);
         return this._driver;
     }
 
-    async encodeMethod(method, args) {
-        const driver = await this.getDriver();
-    }
-
     async call_static(method: string, args: any[]) {
-        const driver = await this.getDriver();
+        const ethereumService = this.network.getEthereumService();
+        const contractInstance = await this.getContractInstance();
+
         const startTime = Date.now();
-        const response = await driver.methods[method](...args).call();
+        const response = await ethereumService.callStaticMethod(contractInstance, method, args);
         metrics.methodTime('call_static', Date.now() - startTime, { contract_method: method, web3: true });
+
         return response;
     }
 
     async build_transaction(methodName: string, args: any[], options?: any) {
+        if (!options) options = {};
+
         this.network = this.network || (await Network.findOne({ id: this.networkId }));
 
-        // const web3_driver = this.network.getDriver();
-        const driver = await this.getDriver();
+        const contractInstance = await this.getContractInstance();
+        const ethereumService = await this.network.getEthereumService();
 
-        const contractMethod = driver.methods[methodName](...args);
+        const unsignedTx = await ethereumService.encodeTransaction(contractInstance, methodName, args);
 
-        // Estimate the gas, but have a safe fallback of 500k in case estimation fails
         let estimatedGas = 500000;
         try {
-            estimatedGas = await contractMethod.estimateGas({ from: this.address, gas: 5000000 });
-            if (estimatedGas == 5000000) {
-                throw new Error('Transaction out of gas');
-            }
-            estimatedGas *= 2;
+            estimatedGas = await ethereumService.estimateTransaction(contractInstance, methodName, args);
         } catch (err) {
             logger.warn(`Gas Estimation Failed: ${err}.  Falling back to ${estimatedGas}`);
         }
 
-        const encoded = contractMethod.encodeABI();
-
-        if (!options) options = {};
-
-        // gasPriceOracle.gasPrice returns either a string or a BN
-        // we need to support converting either to hex
-        const hex_i = i => {
-            if (Number.isInteger(i)) {
-                return this.network.getDriver().utils.toHex(i);
-            }
-            if (driver._utils.isBN(i)) {
-                return driver._utils.BN(i).toString(16);
-            }
-            if (typeof i === 'string') {
-                return '0x' + driver._utils.toBN(i).toString(16);
-            }
-            return i;
-        };
-
         return {
+            ...unsignedTx,
             to: this.address,
-            gasPrice: hex_i(options.gasPrice || gasPriceOracle.gasPrice),
-            gasLimit: hex_i(options.gasLimit || estimatedGas),
-            value: hex_i(options.value || 0),
-            data: encoded,
+            gasPrice: ethereumService.toHex(options.gasPrice || gasPriceOracle.gasPrice),
+            gasLimit: ethereumService.toHex(options.gasLimit || estimatedGas),
+            value: ethereumService.toHex(options.value || 0),
         };
     }
 }

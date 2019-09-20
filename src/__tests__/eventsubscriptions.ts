@@ -18,9 +18,10 @@ require('./testLoggingConfig');
 
 import 'mocha';
 import { Wallet } from '../entity/Wallet';
-import { Project } from '../entity/Contract';
+import { Network, Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
+import { EthereumService } from "../eth/EthereumService";
 
 const request = require('request');
 const config = require('config');
@@ -83,6 +84,8 @@ export const EventSubscriptionEntityTests = async  function() {
             const other = await Wallet.generate_entity();
 
             const local = await utils.setupLocalTestNetContracts({ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD}, [owner]);
+            const network: Network = await Network.getLocalTestNet();
+            const ethereumService: EthereumService = network.getEthereumService();
 
             const subscriberAttrs = new EventSubscriberAttrs();
             subscriberAttrs.project = 'ShipToken';
@@ -97,16 +100,16 @@ export const EventSubscriptionEntityTests = async  function() {
 
             expect(Number(await local.ShipToken.call_static('balanceOf', [owner.address]))).toEqual(TOTAL);
 
-            expect(Number(await local.web3.eth.getBalance(owner.address))).toEqual(5 * ETH);
+            expect(Number(await ethereumService.getBalance(owner.address))).toEqual(5 * ETH);
 
             const txParams = await owner.add_tx_params(
-                local.network,
+                network,
                 await local.ShipToken.build_transaction('transfer', [other.address, 100 * SHIP]),
             );
 
             const [signed_tx, txHash] = await owner.sign_tx(txParams);
 
-            const receipt = await local.network.send_tx(signed_tx);
+            const receipt: any = await network.send_tx(signed_tx);
 
             expect(receipt.transactionHash.length).toEqual(66);
 

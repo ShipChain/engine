@@ -17,20 +17,19 @@
 import { Contract, Network } from '../entity/Contract';
 import { Wallet } from '../entity/Wallet';
 import { ContractCallback } from './ContractCallback';
+import { EthereumService } from '../eth/EthereumService';
 
 export abstract class BaseContract {
     public Ready: Promise<any>;
     protected _network: Network;
     protected _contract: Contract;
-    protected _eth;
-    protected _utils;
+    protected _ethereumService;
 
     protected constructor(contractName: string, network: string, version: string) {
         this.Ready = Contract.getContractVersion(contractName, network, version).then(contract => {
             this._contract = contract;
             this._network = contract.network;
-            this._eth = this._network.getDriver().eth;
-            this._utils = this._network.getDriver().utils;
+            this._ethereumService = this._network.getEthereumService();
         });
     }
 
@@ -42,26 +41,14 @@ export abstract class BaseContract {
         return this._contract.version.title;
     }
 
-    getEthDriver() {
-        return this._eth;
+    getEthereumService(): EthereumService {
+        return this._ethereumService;
     }
 
     async callStatic(method: string, args: any[], transform: boolean = false) {
         const staticResponse = await this._contract.call_static(method, args);
 
-        let transformedResponse = staticResponse;
-
-        // If this is a single value response, there's no nested properties
-        if (Object.keys(staticResponse).length === 1 && staticResponse.hasOwnProperty('_hex')) {
-            transformedResponse = this._utils.toBN(staticResponse).toString();
-        }
-
-        // Web3.js beta55 returns uint256 values as {"_hex": "0x00"}
-        for (let property of Object.keys(staticResponse)) {
-            if (Object.keys(staticResponse[property]).length === 1 && staticResponse[property].hasOwnProperty('_hex')) {
-                transformedResponse[property] = this._utils.toBN(staticResponse[property]).toString();
-            }
-        }
+        let transformedResponse = this._ethereumService.convertBigNumbersToStrings(staticResponse);
 
         if (transform) {
             transformedResponse = {};

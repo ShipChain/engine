@@ -70,7 +70,7 @@ export class LoadContract extends BaseContract {
         shipmentId: number,
         value: number,
     ) {
-        const asciiToHexShipmentId = this._utils.asciiToHex('' + shipmentId);
+        const asciiToHexShipmentId = this.getEthereumService().toHex('' + shipmentId);
 
         return await tokenContract.approveAndCallTransaction(
             shipperWallet,

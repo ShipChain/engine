@@ -18,9 +18,9 @@ import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, g
 import EthCrypto from 'eth-crypto';
 import { Logger } from '../Logger';
 import { EncryptorContainer } from './encryption/EncryptorContainer';
+import { Network } from './Contract';
 
 const EthereumTx = require('ethereumjs-tx');
-const Web3 = require('web3');
 
 const logger = Logger.get(module.filename);
 
@@ -194,12 +194,12 @@ export class Wallet extends BaseEntity {
         return Wallet.sign_hash_with_raw_key(this.__unlocked_key(), hash);
     }
 
-    async add_tx_params(network, txParams) {
-        const driver = network.getDriver();
-        const hex_i = i => (Number.isInteger(i) ? driver.utils.toHex(i) : i);
+    async add_tx_params(network: Network, txParams) {
+        const ethereumService = network.getEthereumService();
+        const hex_i = i => (Number.isInteger(i) ? ethereumService.toHex(i) : i);
         return {
-            nonce: hex_i(txParams.nonce || (await driver.eth.getTransactionCount(this.address))),
-            chainId: txParams.chainId || (await driver.eth.net.getId()),
+            nonce: hex_i(txParams.nonce || (await ethereumService.getTransactionCount(this.address))),
+            chainId: txParams.chainId || (await ethereumService.getNetworkId()),
             ...txParams,
         };
     }
@@ -214,7 +214,7 @@ export class Wallet extends BaseEntity {
         return [tx, txHash];
     }
 
-    async sign_and_send_tx(network, txParams) {
+    async sign_and_send_tx(network: Network, txParams) {
         txParams = await this.add_tx_params(network, txParams);
         let [txSigned, txHash] = this.sign_tx(txParams);
         return await network.send_tx(txSigned);

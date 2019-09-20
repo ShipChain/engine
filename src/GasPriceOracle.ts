@@ -20,13 +20,13 @@ import { AsyncPoll } from './AsyncPoll';
 import { Logger } from './Logger';
 import { MetricsReporter } from './MetricsReporter';
 import { delay } from './utils';
+import { EthereumService } from './eth/EthereumService';
+import { EthersEthereumService } from './eth/ethers/EthersEthereumService';
 
 const requestPromise = require('request-promise-native');
-import Web3 from 'web3';
 const config = require('config');
 
 const logger = Logger.get(module.filename);
-const GETH_NODE = config.get('GETH_NODE');
 
 // Time (in minutes) that we don't want to wait longer than
 const DESIRED_WAIT_TIME: number = 2;
@@ -44,15 +44,15 @@ export class GasPriceOracle {
     private static _instance: GasPriceOracle;
     private static asyncPoll: AsyncPoll;
 
-    private _gasPrice: number;
-    private readonly web3;
+    private _gasPrice;
+    private readonly ethereumService: EthereumService;
     private readonly gasPriceMetrics: GasPriceOracleMetrics;
 
     private constructor() {
-        this.web3 = new Web3(GETH_NODE);
+        this.ethereumService = new EthersEthereumService();
 
         // Default gas price in case no services are returning values (likely will never be used)
-        this._gasPrice = this.web3.utils.toWei('20', 'gwei');
+        this._gasPrice = this.ethereumService.unitToWei('20', 'gwei');
         this.gasPriceMetrics = GasPriceOracleMetrics.Instance;
     }
 
@@ -62,7 +62,7 @@ export class GasPriceOracle {
 
     // Property for retrieving last calculated gasPrice
     // ------------------------------------------------
-    public get gasPrice(): number {
+    public get gasPrice() {
         return this._gasPrice;
     }
 
@@ -98,7 +98,7 @@ export class GasPriceOracle {
         };
     }
 
-    // Average the EthGasStation and Web3OracleGasPrice values
+    // Average the EthGasStation and ProviderOracleGasPrice values
     // -------------------------------------------------------
     private async calculateGasPrice(): Promise<void> {
         // allPrices in Gwei for consistent calculations
@@ -115,7 +115,7 @@ export class GasPriceOracle {
         }
 
         // Always use the attached node's gas price oracle
-        allPrices.push(await this.getWeb3OracleGasPrice());
+        allPrices.push(await this.getProviderOracleGasPrice());
 
         let priceAverage = allPrices.reduce((total, currentValue, currentIndex) => {
             return total + (currentValue - total) / (currentIndex + 1);
@@ -124,7 +124,7 @@ export class GasPriceOracle {
         priceAverage = Number(priceAverage.toFixed(2));
 
         // Prevent too rapid growth of gas price used
-        let previousGasPrice = Number(this.web3.utils.fromWei(this._gasPrice, 'gwei'));
+        let previousGasPrice = Number(this.ethereumService.weiToUnit(this._gasPrice, 'gwei'));
         priceAverage = Math.min(priceAverage, 4 * previousGasPrice);
 
         this.gasPriceMetrics.gasPriceSingle('calculated', priceAverage);
@@ -136,8 +136,8 @@ export class GasPriceOracle {
             this.gasPriceMetrics.waitTimeSingle('calculated', prediction[1]);
         }
 
-        // toWei prefers a string representation of the input number
-        this._gasPrice = this.web3.utils.toWei(`${priceAverage}`, 'gwei');
+        // parseUnits prefers a string representation of the input number
+        this._gasPrice = this.ethereumService.unitToWei(`${priceAverage}`, 'gwei');
     }
 
     // Pull data from the EthGasStation and find the gas price that gives us the desired wait time
@@ -225,11 +225,13 @@ export class GasPriceOracle {
 
     // Get the 60% Median gas price of the last 20 blocks by the eth_gasPrice call
     // ---------------------------------------------------------------------------
-    private async getWeb3OracleGasPrice(): Promise<number> {
-        const web3oracleGasPrice = Number(this.web3.utils.fromWei(`${await this.web3.eth.getGasPrice()}`, 'gwei'));
-        logger.debug(`Web3 Gas Price Oracle: ${web3oracleGasPrice} gwei`);
-        this.gasPriceMetrics.gasPriceSingle('web3', web3oracleGasPrice);
-        return web3oracleGasPrice;
+    private async getProviderOracleGasPrice(): Promise<number> {
+        const providerOracleGasPrice = Number(
+            this.ethereumService.weiToUnit(await this.ethereumService.getGasPrice(), 'gwei'),
+        );
+        logger.debug(`Provider Gas Price Oracle: ${providerOracleGasPrice} gwei`);
+        this.gasPriceMetrics.gasPriceSingle('web3', providerOracleGasPrice);
+        return providerOracleGasPrice;
     }
 
     // Generic Retrieve JSON from api

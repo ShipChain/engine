@@ -19,26 +19,31 @@ require('./testLoggingConfig');
 import 'mocha';
 const nock = require('nock');
 import { GasPriceOracle } from '../GasPriceOracle';
+import { EthereumService } from "../eth/EthereumService";
 
 export const GasPriceOracleTests = async function() {
 
     it(`has a default price of 20 gwei`, async () => {
-        const gpo = GasPriceOracle.Instance;
-        expect(gpo.gasPrice).toEqual(`${20 * 10 ** 9}`);
-    });
-
-    it(`can get price from Web3 in gwei`, async () => {
-        const gpo = GasPriceOracle.Instance;
+        const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
         // @ts-ignore
-        let web3Price = await gpo.getWeb3OracleGasPrice();
+        const ethereumService: EthereumService = gpo.ethereumService;
+
+        expect(gpo.gasPrice).toEqual(ethereumService.unitToWei(20, 'gwei'));
+    });
+
+    it(`can get price from Provider in gwei`, async () => {
+        const gpo: GasPriceOracle = GasPriceOracle.Instance;
+
+        // @ts-ignore
+        let providerPrice = await gpo.getProviderOracleGasPrice();
 
         // geth-poa image always generates 18 gwei
-        expect(web3Price).toEqual(18);
+        expect(providerPrice).toEqual(18);
     });
 
     it(`can get price from EthGasStation`, async () => {
-        const gpo = GasPriceOracle.Instance;
+        const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
         nock('https://ethgasstation.info')
             .get('/json/ethgasAPI.json')
@@ -62,7 +67,7 @@ export const GasPriceOracleTests = async function() {
     });
 
     it(`can get default price from EthGasStation if no desired time match`, async () => {
-        const gpo = GasPriceOracle.Instance;
+        const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
         nock('https://ethgasstation.info')
             .get('/json/ethgasAPI.json')
@@ -85,13 +90,16 @@ export const GasPriceOracleTests = async function() {
         expect(ethGasStationPrice.price).toEqual(60);
     });
 
-    it(`returns only Web3 price when not in PROD`, async () => {
-        const gpo = GasPriceOracle.Instance;
+    it(`returns only Provider price when not in PROD`, async () => {
+        const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
         // @ts-ignore
         await gpo.calculateGasPrice();
 
-        expect(gpo.gasPrice).toEqual(`${18 * 10 ** 9}`);
+        // @ts-ignore
+        const ethereumService: EthereumService = gpo.ethereumService;
+
+        expect(gpo.gasPrice).toEqual(ethereumService.unitToWei(18, 'gwei'));
     });
 
 };

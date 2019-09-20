@@ -20,8 +20,6 @@ import { Logger } from '../Logger';
 const logger = Logger.get(module.filename);
 
 export class ContractCallback extends GenericCallback {
-    protected static CONFIRMATIONS_REQUIRED = 12;
-
     constructor() {
         super();
     }
@@ -36,9 +34,7 @@ export class ContractCallback extends GenericCallback {
 
     protected async confirmation(num, obj) {
         logger.verbose(`Transaction Confirmation #${num}`);
-        if (num === ContractCallback.CONFIRMATIONS_REQUIRED) {
-            logger.info(`Transaction confirmed ${obj}`);
-        }
+        logger.info(`Transaction confirmed ${obj}`);
     }
 
     protected async error(error) {

@@ -14,97 +14,104 @@
  * limitations under the License.
  */
 
-import { Network, Version } from './entity/Contract';
+import { Contract, Version, Network } from './entity/Contract';
 import { Wallet } from './entity/Wallet';
 import { Logger } from './Logger';
+import { EthereumService } from './eth/EthereumService';
 
 const logger = Logger.get(module.filename);
-const ETH = 10 ** 18;
 
 class LatestContractFormat {
     ShipToken: string;
     LOAD: string;
 }
 
-export async function setupLocalTestNetContracts(latest: LatestContractFormat, wallets: Wallet[] = []) {
-    const token_version: Version = await Version.getByProjectAndTitle('ShipToken', latest.ShipToken);
-    const load_version: Version = await Version.getByProjectAndTitle('LOAD', latest.LOAD);
+interface SetupTestNetResponse {
+    ShipToken: Contract;
+    LOAD: Contract;
+}
 
-    if (!token_version) {
+export async function setupLocalTestNetContracts(
+    latest: LatestContractFormat,
+    wallets: Wallet[] = [],
+): Promise<SetupTestNetResponse> {
+    const tokenVersion: Version = await Version.getByProjectAndTitle('ShipToken', latest.ShipToken);
+    const loadVersion: Version = await Version.getByProjectAndTitle('LOAD', latest.LOAD);
+
+    if (!tokenVersion) {
         throw new Error('ShipToken Version cannot be found');
     }
-    if (!load_version) {
+    if (!loadVersion) {
         throw new Error('LOAD Version cannot be found');
     }
 
-    const local_token = await token_version.deployToLocalTestNet();
-    const local_load = await load_version.deployToLocalTestNet();
+    const tokenContractEntity: Contract = await tokenVersion.deployToLocalTestNet();
+    const loadContractEntity: Contract = await loadVersion.deployToLocalTestNet();
 
-    const token_driver = await local_token['getDriver']();
-    const load_driver = await local_load['getDriver']();
+    const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
 
-    const accounts = await Network.getLocalTestNetAccounts();
-    const network = await Network.getLocalTestNet();
-
-    const web3 = local_token['network'].getDriver();
-
-    await new Promise(async (resolve, reject) => {
-        load_driver.methods
-            .setShipTokenContractAddress(local_token['address'])
-            .send({ from: accounts[0] })
-            .on('receipt', resolve)
-            .on('error', resolve); // if it's already been set, ignore the revert
-    });
+    await linkTokenAndLoadContracts(ethereumService, tokenContractEntity, loadContractEntity);
 
     for (let wallet of wallets) {
-        /* Keep Owner wallet happy */
-        let current_balance = await web3.eth.getBalance(wallet.address);
+        let currentEthBalance = await getAndUpdateEthBalance(ethereumService, wallet);
+        let currentShipBalance = await getAndUpdateShipBalance(ethereumService, tokenContractEntity, wallet);
 
-        if (web3.utils.toBN(current_balance).cmp(web3.utils.toBN(2.5 * ETH)) <= 0) {
-            logger.info(`${wallet.address} is low on ETH, refilling: ${current_balance}`);
-            await new Promise((resolve, reject) =>
-                web3.eth
-                    .sendTransaction({
-                        from: accounts[0],
-                        to: wallet.address,
-                        value: web3.utils.toBN(5 * ETH).toString(),
-                    })
-                    .on('receipt', receipt => {
-                        resolve();
-                    })
-                    .on('error', receipt => {
-                        reject();
-                    }),
-            );
-        }
-
-        /* and mint 500 ship */
-        let current_ship_balance = await local_token['call_static']('balanceOf', [wallet.address]);
-        if (web3.utils.toBN(current_ship_balance).cmp(web3.utils.toBN(250 * ETH)) <= 0) {
-            logger.info(`${wallet.address} is low on SHIP, refilling: ${current_ship_balance}`);
-            await new Promise((resolve, reject) =>
-                token_driver.methods
-                    .mint(wallet.address, web3.utils.toBN(500 * ETH).toString())
-                    .send({ from: accounts[0] })
-                    .on('receipt', resolve)
-                    .on('error', reject),
-            );
-        }
-
-        current_balance = await web3.eth.getBalance(wallet.address);
-        current_balance = web3.utils.fromWei(current_balance, 'ether');
-
-        current_ship_balance = web3.utils.toBN(await local_token['call_static']('balanceOf', [wallet.address]));
-        current_ship_balance = web3.utils.fromWei(current_ship_balance, 'ether');
-
-        logger.info(`${wallet.address} ETH  Balance: ${current_balance}`);
-        logger.info(`${wallet.address} SHIP  Balance: ${current_ship_balance}`);
+        logger.info(`${wallet.address} ETH   Balance: ${currentEthBalance}`);
+        logger.info(`${wallet.address} SHIP  Balance: ${currentShipBalance}`);
     }
 
     return {
-        web3: web3,
-        network: network,
-        ShipToken: local_token,
-        LOAD: local_load,
+        ShipToken: tokenContractEntity,
+        LOAD: loadContractEntity,
     };
+}
+
+async function linkTokenAndLoadContracts(ethereumService, tokenContractEntity, loadContractEntity) {
+    const loadContractInstance = await loadContractEntity.getContractInstance();
+    try {
+        await ethereumService.callContractFromNodeAccount(loadContractInstance, 'setShipTokenContractAddress', [
+            tokenContractEntity.address,
+        ]);
+    } catch (err) {
+        logger.debug(`setShipTokenContractAddress already called`);
+    }
+}
+
+async function getAndUpdateEthBalance(ethereumService, wallet) {
+    // Keep Owner wallet funded with ETH from unlocked deployer
+    let currentEthBalance = await ethereumService.getBalance(wallet.address);
+
+    // Depending on the underlying EthereumService implementation this step may or may not be necessary
+    currentEthBalance = ethereumService.toBigNumber(currentEthBalance);
+
+    if (currentEthBalance.lt(ethereumService.unitToWei(2.5, 'ether'))) {
+        logger.info(`${wallet.address} is low on ETH, refilling: ${currentEthBalance}`);
+        await ethereumService.sendWeiFromNodeAccount(wallet.address, ethereumService.unitToWei(5, 'ether'));
+    }
+
+    currentEthBalance = await ethereumService.getBalance(wallet.address);
+    return ethereumService.weiToUnit(currentEthBalance, 'ether');
+}
+
+async function getAndUpdateShipBalance(ethereumService, tokenContractEntity, wallet) {
+    const tokenContractInstance = await tokenContractEntity.getContractInstance();
+
+    let currentShipBalance = await tokenContractEntity.call_static('balanceOf', [wallet.address]);
+
+    // Depending on the underlying EthereumService implementation this step may or may not be necessary
+    currentShipBalance = ethereumService.toBigNumber(currentShipBalance);
+
+    if (currentShipBalance.lt(ethereumService.unitToWei(250, 'ether'))) {
+        logger.info(`${wallet.address} is low on SHIP, refilling: ${currentShipBalance}`);
+
+        await ethereumService.callContractFromNodeAccount(tokenContractInstance, 'mint', [
+            wallet.address,
+            ethereumService.unitToWei(500, 'ether').toString(),
+        ]);
+    }
+
+    currentShipBalance = ethereumService.toBigNumber(
+        await tokenContractEntity.call_static('balanceOf', [wallet.address]),
+    );
+    return ethereumService.weiToUnit(currentShipBalance, 'ether');
 }
