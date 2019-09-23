@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "92a21ef6-3b8d-47a9-8ea9-a37a42286089",
+		"_postman_id": "cdf59c6b-37bc-472b-a8c7-a5e41bd46f58",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -4560,6 +4560,19 @@
 							"item": [
 								{
 									"name": "notary.1.0.0.register_vault_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "65ca5744-e642-405e-aa35-5cd801b5f28f",
+												"exec": [
+													"console.log('{{wallet_id}}')",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
 									"request": {
 										"method": "POST",
 										"header": [
@@ -4572,7 +4585,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{valut_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\", \n\t\t\"vaultHash\": \"0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\", \n\t\t\"vaultHash\": \"0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4602,7 +4615,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{valut_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4632,7 +4645,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_hash_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{valut_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultHash\": \"hash3\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_hash_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultHash\": \"0x0g021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4662,7 +4675,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{valut_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4692,7 +4705,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{valut_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4722,7 +4735,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{valut_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4752,7 +4765,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{valut_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
