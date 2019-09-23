@@ -19,8 +19,6 @@
 
 require('../../src/__tests__/testLoggingConfig');
 
-const fs = require('fs');
-
 import 'mocha';
 import * as typeorm from "typeorm";
 import {
@@ -102,9 +100,8 @@ export const RPCVaultNotaryTests = async function() {
                     vaultUri: '123',
                     vaultHash: '123'
                 });
+                
                 expect(rpcReturn).toBeDefined();
-                console.log(rpcReturn);
-                //expect(rpcReturn.result).toBeDefined();
                 expect(rpcReturn.success).toBeTruthy();
                 expect(rpcReturn.transaction.nonce).toBeDefined();
                 expect(rpcReturn.transaction.gasPrice).toBeDefined();
