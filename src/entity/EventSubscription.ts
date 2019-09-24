@@ -43,6 +43,7 @@ function AsyncPut(url) {
 export class EventSubscriberAttrs {
     url: string;
     project: string;
+    version: string;
     receiverType?: string;
     eventNames?: string[];
     lastBlock?: number;
@@ -50,11 +51,12 @@ export class EventSubscriberAttrs {
 }
 
 @Entity()
-@Index('URL_PROJECT_INDEX', ['url', 'project'], { unique: true })
+@Index('URL_PROJECT_INDEX', ['url', 'project', 'version'], { unique: true })
 export class EventSubscription extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
     @Column() url: string;
     @Column() project: string;
+    @Column() version: string;
     @Column() receiverType: string;
     @Column('simple-array') eventNames: string[];
     @Column('bigint') lastBlock: number;
@@ -75,7 +77,7 @@ export class EventSubscription extends BaseEntity {
         let eventSubscriber: EventSubscription;
 
         try {
-            eventSubscriber = await EventSubscription.getByUrlAndProject(attrs.url, attrs.project);
+            eventSubscriber = await EventSubscription.getByUrlAndProject(attrs.url, attrs.project, attrs.version);
 
             if (EventSubscription.activeSubscriptions[eventSubscriber.id]) {
                 logger.debug(`Removing active Subscription to [${eventSubscriber.id}] ${attrs.project}_${attrs.url}`);
@@ -94,6 +96,7 @@ export class EventSubscription extends BaseEntity {
             const newSubscriber = new EventSubscription();
             newSubscriber.url = attrs.url;
             newSubscriber.project = attrs.project;
+            newSubscriber.version = attrs.version;
             newSubscriber.eventNames = attrs.eventNames || ['allEvents'];
             newSubscriber.lastBlock = attrs.lastBlock || 0;
             newSubscriber.interval = attrs.interval || EventSubscription.DEFAULT_INTERVAL;
@@ -108,11 +111,11 @@ export class EventSubscription extends BaseEntity {
         return eventSubscriber;
     }
 
-    static async getByUrlAndProject(url: string, project: string): Promise<EventSubscription> {
+    static async getByUrlAndProject(url: string, project: string, version: string): Promise<EventSubscription> {
         const DB = getConnection();
         const repository = DB.getRepository(EventSubscription);
 
-        let eventSubscriber = await repository.findOne({ url: url, project: project });
+        let eventSubscriber = await repository.findOne({ url: url, project: project, version: version });
 
         if (!eventSubscriber) {
             throw new Error('EventSubscription not found');
@@ -136,14 +139,14 @@ export class EventSubscription extends BaseEntity {
             .createQueryBuilder()
             .from('EventSubscription', 'es')
             .select('COUNT(*) AS cnt')
-            .groupBy('es.url, es.project')
+            .groupBy('es.url, es.project, es.version')
             .getRawMany();
 
         return count[0]['cnt'];
     }
 
-    static async unsubscribe(url: string, project: string) {
-        let subscriptionObject = await EventSubscription.getByUrlAndProject(url, project);
+    static async unsubscribe(url: string, project: string, version: string) {
+        let subscriptionObject = await EventSubscription.getByUrlAndProject(url, project, version);
 
         if (EventSubscription.activeSubscriptions[subscriptionObject.id]) {
             const activeSubscription = EventSubscription.activeSubscriptions[subscriptionObject.id];
@@ -193,7 +196,7 @@ export class EventSubscription extends BaseEntity {
 
         for (let eventName of this.eventNames) {
             this.asyncPolls[eventName] = new AsyncPoll(
-                this.project + '_' + eventName + '_' + this.url,
+                this.project + '_' + this.version + '_' + eventName + '_' + this.url,
                 EventSubscription.buildPoll(this, eventName),
                 this.interval,
             );
@@ -254,6 +257,7 @@ export class EventSubscription extends BaseEntity {
             json: {
                 events: chunk,
                 project: eventSubscription.project,
+                version: eventSubscription.version,
             },
             timeout: 90 * SECONDS,
         };
@@ -271,7 +275,11 @@ export class EventSubscription extends BaseEntity {
 
     private static async sendElasticEvents(eventSubscription: EventSubscription, events, highestBlock) {
         try {
-            logger.info(`About to put events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url}`);
+            logger.info(
+                `About to put events to ElasticSearch ${eventSubscription.project}_${eventSubscription.version}_${
+                    eventSubscription.url
+                }`,
+            );
 
             await AsyncPut(eventSubscription.url + '/events/');
 
@@ -280,7 +288,9 @@ export class EventSubscription extends BaseEntity {
             }
         } catch (_err) {
             logger.error(
-                `Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.url} ${_err}`,
+                `Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.version}_${
+                    eventSubscription.url
+                } ${_err}`,
             );
             await eventSubscription.failed();
         }
@@ -306,7 +316,11 @@ export class EventSubscription extends BaseEntity {
                 .on('response', async function(response) {
                     if (response.statusCode != 201 && response.statusCode != 204) {
                         logger.error(
-                            `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`,
+                            `Event Subscription Failed with ${response.statusCode} [
+                                ${eventSubscription.project}_
+                                ${eventSubscription.version}_
+                                ${eventSubscription.url}
+                            ]`,
                         );
                         await eventSubscription.failed();
                         resolve();
@@ -317,7 +331,11 @@ export class EventSubscription extends BaseEntity {
                 })
                 .on('error', async function(err) {
                     logger.error(
-                        `Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.url}]`,
+                        `Event Subscription Failed with ${err} [
+                            ${eventSubscription.project}_
+                            ${eventSubscription.version}_
+                            ${eventSubscription.url}
+                        ]`,
                     );
                     await eventSubscription.failed();
                     resolve();
