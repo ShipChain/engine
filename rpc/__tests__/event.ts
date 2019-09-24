@@ -46,7 +46,7 @@ export const RPCEventTests = async function() {
                 caughtError = err;
             }
 
-            expectMissingRequiredParams(caughtError, ['url', 'project']);
+            expectMissingRequiredParams(caughtError, ['url', 'project', 'version']);
         }));
 
         it(`Throws if Project not found`, mochaAsync(async () => {
@@ -54,6 +54,7 @@ export const RPCEventTests = async function() {
                 await CallRPCMethod(RPCEvent.Subscribe, {
                     url: 'URL',
                     project: 'not a project',
+                    version: '1.1.0'
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -67,6 +68,7 @@ export const RPCEventTests = async function() {
                 const response: any = await CallRPCMethod(RPCEvent.Subscribe,{
                     url: 'URL',
                     project: 'LOAD',
+                    version: '1.1.0',
                 });
 
                 expect(response).toBeDefined();
@@ -93,7 +95,7 @@ export const RPCEventTests = async function() {
                 caughtError = err;
             }
 
-            expectMissingRequiredParams(caughtError, ['url', 'project']);
+            expectMissingRequiredParams(caughtError, ['url', 'project', 'version']);
         }));
 
         it(`Throw if subscription does not exist`, mochaAsync(async () => {
@@ -101,6 +103,7 @@ export const RPCEventTests = async function() {
                 await CallRPCMethod(RPCEvent.Unsubscribe,{
                     url: 'URL',
                     project: 'please fail',
+                    version: '1.1.0',
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -114,6 +117,7 @@ export const RPCEventTests = async function() {
                 const response: any = await CallRPCMethod(RPCEvent.Unsubscribe,{
                     url: 'URL',
                     project: 'LOAD',
+                    version: '1.1.0',
                 });
                 expect(response).toBeDefined();
             } catch (err){

@@ -32,6 +32,7 @@ export const EventSubscriptionPostsTests = async function() {
 
         const subscriberAttrs = new EventSubscriberAttrs();
         subscriberAttrs.project = 'LOAD';
+        subscriberAttrs.version = '1.1.0';
         subscriberAttrs.url = TEST_URL + TEST_URL_PATH;
         subscriberAttrs.receiverType = 'POST';
         subscriberAttrs.lastBlock = 0;
@@ -56,7 +57,7 @@ export const EventSubscriptionPostsTests = async function() {
         const subscriberAttrs = new EventSubscriberAttrs();
         subscriberAttrs.project = 'LOAD';
         subscriberAttrs.url = TEST_URL + TEST_URL_PATH;
-        subscriberAttrs.version = '1.2.0';
+        subscriberAttrs.version = '1.1.0';
         subscriberAttrs.receiverType = 'POST';
         subscriberAttrs.lastBlock = 0;
 
@@ -79,6 +80,7 @@ export const EventSubscriptionPostsTests = async function() {
 
         const subscriberAttrs = new EventSubscriberAttrs();
         subscriberAttrs.project = 'LOAD';
+        subscriberAttrs.version = '1.1.0';
         subscriberAttrs.url = TEST_URL + TEST_URL_PATH;
         subscriberAttrs.receiverType = 'POST';
         subscriberAttrs.lastBlock = 0;
