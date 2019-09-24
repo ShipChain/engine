@@ -51,7 +51,7 @@ services:
       context: ../
       target: build
     image: engine-node-build
-    command: node_modules/.bin/nodemon -e "ts" -x "ts-node" rpc-server.ts
+    command: yarn develop
     ports:
       - 2000:2000
     environment:
