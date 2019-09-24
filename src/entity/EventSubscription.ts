@@ -276,9 +276,7 @@ export class EventSubscription extends BaseEntity {
     private static async sendElasticEvents(eventSubscription: EventSubscription, events, highestBlock) {
         try {
             logger.info(
-                `About to put events to ElasticSearch ${eventSubscription.project}_${eventSubscription.version}_${
-                    eventSubscription.url
-                }`,
+                `About to put events to ElasticSearch ${eventSubscription.project}_${eventSubscription.version}_${eventSubscription.url}`,
             );
 
             await AsyncPut(eventSubscription.url + '/events/');
@@ -288,9 +286,7 @@ export class EventSubscription extends BaseEntity {
             }
         } catch (_err) {
             logger.error(
-                `Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.version}_${
-                    eventSubscription.url
-                } ${_err}`,
+                `Error putting events to ElasticSearch ${eventSubscription.project}_${eventSubscription.version}_${eventSubscription.url} ${_err}`,
             );
             await eventSubscription.failed();
         }
