@@ -122,9 +122,7 @@ export class Project extends BaseEntity {
                                 contractAddress,
                             );
                             logger.debug(
-                                `Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${
-                                    contract.id
-                                }]`,
+                                `Fixture Contract: ${project.title} ${networkName} ${versionName} ${contractAddress} [${contract.id}]`,
                             );
                         }
                     }

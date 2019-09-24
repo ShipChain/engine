@@ -1,6 +1,6 @@
 ## Base image with node and entrypoint scripts ##
 ## =========================================== ##
-FROM node:10.15.0-alpine AS base
+FROM node:10.16.3-alpine AS base
 
 LABEL maintainer="Lucas Clay <lclay@shipchain.io>"
 

@@ -147,9 +147,7 @@ export abstract class ExternalContainer extends Container {
                 return decrypted_contents;
             } else {
                 logger.debug(
-                    `Vault ${this.vault.id} Decrypting Ext Container ${
-                        this.name
-                    } has no content for role ${role} [${subFile}]`,
+                    `Vault ${this.vault.id} Decrypting Ext Container ${this.name} has no content for role ${role} [${subFile}]`,
                 );
             }
         }

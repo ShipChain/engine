@@ -306,9 +306,7 @@ const helpMap = Object.assign(
 
 // Build Jayson Server with flattened methodMap
 // --------------------------------------------
-const server = new Server(methodMap, {
-    collect: false // don't collect params in a single argument
-});
+const server = new Server(methodMap);
 
 // Self-Documenting Help response
 // ------------------------------
@@ -370,6 +368,39 @@ async function startRpcServer() {
     server.http().listen(PORT);
 }
 
+// Handler to close database connections
+//   used on catch or interrupt signal
+// =====================================
+async function closeDbConnection() {
+    try {
+        logger.info(`Closing database connections`);
+        const connection = await typeorm.getConnection();
+        if (connection) {
+            connection.close();
+        } else {
+            logger.info(`No open connections`);
+        }
+    } catch (typeorm_err) {
+        logger.error(`Error closing database connections [${typeorm_err}]`);
+    }
+}
+
+process.on('SIGINT', function() {
+    logger.warn(`SIGINT received. Shutting down...`);
+    closeDbConnection().then(() => {
+        process.exit(0);
+    }).catch(err => {
+        process.exit(1);
+    });
+});
+
+// Main Entrypoint
+// ===============
 startRpcServer().catch(err => {
     logger.error(`${err}`);
+    closeDbConnection().then(() => {
+        process.exit(0);
+    }).catch(err => {
+        process.exit(1);
+    });
 });
