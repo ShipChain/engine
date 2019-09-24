@@ -306,9 +306,7 @@ const helpMap = Object.assign(
 
 // Build Jayson Server with flattened methodMap
 // --------------------------------------------
-const server = new Server(methodMap, {
-    collect: false // don't collect params in a single argument
-});
+const server = new Server(methodMap);
 
 // Self-Documenting Help response
 // ------------------------------
