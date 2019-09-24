@@ -144,9 +144,7 @@ export async function loadContractFixtures() {
     // Warn if the latest version of the contracts are not supported
     if (LATEST_LOAD !== contractMetaData.LOAD.latest) {
         logger.warn(
-            `LOAD version in fixture [${
-                contractMetaData.LOAD.latest
-            }] does not match latest supported Engine contract [${LATEST_LOAD}]`,
+            `LOAD version in fixture [${contractMetaData.LOAD.latest}] does not match latest supported Engine contract [${LATEST_LOAD}]`,
         );
     }
 
@@ -200,9 +198,7 @@ async function registerPreviousLoadContracts(LoadMetaData, LOAD_CONTRACT: BaseCo
             loadedContracts.register(currentContract.project.title, oldLoadContract);
         } else {
             logger.info(
-                `Skipping previous '${currentContract.project.title}' contract version ${
-                    previousVersion.title
-                } (not in fixture)`,
+                `Skipping previous '${currentContract.project.title}' contract version ${previousVersion.title} (not in fixture)`,
             );
         }
     }

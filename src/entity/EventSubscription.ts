@@ -306,9 +306,7 @@ export class EventSubscription extends BaseEntity {
                 .on('response', async function(response) {
                     if (response.statusCode != 201 && response.statusCode != 204) {
                         logger.error(
-                            `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${
-                                eventSubscription.url
-                            }]`,
+                            `Event Subscription Failed with ${response.statusCode} [${eventSubscription.project}_${eventSubscription.url}]`,
                         );
                         await eventSubscription.failed();
                         resolve();
