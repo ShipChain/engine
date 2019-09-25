@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "c323361a-5d9f-4d74-aac3-eebdc0c58d26",
-		"name": "Engine",
+		"_postman_id": "92a21ef6-3b8d-47a9-8ea9-a37a42286089",
+		"name": "Engine copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -113,19 +113,12 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"event.subscribe\",\n\t\"params\": {\n\t\t\"url\": \"http://callback-server:8080/allEvents\",\n\t\t\"project\": \"LOAD\",\n\t\t\"version\": \"1.1.0\",\n\t\t\"interval\": 30000,\n\t\t\"eventNames\": [\"CreateNewShipmentEvent\"]\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "\u0001{\n\t\"method\": \"event.subscribe\",\n\t\"params\": {\n\t\t\"url\": \"http://callback-server:8080/allEvents\",\n\t\t\"project\": \"LOAD\",\n\t\t\"version\": \"1.1.0\",\n\t\t\"interval\": 30000,\n\t\t\"eventNames\": [\"CreateNewShipmentEvent\"]\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "{{engine_url}}",
@@ -143,19 +136,12 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"event.unsubscribe\",\n\t\"params\": {\n\t\t\"url\": \"http://callback-server:8080/allEvents\",\n\t\t\"project\": \"LOAD\",\n\t\t\"version\": \"1.1.0\",\n\t\t\"interval\": 30000,\n\t\t\"eventNames\": [\"CreateNewShipmentEvent\"]\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n\t\"method\": \"event.unsubscribe\",\n\t\"params\": {\n\t\t\"url\": \"http://callback-server:8080/allEvents\",\n\t\t\"project\": \"LOAD\",\n\t\t\"version\": \"1.1.0\",\n\t\t\"interval\": 30000,\n\t\t\"eventNames\": [\"CreateNewShipmentEvent\"]\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "{{engine_url}}",
