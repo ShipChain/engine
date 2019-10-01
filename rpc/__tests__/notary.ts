@@ -319,4 +319,108 @@ export const RPCVaultNotaryTests = async function() {
 
     });
 
+    describe('GrantUpdateHashPermission', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.GrantUpdateHashPermissionTx, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['vaultId', 'senderWallet', 'toGrantWallet']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.GrantUpdateHashPermissionTx, {
+                    senderWallet: '123',
+                    vaultId: '123',
+                    toGrantWallet: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['vaultId', 'senderWallet', 'toGrantWallet']);
+        }));
+
+
+        it(`Validate properties exist in the build transaction return`, mochaAsync(async () => {
+                let rpcReturn = await CallRPCMethod(RPCVaultNotary.GrantUpdateHashPermissionTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    toGrantWallet: fullWallet2.id,
+                });
+
+                expect(rpcReturn).toBeDefined();
+                expect(rpcReturn.success).toBeTruthy();
+                expect(rpcReturn.transaction.nonce).toBeDefined();
+                expect(rpcReturn.transaction.gasPrice).toBeDefined();
+                expect(rpcReturn.transaction.gasLimit).toBeDefined();
+                expect(rpcReturn.transaction.value).toBeDefined();
+                expect(rpcReturn.transaction.data).toBeDefined();
+                expect(rpcReturn.transaction.to).toBeDefined();
+                expect(rpcReturn.transaction.chainId).toBeDefined();
+        }));
+
+    });
+
+    describe('RevokeUpdateHashPermission', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.RevokeUpdateHashPermissionTx, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['vaultId', 'senderWallet', 'toRevokeWallet']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.RevokeUpdateHashPermissionTx, {
+                    senderWallet: '123',
+                    vaultId: '123',
+                    toRevokeWallet: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['vaultId', 'senderWallet', 'toRevokeWallet']);
+        }));
+
+
+        it(`Validate properties exist in the build transaction return`, mochaAsync(async () => {
+                let rpcReturn = await CallRPCMethod(RPCVaultNotary.RevokeUpdateHashPermissionTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    toRevokeWallet: fullWallet2.id,
+                });
+
+                expect(rpcReturn).toBeDefined();
+                expect(rpcReturn.success).toBeTruthy();
+                expect(rpcReturn.transaction.nonce).toBeDefined();
+                expect(rpcReturn.transaction.gasPrice).toBeDefined();
+                expect(rpcReturn.transaction.gasLimit).toBeDefined();
+                expect(rpcReturn.transaction.value).toBeDefined();
+                expect(rpcReturn.transaction.data).toBeDefined();
+                expect(rpcReturn.transaction.to).toBeDefined();
+                expect(rpcReturn.transaction.chainId).toBeDefined();
+        }));
+
+    })
+
 };
