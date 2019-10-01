@@ -50,7 +50,6 @@ export async function setupLocalTestNetContracts(
         throw new Error('NOTARY Version cannot be found');
     }
 
-
     const tokenContractEntity: Contract = await tokenVersion.deployToLocalTestNet();
     const loadContractEntity: Contract = await loadVersion.deployToLocalTestNet();
     const notaryContractEntity: Contract = await notaryVersion.deployToLocalTestNet();

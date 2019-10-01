@@ -155,9 +155,7 @@ export async function loadContractFixtures() {
     }
     if (LATEST_NOTARY !== contractMetaData.NOTARY.latest) {
         logger.warn(
-            `NOTARY version in fixture [${
-                contractMetaData.NOTARY.latest
-            }] does not match latest supported Engine contract [${LATEST_NOTARY}]`,
+            `NOTARY version in fixture [${contractMetaData.NOTARY.latest}] does not match latest supported Engine contract [${LATEST_NOTARY}]`,
         );
     }
 
