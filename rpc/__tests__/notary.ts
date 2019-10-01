@@ -49,13 +49,6 @@ export const RPCVaultNotaryTests = async function() {
         await fullWallet2.save();
     });
 
-    beforeEach(async () => {
-    });
-
-    afterEach(async () => {
-    });
-
-
     afterAll(async() => {
         await cleanupEntities(typeorm);
     });
@@ -100,7 +93,7 @@ export const RPCVaultNotaryTests = async function() {
                     vaultUri: '123',
                     vaultHash: '123'
                 });
-                
+
                 expect(rpcReturn).toBeDefined();
                 expect(rpcReturn.success).toBeTruthy();
                 expect(rpcReturn.transaction.nonce).toBeDefined();
@@ -113,7 +106,216 @@ export const RPCVaultNotaryTests = async function() {
                 expect(rpcReturn.contractVersion).toMatch(LATEST_NOTARY);
  
         }));
- 
+
+    });
+
+    //Test for Uri related endpoints start from here
+    describe('SetVaultUri', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.SetVaultUriTx, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['vaultId', 'senderWallet', 'vaultUri']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.SetVaultUriTx, {
+                    senderWallet: '123',
+                    vaultId: '123',
+                    vaultUri: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['vaultId', 'senderWallet']);
+        }));
+
+
+        it(`Validate properties exist in the build transaction return`, mochaAsync(async () => {
+                let rpcReturn = await CallRPCMethod(RPCVaultNotary.SetVaultUriTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    vaultUri: '123',
+                });
+
+                expect(rpcReturn).toBeDefined();
+                expect(rpcReturn.success).toBeTruthy();
+                expect(rpcReturn.transaction.nonce).toBeDefined();
+                expect(rpcReturn.transaction.gasPrice).toBeDefined();
+                expect(rpcReturn.transaction.gasLimit).toBeDefined();
+                expect(rpcReturn.transaction.value).toBeDefined();
+                expect(rpcReturn.transaction.data).toBeDefined();
+                expect(rpcReturn.transaction.to).toBeDefined();
+                expect(rpcReturn.transaction.chainId).toBeDefined();
+        }));
+
+    });
+
+    describe('GrantUpdateUriPermission', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.GrantUpdateUriPermissionTx, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['vaultId', 'senderWallet', 'toGrantWallet']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.GrantUpdateUriPermissionTx, {
+                    senderWallet: '123',
+                    vaultId: '123',
+                    toGrantWallet: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['vaultId', 'senderWallet', 'toGrantWallet']);
+        }));
+
+
+        it(`Validate properties exist in the build transaction return`, mochaAsync(async () => {
+                let rpcReturn = await CallRPCMethod(RPCVaultNotary.GrantUpdateUriPermissionTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    toGrantWallet: fullWallet2.id,
+                });
+
+                expect(rpcReturn).toBeDefined();
+                expect(rpcReturn.success).toBeTruthy();
+                expect(rpcReturn.transaction.nonce).toBeDefined();
+                expect(rpcReturn.transaction.gasPrice).toBeDefined();
+                expect(rpcReturn.transaction.gasLimit).toBeDefined();
+                expect(rpcReturn.transaction.value).toBeDefined();
+                expect(rpcReturn.transaction.data).toBeDefined();
+                expect(rpcReturn.transaction.to).toBeDefined();
+                expect(rpcReturn.transaction.chainId).toBeDefined();
+        }));
+
+    });
+
+    describe('RevokeUpdateUriPermission', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.RevokeUpdateUriPermissionTx, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['vaultId', 'senderWallet', 'toRevokeWallet']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.RevokeUpdateUriPermissionTx, {
+                    senderWallet: '123',
+                    vaultId: '123',
+                    toRevokeWallet: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['vaultId', 'senderWallet', 'toRevokeWallet']);
+        }));
+
+
+        it(`Validate properties exist in the build transaction return`, mochaAsync(async () => {
+                let rpcReturn = await CallRPCMethod(RPCVaultNotary.RevokeUpdateUriPermissionTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    toRevokeWallet: fullWallet2.id,
+                });
+
+                expect(rpcReturn).toBeDefined();
+                expect(rpcReturn.success).toBeTruthy();
+                expect(rpcReturn.transaction.nonce).toBeDefined();
+                expect(rpcReturn.transaction.gasPrice).toBeDefined();
+                expect(rpcReturn.transaction.gasLimit).toBeDefined();
+                expect(rpcReturn.transaction.value).toBeDefined();
+                expect(rpcReturn.transaction.data).toBeDefined();
+                expect(rpcReturn.transaction.to).toBeDefined();
+                expect(rpcReturn.transaction.chainId).toBeDefined();
+        }));
+
+    });
+
+    //Test for Hash related endpoints start from here
+    describe('SetVaultHash', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.SetVaultHashTx, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['vaultId', 'senderWallet', 'vaultHash']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVaultNotary.SetVaultHashTx, {
+                    senderWallet: '123',
+                    vaultId: '123',
+                    vaultHash: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['vaultId', 'senderWallet']);
+        }));
+
+
+        it(`Validate properties exist in the build transaction return`, mochaAsync(async () => {
+                let rpcReturn = await CallRPCMethod(RPCVaultNotary.SetVaultHashTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    vaultHash: '123',
+                });
+
+                expect(rpcReturn).toBeDefined();
+                expect(rpcReturn.success).toBeTruthy();
+                expect(rpcReturn.transaction.nonce).toBeDefined();
+                expect(rpcReturn.transaction.gasPrice).toBeDefined();
+                expect(rpcReturn.transaction.gasLimit).toBeDefined();
+                expect(rpcReturn.transaction.value).toBeDefined();
+                expect(rpcReturn.transaction.data).toBeDefined();
+                expect(rpcReturn.transaction.to).toBeDefined();
+                expect(rpcReturn.transaction.chainId).toBeDefined();
+        }));
 
     });
 
