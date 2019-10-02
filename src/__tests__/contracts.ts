@@ -67,11 +67,14 @@ export const ContractEntityTests = async function() {
             const [signed_tx, txHash] = await owner.sign_tx(txParams);
 
             const receipt: any = await network.send_tx(signed_tx);
+            console.log(receipt.transactionHash.length)
 
             expect(receipt.transactionHash.length).toEqual(66);
 
             const new_owner_balance = await local.ShipToken.call_static('balanceOf', [owner.address]);
             const new_other_balance = await local.ShipToken.call_static('balanceOf', [other.address]);
+            console.log(new_owner_balance)
+            console.log(new_other_balance)
 
             expect(new_owner_balance).toEqual(ethereumService.unitToWei(400, 'ether'));
 

@@ -144,8 +144,7 @@ async function getNetwork(contractMetaData) {
 
 export async function loadContractFixtures() {
     const loadedContracts = LoadedContracts.Instance;
-    //const contractMetaData = await Project.loadFixturesFromUrl(CONTRACT_FIXTURES_URL);
-    const contractMetaData = await Project.loadFixturesFromFile('meta.json');
+    const contractMetaData = await Project.loadFixturesFromUrl(CONTRACT_FIXTURES_URL);
 
     // Warn if the latest version of the contracts are not supported
     if (LATEST_LOAD !== contractMetaData.LOAD.latest) {
