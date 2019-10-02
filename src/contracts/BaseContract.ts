@@ -69,8 +69,7 @@ export abstract class BaseContract {
 
     async buildTransactionForWallet(sender: Wallet, method: string, args: any[], options?: any) {
         const txParams = await this.buildTransaction(method, args, options);
-        let ha = await sender.add_tx_params(this._network, txParams);
-        return ha;
+        return await sender.add_tx_params(this._network, txParams);
     }
 
     async sendTransaction(txSigned, callbacks?: ContractCallback) {
