@@ -52,7 +52,7 @@ contains linked information regarding the contents and movements of the containe
 references to the Items that are included in the shipment. Shipments have been included in the
 ShipChain ecosystem to enable macro track and trace capabilities into supply chain movements.
 
-A Shipment's official fields are defined in the [Schema](http://schema.shipchain.io/1.2.1/shipment.json)
+A Shipment's official fields are defined in the [Schema](http://schema.shipchain.io/1.2.2/shipment.json)
 
 A Shipment can contain links to:
 
@@ -150,7 +150,7 @@ Tracking is the list of coordinates related to supply chain or logistics movemen
 been included in the ShipChain ecosystem to provide up-to-date location information regarding supply
 chain movements.
 
-Official Tracking fields are defined in the [Schema](http://schema.shipchain.io/1.2.1/tracking.json)
+Official Tracking fields are defined in the [Schema](http://schema.shipchain.io/1.2.2/tracking.json)
 
 Because Tracking currently exists to provide supporting information regarding the whereabouts of
 other Primitives, it does not natively contain links to any other Primitives.

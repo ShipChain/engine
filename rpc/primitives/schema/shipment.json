@@ -1,5 +1,5 @@
 {
-  "$id": "http://schema.shipchain.io/1.2.1/shipment.json",
+  "$id": "http://schema.shipchain.io/1.2.2/shipment.json",
   "type": "object",
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -84,22 +84,22 @@
       "maxLength": 255
     },
     "ship_from_location": {
-      "$ref": "http://schema.shipchain.io/1.2.1/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
       "title": "Ship from address",
       "description": "The Shipment's ship-from address"
     },
     "ship_to_location": {
-      "$ref": "http://schema.shipchain.io/1.2.1/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
       "title": "Ship to address",
       "description": "The Shipment's ship-to address"
     },
     "final_destination_location": {
-      "$ref": "http://schema.shipchain.io/1.2.1/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
       "title": "Shipment final destination",
       "description": "The Shipment's Final Destination address"
     },
     "bill_to_location": {
-      "$ref": "http://schema.shipchain.io/1.2.1/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
       "title": "Shipment's billed location (if different from ship_to_location)",
       "description": "The Shipment's Bill To address"
     },
@@ -652,6 +652,29 @@
         true
       ]
     },
+    "asset_physical_id": {
+      "$id": "/properties/asset_physical_id",
+      "type": "string",
+      "title": "Asset Physical ID",
+      "description": "An opaque identifier for the asset, used in tracking",
+      "default": "",
+      "examples": [
+        "c150b0b3f37a4fea11741e0adf253efa8e4870511d283d9a0d034ec0179feaa2"
+      ],
+      "maxLength": 255
+    },
+    "asset_custodian_id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[a-fA-F\\d]{8}-[a-fA-F\\d]{4}-4[a-fA-F\\d]{3}-[89abAB][a-fA-F\\d]{3}-[a-fA-F\\d]{12}$",
+      "examples": [
+        "c70a9b2f-bad9-4ace-b981-807cbb44782d"
+      ],
+      "maxLength": 36,
+      "$id": "/properties/asset_custodian_id",
+      "title": "Asset Custodian UUID",
+      "description": "The User ID of the current asset custodian"
+    },
     "version": {
       "$id": "/properties/version",
       "type": "string",
@@ -659,7 +682,7 @@
       "title": "Version",
       "description": "Version of shipment data format",
       "examples": [
-        "1.1.0"
+        "1.2.2"
       ]
     }
   },
