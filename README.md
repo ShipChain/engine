@@ -590,7 +590,7 @@ There are 2 RPC endpoints for managing these subscriptions.
 
 #### Subscribe
 
-Create an Event Subscription entity in Engine. This accepts a single JSON parameter with 2 required
+Create an Event Subscription entity in Engine. This accepts a single JSON parameter with 3 required
 fields and 3 optional fields that describe the subscription.
 
 ```JSONC
@@ -602,6 +602,9 @@ fields and 3 optional fields that describe the subscription.
 
     // Required - The name of a Contract loaded during Engine configuration
     "project": "LOAD",
+
+    // Required - The specific version of a contract to subscribe to events from
+    "version": "1.2.0",
 
     // Optional - Default 30000 (30 seconds)
     "interval": 5000,
@@ -616,6 +619,9 @@ fields and 3 optional fields that describe the subscription.
   "id": 0
 }
 ```
+
+The Project and Version combination must exist within the loaded Contract Fixtures or from a legacy
+contract defined in Engine's database.
 
 Once an Event Subscription is created it will begin looking for Events after the given interval has
 passed. If Engine is restarted, any previously registered Event Subscriptions will restart their
@@ -642,7 +648,7 @@ will recreate the Event Subscription with the new parameters.
 #### Unsubscribe
 
 Remove an existing Event Subscription. The Event Subscription will no longer be restarted when
-Engine restarts. The only parameters are the specific Project and the URL of an existing
+Engine restarts. The required parameters are the specific Project, URL, and Version of an existing
 Subscription.
 
 ```JSON
@@ -650,7 +656,8 @@ Subscription.
   "method": "event.unsubscribe",
   "params": {
     "url": "http://transmission.local/api/v1/contract/events/",
-    "project": "LOAD"
+    "project": "LOAD",
+    "version": "1.2.0"
   },
   "jsonrpc": "2.0",
   "id": 0
