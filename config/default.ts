@@ -17,5 +17,6 @@ export default {
     },
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "RPC_SERVER_PORT" : 2000,
+    "RPC_SERVER_TIMEOUT": 270,
     "USE_JS_ORM_ENTITIES": false,
 }
