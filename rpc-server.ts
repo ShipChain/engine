@@ -64,6 +64,7 @@ import { Server, Method } from 'jayson';
 
 const metrics = MetricsReporter.Instance;
 const PORT = config.get("RPC_SERVER_PORT");
+const TIMEOUT = config.get("RPC_SERVER_TIMEOUT");
 
 
 // Map RPC Method Handlers to namespaces
@@ -365,7 +366,8 @@ async function startRpcServer() {
     metrics.countAction("startRpcServer");
 
     logger.info(`RPC server listening on ${PORT}`);
-    server.http().listen(PORT);
+    let instance = server.http().listen(PORT);
+    instance.timeout = TIMEOUT * 1000
 }
 
 // Handler to close database connections
