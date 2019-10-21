@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1b2bb095-538b-4a57-be52-c9f2613f4b27",
+		"_postman_id": "4b7985f7-c2c2-49da-8da7-afd7bb79f401",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1985,9 +1985,11 @@
 									"response": []
 								}
 							],
+							"protocolProfileBehavior": {},
 							"_postman_isSubFolder": true
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				},
 				{
@@ -2446,6 +2448,7 @@
 									}
 								}
 							],
+							"protocolProfileBehavior": {},
 							"_postman_isSubFolder": true
 						},
 						{
@@ -4546,11 +4549,14 @@
 							"response": []
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
-        {   "name": "notary",
+		{
+			"name": "notary",
 			"item": [
 				{
 					"name": "notary.1.0.0",
@@ -4805,6 +4811,7 @@
 									}
 								}
 							],
+							"protocolProfileBehavior": {},
 							"_postman_isSubFolder": true
 						},
 						{
@@ -4824,7 +4831,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"notary.1.0.0.get_vault_notary_details\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.get_vault_notary_details\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4842,9 +4849,11 @@
 									"response": []
 								}
 							],
+							"protocolProfileBehavior": {},
 							"_postman_isSubFolder": true
 						}
 					],
+					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
 				},
 				{
@@ -4861,7 +4870,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"method\": \"notary.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"c0d33de2-ba03-4274-b1eb-c9c64b42231b\", \n\t\t\"vaultUri\": \"uri\", \n\t\t\"vaultHash\": \"hash\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+							"raw": "{\n\t\"method\": \"notary.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\", \n\t\t\"vaultHash\": \"0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "http://localhost:2000/",
@@ -4877,7 +4886,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "help",
