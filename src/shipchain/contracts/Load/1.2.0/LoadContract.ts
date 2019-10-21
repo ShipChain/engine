@@ -15,13 +15,8 @@
  */
 
 import { Wallet } from '../../../../entity/Wallet';
-import { LoadContract as LoadContract_1_1_0 } from '../1.1.0/LoadContract';
+import { LoadContract as LoadContract_1_1_0, EscrowFundingType } from '../1.1.0/LoadContract';
 
-export enum EscrowFundingType {
-    NO_FUNDING = 0,
-    SHIP = 1,
-    ETHER = 2,
-}
 export class LoadContract extends LoadContract_1_1_0 {
     constructor(network: string, version: string) {
         super(network, version);

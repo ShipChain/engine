@@ -357,22 +357,18 @@ export class Contract extends BaseEntity {
 
     static async getContractVersion(project_title: string, network_title: string, version_title: string) {
         let project = await Project.findOne({ title: project_title });
-        logger.info('project=' + JSON.stringify(project));
         let network = await Network.findOne({ title: network_title });
 
-        logger.info('network=' + JSON.stringify(network));
         if (!project || !network) {
             logger.error(`Unable to find existing ${project_title}:${network_title}:${version_title}`);
             return;
         }
 
-        logger.info('middle');
 
         let version;
         if (version_title) version = await Version.findOne({ title: version_title, project });
         else version = await Version.findOne({ project });
 
-        logger.info('version=' + JSON.stringify(version));
 
         if (!version) {
             logger.error(`Unable to find existing ${project_title}:${network_title}:${version_title}`);
