@@ -100,7 +100,6 @@ export class RPCVaultNotary {
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
 
-
         const txUnsigned = await NOTARY_CONTRACT.grantUpdateUriPermissionTx(senderWallet, args.vaultId, toGrantWallet);
 
         return {
@@ -120,7 +119,6 @@ export class RPCVaultNotary {
         const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
-
 
         const txUnsigned = await NOTARY_CONTRACT.revokeUpdateUriPermissionTx(
             senderWallet,
@@ -146,7 +144,6 @@ export class RPCVaultNotary {
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
 
-
         const txUnsigned = await NOTARY_CONTRACT.grantUpdateHashPermissionTx(senderWallet, args.vaultId, toGrantWallet);
 
         return {
@@ -166,7 +163,6 @@ export class RPCVaultNotary {
         const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
-
 
         const txUnsigned = await NOTARY_CONTRACT.revokeUpdateHashPermissionTx(
             senderWallet,
