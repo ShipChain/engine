@@ -96,10 +96,10 @@ export class RPCVaultNotary {
     })
     public static async GrantUpdateUriPermissionTx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
+        const toGrantWallet = await Wallet.getById(args.toGrantWallet);
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
 
-        const toGrantWallet = await Wallet.getById(args.toGrantWallet);
 
         const txUnsigned = await NOTARY_CONTRACT.grantUpdateUriPermissionTx(senderWallet, args.vaultId, toGrantWallet);
 
@@ -117,10 +117,10 @@ export class RPCVaultNotary {
     })
     public static async RevokeUpdateUriPermissionTx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
+        const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
 
-        const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
 
         const txUnsigned = await NOTARY_CONTRACT.revokeUpdateUriPermissionTx(
             senderWallet,
@@ -142,10 +142,10 @@ export class RPCVaultNotary {
     })
     public static async GrantUpdateHashPermissionTx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
+        const toGrantWallet = await Wallet.getById(args.toGrantWallet);
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
 
-        const toGrantWallet = await Wallet.getById(args.toGrantWallet);
 
         const txUnsigned = await NOTARY_CONTRACT.grantUpdateHashPermissionTx(senderWallet, args.vaultId, toGrantWallet);
 
@@ -163,10 +163,10 @@ export class RPCVaultNotary {
     })
     public static async RevokeUpdateHashPermissionTx(args) {
         const senderWallet = await Wallet.getById(args.senderWallet);
+        const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
 
         const NOTARY_CONTRACT: VaultNotaryContract = <VaultNotaryContract>loadedContracts.get(PROJECT, VERSION);
 
-        const toRevokeWallet = await Wallet.getById(args.toRevokeWallet);
 
         const txUnsigned = await NOTARY_CONTRACT.revokeUpdateHashPermissionTx(
             senderWallet,

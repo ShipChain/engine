@@ -71,7 +71,6 @@ export const RPCEventTests = async function() {
                     project: 'LOAD',
                     version: '1.2.0',
                 });
-                console.log(JSON.stringify(response));
 
                 expect(response).toBeDefined();
                 expect(response.success).toBeTruthy();
