@@ -364,11 +364,9 @@ export class Contract extends BaseEntity {
             return;
         }
 
-
         let version;
         if (version_title) version = await Version.findOne({ title: version_title, project });
         else version = await Version.findOne({ project });
-
 
         if (!version) {
             logger.error(`Unable to find existing ${project_title}:${network_title}:${version_title}`);

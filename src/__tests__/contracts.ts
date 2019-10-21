@@ -22,12 +22,12 @@ import { Contract, Version, Project, Network } from '../entity/Contract';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 import { EthereumService } from "../eth/EthereumService";
 
-import { latest as LATEST_NOTARY } from '../../rpc/VaultNotary/Latest';
 const utils = require('../local-test-net-utils');
 
 // These are the versions we are testing
 const LATEST_SHIPTOKEN = "1.0.0";
 const LATEST_LOAD = "1.2.0";
+const LATEST_NOTARY = "1.0.0";
 
 
 export const ContractEntityTests = async function() {
