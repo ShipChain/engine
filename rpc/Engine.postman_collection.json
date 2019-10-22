@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4b7985f7-c2c2-49da-8da7-afd7bb79f401",
+		"_postman_id": "4b1b555c-b1e9-474d-9d69-293bb9c91aca",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -4638,7 +4638,7 @@
 									"response": []
 								},
 								{
-									"name": "notary.1.0.0.grant_update_uri_permission_tx",
+									"name": "notary.1.0.0.set_vault_hash_tx",
 									"request": {
 										"method": "POST",
 										"header": [
@@ -4858,6 +4858,19 @@
 				},
 				{
 					"name": "notary.register_vault_tx",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3191f8fa-d61c-47e7-a9ae-2ceec04995fc",
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"tx_unsigned\", JSON.stringify(data.result.transaction));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
