@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "---------------------------------  Running ReadMe spellchecker  ---------------------------------"
+
+docker run --rm \
+  -v $(pwd)/README.md:/README.md \
+  -v $(pwd)/accepted_words/readme_dictionary.txt:/accepted_words/readme_dictionary.txt \
+  shipchain/spellcheck -md /README.md -d accepted_words/readme_dictionary.txt
