@@ -2022,7 +2022,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"8ca1e0df-26ff-4331-86f7-61a1cdcb06c9\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 10000000000000, \n\t\t\"carrierWallet\": \"8595c618-a448-4ba8-810f-6fc090da7f40\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 10000000000000, \n\t\t\"carrierWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "{{engine_url}}",
