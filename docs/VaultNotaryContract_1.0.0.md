@@ -148,7 +148,7 @@ the address `toGrantWallet`.
 }
 ```
 
-This will revoke the permission to update the URI of the vault with `vaultId` to 
+This will revoke the permission to update the URI of the vault with `vaultId` from 
 the address `toRevokeWallet`.
 
 
@@ -185,7 +185,7 @@ the address `toGrantWallet`.
 }
 ```
 
-This will revoke the permission to update the URI of the vault with `vaultId` to 
+This will revoke the permission to update the URI of the vault with `vaultId` from 
 the address `toRevokeWallet`.
 
   

@@ -24,6 +24,7 @@ import { ShipTokenContract } from '../../../src/shipchain/contracts/ShipToken/1.
 const loadedContracts = LoadedContracts.Instance;
 const PROJECT = 'LOAD';
 const VERSION = '1.2.0';
+const SHIPTOKEN_PROJECT = 'ShipToken';
 
 @RPCNamespace({ name: 'Load.1.2.0' })
 export class RPCLoad {
@@ -169,7 +170,7 @@ export class RPCLoad {
         const senderWallet = await Wallet.getById(args.senderWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
-        const TOKEN_CONTRACT: ShipTokenContract = <ShipTokenContract>loadedContracts.get('ShipToken');
+        const TOKEN_CONTRACT: ShipTokenContract = <ShipTokenContract>loadedContracts.get(SHIPTOKEN_PROJECT);
 
         const txUnsigned = await LOAD_CONTRACT.fundEscrowTx(
             TOKEN_CONTRACT,
@@ -213,7 +214,7 @@ export class RPCLoad {
         const senderWallet = await Wallet.getById(args.senderWallet);
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
-        const TOKEN_CONTRACT: ShipTokenContract = <ShipTokenContract>loadedContracts.get('ShipToken');
+        const TOKEN_CONTRACT: ShipTokenContract = <ShipTokenContract>loadedContracts.get(SHIPTOKEN_PROJECT);
 
         const txUnsigned = await LOAD_CONTRACT.fundEscrowShipTx(
             TOKEN_CONTRACT,
