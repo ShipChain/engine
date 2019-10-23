@@ -17,6 +17,6 @@ do
   echo "...File: $readmeFile"
   docker run --rm \
   -v $readmeFile:/$fileName \
-  -v $(pwd)/accepted_words/readme_dictionary.txt:/accepted_words/readme_dictionary.txt \
+  -v $(pwd)/docs/accepted_words/readme_dictionary.txt:/accepted_words/readme_dictionary.txt \
   shipchain/spellcheck -md /$fileName -d accepted_words/readme_dictionary.txt
 done
