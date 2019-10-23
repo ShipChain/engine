@@ -247,7 +247,7 @@ this, set:
  
 ##### Redis Locking
 Engine supports the locking of vaults using redis with default connection string
-`redis://:redis_pass@redis_db:6379/1`. We use this when interating with vaults to ensure that
+`redis://:redis_pass@redis_db:6379/1`. We use this when interacting with vaults to ensure that
 changes don't overlap. In order to use this, set:
  - `REDIS_URL` - With the format `redis://[:password@]host[:port][/db-number][?option=value]`
 
@@ -312,7 +312,7 @@ When calling an RPC method, the name of the method is provided as a string in pl
 
 ```JSON
 {
-  "method": "<rpc_method_name>",
+  "method": "<rpc-method-name>",
   "params": {<parameters>},
   "jsonrpc": "2.0",
   "id": 0

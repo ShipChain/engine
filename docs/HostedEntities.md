@@ -149,7 +149,7 @@ To view the Minio interface to the Buckets containing the vault files, navigate 
 
 ##### SFTP
 
- - `credentials` _Required_ Connection parameters. Any options listed in the SSH2 Documetation for
+ - `credentials` _Required_ Connection parameters. Any options listed in the SSH2 Documentation for
    the [connect](https://github.com/mscdex/ssh2#client-methods) method are valid here. Most commonly
    this will include:
     - `host`
