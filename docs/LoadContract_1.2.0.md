@@ -24,13 +24,13 @@ is detailed in [Load 1.1.0 Contract Version section](./LoadContract_1.1.0.md#Con
 }
 ```  
 We can see the only difference is the added `carrierWallet`, compared with the parameter
- list of this endpoint in the version 1.1.0. 
+ list of this endpoint in the version 1.1.0 of the Load contract. 
   
 2\. Removed all the methods/endpoints related to the uri and hash. Those functions are now separated
 into a new Notary contract. The information about the rpc calls to this new contract 
 can be found at  [VaultNotary 1.0.0](./VaultNotaryContract_1.0.0.md).
  
- This is a list the removed endpoints,
+ This is a list of the removed endpoints,
 
 - load.1.1.0.set_vault_uri_tx
 - load.1.1.0.set_vault_hash_tx

@@ -513,6 +513,8 @@ contracts.
 
 Engine currently supports these Smart Contracts:
 - [Load 1.1.0](docs/LoadContract_1.1.0.md)
+- [Load 1.2.0](docs/LoadContract_1.2.0.md)
+- [VaultNotary 1.0.0](docs/VaultNotaryContract_1.0.0.md)
 
 #### Multiple Requests Needed
 
