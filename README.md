@@ -694,6 +694,7 @@ see the [tags on this repository](https://github.com/shipchain/engine/tags).
 * **Adam Hodges** - [ajhodges](https://github.com/ajhodges)
 * **James Neyer** - [jamesfneyer](https://github.com/jamesfneyer)
 * **Jianwei Liu** - [jianwel](https://github.com/jianwel)
+* **Clovis Djiometsa** - [clovisdj](https://github.com/ClovisDj)
 
 <!--See also the list of [contributors](https://github.com/your/project/contributors) who participated-->
 <!--in this project.-->

@@ -63,6 +63,18 @@ jobs:
           root: docker-cache
           paths:
             - built-image.tar
+  spellchecker:
+    docker:
+      - image: circleci/node:10
+        user: root
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Readme spell check
+          command: bin/readme_spellcheck_circleci
   push-to-ecr:
     docker:
       - image: docker:stable-git
@@ -106,6 +118,7 @@ workflows:
   build-and-deploy:
     jobs:
       - build
+      - spellchecker
       - push-to-ecr:
           filters:
             branches:

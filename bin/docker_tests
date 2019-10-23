@@ -18,6 +18,8 @@ bin/dc build
 
 bin/dc up -d rpc
 
+bin/readme_spellcheck
+
 bin/dc exec -T rpc yarn check --integrity
 
 bin/dc exec -T rpc yarn check --verify-tree

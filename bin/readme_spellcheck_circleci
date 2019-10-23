@@ -1,0 +1,22 @@
+#!/bin/bash
+
+docker run --name spellcheck -d --entrypoint '' shipchain/spellcheck sh -c 'while sleep 3600; do :; done'
+
+docker cp $(pwd)/docs spellcheck:/docs
+docker cp $(pwd)/README.md spellcheck:/docs/README.md
+
+readMeFileList[0]=/docs/README.md
+
+index=0
+for file in $(find $(pwd)/docs/ -name "*.md")
+do
+  ((index++))
+  readMeFileList[$index]=/docs/$(basename $file)
+done
+
+for readmeFile in "${readMeFileList[@]}"
+do
+  echo "...File: $readmeFile"
+  docker exec spellcheck ./spellchecker_entrypoint.sh -md $readmeFile \
+  -d /docs/accepted_words/readme_dictionary.txt || exit 1
+done
