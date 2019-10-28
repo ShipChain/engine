@@ -17,6 +17,6 @@ done
 for readmeFile in "${readMeFileList[@]}"
 do
   echo "...File: $readmeFile"
-  docker exec spellcheck ./spellchecker_entrypoint.sh -md $readmeFile \
+  docker exec spellcheck ./spellchecker_entrypoint.sh -r $readmeFile \
   -d /docs/accepted_words/readme_dictionary.txt || exit 1
 done
