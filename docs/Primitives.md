@@ -159,3 +159,21 @@ other Primitives, it does not natively contain links to any other Primitives.
 
 Shipment `9f1577d0-229a-480b-8da1-25315d1a385c`, including 10,000 Widget Items, is linked to a list
 of locations that provide insight into the movements of the Shipment and in turn the linked Items.
+    
+### Telemetry
+
+Telemetry is the generic sensor data collected at various time intervals. Telemetry has been
+included in the ShipChain ecosystem to provide up-to-date sensor information regarding supply chain
+movements.
+
+Official Telemetry fields are defined in the
+[Schema](http://schema.shipchain.io/1.2.2/telemetry.json)
+
+Because Telemetry currently exists to provide supporting information regarding the state of other
+Primitives, it does not natively contain links to any other Primitives.
+
+##### Example Usage
+
+Shipment `9f1577d0-229a-480b-8da1-25315d1a385c`, including 10,000 Widget Items, is linked to a list
+of data collected from various sensors that provide insight into the state, condition, environment,
+etc. of the Shipment and in turn the linked Items.
