@@ -51,6 +51,7 @@ export class ShipmentProperties extends PrimitiveProperties {
     fields: {};
     documents: {};
     tracking: string;
+    telemetry: string;
     items: {};
 
     constructor(initializingJson: any = {}) {
@@ -60,6 +61,7 @@ export class ShipmentProperties extends PrimitiveProperties {
         primitive.fields = {};
         primitive.documents = {};
         primitive.tracking = null;
+        primitive.telemetry = null;
         primitive.items = {};
     }
 
@@ -156,6 +158,24 @@ export class Shipment extends EmbeddedFileContainer implements Primitive {
         Primitive.validateLinkedPrimitive(trackingLink, PrimitiveType.Tracking.name);
         let shipment: ShipmentProperties = await this.getPrimitiveProperties(ShipmentProperties, wallet);
         shipment.tracking = trackingLink;
+        await this.setContents(wallet, JSON.stringify(shipment));
+    }
+
+    // TELEMETRY ACCESS
+    // ===============
+    async getTelemetry(wallet: Wallet): Promise<any> {
+        let shipment: ShipmentProperties = await this.getPrimitiveProperties(ShipmentProperties, wallet);
+        if (shipment && shipment.telemetry) {
+            return await RemoteVault.processContentForLinks(shipment.telemetry);
+        } else {
+            throw new Error(`Telemetry not found in Shipment`);
+        }
+    }
+
+    async setTelemetry(wallet: Wallet, telemetryLink: string): Promise<any> {
+        Primitive.validateLinkedPrimitive(telemetryLink, PrimitiveType.Telemetry.name);
+        let shipment: ShipmentProperties = await this.getPrimitiveProperties(ShipmentProperties, wallet);
+        shipment.telemetry = telemetryLink;
         await this.setContents(wallet, JSON.stringify(shipment));
     }
 
