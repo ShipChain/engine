@@ -316,6 +316,57 @@ export const ShipmentPrimitiveTests = async function() {
         });
     });
 
+    describe(`telemetry`, async () => {
+
+        it(`needs valid linkEntry`, async () => {
+            let shipment = await injectPrimitive();
+
+            let caughtError;
+
+            try {
+                await shipment.setTelemetry(author, "not a linkEntry");
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expect(caughtError.message).toMatch(`Expecting Link to [Telemetry] instead received [invalid linkEntry]`);
+        });
+
+        it(`throws if retrieved when not set`, async () => {
+            let shipment = await injectPrimitive();
+
+            let caughtError;
+
+            try {
+                await shipment.getTelemetry(author);
+                fail(`Should have thrown`);
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expect(caughtError.message).toMatch(`Telemetry not found in Shipment`);
+        });
+
+        it(`can set`, async () => {
+            let shipment = await injectPrimitive();
+            await shipment.setTelemetry(author, getNockableLink('Telemetry'));
+        });
+
+        it(`can be retrieved`, async () => {
+            let shipment = await injectPrimitive();
+            await shipment.setTelemetry(author, getNockableLink('Telemetry'));
+
+            shipment = await refreshPrimitive();
+
+            const thisTelemetryNock = nockLinkedData('Telemetry');
+
+            let telemetry = await shipment.getTelemetry(author);
+            expect(telemetry.length).toEqual(getPrimitiveData('Telemetry').length);
+            expect(telemetry[0]).toEqual(getPrimitiveData('Telemetry')[0]);
+            expect(thisTelemetryNock.isDone()).toBeTruthy();
+        });
+    });
+
     describe(`full primitive`, async () => {
 
         it(`can be retrieved`, async () => {
@@ -326,6 +377,7 @@ export const ShipmentPrimitiveTests = async function() {
             await shipment.addDocument(author, 'docId', getNockableLink('Document'));
             await shipment.addItem(author, 'itemId', getNockableLink('Item'));
             await shipment.setTracking(author, getNockableLink('Tracking'));
+            await shipment.setTelemetry(author, getNockableLink('Telemetry'));
 
             shipment = await refreshPrimitive();
 
@@ -333,6 +385,7 @@ export const ShipmentPrimitiveTests = async function() {
             const thisItemNock = nockLinkedData('Item');
             const thisProductNock = nockLinkedData('Product');
             const thisTrackingNock = nockLinkedData('Tracking');
+            const thisTelemetryNock = nockLinkedData('Telemetry');
 
             let fullShipment = await shipment.getShipment(author);
 
@@ -345,11 +398,14 @@ export const ShipmentPrimitiveTests = async function() {
             expect(fullShipment.items['itemId'].item.product.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
             expect(fullShipment.tracking.length).toEqual(getPrimitiveData('Tracking').length);
             expect(fullShipment.tracking[0]).toEqual(getPrimitiveData('Tracking')[0]);
+            expect(fullShipment.telemetry.length).toEqual(getPrimitiveData('Telemetry').length);
+            expect(fullShipment.telemetry[0]).toEqual(getPrimitiveData('Telemetry')[0]);
 
             expect(thisDocumentNock.isDone()).toBeTruthy();
             expect(thisItemNock.isDone()).toBeTruthy();
             expect(thisProductNock.isDone()).toBeTruthy();
             expect(thisTrackingNock.isDone()).toBeTruthy();
+            expect(thisTelemetryNock.isDone()).toBeTruthy();
         });
     });
 

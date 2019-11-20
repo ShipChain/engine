@@ -131,7 +131,7 @@ function getNockedResponse(linkedPrimitive: string): any {
 
     nockedResponse.result = getPrimitiveData(linkedPrimitive);
 
-    if (linkedPrimitive !== 'Tracking') {
+    if (linkedPrimitive !== 'Tracking' && linkedPrimitive !== 'Telemetry') {
         nockedResponse.result = JSON.stringify(nockedResponse.result);
     }
 
