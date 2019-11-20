@@ -51,7 +51,11 @@ const productResponseData = {
 };
 
 const trackingResponseData = [{
-    "one": 1
+    "tracking_one": 1
+}];
+
+const telemetryResponseData = [{
+    "telemetry_one": 1
 }];
 
 const itemResponseData = {
@@ -103,6 +107,8 @@ export function getPrimitiveData(linkedPrimitive: string): any {
             return productResponseData;
         case 'Tracking':
             return trackingResponseData;
+        case 'Telemetry':
+            return telemetryResponseData;
         case 'Item':
             return itemResponseData;
         case 'Shipment':

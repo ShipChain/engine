@@ -41,6 +41,7 @@ import { RPCItemListPrimitiveTests } from './rpc/__tests__/primitives/item_list'
 import { RPCProductPrimitiveTests } from './rpc/__tests__/primitives/product';
 import { RPCProductListPrimitiveTests } from './rpc/__tests__/primitives/product_list';
 import { RPCTrackingPrimitiveTests } from './rpc/__tests__/primitives/tracking';
+import { RPCTelemetryPrimitiveTests } from './rpc/__tests__/primitives/telemetry';
 import { RPCShipmentPrimitiveTests } from './rpc/__tests__/primitives/shipment';
 import { RPCShipmentListPrimitiveTests } from './rpc/__tests__/primitives/shipment_list';
 import { RPCProcurementPrimitiveTests } from './rpc/__tests__/primitives/procurement';
@@ -71,6 +72,7 @@ import { ItemListPrimitiveTests } from "./src/shipchain/__tests__/itemlist";
 import { ProductPrimitiveTests } from "./src/shipchain/__tests__/product";
 import { ProductListPrimitiveTests } from "./src/shipchain/__tests__/productlist";
 import { TrackingPrimitiveTests } from "./src/shipchain/__tests__/tracking";
+import { TelemetryPrimitiveTests } from "./src/shipchain/__tests__/telemetry";
 import { ShipmentPrimitiveTests } from "./src/shipchain/__tests__/shipment";
 import { ShipmentListPrimitiveTests } from "./src/shipchain/__tests__/shipmentlist";
 import { ProcurementPrimitiveTests } from "./src/shipchain/__tests__/procurement";
@@ -125,6 +127,7 @@ describe('RPC', async () => {
     describe('Product Primitive', RPCProductPrimitiveTests);
     describe('ProductList Primitive', RPCProductListPrimitiveTests);
     describe('Tracking Primitive', RPCTrackingPrimitiveTests);
+    describe('Telemetry Primitive', RPCTelemetryPrimitiveTests);
     describe('Shipment Primitive', RPCShipmentPrimitiveTests);
     describe('ShipmentList Primitive', RPCShipmentListPrimitiveTests);
     describe('Procurement Primitive', RPCProcurementPrimitiveTests);
@@ -197,6 +200,7 @@ describe('ShipChain', async () => {
     describe('Product Primitive', ProductPrimitiveTests);
     describe('ProductList Primitive', ProductListPrimitiveTests);
     describe('Tracking Primitive', TrackingPrimitiveTests);
+    describe('Telemetry Primitive', TelemetryPrimitiveTests);
     describe('Shipment Primitive', ShipmentPrimitiveTests);
     describe('ShipmentList Primitive', ShipmentListPrimitiveTests);
     describe('Procurement Primitive', ProcurementPrimitiveTests);
