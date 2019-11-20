@@ -96,6 +96,50 @@ Retrieving the existing data points in this container is performed via:
 }
 ```
 
+#### Telemetry Data Container
+
+One container in the vault is for logging generic sensor data over the length of the shipment.
+
+##### Add
+
+Appending new data points in this container is performed via:
+
+```JSON
+{
+  "method": "vault.add_telemetry",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480",
+    "payload": {
+      "sensor_id": "44444444-4444-4444-bbbb-bbbbbbbbbbbb",
+      "timestamp": "2019-01-01T00:00:00.000Z",
+      "value": "78.354",
+      "units": "kph"
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
+##### Retrieve
+
+Retrieving the existing data points in this container is performed via:
+
+```JSON
+{
+  "method": "vault.get_telemetry",
+  "params": {
+    "storageCredentials": "a350758d-2dd8-4bab-b983-2390657bbc25",
+    "vaultWallet": "eea40c56-7674-43a5-8612-30abd98cf58b",
+    "vault": "2ed96ba9-26d4-4f26-b3da-c45562268480"
+  },
+  "jsonrpc": "2.0",
+  "id": 0
+}
+```
+
 #### Shipment Data Container
 
 One container in the vault is for storing the associated
@@ -252,6 +296,7 @@ getting this prior data is handled via these RPC methods.
 
  - `get_historical_shipment_data`
  - `get_historical_tracking_data`
+-  `get_historical_telemetry_data`
  - `get_historical_document`
 
 These are called the same as their non-historical counterparts, except they require one of two

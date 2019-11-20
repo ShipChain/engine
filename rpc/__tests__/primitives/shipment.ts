@@ -196,6 +196,7 @@ export const RPCShipmentPrimitiveTests = async function() {
                 expect(result.shipment.fields).toEqual({});
                 expect(result.shipment.documents).toEqual({});
                 expect(result.shipment.tracking).toBeNull();
+                expect(result.shipment.telemetry).toBeNull();
                 expect(result.shipment.items).toEqual({});
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
@@ -1048,6 +1049,253 @@ export const RPCShipmentPrimitiveTests = async function() {
                 expect(response.tracking[0]).toEqual(getPrimitiveData('Tracking')[0]);
 
                 expect(thisTrackingNock.isDone()).toBeTruthy();
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+    });
+
+    describe('GetTelemetry', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCShipment.GetTelemetry, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCShipment.GetTelemetry, {
+                    storageCredentials: '123',
+                    vaultWallet: '123',
+                    vault: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates StorageCredentials exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.GetTelemetry, {
+                    storageCredentials: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('StorageCredentials not found');
+            }
+        }));
+
+        it(`Validates Shipper exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.GetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: uuidv4(),
+                    vault: vaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('Wallet not found');
+            }
+        }));
+
+        it(`Validates Vault exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.GetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: uuidv4(),
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
+            }
+        }));
+
+        it(`Throws when retrieving Telemetry when not set`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.GetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Telemetry not found in Shipment`);
+            }
+        }));
+
+        it(`Gets Telemetry when set`, mochaAsync(async () => {
+            try {
+                let vault2 = new ShipChainVault(await localStorage.getDriverOptions(), vaultId);
+                await vault2.loadMetadata();
+                let itemPrimitive = vault2.getPrimitive('Shipment');
+                await itemPrimitive.setTelemetry(fullWallet1, getNockableLink('Telemetry'));
+                await vault2.writeMetadata(fullWallet1);
+
+                const thisDocumentNock = nockLinkedData('Telemetry');
+
+                const response: any = await CallRPCMethod(RPCShipment.GetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                });
+
+                expect(response.success).toBeTruthy();
+                expect(response.vault_id).toEqual(vaultId);
+                expect(response.wallet_id).toEqual(fullWallet1.id);
+                expect(response.telemetry).toBeDefined();
+                expect(response.telemetry[0]).toEqual(getPrimitiveData('Telemetry')[0]);
+
+                expect(thisDocumentNock.isDone()).toBeTruthy();
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+    });
+
+    describe('SetTelemetry', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCShipment.SetTelemetry, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault', 'telemetryLink']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCShipment.SetTelemetry, {
+                    storageCredentials: '123',
+                    vaultWallet: '123',
+                    vault: '123',
+                    telemetryLink: getNockableLink('Telemetry'),
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates StorageCredentials exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.SetTelemetry, {
+                    storageCredentials: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                    telemetryLink: getNockableLink('Telemetry'),
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('StorageCredentials not found');
+            }
+        }));
+
+        it(`Validates Shipper exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.SetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: uuidv4(),
+                    vault: vaultId,
+                    telemetryLink: getNockableLink('Telemetry'),
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('Wallet not found');
+            }
+        }));
+
+        it(`Validates Vault exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.SetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: uuidv4(),
+                    telemetryLink: getNockableLink('Telemetry'),
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
+            }
+        }));
+
+        it(`Validates telemetryLink is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.SetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                    telemetryLink: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expectInvalidStringParams(err, ['telemetryLink']);
+            }
+        }));
+
+        it(`Validates telemetryLink is for correct Primitive`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCShipment.SetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                    telemetryLink: getNockableLink('Shipment'),
+                });
+                fail("Did not Throw");
+                return;
+            } catch (err) {
+                expect(err.message).toContain(`Expecting Link to [Telemetry] instead received [Shipment]`);
+            }
+        }));
+
+        it(`Sets Telemetry Link`, mochaAsync(async () => {
+            try {
+                const result: any = await CallRPCMethod(RPCShipment.SetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                    telemetryLink: getNockableLink('Telemetry'),
+                });
+
+                expect(result.success).toBeTruthy();
+
+                const thisTelemetryNock = nockLinkedData('Telemetry');
+
+                const response: any = await CallRPCMethod(RPCShipment.GetTelemetry, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: vaultId,
+                });
+
+                expect(response.success).toBeTruthy();
+                expect(response.vault_id).toEqual(vaultId);
+                expect(response.wallet_id).toEqual(fullWallet1.id);
+                expect(response.telemetry).toBeDefined();
+                expect(response.telemetry[0]).toEqual(getPrimitiveData('Telemetry')[0]);
+
+                expect(thisTelemetryNock.isDone()).toBeTruthy();
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }

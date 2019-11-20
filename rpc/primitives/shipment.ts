@@ -233,6 +233,58 @@ export class RPCShipment {
         };
     }
 
+    // TELEMETRY ACCESS
+    // ===============
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async GetTelemetry(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const vault = new ShipChainVault(storage, args.vault);
+        await vault.loadMetadata();
+
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
+        const content = await shipment.getTelemetry(wallet);
+
+        return {
+            success: true,
+            wallet_id: wallet.id,
+            vault_id: args.vault,
+            telemetry: content,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'telemetryLink'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            string: ['telemetryLink'],
+        },
+    })
+    public static async SetTelemetry(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const vault = new ShipChainVault(storage, args.vault);
+        await vault.loadMetadata();
+
+        const shipment: Shipment = await vault.getPrimitive(PrimitiveType.Shipment.name);
+        await shipment.setTelemetry(wallet, args.telemetryLink);
+
+        const vaultWriteResponse = await vault.writeMetadata(wallet);
+
+        return {
+            ...vaultWriteResponse,
+            success: true,
+        };
+    }
+
     // ITEMS ACCESS
     // ============
 

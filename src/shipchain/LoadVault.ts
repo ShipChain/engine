@@ -21,6 +21,7 @@ export class LoadVault extends Vault {
     private static readonly TRACKING: string = 'tracking';
     private static readonly SHIPMENT: string = 'shipment';
     private static readonly DOCUMENTS: string = 'documents';
+    private static readonly TELEMETRY: string = 'telemetry';
 
     constructor(storage_driver, id?) {
         super(storage_driver, id);
@@ -31,6 +32,7 @@ export class LoadVault extends Vault {
         this.getOrCreateContainer(author, LoadVault.TRACKING, 'external_list_daily');
         this.getOrCreateContainer(author, LoadVault.SHIPMENT, 'embedded_file');
         this.getOrCreateContainer(author, LoadVault.DOCUMENTS, 'external_file_multi');
+        this.getOrCreateContainer(author, LoadVault.TELEMETRY, 'external_list_daily');
         return this.meta;
     }
 
@@ -70,6 +72,16 @@ export class LoadVault extends Vault {
         return await this.containers[LoadVault.DOCUMENTS].listFiles();
     }
 
+    async addTelemetryData(author: Wallet, payload) {
+        await this.loadMetadata();
+        await this.containers[LoadVault.TELEMETRY].append(author, payload);
+    }
+
+    async getTelemetryData(author: Wallet) {
+        await this.loadMetadata();
+        return await this.containers[LoadVault.TELEMETRY].decryptContents(author);
+    }
+
     // Historical Retrievals
     // =====================
 
@@ -90,6 +102,11 @@ export class LoadVault extends Vault {
         return await this.getHistoricalDataByDate(author, LoadVault.DOCUMENTS, date, documentName);
     }
 
+    async getHistoricalTelemetryByDate(author: Wallet, date: string) {
+        await this.loadMetadata();
+        return await this.getHistoricalDataByDate(author, LoadVault.TELEMETRY, date);
+    }
+
     async getHistoricalShipmentBySequence(author: Wallet, sequence: number) {
         await this.loadMetadata();
         const contents = await this.getHistoricalDataBySequence(author, LoadVault.SHIPMENT, sequence);
@@ -105,5 +122,10 @@ export class LoadVault extends Vault {
     async getHistoricalDocumentBySequence(author: Wallet, sequence: number, documentName: string) {
         await this.loadMetadata();
         return await this.getHistoricalDataBySequence(author, LoadVault.DOCUMENTS, sequence, documentName);
+    }
+
+    async getHistoricalTelemetryBySequence(author: Wallet, sequence: number) {
+        await this.loadMetadata();
+        return await this.getHistoricalDataBySequence(author, LoadVault.TELEMETRY, sequence);
     }
 }

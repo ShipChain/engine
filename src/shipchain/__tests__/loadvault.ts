@@ -123,6 +123,32 @@ export const LoadVaultTests = async function() {
         expect(testTracking).toEqual([TRACKING_01, TRACKING_02]);
     });
 
+    it('can add and retrieve Telemetry data', async() => {
+        let author: Wallet = await Wallet.generate_entity();
+
+        /* New vault shouldn't exist yet */
+        let vault = new LoadVault(storage_driver);
+        await vault.getOrCreateMetadata(author);
+
+        // Test with a single point
+        await vault.addTelemetryData(author, TELEMETRY_01);
+        await vault.writeMetadata(author);
+
+        vault = new LoadVault(storage_driver, vault.id);
+        let testTelemetry = await vault.getTelemetryData(author);
+
+        expect(testTelemetry).toEqual([TELEMETRY_01]);
+
+        // Test with another point
+        await vault.addTelemetryData(author, TELEMETRY_02);
+        await vault.writeMetadata(author);
+
+        vault = new LoadVault(storage_driver, vault.id);
+        testTelemetry = await vault.getTelemetryData(author);
+
+        expect(testTelemetry).toEqual([TELEMETRY_01, TELEMETRY_02]);
+    });
+
     it('can add and retrieve Documents', async() => {
         let author: Wallet = await Wallet.generate_entity();
 
@@ -171,6 +197,9 @@ const SHIPMENT_02 = {
 
 const TRACKING_01 = {tracking: 1};
 const TRACKING_02 = {tracking: 2};
+
+const TELEMETRY_01 = {telemetry: 1};
+const TELEMETRY_02 = {telemetry: 2};
 
 const DOCUMENT_01 = {
     name: 'file01.txt',
