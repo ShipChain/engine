@@ -324,6 +324,49 @@ export class RPCVault {
     }
 
     @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+        },
+    })
+    public static async GetTelemetryData(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+        const contents = await load.getTelemetryData(wallet);
+
+        return {
+            success: true,
+            wallet_id: wallet.id,
+            load_id: args.vault,
+            contents: contents,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault', 'payload'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            object: ['payload'],
+        },
+    })
+    public static async AddTelemetryData(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+
+        await load.addTelemetryData(wallet, args.payload);
+        const vaultWriteResponse = await load.writeMetadata(wallet);
+
+        return {
+            ...vaultWriteResponse,
+            success: true,
+        };
+    }
+
+    @RPCMethod({
         require: ['storageCredentials', 'vault'],
         validate: {
             uuid: ['storageCredentials', 'vault'],
@@ -423,6 +466,36 @@ export class RPCVault {
             contents = await load.getHistoricalDocumentByDate(wallet, args.date, args.documentName);
         } else {
             contents = await load.getHistoricalDocumentBySequence(wallet, args.sequence, args.documentName);
+        }
+
+        return {
+            success: true,
+            wallet_id: wallet.id,
+            load_id: args.vault,
+            historical_data: contents,
+        };
+    }
+
+    @RPCMethod({
+        require: ['storageCredentials', 'vaultWallet', 'vault'],
+        validate: {
+            uuid: ['storageCredentials', 'vaultWallet', 'vault'],
+            date: ['date'],
+            number: ['sequence'],
+            requireOne: [{ arg1: 'date', arg2: 'sequence' }],
+        },
+    })
+    public static async GetHistoricalTelemetryData(args) {
+        const storage = await StorageCredential.getOptionsById(args.storageCredentials);
+        const wallet = await Wallet.getById(args.vaultWallet);
+
+        const load = new LoadVault(storage, args.vault);
+        let contents;
+
+        if (args.date) {
+            contents = await load.getHistoricalTelemetryByDate(wallet, args.date);
+        } else {
+            contents = await load.getHistoricalTelemetryBySequence(wallet, args.sequence);
         }
 
         return {
