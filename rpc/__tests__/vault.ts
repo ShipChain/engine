@@ -1541,6 +1541,227 @@ export const RPCVaultTests = async function() {
         }));
     });
 
+    describe('AddTelemetryData', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.AddTelemetryData, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault', 'payload']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: '123',
+                    vaultWallet: '123',
+                    vault: '123',
+                    payload: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates StorageCredentials exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    payload: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('StorageCredentials not found');
+            }
+        }));
+
+        it(`Validates Vault Wallet exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: uuidv4(),
+                    vault: testableLocalVaultId,
+                    payload: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('Wallet not found');
+            }
+        }));
+
+        it(`Validates Vault exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: uuidv4(),
+                    payload: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
+            }
+        }));
+
+        it(`Validates Payload is object`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    payload: 'a string',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Invalid Object: 'payload'`);
+            }
+
+            try {
+                await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    payload: [],
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Invalid Object: 'payload'`);
+            }
+        }));
+
+        it(`Adds new data`, mochaAsync(async () => {
+            try {
+                const result: any = await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    payload: {
+                        some: 'data'
+                    },
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.vault_signed).toBeDefined();
+                expect(result.vault_revision).toEqual(6);
+                expect(fs.existsSync(`./${testableLocalVaultId}/telemetry/20180101.json`)).toBeTruthy();
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+    });
+
+    describe('GetTelemetryData', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetTelemetryData, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetTelemetryData, {
+                    storageCredentials: '123',
+                    vaultWallet: '123',
+                    vault: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates StorageCredentials exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.GetTelemetryData, {
+                    storageCredentials: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('StorageCredentials not found');
+            }
+        }));
+
+        it(`Validates Vault Wallet exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.GetTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: uuidv4(),
+                    vault: testableLocalVaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('Wallet not found');
+            }
+        }));
+
+        it(`Validates Vault exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.GetTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: uuidv4(),
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
+            }
+        }));
+
+        it(`Returns empty array when no telemetry data exists`, mochaAsync(async () => {
+            try {
+                const result: any = await CallRPCMethod(RPCVault.GetTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: emptyLocalVaultId,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.contents).toEqual([]);
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
+        it(`Returns correct telemetry data when exists`, mochaAsync(async () => {
+            try {
+                const result: any = await CallRPCMethod(RPCVault.GetTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.contents).toEqual([{
+                    some: 'data'
+                }]);
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+    });
+
     describe('VerifyVault', function() {
         it(`Has required parameters`, mochaAsync(async () => {
             let caughtError;
@@ -1885,7 +2106,7 @@ export const RPCVaultTests = async function() {
                     storageCredentials: localStorage.id,
                     vaultWallet: fullWallet1.id,
                     vault: testableLocalVaultId,
-                    sequence: 6,
+                    sequence: 7,
                 });
                 expect(result.success).toBeTruthy();
                 expect(result.historical_data).toEqual({
@@ -2179,6 +2400,296 @@ export const RPCVaultTests = async function() {
                 expect(result.success).toBeTruthy();
                 expect(result.historical_data).toEqual({
                     tracking: [{
+                        'some': 'data',
+                    },{
+                        'more': 'data',
+                    }],
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+    });
+
+    describe('GetHistoricalTelemetryData', function() {
+        it(`Has required parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {});
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectMissingRequiredParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Requires date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [[]]);
+        }));
+
+        it(`Requires only date or sequence`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_1,
+                    sequence: 1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidParameterCombinationParams(caughtError, [['date', 'sequence']], [['date', 'sequence']]);
+        }));
+
+        it(`Validates UUID parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: '123',
+                    vaultWallet: '123',
+                    vault: '123',
+                    date: DATE_1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidUUIDParams(caughtError, ['storageCredentials', 'vaultWallet', 'vault']);
+        }));
+
+        it(`Validates Date parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: 'Jan 1st, 2018',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidDateParams(caughtError, ['date']);
+        }));
+
+        it(`Validates Number parameters`, mochaAsync(async () => {
+            let caughtError;
+
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 'not a number',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                caughtError = err;
+            }
+
+            expectInvalidNumberParams(caughtError, ['sequence']);
+        }));
+
+        it(`Validates StorageCredentials exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: uuidv4(),
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('StorageCredentials not found');
+            }
+        }));
+
+        it(`Validates Vault Wallet exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: uuidv4(),
+                    vault: testableLocalVaultId,
+                    date: DATE_1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain('Wallet not found');
+            }
+        }));
+
+        it(`Validates Vault exists`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: uuidv4(),
+                    date: DATE_1,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`Unable to load vault from Storage driver 'File Not Found'`);
+            }
+        }));
+
+        it(`Throws when no data exists for date`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: emptyLocalVaultId,
+                    date: DATE_0,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`No data found for date`);
+            }
+        }));
+
+        it(`Returns latest data when exists`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_2,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    on_date: DATE_1,
+                    telemetry: [{
+                        some: 'data'
+                    }],
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
+        it(`Returns intermediate data when exists`, mochaAsync(async () => {
+            try {
+                // Add new data at DATE_3
+                mockDate(DATE_3);
+                await CallRPCMethod(RPCVault.AddTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    payload: {
+                        more: 'data',
+                    },
+                });
+                resetDate(); // <-- Very important!
+
+                // Check data at DATE_2 is still previous data
+                let result: any = await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_2,
+                });
+
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    on_date: DATE_1,
+                    telemetry: [{
+                        some: 'data'
+                    }],
+                });
+
+                // Check data at DATE_4 is most recent
+                result = await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    date: DATE_4,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    on_date: DATE_3,
+                    telemetry: [{
+                        some: 'data',
+                    },{
+                        more: 'data'
+                    }],
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
+        it(`Throws when no data exists for sequence`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 0,
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expect(err.message).toContain(`No data found at specific sequence`);
+            }
+        }));
+
+        it(`Returns Telemetry data up to a sequence 2`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 6,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    telemetry: [{
+                        'some': 'data',
+                    }],
+                });
+            } catch (err) {
+                fail(`Should not have thrown [${err}]`);
+            }
+        }));
+
+        it(`Returns Telemetry data up to a sequence 3`, mochaAsync(async () => {
+            try {
+                resetDate(); // <-- Very important!
+                const result: any = await CallRPCMethod(RPCVault.GetHistoricalTelemetryData, {
+                    storageCredentials: localStorage.id,
+                    vaultWallet: fullWallet1.id,
+                    vault: testableLocalVaultId,
+                    sequence: 10,
+                });
+                expect(result.success).toBeTruthy();
+                expect(result.historical_data).toEqual({
+                    telemetry: [{
                         'some': 'data',
                     },{
                         'more': 'data',
