@@ -2980,6 +2980,85 @@
 							"_postman_isSubFolder": true
 						},
 						{
+							"name": "telemetry",
+							"item": [
+								{
+									"name": "telemetry.get",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"vaults.shipchain.telemetry.get\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "telemetry.add",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"vaults.shipchain.telemetry.add\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\",\n\t\t\"payload\": {\n          \"sensor_id\": \"44444444-4444-4444-bbbb-bbbbbbbbbbbb\",\n          \"timestamp\": \"2019-01-01T00:00:00.000Z\",\n\t      \"value\": \"78.354\",\n\t      \"units\": \"kph\"\n\t    }\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "f911625e-cfea-4baa-a45a-3008ef0ec8de",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "85da6f25-e1ef-4a01-ab7c-8efbf197154d",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
 							"name": "document",
 							"item": [
 								{
@@ -3827,7 +3906,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\t\"method\": \"vaults.shipchain.inject\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\",\n\t\t\"primitives\": [\n\t\t\t\"Procurement\",\n\t\t\t\"Shipment\",\n\t\t\t\"Tracking\",\n\t\t\t\"Document\",\n\t\t\t\"Product\",\n\t\t\t\"Item\",\n\t\t\t\"ProcurementList\",\n\t\t\t\"ShipmentList\",\n\t\t\t\"DocumentList\",\n\t\t\t\"ProductList\",\n\t\t\t\"ItemList\"\n\t\t]\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+									"raw": "{\n\t\"method\": \"vaults.shipchain.inject\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\",\n\t\t\"primitives\": [\n\t\t\t\"Procurement\",\n\t\t\t\"Shipment\",\n\t\t\t\"Tracking\",\n\t\t\t\"Telemetry\",\n\t\t\t\"Document\",\n\t\t\t\"Product\",\n\t\t\t\"Item\",\n\t\t\t\"ProcurementList\",\n\t\t\t\"ShipmentList\",\n\t\t\t\"DocumentList\",\n\t\t\t\"ProductList\",\n\t\t\t\"ItemList\"\n\t\t]\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 								},
 								"url": {
 									"raw": "{{engine_url}}",

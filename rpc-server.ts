@@ -34,6 +34,7 @@ import { RPCShipChainVault } from "./rpc/shipchain_vault";
 import { RPCProcurement } from "./rpc/primitives/procurement";
 import { RPCShipment } from "./rpc/primitives/shipment";
 import { RPCTracking } from "./rpc/primitives/tracking";
+import { RPCTelemetry } from "./rpc/primitives/telemetry";
 import { RPCDocument } from "./rpc/primitives/document";
 import { RPCProduct } from "./rpc/primitives/product";
 import { RPCItem } from "./rpc/primitives/item";
@@ -213,6 +214,11 @@ const methods = {
             tracking: {
                 get: RPCTracking.Get,
                 add: RPCTracking.Add,
+            },
+            // Telemetry Primitive
+            telemetry: {
+                get: RPCTelemetry.Get,
+                add: RPCTelemetry.Add,
             },
             // Document Primitive
             document: {
