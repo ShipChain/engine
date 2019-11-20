@@ -198,6 +198,10 @@ const methods = {
                     get: RPCShipment.GetTracking,
                     set: RPCShipment.SetTracking,
                 },
+                telemetry: {
+                    get: RPCShipment.GetTelemetry,
+                    set: RPCShipment.SetTelemetry,
+                },
                 items: {
                     list: RPCShipment.ListItems,
                     get: RPCShipment.GetItem,

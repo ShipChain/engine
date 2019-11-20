@@ -2705,6 +2705,85 @@
 									"_postman_isSubFolder": true
 								},
 								{
+									"name": "telemetry",
+									"item": [
+										{
+											"name": "shipment.telemetry.get",
+											"request": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"name": "Content-Type",
+														"type": "text",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n\t\"method\": \"vaults.shipchain.shipment.telemetry.get\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+												},
+												"url": {
+													"raw": "{{engine_url}}",
+													"host": [
+														"{{engine_url}}"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "shipment.telemetry.set",
+											"request": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"name": "Content-Type",
+														"type": "text",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n\t\"method\": \"vaults.shipchain.shipment.telemetry.set\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\",\n\t\t\"telemetryLink\": \"VAULTREF#{{engine_url}}/{{vault_id}}/{{storage_credential_id}}/{{wallet_id}}/Telemetry\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+												},
+												"url": {
+													"raw": "{{engine_url}}",
+													"host": [
+														"{{engine_url}}"
+													]
+												}
+											},
+											"response": []
+										}
+									],
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "19cca427-8648-4795-a504-2c6e10bf0575",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "8c05d0da-97a1-4606-82d3-206058236d16",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"protocolProfileBehavior": {},
+									"_postman_isSubFolder": true
+								},
+								{
 									"name": "items",
 									"item": [
 										{
