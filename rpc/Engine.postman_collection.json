@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "92a21ef6-3b8d-47a9-8ea9-a37a42286089",
+		"_postman_id": "7b8f74f6-6ab2-41a4-bc89-c70e69f16a71",
 		"name": "Engine copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -542,6 +542,52 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\t\"method\": \"vault.get_tracking\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "{{engine_url}}",
+							"host": [
+								"{{engine_url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.add_telemetry_data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.add_telemetry\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\",\n\t    \"payload\": {\n          \"sensor_id\": \"a3b7c510-aac2-401e-9fdc-19b0b059cc37\",\n          \"timestamp\": \"2018-01-01T00:00:00.000S\",\n\t      \"value\": \"78.354\",\n\t      \"units\": \"kph\"\n\t    }\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "{{engine_url}}",
+							"host": [
+								"{{engine_url}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vault.get_telemetry_data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"vault.get_telemetry\",\n\t\"params\": {\n\t\t\"storageCredentials\": \"{{storage_credential_id}}\",\n\t\t\"vaultWallet\": \"{{wallet_id}}\",\n\t\t\"vault\": \"{{vault_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 						},
 						"url": {
 							"raw": "{{engine_url}}",

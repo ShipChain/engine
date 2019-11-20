@@ -130,6 +130,8 @@ const methods = {
         create: RPCVault.CreateVault,
         get_tracking: RPCVault.GetTrackingData,
         add_tracking: RPCVault.AddTrackingData,
+        get_telemetry: RPCVault.GetTelemetryData,
+        add_telemetry: RPCVault.AddTelemetryData,
         get_shipment: RPCVault.GetShipmentData,
         add_shipment: RPCVault.AddShipmentData,
         get_document: RPCVault.GetDocument,
