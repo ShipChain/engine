@@ -72,8 +72,10 @@ An example response,
         "details": {
             "0": "s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json",
             "1": "0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563",
+            "2": "0xb574E56D67201580c21c1CD5Aa7Da34156dB5A60",
             "vaultUri": "s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json",
-            "vaultHash": "0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563"
+            "vaultHash": "0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563", 
+            "vaultOwner": "0xb574E56D67201580c21c1CD5Aa7Da34156dB5A60"
         }
     }
 }
