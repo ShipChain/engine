@@ -32,6 +32,7 @@ export class RPCLoad {
         require: ['shipmentUuid', 'senderWallet'],
         validate: {
             uuid: ['shipmentUuid', 'senderWallet', 'carrierWallet'],
+            string: ['contractedAmount']
         },
     })
     public static async CreateShipmentTx(args) {
