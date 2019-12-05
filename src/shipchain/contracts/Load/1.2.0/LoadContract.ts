@@ -16,17 +16,19 @@
 
 import { Wallet } from '../../../../entity/Wallet';
 import { LoadContract as LoadContract_1_1_0, EscrowFundingType } from '../1.1.0/LoadContract';
+import { ShipTokenContract } from '../../ShipToken/1.0.0/ShipTokenContract';
 
 export class LoadContract extends LoadContract_1_1_0 {
     constructor(network: string, version: string) {
         super(network, version);
     }
 
+    //@ts-ignore
     async createNewShipmentTx(
         senderWallet: Wallet,
         shipmentUuid: string,
         fundingType: EscrowFundingType = EscrowFundingType.NO_FUNDING,
-        contractedAmount: number = 0,
+        contractedAmount: string = '0',
         carrierAddress: string = '0x0000000000000000000000000000000000000000',
     ) {
         return await this.buildTransactionForWallet(senderWallet, 'createNewShipment', [
@@ -51,4 +53,59 @@ export class LoadContract extends LoadContract_1_1_0 {
                 'VaultNotary contract.',
         );
     }
+
+    //@ts-ignore
+    async fundEscrowTx(
+        tokenContract: ShipTokenContract,
+        senderWallet: Wallet,
+        shipmentUuid: string,
+        depositAmount: string,
+    ) {
+        const escrowData = await this.callStatic('getEscrowData', [
+            LoadContract.convertShipmentUuidToBytes16(shipmentUuid),
+        ]);
+
+        if (escrowData.fundingType == EscrowFundingType.NO_FUNDING) {
+            throw new Error('No escrow for shipment');
+        }
+
+        if (escrowData.fundingType == EscrowFundingType.SHIP) {
+            return await this.fundEscrowShipTx(tokenContract, senderWallet, shipmentUuid, depositAmount);
+        }
+
+        if (escrowData.fundingType == EscrowFundingType.ETHER) {
+            return await this.fundEscrowEtherTx(senderWallet, shipmentUuid, depositAmount);
+        }
+
+        throw new Error('Escrow funding type unknown');
+    }
+
+    //@ts-ignore
+    async fundEscrowEtherTx(senderWallet: Wallet, shipmentUuid: string, depositAmount: string) {
+        return await this.buildTransactionForWallet(
+            senderWallet,
+            'fundEscrowEther',
+            [LoadContract.convertShipmentUuidToBytes16(shipmentUuid)],
+            {
+                value: depositAmount,
+            },
+        );
+    }
+
+    //@ts-ignore
+    async fundEscrowShipTx(
+        tokenContract: ShipTokenContract,
+        senderWallet: Wallet,
+        shipmentUuid: string,
+        depositAmount: string,
+    ) {
+        return await tokenContract.approveAndCallTransaction(
+            senderWallet,
+            this._contract.address,
+            depositAmount,
+            LoadContract.convertShipmentUuidToBytes16(shipmentUuid),
+        );
+    }
+
+
 }

@@ -165,6 +165,7 @@ export class RPCLoad {
         require: ['shipmentUuid', 'senderWallet', 'depositAmount'],
         validate: {
             uuid: ['shipmentUuid', 'senderWallet'],
+            string: ['depositAmount']
         },
     })
     public static async FundEscrowTx(args) {
@@ -190,6 +191,7 @@ export class RPCLoad {
         require: ['shipmentUuid', 'senderWallet', 'depositAmount'],
         validate: {
             uuid: ['shipmentUuid', 'senderWallet'],
+            string: ['depositAmount']
         },
     })
     public static async FundEscrowEtherTx(args) {
@@ -209,6 +211,7 @@ export class RPCLoad {
         require: ['shipmentUuid', 'senderWallet', 'depositAmount'],
         validate: {
             uuid: ['shipmentUuid', 'senderWallet'],
+            string: ['depositAmount']
         },
     })
     public static async FundEscrowShipTx(args) {

@@ -25,7 +25,7 @@ export class ShipTokenContract extends BaseContract {
     async approveAndCallTransaction(
         shipperWallet: Wallet,
         contractAddress: string,
-        tokenAmount: number,
+        tokenAmount: number | string,
         callbackArguments: any,
     ) {
         const txMethod = await this.buildTransaction('approveAndCall', [

@@ -149,8 +149,17 @@ export class EthersEthereumService extends EthereumService {
         //convert the uint256 arguments from string to bignumber
         let inputsArray = contract.interface.functions[method].inputs;
         for (let i = 0; i < inputsArray.length; i++) {
-            if (inputsArray[i]["type"] === "uint256") {
-                args[i] = this.toBigNumber(args[i]);
+            if (inputsArray[i]['type'] === 'uint256') {
+                let toConvert;
+                if (typeof args[i] == 'number'){
+                    toConvert = args[i].toString();
+                }
+                else {
+
+                    toConvert = args[i];
+                }
+
+                args[i] = this.toBigNumber(toConvert);
             }
         }
         tx.data = contract.interface.functions[method].encode(args);
