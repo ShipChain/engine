@@ -146,18 +146,12 @@ export class EthersEthereumService extends EthereumService {
         errors.checkArgumentCount(args.length, contract.interface.functions[method].inputs.length, ` in ${method}`);
 
         // Set the data to the bytecode + the encoded constructor arguments
+
         //convert the uint256 arguments from string to bignumber
         let inputsArray = contract.interface.functions[method].inputs;
         for (let i = 0; i < inputsArray.length; i++) {
             if (inputsArray[i]['type'] === 'uint256') {
-                let toConvert;
-                if (typeof args[i] == 'number') {
-                    toConvert = args[i].toString();
-                } else {
-                    toConvert = args[i];
-                }
-
-                args[i] = this.toBigNumber(toConvert);
+                args[i] = this.toBigNumber(`${args[i]}`);
             }
         }
         tx.data = contract.interface.functions[method].encode(args);

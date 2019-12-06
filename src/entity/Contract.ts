@@ -424,7 +424,7 @@ export class Contract extends BaseEntity {
             to: this.address,
             gasPrice: ethereumService.toHex(options.gasPrice || gasPriceOracle.gasPrice),
             gasLimit: ethereumService.toHex(options.gasLimit || estimatedGas),
-            value: ethereumService.toHex(options.value || 0),
+            value: ethereumService.toHex(options.value ? ethereumService.toBigNumber(`${options.value}`) : 0),
         };
     }
 }
