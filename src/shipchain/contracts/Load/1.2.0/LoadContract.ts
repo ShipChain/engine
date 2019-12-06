@@ -106,6 +106,4 @@ export class LoadContract extends LoadContract_1_1_0 {
             LoadContract.convertShipmentUuidToBytes16(shipmentUuid),
         );
     }
-
-
 }

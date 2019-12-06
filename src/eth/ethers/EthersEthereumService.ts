@@ -151,11 +151,9 @@ export class EthersEthereumService extends EthereumService {
         for (let i = 0; i < inputsArray.length; i++) {
             if (inputsArray[i]['type'] === 'uint256') {
                 let toConvert;
-                if (typeof args[i] == 'number'){
+                if (typeof args[i] == 'number') {
                     toConvert = args[i].toString();
-                }
-                else {
-
+                } else {
                     toConvert = args[i];
                 }
 
