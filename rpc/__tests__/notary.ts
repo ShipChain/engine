@@ -26,7 +26,7 @@ import {
     expectMissingRequiredParams,
     expectInvalidUUIDParams,
     cleanupEntities,
-    CallRPCMethod 
+    CallRPCMethod, expectInvalidStringParams
 } from "./utils";
 
 import { RPCVaultNotary } from '../VaultNotary/1.0.0/RPCVaultNotary';
@@ -107,6 +107,35 @@ export const RPCVaultNotaryTests = async function() {
  
         }));
 
+        it(`Validates vaultUri is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVaultNotary.RegisterVaultTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    vaultUri: {},
+                    vaultHash: '123',
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expectInvalidStringParams(err, ['vaultUri']);
+            }
+        }));
+
+        it(`Validates vaultHash is string`, mochaAsync(async () => {
+            try {
+                await CallRPCMethod(RPCVaultNotary.RegisterVaultTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    vaultUri: '123',
+                    vaultHash: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expectInvalidStringParams(err, ['vaultHash']);
+            }
+        }));
+
+
     });
 
     //Test for Uri related endpoints start from here
@@ -159,6 +188,20 @@ export const RPCVaultNotaryTests = async function() {
                 expect(rpcReturn.transaction.to).toBeDefined();
                 expect(rpcReturn.transaction.chainId).toBeDefined();
         }));
+
+        it(`Validates vaultUri is string`, mochaAsync(async () => {
+            try {
+                 await CallRPCMethod(RPCVaultNotary.SetVaultUriTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    vaultUri: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expectInvalidStringParams(err, ['vaultUri']);
+            }
+        }));
+
 
     });
 
@@ -315,6 +358,19 @@ export const RPCVaultNotaryTests = async function() {
                 expect(rpcReturn.transaction.data).toBeDefined();
                 expect(rpcReturn.transaction.to).toBeDefined();
                 expect(rpcReturn.transaction.chainId).toBeDefined();
+        }));
+
+        it(`Validates vaultHash is string`, mochaAsync(async () => {
+            try {
+                 await CallRPCMethod(RPCVaultNotary.SetVaultHashTx, {
+                    vaultId: uuidv4(),
+                    senderWallet: fullWallet1.id,
+                    vaultHash: {},
+                });
+                fail("Did not Throw"); return;
+            } catch (err) {
+                expectInvalidStringParams(err, ['vaultHash']);
+            }
         }));
 
     });

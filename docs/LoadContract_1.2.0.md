@@ -23,8 +23,11 @@ is detailed in [Load 1.1.0 Contract Version section](./LoadContract_1.1.0.md#Con
 	"id": 0
 }
 ```  
-We can see the only difference is the added `carrierWallet`, compared with the parameter
+We can see one difference is the added `carrierWallet`, compared with the parameter
  list of this endpoint in the version 1.1.0 of the Load contract. 
+ 
+Note the other difference is that `contractedAmount` has changed from a number to string. 
+
   
 2\. Removed all the methods/endpoints related to the uri and hash. Those functions are now separated
 into a new Notary contract. The information about the rpc calls to this new contract 
@@ -34,5 +37,11 @@ can be found at  [VaultNotary 1.0.0](./VaultNotaryContract_1.0.0.md).
 
 - load.1.1.0.set_vault_uri_tx
 - load.1.1.0.set_vault_hash_tx
+
+3\. The `depositAmount` fields in the following three rpc endpoints have been changed from number to string.
+
+- load.1.2.0.fund_escrow_tx
+- load.1.2.0.fund_escrow_ship_tx
+- load.1.2.0.fund_escrow_ether_tx
 
 
