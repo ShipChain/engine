@@ -29,6 +29,7 @@ export class RPCVaultNotary {
         require: ['vaultId', 'senderWallet', 'vaultUri', 'vaultHash'],
         validate: {
             uuid: ['vaultId', 'senderWallet'],
+            string: ['vaultUri', 'vaultHash'],
         },
     })
     public static async RegisterVaultTx(args) {
@@ -54,6 +55,7 @@ export class RPCVaultNotary {
         require: ['vaultId', 'senderWallet', 'vaultUri'],
         validate: {
             uuid: ['vaultId', 'senderWallet'],
+            string: ['vaultUri'],
         },
     })
     public static async SetVaultUriTx(args) {
@@ -73,6 +75,7 @@ export class RPCVaultNotary {
         require: ['vaultId', 'senderWallet', 'vaultHash'],
         validate: {
             uuid: ['vaultId', 'senderWallet'],
+            string: ['vaultHash'],
         },
     })
     public static async SetVaultHashTx(args) {

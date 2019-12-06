@@ -16,7 +16,7 @@ is detailed in [Load 1.1.0 Contract Version section](./LoadContract_1.1.0.md#Con
 		"shipmentUuid": "77777777-25fe-465e-8458-0e9f8ffa2cdd",
 		"senderWallet": "8ca1e0df-26ff-4331-86f7-61a1cdcb06c9", 
 		"fundingType": 1, 
-		"contractedAmount": 10000000000000, 
+		"contractedAmount": "10000000000000", 
 		"carrierWallet": "8595c618-a448-4ba8-810f-6fc090da7f40"
 	},
 	"jsonrpc": "2.0",

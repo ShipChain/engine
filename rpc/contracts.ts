@@ -182,7 +182,7 @@ export async function loadContractFixtures() {
     loadedContracts.register('ShipToken', TOKEN_CONTRACT, true);
     loadedContracts.register('NOTARY', NOTARY_CONTRACT, true);
 
-    await registerPreviousLoadContracts(contractMetaData.LOAD.deployed['mainnet'], LOAD_CONTRACT);
+    await registerPreviousLoadContracts(contractMetaData.LOAD.deployed[network], LOAD_CONTRACT);
 }
 
 async function registerPreviousLoadContracts(LoadMetaData, LOAD_CONTRACT: BaseContract) {

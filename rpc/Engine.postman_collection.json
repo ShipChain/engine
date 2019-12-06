@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4b1b555c-b1e9-474d-9d69-293bb9c91aca",
+		"_postman_id": "2154daed-4991-4c68-9043-3811219443ba",
 		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -2022,7 +2022,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": 10000000000000, \n\t\t\"carrierWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": \"10000000000000\", \n\t\t\"carrierWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "{{engine_url}}",
@@ -2285,10 +2285,10 @@
 											"listen": "test",
 											"script": {
 												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
-												"type": "text/javascript",
 												"exec": [
 													""
-												]
+												],
+												"type": "text/javascript"
 											}
 										}
 									],
@@ -2302,7 +2302,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n\t\"method\": \"load.1.2.0.fund_escrow_ship_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\",\n\t\t\"depositAmount\": 1000000000000000000\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+											"raw": "{\n\t\"method\": \"load.1.2.0.fund_escrow_ship_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\",\n\t\t\"depositAmount\": \"1000000000000000000\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "{{engine_url}}",
