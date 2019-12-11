@@ -137,6 +137,7 @@ only need to set `ROLE=my_settings` in your environment.
  - `bin/docker_tests` This executes the unit tests with the `circleci.yml` configuration file. The
    RPC service is launched using `sleep infinity` to prevent the full server from launching for the
    tests.
+ - `bin/ddo yarn test -t 'TestName' Runs a single unit test.
 
 Local development (with `dev` or `dev-lite` roles) use the `base` stage present in the
 [Dockerfile](Dockerfile); please note, this file *doesn't* use the docker `COPY` directive to copy
@@ -512,6 +513,8 @@ contracts.
 
 Engine currently supports these Smart Contracts:
 - [Load 1.1.0](docs/LoadContract_1.1.0.md)
+- [Load 1.2.0](docs/LoadContract_1.2.0.md)
+- [VaultNotary 1.0.0](docs/VaultNotaryContract_1.0.0.md)
 
 #### Multiple Requests Needed
 

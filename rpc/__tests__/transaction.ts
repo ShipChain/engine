@@ -29,7 +29,7 @@ import {
 } from "./utils";
 
 import { RPCTransaction } from '../transaction';
-import { RPCLoad } from '../Load/1.1.0/RPCLoad';
+import { RPCLoad } from '../Load/1.2.0/RPCLoad';
 import { Wallet } from "../../src/entity/Wallet";
 import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
 

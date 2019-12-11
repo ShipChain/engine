@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "7b8f74f6-6ab2-41a4-bc89-c70e69f16a71",
-		"name": "Engine copy",
+		"_postman_id": "2154daed-4991-4c68-9043-3811219443ba",
+		"name": "Engine",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -392,7 +392,9 @@
 						"header": [
 							{
 								"key": "Content-Type",
-								"value": "application/json"
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1967,6 +1969,556 @@
 										"body": {
 											"mode": "raw",
 											"raw": "{\n\t\"method\": \"load.1.1.0.get_escrow_data\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "load.1.2.0",
+					"item": [
+						{
+							"name": "tx",
+							"item": [
+								{
+									"name": "load.1.2.0.create_shipment_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.create_shipment_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"fundingType\": 1, \n\t\t\"contractedAmount\": \"10000000000000\", \n\t\t\"carrierWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.set_carrier_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.set_carrier_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"carrierWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.set_moderator_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.set_moderator_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"moderatorWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.set_in_progress_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.set_in_progress_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.set_complete_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.set_complete_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.set_canceled_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.set_canceled_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.fund_escrow_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.fund_escrow_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\",\n\t\t\"depositAmount\": 1000000000000000000\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.fund_escrow_ether_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.fund_escrow_ether_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\",\n\t\t\"depositAmount\": 1000000000000000000\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.fund_escrow_ship_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.fund_escrow_ship_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\",\n\t\t\"depositAmount\": \"1000000000000000000\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.release_escrow_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.release_escrow_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.withdraw_escrow_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.withdraw_escrow_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\",\n\t\t\"senderWallet\": \"4d20a1ee-1105-40f6-afc2-05b6b7b3913d\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.refund_escrow_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.refund_escrow_tx\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"{{shipment_uuid}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "b9427d58-74a0-4dce-9490-81b5f755fd7e",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "2b14343a-8c1c-4320-923e-de0e2f8f3961",
+										"type": "text/javascript",
+										"exec": [
+											"var data = pm.response.json();",
+											"pm.environment.set(\"tx_unsigned\", JSON.stringify(data.result.transaction));",
+											""
+										]
+									}
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "status",
+							"item": [
+								{
+									"name": "load.1.2.0.get_shipment_data",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.get_shipment_data\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+										},
+										"url": {
+											"raw": "http://localhost:2000/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "2000",
+											"path": [
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "load.1.2.0.get_escrow_data",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c97f5e47-03ac-4486-95ed-02d0dc84fdea",
+												"type": "text/javascript",
+												"exec": [
+													""
+												]
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"load.1.2.0.get_escrow_data\",\n\t\"params\": {\n\t\t\"shipmentUuid\": \"77777777-25fe-465e-8458-0e9f8ffa2cdd\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
 										},
 										"url": {
 											"raw": "{{engine_url}}",
@@ -3999,6 +4551,353 @@
 					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "notary",
+			"item": [
+				{
+					"name": "notary.1.0.0",
+					"item": [
+						{
+							"name": "tx",
+							"item": [
+								{
+									"name": "notary.1.0.0.register_vault_tx",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "65ca5744-e642-405e-aa35-5cd801b5f28f",
+												"exec": [
+													"console.log('{{wallet_id}}')",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\", \n\t\t\"vaultHash\": \"0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.set_vault_uri_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_uri_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.set_vault_hash_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.set_vault_hash_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultHash\": \"0x0g021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.grant_update_uri_permission_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.grant_update_hash_permission_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.grant_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toGrantWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.revoke_update_uri_permission_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_uri_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "notary.1.0.0.revoke_update_hash_permission_tx",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"type": "text",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.revoke_update_hash_permission_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"toRevokeWallet\": \"bf6204a5-5e1a-458c-a180-c54cc35d05a2\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "f08908f7-11bf-44f8-ae1e-836c484c9beb",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "cbe651ba-1a61-4297-8d39-502b919df8a3",
+										"type": "text/javascript",
+										"exec": [
+											"var data = pm.response.json();",
+											"pm.environment.set(\"tx_unsigned\", JSON.stringify(data.result.transaction));"
+										]
+									}
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "status",
+							"item": [
+								{
+									"name": "notary.1.0.0.get_vault_notary_details",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"method\": \"notary.1.0.0.get_vault_notary_details\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{engine_url}}",
+											"host": [
+												"{{engine_url}}"
+											]
+										},
+										"description": "get the details of vault notary"
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "notary.register_vault_tx",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3191f8fa-d61c-47e7-a9ae-2ceec04995fc",
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"tx_unsigned\", JSON.stringify(data.result.transaction));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\": \"notary.register_vault_tx\",\n\t\"params\": {\n\t\t\"vaultId\": \"{{vault_id}}\",\n\t\t\"senderWallet\": \"{{wallet_id}}\", \n\t\t\"vaultUri\": \"s3://my-bucket/2ed96ba9-26d4-4f26-b3da-c45562268480/meta.json\", \n\t\t\"vaultHash\": \"0x0f021e716c58d1e53222bf1cf9dfe8740470ef8d4a125499b26de58049688563\"\n\t},\n\t\"jsonrpc\": \"2.0\",\n\t\"id\": 0\n}"
+						},
+						"url": {
+							"raw": "http://localhost:2000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}

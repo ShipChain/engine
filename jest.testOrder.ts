@@ -77,6 +77,7 @@ import { ShipmentPrimitiveTests } from "./src/shipchain/__tests__/shipment";
 import { ShipmentListPrimitiveTests } from "./src/shipchain/__tests__/shipmentlist";
 import { ProcurementPrimitiveTests } from "./src/shipchain/__tests__/procurement";
 import { ProcurementListPrimitiveTests } from "./src/shipchain/__tests__/procurementlist";
+import { RPCVaultNotaryTests } from './rpc/__tests__/notary';
 
 const CONTRACT_METADATA_URL = 'https://s3.amazonaws.com';
 const CONTRACT_METADATA_PATH = '/shipchain-contracts/meta.json';
@@ -116,6 +117,7 @@ describe('RPC', async () => {
 
     describe('Events', RPCEventTests);
     describe('Vaults', RPCVaultTests);
+    describe('Notary', RPCVaultNotaryTests);
     describe('Storage', RPCStorageCredentialsTests);
     describe('Transactions', RPCTransactions);
     describe('Wallets', RPCWalletTests);

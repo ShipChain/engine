@@ -65,10 +65,11 @@ export const RPCEventTests = async function() {
         it(`Returns new subscription`, mochaAsync(async () => {
             expect(await EventSubscription.count()).toEqual(0);
             try {
+
                 const response: any = await CallRPCMethod(RPCEvent.Subscribe,{
                     url: 'URL',
                     project: 'LOAD',
-                    version: '1.1.0',
+                    version: '1.2.0',
                 });
 
                 expect(response).toBeDefined();
@@ -103,7 +104,7 @@ export const RPCEventTests = async function() {
                 await CallRPCMethod(RPCEvent.Unsubscribe,{
                     url: 'URL',
                     project: 'please fail',
-                    version: '1.1.0',
+                    version: '1.2.0',
                 });
                 fail('Did not Throw');
             } catch (err){
@@ -117,7 +118,7 @@ export const RPCEventTests = async function() {
                 const response: any = await CallRPCMethod(RPCEvent.Unsubscribe,{
                     url: 'URL',
                     project: 'LOAD',
-                    version: '1.1.0',
+                    version: '1.2.0',
                 });
                 expect(response).toBeDefined();
             } catch (err){

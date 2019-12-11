@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-// This is the latest supported version of the LOAD contract being exposed by the Engine RPC Server
-export const latest = '1.2.0';
+// This is the latest supported version of the VaultNotary contract being exposed by the Engine RPC Server
+export const latest = '1.0.0';
