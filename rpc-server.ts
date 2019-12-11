@@ -393,7 +393,7 @@ server.on('response', (args, response) => {
 // Start RPC Server
 // =======================
 async function startRpcServer() {
-    logger.info(`Configuration Pulled for for ${config.util.getEnv('NODE_CONFIG_ENV')}`);
+    logger.info(`Configuration Pulled for ${config.util.getEnv('NODE_CONFIG_ENV')}`);
 
     await ShipChainEncryptorContainer.init();
     await buildSchemaValidators();

@@ -18,6 +18,7 @@ import { Contract, Version, Network } from './entity/Contract';
 import { Wallet } from './entity/Wallet';
 import { Logger } from './Logger';
 import { EthereumService } from './eth/EthereumService';
+const config = require('config');
 
 const logger = Logger.get(module.filename);
 
@@ -39,7 +40,12 @@ export async function setupLocalTestNetContracts(
 ): Promise<SetupTestNetResponse> {
     const tokenVersion: Version = await Version.getByProjectAndTitle('ShipToken', latest.ShipToken);
     const loadVersion: Version = await Version.getByProjectAndTitle('LOAD', latest.LOAD);
-    const notaryVersion: Version = await Version.getByProjectAndTitle('NOTARY', latest.NOTARY);
+    // const notaryVersion: Version = await Version.getByProjectAndTitle('NOTARY', latest.NOTARY);
+
+    let notaryVersion: Version;
+    if (!config.get('FORCE_OLD_CONTRACTS')) {
+        notaryVersion = await Version.getByProjectAndTitle('NOTARY', latest.NOTARY);
+    }
 
     if (!tokenVersion) {
         throw new Error('ShipToken Version cannot be found');
@@ -47,13 +53,18 @@ export async function setupLocalTestNetContracts(
     if (!loadVersion) {
         throw new Error('LOAD Version cannot be found');
     }
-    if (!notaryVersion) {
+    if (!notaryVersion && !config.get('FORCE_OLD_CONTRACTS')) {
         throw new Error('NOTARY Version cannot be found');
     }
 
     const tokenContractEntity: Contract = await tokenVersion.deployToLocalTestNet();
     const loadContractEntity: Contract = await loadVersion.deployToLocalTestNet();
-    const notaryContractEntity: Contract = await notaryVersion.deployToLocalTestNet();
+    // const notaryContractEntity: Contract = await notaryVersion.deployToLocalTestNet();
+
+    let notaryContractEntity: Contract;
+    if (!config.get('FORCE_OLD_CONTRACTS')) {
+        notaryContractEntity = await notaryVersion.deployToLocalTestNet();
+    }
 
     const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
 

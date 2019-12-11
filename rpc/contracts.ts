@@ -28,8 +28,16 @@ const CONTRACT_FIXTURES_URL = config.get('CONTRACT_FIXTURES_URL');
 
 // Latest supported versions of the contracts
 const LATEST_SHIPTOKEN = '1.0.0';
-import { latest as LATEST_LOAD } from './Load/Latest';
-import { latest as LATEST_NOTARY } from './VaultNotary/Latest';
+import { latest as _LATEST_LOAD } from './Load/Latest';
+import { latest as _LATEST_NOTARY } from './VaultNotary/Latest';
+
+let LATEST_LOAD = _LATEST_LOAD;
+let LATEST_NOTARY = _LATEST_NOTARY;
+
+if (config.get('FORCE_OLD_CONTRACTS')) {
+    LATEST_LOAD = '1.1.0';
+    LATEST_NOTARY = null;
+}
 
 export class LoadedContracts {
     private static _instance: LoadedContracts;
@@ -166,21 +174,41 @@ export async function loadContractFixtures() {
     const TokenContract = (await import(`../src/shipchain/contracts/ShipToken/${LATEST_SHIPTOKEN}/ShipTokenContract`))
         .ShipTokenContract;
     const LoadContract = (await import(`../src/shipchain/contracts/Load/${LATEST_LOAD}/LoadContract`)).LoadContract;
-    const VaultNotaryContract = (await import(
-        `../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`
-    )).VaultNotaryContract;
+    // const VaultNotaryContract = (await import(
+    //     `../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`
+    //     )).VaultNotaryContract;
+
+    let VaultNotaryContract;
+    if (!config.get('FORCE_OLD_CONTRACTS')) {
+        VaultNotaryContract = (await import(
+            `../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`
+            )).VaultNotaryContract;
+    }
 
     const TOKEN_CONTRACT = new TokenContract(network, LATEST_SHIPTOKEN);
     const LOAD_CONTRACT = new LoadContract(network, LATEST_LOAD);
-    const NOTARY_CONTRACT = new VaultNotaryContract(network, LATEST_NOTARY);
+    // const NOTARY_CONTRACT = new VaultNotaryContract(network, LATEST_NOTARY);
+
+    let NOTARY_CONTRACT;
+    if (VaultNotaryContract) {
+        NOTARY_CONTRACT = new VaultNotaryContract(network, LATEST_NOTARY);
+    }
 
     await TOKEN_CONTRACT.Ready;
     await LOAD_CONTRACT.Ready;
-    await NOTARY_CONTRACT.Ready;
+    // await NOTARY_CONTRACT.Ready;
+
+    if (NOTARY_CONTRACT) {
+        await NOTARY_CONTRACT.Ready;
+    }
 
     loadedContracts.register('LOAD', LOAD_CONTRACT, true);
     loadedContracts.register('ShipToken', TOKEN_CONTRACT, true);
-    loadedContracts.register('NOTARY', NOTARY_CONTRACT, true);
+    // loadedContracts.register('NOTARY', NOTARY_CONTRACT, true);
+
+    if (NOTARY_CONTRACT) {
+        loadedContracts.register('NOTARY', NOTARY_CONTRACT, true);
+    }
 
     await registerPreviousLoadContracts(contractMetaData.LOAD.deployed[network], LOAD_CONTRACT);
 }
