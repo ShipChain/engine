@@ -182,7 +182,7 @@ export async function loadContractFixtures() {
     if (!config.get('FORCE_OLD_CONTRACTS')) {
         VaultNotaryContract = (await import(
             `../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`
-            )).VaultNotaryContract;
+        )).VaultNotaryContract;
     }
 
     const TOKEN_CONTRACT = new TokenContract(network, LATEST_SHIPTOKEN);
