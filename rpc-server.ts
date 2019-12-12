@@ -79,7 +79,7 @@ const methods = {
         unsubscribe: RPCEvent.Unsubscribe,
     },
     load: {
-        create_shipment_tx: RPCLoad_1_2_0.CreateShipmentTx,
+        create_shipment_tx: RPCLoad_1_1_0.CreateShipmentTx,
         "1.2.0": {
             // Transactional methods
             create_shipment_tx: RPCLoad_1_2_0.CreateShipmentTx,
