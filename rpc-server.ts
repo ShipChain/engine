@@ -27,7 +27,7 @@ declare global {
 }
 
 import { buildSchemaValidators } from "./rpc/validators";
-import { loadContractFixtures } from "./rpc/contracts";
+import { loadContractFixtures, LoadedContracts } from "./rpc/contracts";
 import { RPCVault } from "./rpc/vault";
 
 import { RPCShipChainVault } from "./rpc/shipchain_vault";
@@ -79,7 +79,6 @@ const methods = {
         unsubscribe: RPCEvent.Unsubscribe,
     },
     load: {
-        create_shipment_tx: RPCLoad_1_1_0.CreateShipmentTx,
         "1.2.0": {
             // Transactional methods
             create_shipment_tx: RPCLoad_1_2_0.CreateShipmentTx,
@@ -138,7 +137,6 @@ const methods = {
     },
 
    notary: {
-        register_vault_tx: RPCVaultNotary_1_0_0.RegisterVaultTx,
         "1.0.0": {
             // Transactional methods
             register_vault_tx: RPCVaultNotary_1_0_0.RegisterVaultTx,
@@ -327,66 +325,101 @@ const methods = {
     },
 };
 
-// Jayson requires a flat object of methods
-// ----------------------------------------
-const nestedName = (k, p) => p ? `${p}.${k}` : k;
-const methodMap = Object.assign(
-    {},
-    ...function _flatten(o, p) {
-        return [].concat(...Object.keys(o)
-            .map(k =>
-                typeof o[k] === 'object' && !(o[k] instanceof Method) ?
-                    _flatten(o[k], nestedName(k,p)) :
-                    ({[nestedName(k,p)]: o[k]})
-            )
-        );
-    }(methods)
-);
+const BuildJaysonServer = (methods): Server => {
 
-// Collect RPCOptions for each method to be displayed as Help
-// ----------------------------------------------------------
-const helpMap = Object.assign(
-    {},
-    ...[].concat(
-        ...Object.keys(methodMap).map(k =>
-            ({[k]: methodMap[k].rpcOptions || {}})
-        )
-    )
-);
+    // Only expose latest supported LOAD as default method
+    // ---------------------------------------------------
+    try {
+        const latestLoad: string = LoadedContracts.Instance.get('LOAD').getContractVersion();
 
-// Build Jayson Server with flattened methodMap
-// --------------------------------------------
-const server = new Server(methodMap);
-
-// Self-Documenting Help response
-// ------------------------------
-server.method('help', new Method({
-    handler: (args, callback) => {
-        if (args && args.namespace) {
-            callback(null, Object.assign(
-                {},
-                ...[].concat(
-                    ...Object.keys(helpMap).map((k: string) => {
-                        if(k.match(`^${args.namespace}`)) {
-                            return ({[k]: helpMap[k]})
-                        }
-                    })
-                )
-            ));
-        } else {
-            callback(null, helpMap);
+        if (methods.load[latestLoad]) {
+            logger.info(`Exposing default create_shipment_tx from LOAD:${latestLoad}`);
+            methods.load.create_shipment_tx = methods.load[latestLoad].create_shipment_tx;
         }
+    } catch (err) {
+        logger.warn(`Not exposing Load contract. Not registered.`);
+        delete methods.load;
     }
-}));
 
-// Error event logger setup
-// ------------------------
-// @ts-ignore
-server.on('response', (args, response) => {
-    if (response && response.error && response.error.message) {
-        logger.error(`${response.error.message}`);
+
+    // Only expose latest supported NOTARY as default method
+    // -----------------------------------------------------
+    try {
+        const latestNotary: string = LoadedContracts.Instance.get('NOTARY').getContractVersion();
+
+        if (latestNotary && methods.notary[latestNotary]) {
+            logger.info(`Exposing default register_vault_tx from NOTARY:${latestNotary}`);
+            methods.notary.register_vault_tx = methods.notary[latestNotary].register_vault_tx;
+        }
+    } catch (err) {
+        logger.warn(`Not exposing Notary contract. Not registered.`);
+        delete methods.notary;
     }
-});
+
+    // Jayson requires a flat object of methods
+    // ----------------------------------------
+    const nestedName = (k, p) => p ? `${p}.${k}` : k;
+    const methodMap = Object.assign(
+        {},
+        ...function _flatten(o, p) {
+            return [].concat(...Object.keys(o)
+                .map(k =>
+                    typeof o[k] === 'object' && !(o[k] instanceof Method) ?
+                        _flatten(o[k], nestedName(k,p)) :
+                        ({[nestedName(k,p)]: o[k]})
+                )
+            );
+        }(methods)
+    );
+
+    // Collect RPCOptions for each method to be displayed as Help
+    // ----------------------------------------------------------
+    const helpMap = Object.assign(
+        {},
+        ...[].concat(
+            ...Object.keys(methodMap).map(k =>
+                ({[k]: methodMap[k].rpcOptions || {}})
+            )
+        )
+    );
+
+    // Build Jayson Server with flattened methodMap
+    // --------------------------------------------
+    const server = new Server(methodMap);
+
+    // Self-Documenting Help response
+    // ------------------------------
+    server.method('help', new Method({
+        handler: (args, callback) => {
+            if (args && args.namespace) {
+                callback(null, Object.assign(
+                    {},
+                    ...[].concat(
+                        ...Object.keys(helpMap).map((k: string) => {
+                            if(k.match(`^${args.namespace}`)) {
+                                return ({[k]: helpMap[k]})
+                            }
+                        })
+                    )
+                ));
+            } else {
+                callback(null, helpMap);
+            }
+        }
+    }));
+
+    // Error event logger setup
+    // ------------------------
+    // @ts-ignore
+    server.on('response', (args, response) => {
+        if (response && response.error && response.error.message) {
+            logger.error(`${response.error.message}`);
+        }
+    });
+
+    return server;
+};
+
 
 // Build Schema Validators
 // Connect to TypeORM
@@ -411,6 +444,8 @@ async function startRpcServer() {
     await startEventSubscriptions();
 
     await GasPriceOracle.Start();
+
+    let server: Server = BuildJaysonServer(methods);
 
     metrics.countAction("startRpcServer");
 

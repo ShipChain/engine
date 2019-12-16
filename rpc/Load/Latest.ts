@@ -15,4 +15,12 @@
  */
 
 // This is the latest supported version of the LOAD contract being exposed by the Engine RPC Server
-export const latest = '1.2.0';
+const config = require('config');
+const FORCE_KEY = 'FORCE_LATEST_LOAD_CONTRACT_VERSION';
+
+let _latest = '1.2.0';
+if (config.has(FORCE_KEY)) {
+    _latest = config.get(FORCE_KEY);
+}
+
+export const latest = _latest;

@@ -4,7 +4,6 @@ export default {
     "DEPLOY_CONTRACTS" : true,
     "ELASTICSEARCH_URL" : undefined,
     "EVENT_CHUNK_SIZE" : 50,
-    "FORCE_OLD_CONTRACTS" : false,
     "GETH_NODE": undefined,
     "GPO_ETH_GAS_STATION" : false,
     "GPO_INTERVAL": null,

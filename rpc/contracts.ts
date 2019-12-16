@@ -19,6 +19,8 @@ import { Project, Contract, Version } from '../src/entity/Contract';
 import { Wallet } from '../src/entity/Wallet';
 import { Logger } from '../src/Logger';
 
+import compareVersions from 'compare-versions';
+
 const typeorm = require('typeorm');
 const config = require('config');
 const test_net_utils = require('../src/local-test-net-utils');
@@ -33,11 +35,6 @@ import { latest as _LATEST_NOTARY } from './VaultNotary/Latest';
 
 let LATEST_LOAD = _LATEST_LOAD;
 let LATEST_NOTARY = _LATEST_NOTARY;
-
-if (config.get('FORCE_OLD_CONTRACTS')) {
-    LATEST_LOAD = '1.1.0';
-    LATEST_NOTARY = null;
-}
 
 export class LoadedContracts {
     private static _instance: LoadedContracts;
@@ -135,15 +132,34 @@ async function getNetwork(contractMetaData) {
 
         // Validate the latest Engine Supported version is deployed on the desired network
         if (!contractMetaData.ShipToken.deployed[network][LATEST_SHIPTOKEN]) {
-            throw new Error(`ShipToken version ${LATEST_SHIPTOKEN} is not deployed to ${network}`);
+            logger.warn(`ShipToken version ${LATEST_SHIPTOKEN} is not deployed to ${network}`);
         }
 
-        if (!contractMetaData.LOAD.deployed[network][LATEST_LOAD]) {
-            throw new Error(`LOAD version ${LATEST_LOAD} is not deployed to ${network}`);
+        if (!contractMetaData.LOAD.deployed[network] || !contractMetaData.LOAD.deployed[network][LATEST_LOAD]) {
+            logger.warn(`LOAD version ${LATEST_LOAD} is not deployed to ${network}`);
+            if (contractMetaData.LOAD.deployed[network]) {
+                let testVersions = Object.keys(contractMetaData.LOAD.deployed[network])
+                    .sort(compareVersions)
+                    .reverse();
+                LATEST_LOAD = testVersions[0];
+                logger.warn(`Using latest ${network} version ${LATEST_LOAD}`);
+            }
         }
 
-        if (!contractMetaData.NOTARY.deployed[network][LATEST_NOTARY]) {
-            throw new Error(`NOTARY version ${LATEST_NOTARY} is not deployed to ${network}`);
+        if (
+            (LATEST_NOTARY && !contractMetaData.NOTARY.deployed) ||
+            !contractMetaData.NOTARY.deployed[network] ||
+            !contractMetaData.NOTARY.deployed[network][LATEST_NOTARY]
+        ) {
+            logger.warn(`NOTARY version ${LATEST_NOTARY} is not deployed to ${network}`);
+            LATEST_NOTARY = null;
+            if (contractMetaData.NOTARY.deployed && contractMetaData.NOTARY.deployed[network]) {
+                let testVersions = Object.keys(contractMetaData.NOTARY.deployed[network])
+                    .sort(compareVersions)
+                    .reverse();
+                LATEST_NOTARY = testVersions[0];
+                logger.warn(`Using latest ${network} version ${LATEST_NOTARY}`);
+            }
         }
     }
 
@@ -151,10 +167,11 @@ async function getNetwork(contractMetaData) {
 }
 
 export async function loadContractFixtures() {
+    const contractPath = '../src/shipchain/contracts';
     const loadedContracts = LoadedContracts.Instance;
     const contractMetaData = await Project.loadFixturesFromUrl(CONTRACT_FIXTURES_URL);
 
-    // Warn if the latest version of the contracts are not supported
+    // Warn if the latest versions of the contracts don't match (likely means code update required)
     if (LATEST_LOAD !== contractMetaData.LOAD.latest) {
         logger.warn(
             `LOAD version in fixture [${contractMetaData.LOAD.latest}] does not match latest supported Engine contract [${LATEST_LOAD}]`,
@@ -170,43 +187,25 @@ export async function loadContractFixtures() {
 
     logger.info(`Loading Contracts from ${network}`);
 
-    // The `LATEST_*` constants are hardcoded in the source.  There is no risk of external manipulation of these values
-    const TokenContract = (await import(`../src/shipchain/contracts/ShipToken/${LATEST_SHIPTOKEN}/ShipTokenContract`))
+    // Load and register ShipToken contract
+    const TokenContract = (await import(`${contractPath}/ShipToken/${LATEST_SHIPTOKEN}/ShipTokenContract`))
         .ShipTokenContract;
-    const LoadContract = (await import(`../src/shipchain/contracts/Load/${LATEST_LOAD}/LoadContract`)).LoadContract;
-    // const VaultNotaryContract = (await import(
-    //     `../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`
-    //     )).VaultNotaryContract;
-
-    let VaultNotaryContract;
-    if (!config.get('FORCE_OLD_CONTRACTS')) {
-        VaultNotaryContract = (await import(
-            `../src/shipchain/contracts/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`
-        )).VaultNotaryContract;
-    }
-
     const TOKEN_CONTRACT = new TokenContract(network, LATEST_SHIPTOKEN);
-    const LOAD_CONTRACT = new LoadContract(network, LATEST_LOAD);
-    // const NOTARY_CONTRACT = new VaultNotaryContract(network, LATEST_NOTARY);
-
-    let NOTARY_CONTRACT;
-    if (VaultNotaryContract) {
-        NOTARY_CONTRACT = new VaultNotaryContract(network, LATEST_NOTARY);
-    }
-
     await TOKEN_CONTRACT.Ready;
-    await LOAD_CONTRACT.Ready;
-    // await NOTARY_CONTRACT.Ready;
-
-    if (NOTARY_CONTRACT) {
-        await NOTARY_CONTRACT.Ready;
-    }
-
-    loadedContracts.register('LOAD', LOAD_CONTRACT, true);
     loadedContracts.register('ShipToken', TOKEN_CONTRACT, true);
-    // loadedContracts.register('NOTARY', NOTARY_CONTRACT, true);
 
-    if (NOTARY_CONTRACT) {
+    // Load and register LOAD contract
+    const LoadContract = (await import(`${contractPath}/Load/${LATEST_LOAD}/LoadContract`)).LoadContract;
+    const LOAD_CONTRACT = new LoadContract(network, LATEST_LOAD);
+    await LOAD_CONTRACT.Ready;
+    loadedContracts.register('LOAD', LOAD_CONTRACT, true);
+
+    // Load and register NOTARY contract
+    if (LATEST_NOTARY) {
+        const VaultNotaryContract = (await import(`${contractPath}/VaultNotary/${LATEST_NOTARY}/VaultNotaryContract`))
+            .VaultNotaryContract;
+        const NOTARY_CONTRACT = new VaultNotaryContract(network, LATEST_NOTARY);
+        await NOTARY_CONTRACT.Ready;
         loadedContracts.register('NOTARY', NOTARY_CONTRACT, true);
     }
 
