@@ -28,8 +28,8 @@ import {
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { GasPriceOracle } from '../GasPriceOracle';
+import { AbstractEthereumService } from '../eth/AbstractEthereumService';
 import { EthereumService } from '../eth/EthereumService';
-import { EthersEthereumService } from '../eth/ethers/EthersEthereumService';
 
 const fs = require('fs');
 const EthereumTx = require('ethereumjs-tx');
@@ -214,7 +214,7 @@ export class Version extends BaseEntity {
 
         const contract = await Contract.getOrCreate(project, network, this);
 
-        const ethereumService = network.getEthereumService();
+        const ethereumService: AbstractEthereumService = network.getEthereumService();
 
         if (contract.address) {
             const code = await ethereumService.getCode(contract.address);
@@ -256,7 +256,7 @@ export class Network extends BaseEntity {
     @Column() title: string;
     @Column() description: string;
 
-    private _ethereumService: EthereumService;
+    private _ethereumService: AbstractEthereumService;
 
     static async getOrCreate(title: string, description: string) {
         let network = await Network.findOne({ title });
@@ -276,10 +276,11 @@ export class Network extends BaseEntity {
         return await Network.getOrCreate('local', 'Local Test Net');
     }
 
-    getEthereumService(): EthereumService {
+    getEthereumService(): AbstractEthereumService {
         if (this._ethereumService) return this._ethereumService;
 
-        this._ethereumService = new EthersEthereumService();
+        // this._ethereumService = new EthersEthereumService();
+        this._ethereumService = EthereumService.Instance;
         return this._ethereumService;
     }
 

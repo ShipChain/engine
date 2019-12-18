@@ -17,7 +17,7 @@
 import { Contract, Version, Network } from './entity/Contract';
 import { Wallet } from './entity/Wallet';
 import { Logger } from './Logger';
-import { EthereumService } from './eth/EthereumService';
+import { AbstractEthereumService } from './eth/AbstractEthereumService';
 import compareVersions from 'compare-versions';
 
 const logger = Logger.get(module.filename);
@@ -50,7 +50,7 @@ async function deployContract(project: string, version: string): Promise<Contrac
 
 async function deployLoadContract(tokenContractEntity: Contract, version: string): Promise<Contract> {
     const loadContractEntity: Contract = await deployContract('LOAD', version);
-    const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
+    const ethereumService: AbstractEthereumService = (await Network.getLocalTestNet()).getEthereumService();
 
     await linkTokenAndLoadContracts(ethereumService, tokenContractEntity, loadContractEntity);
 
@@ -115,12 +115,12 @@ async function linkTokenAndLoadContracts(ethereumService, tokenContractEntity, l
 }
 
 async function getAndUpdateEthBalance(wallet) {
-    const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
+    const ethereumService: AbstractEthereumService = (await Network.getLocalTestNet()).getEthereumService();
 
     // Keep Owner wallet funded with ETH from unlocked deployer
     let currentEthBalance = await ethereumService.getBalance(wallet.address);
 
-    // Depending on the underlying EthereumService implementation this step may or may not be necessary
+    // Depending on the underlying AbstractEthereumService implementation this step may or may not be necessary
     currentEthBalance = ethereumService.toBigNumber(currentEthBalance);
 
     if (currentEthBalance.lt(ethereumService.unitToWei(2.5, 'ether'))) {
@@ -133,12 +133,12 @@ async function getAndUpdateEthBalance(wallet) {
 }
 
 async function getAndUpdateShipBalance(tokenContractEntity, wallet) {
-    const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
+    const ethereumService: AbstractEthereumService = (await Network.getLocalTestNet()).getEthereumService();
     const tokenContractInstance = await tokenContractEntity.getContractInstance();
 
     let currentShipBalance = await tokenContractEntity.call_static('balanceOf', [wallet.address]);
 
-    // Depending on the underlying EthereumService implementation this step may or may not be necessary
+    // Depending on the underlying AbstractEthereumService implementation this step may or may not be necessary
     currentShipBalance = ethereumService.toBigNumber(currentShipBalance);
 
     if (currentShipBalance.lt(ethereumService.unitToWei(250, 'ether'))) {

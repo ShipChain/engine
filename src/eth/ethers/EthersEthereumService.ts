@@ -17,16 +17,16 @@
 import { errors, ethers } from 'ethers';
 import { BigNumber, Network, shallowCopy, UnsignedTransaction } from 'ethers/utils';
 
-import { DeployedContractResult, EthereumService, TransactionEventHandlers } from '../EthereumService';
-import { JsonRpcProvider, Log } from 'ethers/providers';
+import { DeployedContractResult, AbstractEthereumService, TransactionEventHandlers } from '../AbstractEthereumService';
+import { JsonRpcProvider, Log, TransactionReceipt } from "ethers/providers";
 import { Logger } from '../../Logger';
 
 const config = require('config');
 
 const logger = Logger.get(module.filename);
 
-export class EthersEthereumService extends EthereumService {
-    private readonly provider: ethers.providers.Provider;
+export class EthersEthereumService extends AbstractEthereumService {
+    protected provider: ethers.providers.Provider;
 
     constructor() {
         super();
@@ -106,6 +106,10 @@ export class EthersEthereumService extends EthereumService {
 
     async getTransactionCount(address): Promise<number> {
         return await this.provider.getTransactionCount(address);
+    }
+
+    async getTransactionReceipt(hash): Promise<TransactionReceipt> {
+        return await this.provider.getTransactionReceipt(hash);
     }
 
     // Contract Instances and Calls

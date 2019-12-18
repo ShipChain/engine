@@ -21,7 +21,7 @@ import { Wallet } from '../entity/Wallet';
 import { Network, Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
-import { EthereumService } from "../eth/EthereumService";
+import { AbstractEthereumService } from "../eth/AbstractEthereumService";
 
 const request = require('request');
 const config = require('config');
@@ -85,7 +85,7 @@ export const EventSubscriptionEntityTests = async  function() {
 
             const local = await utils.setupLocalTestNetContracts({ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD}, [owner]);
             const network: Network = await Network.getLocalTestNet();
-            const ethereumService: EthereumService = network.getEthereumService();
+            const ethereumService: AbstractEthereumService = network.getEthereumService();
 
             const subscriberAttrs = new EventSubscriberAttrs();
             subscriberAttrs.project = 'ShipToken';

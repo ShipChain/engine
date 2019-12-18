@@ -17,7 +17,7 @@
 import { Contract, Network } from '../entity/Contract';
 import { Wallet } from '../entity/Wallet';
 import { ContractCallback } from './ContractCallback';
-import { EthereumService } from '../eth/EthereumService';
+import { AbstractEthereumService } from '../eth/AbstractEthereumService';
 
 export abstract class BaseContract {
     public Ready: Promise<any>;
@@ -41,7 +41,7 @@ export abstract class BaseContract {
         return this._contract.version.title;
     }
 
-    getEthereumService(): EthereumService {
+    getEthereumService(): AbstractEthereumService {
         return this._ethereumService;
     }
 

@@ -19,7 +19,7 @@ require('./testLoggingConfig');
 import 'mocha';
 const nock = require('nock');
 import { GasPriceOracle } from '../GasPriceOracle';
-import { EthereumService } from "../eth/EthereumService";
+import { AbstractEthereumService } from "../eth/AbstractEthereumService";
 
 export const GasPriceOracleTests = async function() {
 
@@ -27,7 +27,7 @@ export const GasPriceOracleTests = async function() {
         const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
         // @ts-ignore
-        const ethereumService: EthereumService = gpo.ethereumService;
+        const ethereumService: AbstractEthereumService = gpo.ethereumService;
 
         expect(gpo.gasPrice).toEqual(ethereumService.unitToWei(20, 'gwei'));
     });
@@ -97,7 +97,7 @@ export const GasPriceOracleTests = async function() {
         await gpo.calculateGasPrice();
 
         // @ts-ignore
-        const ethereumService: EthereumService = gpo.ethereumService;
+        const ethereumService: AbstractEthereumService = gpo.ethereumService;
 
         expect(gpo.gasPrice).toEqual(ethereumService.unitToWei(18, 'gwei'));
     });

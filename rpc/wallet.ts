@@ -19,6 +19,7 @@ import { BaseContract } from '../src/contracts/BaseContract';
 import { MetricsReporter } from '../src/MetricsReporter';
 import { LoadedContracts } from './contracts';
 import { RPCMethod, RPCNamespace } from './decorators';
+import { AbstractEthereumService } from "../src/eth/AbstractEthereumService";
 
 const loadedContracts = LoadedContracts.Instance;
 const metrics = MetricsReporter.Instance;
@@ -89,7 +90,7 @@ export class RPCWallet {
         const wallet = await Wallet.getById(args.wallet);
 
         const TOKEN_CONTRACT: BaseContract = loadedContracts.get('ShipToken');
-        const ethereumService = TOKEN_CONTRACT.getEthereumService();
+        const ethereumService: AbstractEthereumService = TOKEN_CONTRACT.getEthereumService();
 
         const eth_balance = await ethereumService.getBalance(wallet.address);
         const ship_balance = await TOKEN_CONTRACT.callStatic('balanceOf', [wallet.address]);

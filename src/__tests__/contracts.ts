@@ -20,7 +20,7 @@ import 'mocha';
 import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
-import { EthereumService } from "../eth/EthereumService";
+import { AbstractEthereumService } from "../eth/AbstractEthereumService";
 
 const utils = require('../local-test-net-utils');
 
@@ -53,7 +53,7 @@ export const ContractEntityTests = async function() {
 
             const local = await utils.setupLocalTestNetContracts({ ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD, NOTARY: LATEST_NOTARY }, [owner]);
             const network: Network = await Network.getLocalTestNet();
-            const ethereumService: EthereumService = network.getEthereumService();
+            const ethereumService: AbstractEthereumService = network.getEthereumService();
 
             expect(await local.ShipToken.call_static('balanceOf', [owner.address])).toEqual(ethereumService.unitToWei(500, 'ether'));
 

@@ -20,8 +20,8 @@ import { AsyncPoll } from './AsyncPoll';
 import { Logger } from './Logger';
 import { MetricsReporter } from './MetricsReporter';
 import { delay } from './utils';
+import { AbstractEthereumService } from './eth/AbstractEthereumService';
 import { EthereumService } from './eth/EthereumService';
-import { EthersEthereumService } from './eth/ethers/EthersEthereumService';
 
 const requestPromise = require('request-promise-native');
 const config = require('config');
@@ -45,11 +45,11 @@ export class GasPriceOracle {
     private static asyncPoll: AsyncPoll;
 
     private _gasPrice;
-    private readonly ethereumService: EthereumService;
+    private readonly ethereumService: AbstractEthereumService;
     private readonly gasPriceMetrics: GasPriceOracleMetrics;
 
     private constructor() {
-        this.ethereumService = new EthersEthereumService();
+        this.ethereumService = EthereumService.Instance;
 
         // Default gas price in case no services are returning values (likely will never be used)
         this._gasPrice = this.ethereumService.unitToWei('20', 'gwei');
