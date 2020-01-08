@@ -84,22 +84,22 @@
       "maxLength": 255
     },
     "ship_from_location": {
-      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.3/location.json",
       "title": "Ship from address",
       "description": "The Shipment's ship-from address"
     },
     "ship_to_location": {
-      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.3/location.json",
       "title": "Ship to address",
       "description": "The Shipment's ship-to address"
     },
     "final_destination_location": {
-      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.3/location.json",
       "title": "Shipment final destination",
       "description": "The Shipment's Final Destination address"
     },
     "bill_to_location": {
-      "$ref": "http://schema.shipchain.io/1.2.2/location.json",
+      "$ref": "http://schema.shipchain.io/1.2.3/location.json",
       "title": "Shipment's billed location (if different from ship_to_location)",
       "description": "The Shipment's Bill To address"
     },
