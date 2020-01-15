@@ -52,7 +52,7 @@
     "ts-jest": "^23.10.5"
   },
   "resolutions": {
-    "handlebars": "4.1.2",
+    "handlebars": "4.3.0",
     "js-yaml": "3.13.1"
   },
   "scripts": {
