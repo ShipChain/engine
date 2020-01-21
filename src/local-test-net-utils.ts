@@ -18,56 +18,79 @@ import { Contract, Version, Network } from './entity/Contract';
 import { Wallet } from './entity/Wallet';
 import { Logger } from './Logger';
 import { EthereumService } from './eth/EthereumService';
+import compareVersions from 'compare-versions';
 
 const logger = Logger.get(module.filename);
 
-class LatestContractFormat {
-    ShipToken: string;
-    LOAD: string;
-    NOTARY: string;
+class DeployContractFormat {
+    ShipToken?: string;
+    LOAD?: string;
+    NOTARY?: string;
 }
 
 interface SetupTestNetResponse {
-    ShipToken: Contract;
-    LOAD: Contract;
-    NOTARY: Contract;
+    ShipToken?: Contract;
+    LOAD?: Contract;
+    NOTARY?: Contract;
 }
 
-export async function setupLocalTestNetContracts(
-    latest: LatestContractFormat,
-    wallets: Wallet[] = [],
-): Promise<SetupTestNetResponse> {
-    const tokenVersion: Version = await Version.getByProjectAndTitle('ShipToken', latest.ShipToken);
-    const loadVersion: Version = await Version.getByProjectAndTitle('LOAD', latest.LOAD);
-    let notaryVersion: Version;
-    if (latest.NOTARY) {
-        notaryVersion = await Version.getByProjectAndTitle('NOTARY', latest.NOTARY);
+async function deployContract(project: string, version: string): Promise<Contract> {
+    if (!version || version == '') {
+        logger.info(`Skipping empty version for ${project}`);
+        return null;
     }
 
+    const tokenVersion: Version = await Version.getByProjectAndTitle(project, version);
     if (!tokenVersion) {
-        throw new Error('ShipToken Version cannot be found');
-    }
-    if (!loadVersion) {
-        throw new Error('LOAD Version cannot be found');
-    }
-    if (latest.NOTARY && !notaryVersion) {
-        throw new Error('NOTARY Version cannot be found');
+        throw new Error(`${project} version ${version} cannot be found`);
     }
 
-    const tokenContractEntity: Contract = await tokenVersion.deployToLocalTestNet();
-    const loadContractEntity: Contract = await loadVersion.deployToLocalTestNet();
-    let notaryContractEntity: Contract;
-    if (latest.NOTARY) {
-        notaryContractEntity = await notaryVersion.deployToLocalTestNet();
-    }
+    return await tokenVersion.deployToLocalTestNet();
+}
 
+async function deployLoadContract(tokenContractEntity: Contract, version: string): Promise<Contract> {
+    const loadContractEntity: Contract = await deployContract('LOAD', version);
     const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
 
     await linkTokenAndLoadContracts(ethereumService, tokenContractEntity, loadContractEntity);
 
+    return loadContractEntity;
+}
+
+async function deployOldContracts(tokenContractEntity: Contract, latest: DeployContractFormat, contractMetadata: any) {
+    logger.info(`Deploying old contracts prior to ${JSON.stringify(latest)}`);
+
+    for (let oldLoadVersion of Object.keys(contractMetadata.LOAD.versions)) {
+        if (compareVersions.compare(oldLoadVersion, latest.LOAD, '<')) {
+            await deployLoadContract(tokenContractEntity, oldLoadVersion);
+        }
+    }
+
+    if (latest.NOTARY) {
+        for (let oldNotaryVersion of Object.keys(contractMetadata.NOTARY.versions)) {
+            if (compareVersions.compare(oldNotaryVersion, latest.NOTARY, '<')) {
+                await deployContract('NOTARY', oldNotaryVersion);
+            }
+        }
+    }
+}
+
+export async function setupLocalTestNetContracts(
+    latest: DeployContractFormat,
+    wallets: Wallet[] = [],
+    contractMetadata: any = null,
+): Promise<SetupTestNetResponse> {
+    const tokenContractEntity: Contract = await deployContract('ShipToken', latest.ShipToken);
+    const loadContractEntity: Contract = await deployLoadContract(tokenContractEntity, latest.LOAD);
+    const notaryContractEntity: Contract = await deployContract('NOTARY', latest.NOTARY);
+
+    if (contractMetadata) {
+        await deployOldContracts(tokenContractEntity, latest, contractMetadata);
+    }
+
     for (let wallet of wallets) {
-        let currentEthBalance = await getAndUpdateEthBalance(ethereumService, wallet);
-        let currentShipBalance = await getAndUpdateShipBalance(ethereumService, tokenContractEntity, wallet);
+        let currentEthBalance = await getAndUpdateEthBalance(wallet);
+        let currentShipBalance = await getAndUpdateShipBalance(tokenContractEntity, wallet);
 
         logger.info(`${wallet.address} ETH   Balance: ${currentEthBalance}`);
         logger.info(`${wallet.address} SHIP  Balance: ${currentShipBalance}`);
@@ -91,7 +114,9 @@ async function linkTokenAndLoadContracts(ethereumService, tokenContractEntity, l
     }
 }
 
-async function getAndUpdateEthBalance(ethereumService, wallet) {
+async function getAndUpdateEthBalance(wallet) {
+    const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
+
     // Keep Owner wallet funded with ETH from unlocked deployer
     let currentEthBalance = await ethereumService.getBalance(wallet.address);
 
@@ -107,7 +132,8 @@ async function getAndUpdateEthBalance(ethereumService, wallet) {
     return ethereumService.weiToUnit(currentEthBalance, 'ether');
 }
 
-async function getAndUpdateShipBalance(ethereumService, tokenContractEntity, wallet) {
+async function getAndUpdateShipBalance(tokenContractEntity, wallet) {
+    const ethereumService: EthereumService = (await Network.getLocalTestNet()).getEthereumService();
     const tokenContractInstance = await tokenContractEntity.getContractInstance();
 
     let currentShipBalance = await tokenContractEntity.call_static('balanceOf', [wallet.address]);
