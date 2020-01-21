@@ -119,6 +119,7 @@ async function getNetwork(contractMetaData) {
                 .getConnection()
                 .getRepository(Wallet)
                 .find(),
+            contractMetaData,
         );
 
         network = deployedContracts.LOAD.network.title;
@@ -227,7 +228,8 @@ async function registerPreviousLoadContracts(LoadMetaData, LOAD_CONTRACT: BaseCo
     for (let previousContract of previousContracts) {
         const previousVersion: Version = await Version.findOne({ id: previousContract.versionId });
 
-        if (LoadMetaData && LoadMetaData[previousVersion.title]) {
+        // Register old contracts if not a deployed network (local) or if version was deployed to public network
+        if (!LoadMetaData || LoadMetaData[previousVersion.title]) {
             logger.info(
                 `Registering previous '${currentContract.project.title}' contract version ${previousVersion.title}`,
             );
