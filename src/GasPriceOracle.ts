@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { LoomEthersEthereumService } from "./eth/ethers/LoomEthersEthereumService";
+
 const regression = require('regression');
 
 import { AsyncPoll } from './AsyncPoll';
@@ -70,6 +72,11 @@ export class GasPriceOracle {
     // ---------------------------------------------------------------------------------------
     public static async Start(): Promise<void> {
         const instance = GasPriceOracle.Instance;
+
+        if (instance.ethereumService instanceof LoomEthersEthereumService) {
+            logger.info(`Detected LoomEthersEthereumService. Halting GasPriceOracle`);
+            return;
+        }
 
         if (!this.asyncPoll) {
             // Set the initial price

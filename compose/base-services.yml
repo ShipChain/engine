@@ -59,11 +59,13 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - CONTRACT_FIXTURES_URL
       - DATABASE_URL
+      - DEPLOY_PRIVATE_KEY
       - ELASTICSEARCH_URL
       - ENV
       - GETH_NETWORK
       - GETH_NODE
       - INFLUXDB_URL
+      - IS_LOOM_SIDECHAIN
       - LOCAL_SECRET_KEY
       - LOGGING_LEVEL
       - REDIS_URL

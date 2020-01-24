@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
-// Extension of the MetricsReporter that handles the specific requests for GasPriceOracle
-// ======================================================================================
+
+import { Logger } from "../Logger";
+import { EthersEthereumService } from "./ethers/EthersEthereumService";
 import { LoomEthersEthereumService } from "./ethers/LoomEthersEthereumService";
 import { AbstractEthereumService } from "./AbstractEthereumService";
+
+const config = require("config");
+
+const logger = Logger.get(module.filename);
+
 
 export class EthereumService {
     private static _esInstance: AbstractEthereumService;
 
     public static get Instance(): AbstractEthereumService {
         if (!EthereumService._esInstance) {
-            this._esInstance = new LoomEthersEthereumService();
+            if (config.get('IS_LOOM_SIDECHAIN')) {
+                logger.info(`Instantiating LoomEthersEthereumService`);
+                this._esInstance = new LoomEthersEthereumService();
+            } else {
+                logger.info(`Instantiating EthersEthereumService`);
+                this._esInstance = new EthersEthereumService();
+            }
         }
         return this._esInstance;
     }
