@@ -126,21 +126,26 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     // Network/Node Methods
     // ====================
     async getBalance(address): Promise<BigNumber> {
-        return super.getBalance(address.toLowerCase());
+        return await super.getBalance(address.toLowerCase());
     }
 
     async getCode(address) {
-        return super.getCode(address.toLowerCase());
+        // Loom getCode can throw an error instead of returning 0x0
+        try {
+            return await super.getCode(address.toLowerCase());
+        } catch (err) {
+            return '0x';
+        }
     }
 
     async getTransactionCount(address): Promise<number> {
-        return super.getTransactionCount(address.toLowerCase());
+        return await super.getTransactionCount(address.toLowerCase());
     }
 
     // Contract Instances and Calls
     // ============================
     async createContractInstance(abi, address, providerOrSigner?) {
-        return super.createContractInstance(abi, address.toLowerCase(), providerOrSigner);
+        return await super.createContractInstance(abi, address.toLowerCase(), providerOrSigner);
     }
 
     // Local Network Node Interactions
