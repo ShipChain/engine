@@ -18,7 +18,7 @@ import { errors, ethers } from "ethers";
 import { BigNumber, hexDataLength, Transaction } from "ethers/utils";
 
 import { DeployedContractResult } from "../AbstractEthereumService";
-import { JsonRpcProvider, TransactionReceipt, TransactionResponse } from "ethers/providers";
+import { JsonRpcProvider, Log, TransactionReceipt, TransactionResponse } from "ethers/providers";
 import { Logger } from "../../Logger";
 import { EthersEthereumService } from "./EthersEthereumService";
 import { getAwsSecret } from "../../shipchain/utils";
@@ -146,6 +146,12 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     // ============================
     async createContractInstance(abi, address, providerOrSigner?) {
         return await super.createContractInstance(abi, address.toLowerCase(), providerOrSigner);
+    }
+
+    protected parseLogToEvent(log: Log, contract: ethers.Contract) {
+        const parsedEvent = super.parseLogToEvent(log, contract);
+        parsedEvent['removed'] = false;
+        return parsedEvent;
     }
 
     // Local Network Node Interactions

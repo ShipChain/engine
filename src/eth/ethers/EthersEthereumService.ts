@@ -229,7 +229,7 @@ export class EthersEthereumService extends AbstractEthereumService {
         return logs.map(log => this.parseLogToEvent(log, contract));
     }
 
-    private parseLogToEvent(log: Log, contract: ethers.Contract) {
+    protected parseLogToEvent(log: Log, contract: ethers.Contract) {
         // Engine already interchanges Event data with the Transmission project in a specific format (from web3)
         // These modifications are to retain that existing format until (if) Transmission models are modified
 

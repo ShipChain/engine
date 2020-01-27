@@ -341,7 +341,7 @@ export class EventSubscription extends BaseEntity {
 
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {
         async function pollMethod() {
-            const fromBlock: number = eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0;
+            const fromBlock: number = eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 1;
 
             const startTime = Date.now();
             const ethereumService: AbstractEthereumService = await eventSubscription.contractEntity.network.getEthereumService();
