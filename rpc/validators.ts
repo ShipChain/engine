@@ -15,6 +15,8 @@
  */
 
 import { Logger } from '../src/Logger';
+const requestPromise = require('request-promise-native');
+const config = require('config');
 
 const logger = Logger.get(module.filename);
 
@@ -28,36 +30,40 @@ const UUIDv = {
 // Build Argument Validators
 // =========================
 let ajv;
-let shipmentValidator;
+
+const BASE_URL = config.get('SCHEMA_BASE_URL');
+const VERSION = config.get('SCHEMA_VERSION');
+
+const schemaFiles = ['shipment.json', 'tracking.json'];
+
+function _buildUrl(file) {
+    return `${BASE_URL}/${VERSION}/${file}`;
+}
+
+async function loadSchemaFromUrl(url) {
+    try {
+        let options = {
+            url: url,
+        };
+        logger.debug(`Loading Schema from: ${url}`);
+        let response = await requestPromise(options);
+        return await JSON.parse(response);
+    } catch (error) {
+        logger.error(`${error}`);
+        throw error;
+    }
+}
 
 export async function buildSchemaValidators() {
-    const fs = require('fs');
     const AJV = require('ajv');
-    const requestPromise = require('request-promise-native');
+    ajv = new AJV({ loadSchema: loadSchemaFromUrl });
 
-    ajv = new AJV({
-        loadSchema: async url => {
-            try {
-                let options = {
-                    url: url,
-                };
-                let response = await requestPromise(options);
-                return await JSON.parse(response);
-            } catch (error) {
-                logger.error(`${error}`);
-                throw error;
-            }
-        },
-    });
-
-    return new Promise((resolve, reject) => {
-        fs.readFile('rpc/primitives/schema/shipment.json', 'utf8', (err, data) => {
-            ajv.compileAsync(JSON.parse(data)).then(validate => {
-                shipmentValidator = validate;
-                resolve();
-            });
-        });
-    });
+    await Promise.all(
+        schemaFiles.map(async file => {
+            let data = await loadSchemaFromUrl(_buildUrl(file));
+            await ajv.compileAsync(data);
+        }),
+    );
 }
 
 export function validateUuid(uuid, version = 4): boolean {
@@ -69,12 +75,8 @@ export function validateUuid(uuid, version = 4): boolean {
 }
 
 export function validateShipmentArgs(shipment) {
-    if (shipmentValidator === null) {
-        throw new Error('JSONSchema Validator is invalid');
-    }
-
-    let valid = shipmentValidator(shipment);
+    let valid = ajv.validate(_buildUrl('shipment.json'), shipment);
     if (!valid) {
-        throw new Error('Shipment Invalid: ' + ajv.errorsText(shipmentValidator.errors));
+        throw new Error('Shipment Invalid: ' + ajv.errorsText());
     }
 }
