@@ -19,6 +19,6 @@ export default {
     "RPC_SERVER_PORT" : 2000,
     "RPC_SERVER_TIMEOUT": 270,
     "SCHEMA_BASE_URL": "http://schema.shipchain.io",
-    "SCHEMA_VERSION": "1.2.3",
+    "SCHEMA_VERSION": "1.2.4",
     "USE_JS_ORM_ENTITIES": false,
 }
