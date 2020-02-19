@@ -18,5 +18,7 @@ export default {
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "RPC_SERVER_PORT" : 2000,
     "RPC_SERVER_TIMEOUT": 270,
+    "SCHEMA_BASE_URL": "http://schema.shipchain.io",
+    "SCHEMA_VERSION": "1.2.3",
     "USE_JS_ORM_ENTITIES": false,
 }
