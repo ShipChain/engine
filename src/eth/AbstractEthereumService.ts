@@ -35,6 +35,7 @@ export abstract class AbstractEthereumService {
     abstract async getCode(address);
     abstract async getGasPrice();
     abstract async getNetworkId();
+    abstract async getSigner(privateKey);
     abstract async getTransactionCount(address);
     abstract async getTransactionReceipt(address);
 

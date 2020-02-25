@@ -22,6 +22,7 @@ import { JsonRpcProvider, Log, TransactionReceipt, TransactionResponse } from "e
 import { Logger } from "../../Logger";
 import { EthersEthereumService } from "./EthersEthereumService";
 import { getAwsSecret } from "../../shipchain/utils";
+import { LoomHooks } from "../../shipchain/LoomHooks";
 
 const config = require("config");
 
@@ -46,7 +47,7 @@ class LoomTxProvider extends ethers.providers.JsonRpcProvider {
 
         // Check the hash we expect is the same as the hash the server reported
         if (hash != null && tx.hash !== hash) {
-            logger.warn(`Transaction hash mismatch from Provider.sendTransaction. 
+            logger.silly(`Transaction hash mismatch from Provider.sendTransaction. 
             ${JSON.stringify({ expectedHash: tx.hash, returnedHash: hash })}`);
             tx.hash = hash;
         }
@@ -108,6 +109,8 @@ export class LoomEthersEthereumService extends EthersEthereumService {
 
         logger.debug(`Connecting Ethers.js to [${GETH_NODE}]`);
 
+        LoomHooks.isLoomEnvironment = true;
+
         this.provider = new LoomTxProvider(
             {
                 url: GETH_NODE
@@ -138,6 +141,10 @@ export class LoomEthersEthereumService extends EthersEthereumService {
         }
     }
 
+    async getSigner(privateKey): Promise<ethers.Signer> {
+        return new ethers.Wallet(privateKey, this.provider);
+    }
+
     async getTransactionCount(address): Promise<number> {
         return await super.getTransactionCount(address.toLowerCase());
     }
@@ -148,9 +155,12 @@ export class LoomEthersEthereumService extends EthersEthereumService {
         return await super.createContractInstance(abi, address.toLowerCase(), providerOrSigner);
     }
 
-    protected parseLogToEvent(log: Log, contract: ethers.Contract) {
-        const parsedEvent = super.parseLogToEvent(log, contract);
+    protected async parseLogToEvent(log: Log, contract: ethers.Contract) {
+        const parsedEvent = await super.parseLogToEvent(log, contract);
+
         parsedEvent['removed'] = false;
+        parsedEvent['transactionHash'] = await LoomHooks.getLoomTxHashByEventHash(parsedEvent['transactionHash']);
+
         return parsedEvent;
     }
 
@@ -158,6 +168,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     // ===============================
     async deployContract(abi, bytecode): Promise<DeployedContractResult> {
         if (this.provider instanceof JsonRpcProvider) {
+            await LoomHooks.getOrCreateMapping(await LoomEthersEthereumService.asyncDeployPrivateKey);
             let wallet = new ethers.Wallet(await LoomEthersEthereumService.asyncDeployPrivateKey, this.provider);
 
             logger.info(`Deploying from Wallet: ${wallet.address}`);

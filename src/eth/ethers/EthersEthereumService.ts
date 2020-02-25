@@ -104,6 +104,10 @@ export class EthersEthereumService extends AbstractEthereumService {
         return network.chainId;
     }
 
+    async getSigner(privateKey): Promise<any> {
+        throw new Error(`getSigner Not Implemented for EthersEthereumService`);
+    }
+
     async getTransactionCount(address): Promise<number> {
         return await this.provider.getTransactionCount(address);
     }
@@ -226,10 +230,10 @@ export class EthersEthereumService extends AbstractEthereumService {
         logger.silly(`Getting Logs for '${eventName}' from block ${fromBlock}`);
 
         const logs: Log[] = await this.provider.getLogs(filter);
-        return logs.map(log => this.parseLogToEvent(log, contract));
+        return Promise.all(logs.map(log => this.parseLogToEvent(log, contract)));
     }
 
-    protected parseLogToEvent(log: Log, contract: ethers.Contract) {
+    protected async parseLogToEvent(log: Log, contract: ethers.Contract) {
         // Engine already interchanges Event data with the Transmission project in a specific format (from web3)
         // These modifications are to retain that existing format until (if) Transmission models are modified
 

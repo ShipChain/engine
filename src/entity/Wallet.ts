@@ -19,6 +19,7 @@ import EthCrypto from 'eth-crypto';
 import { Logger } from '../Logger';
 import { EncryptorContainer } from './encryption/EncryptorContainer';
 import { Network } from './Contract';
+import { LoomHooks } from "../shipchain/LoomHooks";
 
 const EthereumTx = require('ethereumjs-tx');
 
@@ -108,6 +109,11 @@ export class Wallet extends BaseEntity {
             unlocked_private_key: identity.privateKey,
         });
 
+        if (LoomHooks.isLoomEnvironment) {
+            let loomAddress = await LoomHooks.getOrCreateMapping(identity.privateKey);
+            logger.info(`Mapped default:${loomAddress} -> eth:${identity.address}`);
+        }
+
         return wallet;
     }
 
@@ -131,6 +137,11 @@ export class Wallet extends BaseEntity {
                 address: address,
                 unlocked_private_key: private_key,
             });
+
+            if (LoomHooks.isLoomEnvironment) {
+                let loomAddress = await LoomHooks.getOrCreateMapping(private_key);
+                logger.info(`Mapped default:${loomAddress} -> eth:${address}`);
+            }
 
             return wallet;
         }
@@ -209,7 +220,11 @@ export class Wallet extends BaseEntity {
 
         tx.sign(this.__unlocked_key_buffer());
 
-        const txHash = '0x' + tx.hash().toString('hex');
+        let txHash = '0x' + tx.hash().toString('hex');
+
+        if (LoomHooks.isLoomEnvironment) {
+            txHash = LoomHooks.getEthereumTxHash(tx.serialize());
+        }
 
         return [tx, txHash];
     }

@@ -17,6 +17,7 @@
     "fast-json-stable-stringify": "^2.0.0",
     "influx": "^5.0.7",
     "jayson": "^3.0.2",
+    "loom-js": "^1.75.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
     "pg": "^7.6.1",
@@ -52,6 +53,7 @@
     "ts-jest": "^23.10.5"
   },
   "resolutions": {
+    "@ledgerhq/hw-transport-node-hid": "https://github.com/ShipChain/resolve-none",
     "handlebars": "4.3.0",
     "js-yaml": "3.13.1"
   },
