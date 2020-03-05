@@ -19,7 +19,7 @@ import { BaseContract } from '../src/contracts/BaseContract';
 import { MetricsReporter } from '../src/MetricsReporter';
 import { LoadedContracts } from './contracts';
 import { RPCMethod, RPCNamespace } from './decorators';
-import { AbstractEthereumService } from "../src/eth/AbstractEthereumService";
+import { AbstractEthereumService } from '../src/eth/AbstractEthereumService';
 
 const loadedContracts = LoadedContracts.Instance;
 const metrics = MetricsReporter.Instance;
@@ -44,6 +44,7 @@ export class RPCWallet {
                 id: wallet.id,
                 public_key: wallet.public_key,
                 address: wallet.address,
+                evmAddress: await wallet.asyncEvmAddress,
             },
         };
     }
@@ -66,6 +67,7 @@ export class RPCWallet {
                 id: wallet.id,
                 public_key: wallet.public_key,
                 address: wallet.address,
+                evmAddress: await wallet.asyncEvmAddress,
             },
         };
     }

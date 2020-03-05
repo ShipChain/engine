@@ -14,33 +14,23 @@
  * limitations under the License.
  */
 
-import { errors, ethers } from "ethers";
-import { BigNumber, hexDataLength, Transaction } from "ethers/utils";
+import { errors as ethersErrors, ethers } from 'ethers';
+import { BigNumber, hexDataLength, Transaction } from 'ethers/utils';
 
-import { DeployedContractResult } from "../AbstractEthereumService";
-import { JsonRpcProvider, Log, TransactionReceipt, TransactionResponse } from "ethers/providers";
-import { Logger } from "../../Logger";
-import { EthersEthereumService } from "./EthersEthereumService";
-import { getAwsSecret } from "../../shipchain/utils";
-import { LoomHooks } from "../../shipchain/LoomHooks";
+import { DeployedContractResult } from '../AbstractEthereumService';
+import { JsonRpcProvider, Log, TransactionReceipt, TransactionResponse } from 'ethers/providers';
+import { Logger } from '../../Logger';
+import { EthersEthereumService } from './EthersEthereumService';
+import { LoomHooks } from '../LoomHooks';
 
-const config = require("config");
+const config = require('config');
 
 const logger = Logger.get(module.filename);
 
-
 class LoomTxProvider extends ethers.providers.JsonRpcProvider {
-    // perform(method: string, parameters: any): Promise<any> {
-    //     console.log(">>>", method, parameters);
-    //     return super.perform(method, parameters).then((result) => {
-    //         console.log("<<<", method, parameters, result);
-    //         return result;
-    //     });
-    // }
-
     _wrapTransaction(tx: Transaction, hash?: string): TransactionResponse {
         if (hash != null && hexDataLength(hash) !== 32) {
-            throw new Error("invalid response - sendTransaction");
+            throw new Error('invalid response - sendTransaction');
         }
 
         let result: TransactionResponse = <TransactionResponse>tx;
@@ -53,26 +43,25 @@ class LoomTxProvider extends ethers.providers.JsonRpcProvider {
         }
 
         result.wait = (confirmations?: number) => {
-
             // We know this transaction *must* exist (whether it gets mined is
             // another story), so setting an emitted value forces us to
             // wait even if the node returns null for the receipt
             if (confirmations !== 0) {
-                this._emitted["t:" + tx.hash] = "pending";
+                this._emitted['t:' + tx.hash] = 'pending';
             }
 
-            return this.waitForTransaction(tx.hash, confirmations).then((receipt) => {
+            return this.waitForTransaction(tx.hash, confirmations).then(receipt => {
                 if (receipt == null && confirmations === 0) {
                     return null;
                 }
 
                 // No longer pending, allow the polling loop to garbage collect this
-                this._emitted["t:" + tx.hash] = receipt.blockNumber;
+                this._emitted['t:' + tx.hash] = receipt.blockNumber;
 
                 if (receipt.status === 0) {
-                    errors.throwError("transaction failed", errors.CALL_EXCEPTION, {
+                    ethersErrors.throwError('transaction failed', ethersErrors.CALL_EXCEPTION, {
                         transactionHash: tx.hash,
-                        transaction: tx
+                        transaction: tx,
                     });
                 }
                 return receipt;
@@ -83,21 +72,13 @@ class LoomTxProvider extends ethers.providers.JsonRpcProvider {
     }
 }
 
-
 export class LoomEthersEthereumService extends EthersEthereumService {
     private static _deployPrivateKey: string;
 
     private static get asyncDeployPrivateKey() {
         return (async () => {
             if (!LoomEthersEthereumService._deployPrivateKey) {
-                if (await config.has('DEPLOY_PRIVATE_KEY')) {
-                    this._deployPrivateKey = config.get('DEPLOY_PRIVATE_KEY');
-                } else if (config.get('IS_DEPLOYED_STAGE')) {
-                    let secret = await getAwsSecret(`DEPLOY_PRIVATE_KEY`);
-                    this._deployPrivateKey = secret.SECRET_KEY;
-                } else {
-                    throw new Error(`Unable to determine DEPLOY_PRIVATE_KEY`);
-                }
+                this._deployPrivateKey = config.get('LOOM.DEPLOY_KEY');
             }
             return this._deployPrivateKey;
         })();
@@ -105,23 +86,21 @@ export class LoomEthersEthereumService extends EthersEthereumService {
 
     constructor() {
         super();
-        const GETH_NODE = config.get("GETH_NODE");
+        const GETH_NODE = config.get('GETH_NODE');
 
         logger.debug(`Connecting Ethers.js to [${GETH_NODE}]`);
 
-        LoomHooks.isLoomEnvironment = true;
-
         this.provider = new LoomTxProvider(
             {
-                url: GETH_NODE
+                url: GETH_NODE,
             },
             {
-                name: null,
-                chainId: 3657971041736948
-            }
+                name: LoomHooks.chainIdString,
+                chainId: LoomHooks.chainIdNumber,
+            },
         );
 
-        this.provider.on("error", error => {
+        this.provider.on('error', error => {
             logger.error(`Ethers.js Provider Error: ${error}`);
         });
     }
@@ -179,21 +158,23 @@ export class LoomEthersEthereumService extends EthersEthereumService {
             // Overrides can optionally be passed as an extra parameter
             // Optional; all unspecified values will queried from the network
             let overrides = {
-                gasLimit: 8000000
+                gasLimit: 8000000,
             };
 
             let contract = await factory.deploy(overrides);
 
             try {
                 await contract.deployed();
-                let receipt: TransactionReceipt = await this.provider.getTransactionReceipt(contract.deployTransaction.hash);
+                let receipt: TransactionReceipt = await this.provider.getTransactionReceipt(
+                    contract.deployTransaction.hash,
+                );
                 return {
                     address: receipt.contractAddress.toLowerCase(),
                     author: wallet.address.toLowerCase(),
-                    hash: contract.deployTransaction.hash
+                    hash: contract.deployTransaction.hash,
                 };
             } catch (error) {
-                logger.error("Failed to deploy in TX:", error.transactionHash);
+                logger.error('Failed to deploy in TX:', error.transactionHash);
                 throw error;
             }
         } else {
@@ -210,15 +191,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     }
 
     async sendWeiFromNodeAccount(address, amount) {
+        logger.silly(`Skip funding from Node Account for Loom configuration`);
         return;
-        // const signer = new ethers.Wallet(await LoomEthersEthereumService.asyncDeployPrivateKey, this.provider);
-        //
-        // let transfer = {
-        //     to: address.toLowerCase(),
-        //     value: amount
-        // };
-        //
-        // let tx = await signer.sendTransaction(transfer);
-        // await tx.wait(1);
     }
 }

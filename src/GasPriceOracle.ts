@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { LoomEthersEthereumService } from "./eth/ethers/LoomEthersEthereumService";
-
 const regression = require('regression');
 
 import { AsyncPoll } from './AsyncPoll';
@@ -24,6 +22,7 @@ import { MetricsReporter } from './MetricsReporter';
 import { delay } from './utils';
 import { AbstractEthereumService } from './eth/AbstractEthereumService';
 import { EthereumService } from './eth/EthereumService';
+import { LoomHooks } from './eth/LoomHooks';
 
 const requestPromise = require('request-promise-native');
 const config = require('config');
@@ -71,12 +70,12 @@ export class GasPriceOracle {
     // Method to start the AsyncPoll.  This should be called once from the application startup
     // ---------------------------------------------------------------------------------------
     public static async Start(): Promise<void> {
-        const instance = GasPriceOracle.Instance;
-
-        if (instance.ethereumService instanceof LoomEthersEthereumService) {
-            logger.info(`Detected LoomEthersEthereumService. Halting GasPriceOracle`);
+        if (LoomHooks.enabled) {
+            logger.info(`Detected Loom configuration. Halting GasPriceOracle`);
             return;
         }
+
+        const instance = GasPriceOracle.Instance;
 
         if (!this.asyncPoll) {
             // Set the initial price

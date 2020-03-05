@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-
-import { Logger } from "../Logger";
-import { EthersEthereumService } from "./ethers/EthersEthereumService";
-import { LoomEthersEthereumService } from "./ethers/LoomEthersEthereumService";
-import { AbstractEthereumService } from "./AbstractEthereumService";
-
-const config = require("config");
+import { Logger } from '../Logger';
+import { EthersEthereumService } from './ethers/EthersEthereumService';
+import { LoomEthersEthereumService } from './ethers/LoomEthersEthereumService';
+import { AbstractEthereumService } from './AbstractEthereumService';
+import { LoomHooks } from './LoomHooks';
 
 const logger = Logger.get(module.filename);
-
 
 export class EthereumService {
     private static _esInstance: AbstractEthereumService;
 
     public static get Instance(): AbstractEthereumService {
         if (!EthereumService._esInstance) {
-            if (config.get('IS_LOOM_SIDECHAIN')) {
+            if (LoomHooks.enabled) {
                 logger.info(`Instantiating LoomEthersEthereumService`);
                 this._esInstance = new LoomEthersEthereumService();
             } else {

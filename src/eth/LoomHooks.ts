@@ -22,32 +22,49 @@ import {
     createDefaultTxMiddleware,
     createJSONRPCClient,
     getEthereumTxHash,
-    EthersSigner
-} from 'loom-js'
-import { AddressMapper } from 'loom-js/dist/contracts'
+    EthersSigner,
+} from 'loom-js';
+import { AddressMapper } from 'loom-js/dist/contracts';
 import { ethers } from 'ethers';
 
-
 import { Logger } from '../Logger';
-import { EthereumService } from '../eth/EthereumService';
+import { EthereumService } from './EthereumService';
 
 const config = require('config');
 
 const logger = Logger.get(module.filename);
 
 export class LoomHooks {
-    private static _isLoomEnvironment: boolean = false;
+    private static _enabled: boolean = undefined;
+    private static _chainIdString: string = undefined;
+    private static _chainIdNumber: number = undefined;
 
-    static get isLoomEnvironment(): boolean {
-        return this._isLoomEnvironment;
+    static get enabled(): boolean {
+        if (this._enabled === undefined) {
+            this._enabled = config.get('LOOM_CONFIG.ENABLED');
+            logger.debug(`Setting LoomHooks.enabled [${this._enabled}]`);
+        }
+        return this._enabled;
     }
 
-    static set isLoomEnvironment(value) {
-        this._isLoomEnvironment = value;
+    static get chainIdString(): string {
+        if (this._chainIdString === undefined) {
+            this._chainIdString = config.get('LOOM_CONFIG.CHAIN_ID_STRING');
+            logger.debug(`Setting LoomHooks.chainIdString [${this._chainIdString}]`);
+        }
+        return this._chainIdString;
+    }
+
+    static get chainIdNumber(): number {
+        if (this._chainIdNumber === undefined) {
+            this._chainIdNumber = config.get('LOOM_CONFIG.CHAIN_ID_NUMBER');
+            logger.debug(`Setting LoomHooks.chainIdNumber [${this._chainIdNumber}]`);
+        }
+        return this._chainIdNumber;
     }
 
     private static assertLoomEnvironment() {
-        if (!this.isLoomEnvironment) {
+        if (!this.enabled) {
             throw new Error('Loom Environment not configured correctly');
         }
     }
@@ -59,7 +76,7 @@ export class LoomHooks {
         const readUrl: string = GETH_NODE.replace('eth', 'query');
         const writeClient = createJSONRPCClient({ protocols: [{ url: writeUrl }] });
         const readClient = createJSONRPCClient({ protocols: [{ url: readUrl }] });
-        return new Client('default', writeClient, readClient);
+        return new Client(LoomHooks.chainIdString, writeClient, readClient);
     }
 
     static async getOrCreateMapping(ethPrivateKey: string): Promise<string> {
@@ -84,12 +101,10 @@ export class LoomHooks {
         try {
             const loomAddress = new Address(loomClient.chainId, LocalAddress.fromPublicKey(loomPublicKey));
             const mapper = await AddressMapper.createAsync(loomClient, loomAddress);
-            await mapper.addIdentityMappingAsync(
-                ethLoomAddress,
-                loomAddress,
-                loomEthSigner
+            await mapper.addIdentityMappingAsync(ethLoomAddress, loomAddress, loomEthSigner);
+            logger.debug(
+                `Added loom mapping for ${loomAddress.local.toString()} -> ${ethLoomAddress.local.toString()}`,
             );
-            logger.debug(`Added loom mapping for ${loomAddress.local.toString()} -> ${ethLoomAddress.local.toString()}`);
             return loomAddress.local.toString();
         } catch (err) {
             let errorToThrow = err;
@@ -99,7 +114,9 @@ export class LoomHooks {
                 try {
                     const mapper = await AddressMapper.createAsync(loomClient, ethLoomAddress);
                     const mapping = await mapper.getMappingAsync(ethLoomAddress);
-                    logger.debug(`Existing loom mapping for ${mapping.to.local.toString()} -> ${ethLoomAddress.local.toString()}`);
+                    logger.debug(
+                        `Existing loom mapping for ${mapping.to.local.toString()} -> ${ethLoomAddress.local.toString()}`,
+                    );
                     return mapping.to.local.toString();
                 } catch (err) {
                     errorToThrow = err;
@@ -112,18 +129,17 @@ export class LoomHooks {
         } finally {
             loomClient.disconnect();
         }
-
     }
 
-    static getEthereumTxHash(signedTx: any, chainId: string = 'default'): string {
+    static getEthereumTxHash(signedTx: any): string {
         this.assertLoomEnvironment();
-        return getEthereumTxHash(signedTx, chainId);
+        return getEthereumTxHash(signedTx, LoomHooks.chainIdString);
     }
 
     static async getLoomTxHashByEventHash(txHash: string): Promise<any> {
         this.assertLoomEnvironment();
         const loomClient: Client = await LoomHooks.getLoomClient();
         // @ts-ignore
-        return await loomClient._readClient.sendAsync('canonical_tx_hash', ["0", "0", txHash]);
+        return await loomClient._readClient.sendAsync('canonical_tx_hash', ['0', '0', txHash]);
     }
 }

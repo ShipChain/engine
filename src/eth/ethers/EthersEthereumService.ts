@@ -18,7 +18,7 @@ import { errors, ethers } from 'ethers';
 import { BigNumber, Network, shallowCopy, UnsignedTransaction } from 'ethers/utils';
 
 import { DeployedContractResult, AbstractEthereumService, TransactionEventHandlers } from '../AbstractEthereumService';
-import { JsonRpcProvider, Log, TransactionReceipt } from "ethers/providers";
+import { JsonRpcProvider, Log, TransactionReceipt } from 'ethers/providers';
 import { Logger } from '../../Logger';
 
 const config = require('config');
