@@ -11,7 +11,7 @@ services:
     command: sh -c 'while sleep 3600; do :; done'
     links:
       - redis_db
-      - geth-poa
+      - loom
       - sftp
       - minio
       - psql
@@ -27,3 +27,8 @@ services:
       - S3_ENDPOINT=http://minio:9000
       - S3_ACCESSKEY=myMinioAccessKey
       - S3_SECRETKEY=myMinioSecretKey
+      - GETH_NODE=http://loom:46658/eth
+      - LOOM_ENABLED=true
+      - LOOM_CHAIN_ID_STRING=default
+      - LOOM_CHAIN_ID_NUMBER=3657971041736948
+      - LOOM_DEPLOY_KEY=0x0000000000000000000000000000000000000000000000000000000000000001

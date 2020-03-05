@@ -12,18 +12,32 @@ services:
       - /data/shipchain/engine/chain:/geth/chain
 
 
+  loom:
+    volumes:
+      - /data/shipchain/engine/loom.data:/app/chaindata/data
+      - /data/shipchain/engine/loom.app.db:/app/app.db
+      - /data/shipchain/engine/loom.evm.db:/app/evm.db
+      - /data/shipchain/engine/loom.receipts_db:/app/receipts_db
+
+
   psql:
     volumes:
       - /data/shipchain/engine/postgresql:/var/lib/postgresql
+    ports:
+      - 5434:5432
 
 
   rpc:
     links:
       - psql
-      - geth-poa
+      - loom
       - redis_db
     volumes:
       - ../:/app
     environment:
       - ENV
-      - GETH_NODE=http://geth-poa:8545
+      - GETH_NODE=http://loom:46658/eth
+      - LOOM_ENABLED=true
+      - LOOM_CHAIN_ID_STRING=default
+      - LOOM_CHAIN_ID_NUMBER=3657971041736948
+      - LOOM_DEPLOY_KEY=0x0000000000000000000000000000000000000000000000000000000000000001
