@@ -78,7 +78,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     private static get asyncDeployPrivateKey() {
         return (async () => {
             if (!LoomEthersEthereumService._deployPrivateKey) {
-                this._deployPrivateKey = config.get('LOOM.DEPLOY_KEY');
+                this._deployPrivateKey = config.get('LOOM_CONFIG.DEPLOY_KEY');
             }
             return this._deployPrivateKey;
         })();
@@ -95,7 +95,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
                 url: GETH_NODE,
             },
             {
-                name: LoomHooks.chainIdString,
+                name: null,
                 chainId: LoomHooks.chainIdNumber,
             },
         );

@@ -20,5 +20,4 @@ export default {
     },
     "DEPLOY_CONTRACTS" : true,
     "EVENT_CHUNK_SIZE" : 1,
-    "GETH_NODE" : "http://geth-poa:8545",
 }

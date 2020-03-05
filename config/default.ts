@@ -9,12 +9,14 @@ export default {
     "GPO_INTERVAL": null,
     "INFLUXDB_URL": undefined,
     "IS_DEPLOYED_STAGE" : false,
-    "IS_LOOM_SIDECHAIN" : false,
     "LOCAL_SECRET_KEY" : "0x0000000000000000000000000000000000000000000000000000000000000001",
     "LOGGING_LEVELS": {
         "CLOUDWATCH": "none",
         "DEFAULT": "debug",
         "ELASTICSEARCH": "none",
+    },
+    "LOOM_CONFIG": {
+        "ENABLED": false,
     },
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "RPC_SERVER_PORT" : 2000,

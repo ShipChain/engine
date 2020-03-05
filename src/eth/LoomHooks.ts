@@ -42,7 +42,7 @@ export class LoomHooks {
     static get enabled(): boolean {
         if (this._enabled === undefined) {
             this._enabled = config.get('LOOM_CONFIG.ENABLED');
-            logger.debug(`Setting LoomHooks.enabled [${this._enabled}]`);
+            logger.info(`Setting LoomHooks.enabled [${this._enabled}]`);
         }
         return this._enabled;
     }
@@ -50,15 +50,15 @@ export class LoomHooks {
     static get chainIdString(): string {
         if (this._chainIdString === undefined) {
             this._chainIdString = config.get('LOOM_CONFIG.CHAIN_ID_STRING');
-            logger.debug(`Setting LoomHooks.chainIdString [${this._chainIdString}]`);
+            logger.info(`Setting LoomHooks.chainIdString [${this._chainIdString}]`);
         }
         return this._chainIdString;
     }
 
     static get chainIdNumber(): number {
         if (this._chainIdNumber === undefined) {
-            this._chainIdNumber = config.get('LOOM_CONFIG.CHAIN_ID_NUMBER');
-            logger.debug(`Setting LoomHooks.chainIdNumber [${this._chainIdNumber}]`);
+            this._chainIdNumber = Number(config.get('LOOM_CONFIG.CHAIN_ID_NUMBER'));
+            logger.info(`Setting LoomHooks.chainIdNumber [${this._chainIdNumber}]`);
         }
         return this._chainIdNumber;
     }
