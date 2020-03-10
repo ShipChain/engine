@@ -39,7 +39,9 @@ export class Wallet extends BaseEntity {
     get asyncEvmAddress(): Promise<string> {
         return (async () => {
             if (LoomHooks.enabled) {
-                return await LoomHooks.getOrCreateMapping(this.address);
+                return await LoomHooks.getOrCreateMapping(
+                    this.unlocked_private_key || (await EncryptorContainer.defaultEncryptor.decrypt(this.private_key)),
+                );
             }
             return this.address;
         })();
