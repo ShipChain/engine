@@ -4833,10 +4833,10 @@ logform@^2.1.1:
     ms "^2.1.1"
     triple-beam "^1.3.0"
 
-loom-js@^1.75.0:
-  version "1.75.0"
-  resolved "https://registry.yarnpkg.com/loom-js/-/loom-js-1.75.0.tgz#53b885a4c4d8c5c41c9e012f4c6f6c7ff79e56e8"
-  integrity sha512-6k17NdFcCTFNNv1L2JReYiofstckssWaOtmsUPhA+cm2ovozJYtPJKwUaIGsRx7LUR5cZRx2sBDYB9QUuSN+Gg==
+loom-js@^1.75.1:
+  version "1.75.1"
+  resolved "https://registry.yarnpkg.com/loom-js/-/loom-js-1.75.1.tgz#401cc0e61bf8cc8671e6b51517d84a4a1aa7539f"
+  integrity sha512-U8xCci8O8Ho37taNKjslfZ3ZwtvsJmofuHu2z1bLKkPVXR5FXgIe1PTysw1p30K7k2qBJdd83rZPX28pyQh+iw==
   dependencies:
     "@binance-chain/javascript-sdk" "^2.14.5"
     abi-decoder "^1.2.0"
