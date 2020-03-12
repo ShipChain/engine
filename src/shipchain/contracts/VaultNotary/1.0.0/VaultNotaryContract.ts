@@ -40,28 +40,28 @@ export class VaultNotaryContract extends BaseContract {
     async grantUpdateUriPermissionTx(senderWallet: Wallet, vaultId: string, toGrantWallet: Wallet) {
         return await this.buildTransactionForWallet(senderWallet, 'grantUpdateUriPermission', [
             VaultNotaryContract.convertUuidToBytes16(vaultId),
-            toGrantWallet.address,
+            await toGrantWallet.asyncEvmAddress,
         ]);
     }
 
     async revokeUpdateUriPermissionTx(senderWallet: Wallet, vaultId: string, toRevokeWallet: Wallet) {
         return await this.buildTransactionForWallet(senderWallet, 'revokeUpdateUriPermission', [
             VaultNotaryContract.convertUuidToBytes16(vaultId),
-            toRevokeWallet.address,
+            await toRevokeWallet.asyncEvmAddress,
         ]);
     }
 
     async grantUpdateHashPermissionTx(senderWallet: Wallet, vaultId: string, toGrantWallet: Wallet) {
         return await this.buildTransactionForWallet(senderWallet, 'grantUpdateHashPermission', [
             VaultNotaryContract.convertUuidToBytes16(vaultId),
-            toGrantWallet.address,
+            await toGrantWallet.asyncEvmAddress,
         ]);
     }
 
     async revokeUpdateHashPermissionTx(senderWallet: Wallet, vaultId: string, toRevokeWallet: Wallet) {
         return await this.buildTransactionForWallet(senderWallet, 'revokeUpdateHashPermission', [
             VaultNotaryContract.convertUuidToBytes16(vaultId),
-            toRevokeWallet.address,
+            await toRevokeWallet.asyncEvmAddress,
         ]);
     }
 

@@ -51,7 +51,7 @@ export class RPCLoad {
             args.shipmentUuid,
             args.fundingType,
             args.contractedAmount,
-            carrierWallet ? await carrierWallet.evmAddress : undefined,
+            carrierWallet ? await carrierWallet.asyncEvmAddress : undefined,
         );
 
         return {

@@ -233,6 +233,7 @@ export class Version extends BaseEntity {
         contract.deploy_author = deployedContractResult.author;
         contract.deploy_tx_id = deployedContractResult.hash;
         await contract.save();
+        logger.debug(`Deployed to ${contract.address}!`);
 
         return contract;
     }

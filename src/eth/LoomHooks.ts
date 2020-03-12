@@ -114,7 +114,7 @@ export class LoomHooks {
                 try {
                     const mapper = await AddressMapper.createAsync(loomClient, ethLoomAddress);
                     const mapping = await mapper.getMappingAsync(ethLoomAddress);
-                    logger.debug(
+                    logger.silly(
                         `Existing loom mapping for ${mapping.to.local.toString()} -> ${ethLoomAddress.local.toString()}`,
                     );
                     return mapping.to.local.toString();

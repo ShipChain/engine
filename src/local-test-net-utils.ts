@@ -92,8 +92,8 @@ export async function setupLocalTestNetContracts(
         let currentEthBalance = await getAndUpdateEthBalance(wallet);
         let currentShipBalance = await getAndUpdateShipBalance(tokenContractEntity, wallet);
 
-        logger.info(`${wallet.address} ETH   Balance: ${currentEthBalance}`);
-        logger.info(`${wallet.address} SHIP  Balance: ${currentShipBalance}`);
+        logger.info(`${wallet.address} [evm:${await wallet.asyncEvmAddress}] ETH   Balance: ${currentEthBalance}`);
+        logger.info(`${wallet.address} [evm:${await wallet.asyncEvmAddress}] SHIP  Balance: ${currentShipBalance}`);
     }
 
     return {
@@ -118,17 +118,22 @@ async function getAndUpdateEthBalance(wallet) {
     const ethereumService: AbstractEthereumService = (await Network.getLocalTestNet()).getEthereumService();
 
     // Keep Owner wallet funded with ETH from unlocked deployer
-    let currentEthBalance = await ethereumService.getBalance(wallet.address);
+    let currentEthBalance = await ethereumService.getBalance(await wallet.asyncEvmAddress);
 
     // Depending on the underlying AbstractEthereumService implementation this step may or may not be necessary
     currentEthBalance = ethereumService.toBigNumber(currentEthBalance);
 
     if (currentEthBalance.lt(ethereumService.unitToWei(2.5, 'ether'))) {
-        logger.info(`${wallet.address} is low on ETH, refilling: ${currentEthBalance}`);
-        await ethereumService.sendWeiFromNodeAccount(wallet.address, ethereumService.unitToWei(5, 'ether'));
+        logger.info(
+            `${wallet.address} [evm:${await wallet.asyncEvmAddress}] is low on ETH, refilling: ${currentEthBalance}`,
+        );
+        await ethereumService.sendWeiFromNodeAccount(
+            await wallet.asyncEvmAddress,
+            ethereumService.unitToWei(5, 'ether'),
+        );
     }
 
-    currentEthBalance = await ethereumService.getBalance(wallet.address);
+    currentEthBalance = await ethereumService.getBalance(await wallet.asyncEvmAddress);
     return ethereumService.weiToUnit(currentEthBalance, 'ether');
 }
 
@@ -136,22 +141,24 @@ async function getAndUpdateShipBalance(tokenContractEntity, wallet) {
     const ethereumService: AbstractEthereumService = (await Network.getLocalTestNet()).getEthereumService();
     const tokenContractInstance = await tokenContractEntity.getContractInstance();
 
-    let currentShipBalance = await tokenContractEntity.call_static('balanceOf', [wallet.address]);
+    let currentShipBalance = await tokenContractEntity.call_static('balanceOf', [await wallet.asyncEvmAddress]);
 
     // Depending on the underlying AbstractEthereumService implementation this step may or may not be necessary
     currentShipBalance = ethereumService.toBigNumber(currentShipBalance);
 
     if (currentShipBalance.lt(ethereumService.unitToWei(250, 'ether'))) {
-        logger.info(`${wallet.address} is low on SHIP, refilling: ${currentShipBalance}`);
+        logger.info(
+            `${wallet.address} [evm:${await wallet.asyncEvmAddress}] is low on SHIP, refilling: ${currentShipBalance}`,
+        );
 
         await ethereumService.callContractFromNodeAccount(tokenContractInstance, 'mint', [
-            wallet.address,
+            await wallet.asyncEvmAddress,
             ethereumService.unitToWei(500, 'ether').toString(),
         ]);
     }
 
     currentShipBalance = ethereumService.toBigNumber(
-        await tokenContractEntity.call_static('balanceOf', [wallet.address]),
+        await tokenContractEntity.call_static('balanceOf', [await wallet.asyncEvmAddress]),
     );
     return ethereumService.weiToUnit(currentShipBalance, 'ether');
 }

@@ -37,6 +37,7 @@ export class Wallet extends BaseEntity {
     private unlocked_private_key: string;
 
     get asyncEvmAddress(): Promise<string> {
+        // TODO: Potential local caching opportunity here
         return (async () => {
             if (LoomHooks.enabled) {
                 return await LoomHooks.getOrCreateMapping(
