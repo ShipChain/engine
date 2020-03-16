@@ -1,6 +1,6 @@
 
 module.exports = {
-    "testEnvironment": "node",
+    "testEnvironment": "shipchain",
     "transform": {
         "^.+\\.tsx?$": "ts-jest"
     },
