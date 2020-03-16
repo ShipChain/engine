@@ -165,8 +165,8 @@ export const RPCWalletTests = async function() {
                     wallet: imported.wallet.id,
                 });
                 expect(response.success).toBeTruthy();
-                expect(response.ether).toEqual('158456325028527356587087900672');
-                expect(response.ship).toEqual('0');
+                expect(response.ether).toEqual('0');
+                expect(response.ship).toEqual('500000000000000000000');
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }

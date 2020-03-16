@@ -98,13 +98,13 @@ export const EventSubscriptionEntityTests = async  function() {
             const ETH = 10 ** 18;
             const TOTAL = 500 * SHIP;
 
-            expect(Number(await local.ShipToken.call_static('balanceOf', [owner.address]))).toEqual(TOTAL);
+            expect(Number(await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]))).toEqual(TOTAL);
 
-            expect(Number(await ethereumService.getBalance(owner.address))).toEqual(5 * ETH);
+            expect(Number(await ethereumService.getBalance(await owner.asyncEvmAddress))).toEqual(5 * ETH);
 
             const txParams = await owner.add_tx_params(
                 network,
-                await local.ShipToken.build_transaction('transfer', [other.address, 100 * SHIP]),
+                await local.ShipToken.build_transaction('transfer', [await other.asyncEvmAddress, 100 * SHIP]),
             );
 
             const [signed_tx, txHash] = await owner.sign_tx(txParams);
@@ -113,8 +113,8 @@ export const EventSubscriptionEntityTests = async  function() {
 
             expect(receipt.transactionHash.length).toEqual(66);
 
-            const new_owner_balance = await local.ShipToken.call_static('balanceOf', [owner.address]);
-            const new_other_balance = await local.ShipToken.call_static('balanceOf', [other.address]);
+            const new_owner_balance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
+            const new_other_balance = await local.ShipToken.call_static('balanceOf', [await other.asyncEvmAddress]);
 
             expect(Number(new_owner_balance)).toEqual(TOTAL - 100 * SHIP);
 

@@ -25,6 +25,9 @@ import { CloseConnection as CloseRedis } from "./src/redis";
 import { loadContractFixtures } from "./rpc/contracts";
 import { cleanupDeployedContracts } from "./rpc/__tests__/utils";
 
+import { EncryptorContainer } from "./src/entity/encryption/EncryptorContainer";
+import { Wallet } from "./src/entity/Wallet";
+
 
 // RPC Tests
 // =========
@@ -84,6 +87,9 @@ const CONTRACT_METADATA_PATH = '/shipchain-contracts/meta.json';
 const STATIC_TEST_METADATA_FILE = '/app/src/__tests__/meta.json';
 
 
+jest.setTimeout(20000);
+
+
 describe('RPC', async () => {
 
     beforeAll(async () => {
@@ -94,6 +100,11 @@ describe('RPC', async () => {
             // read connection options from ormconfig file (or ENV variables)
             const connectionOptions = await typeorm.getConnectionOptions();
             await typeorm.createConnection(connectionOptions);
+            await EncryptorContainer.init();
+            const rootWallet = await Wallet.import_entity('0x0000000000000000000000000000000000000000000000000000000000000001');
+            await typeorm
+                .getConnection()
+                .getRepository(Wallet).insert(rootWallet);
             await loadContractFixtures();
             if (!staticTestMetadataNock.isDone()) {
                 console.error(`Failed to load static metadata from ${STATIC_TEST_METADATA_FILE}`);
@@ -102,7 +113,7 @@ describe('RPC', async () => {
         } catch(err){
             console.error(`beforeAll Error ${err}`);
         }
-    }, 10000);
+    }, 90000);
 
     afterAll(async() => {
         try {
