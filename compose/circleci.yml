@@ -32,3 +32,31 @@ services:
       - LOOM_CHAIN_ID_STRING=default
       - LOOM_CHAIN_ID_NUMBER=3657971041736948
       - LOOM_DEPLOY_KEY=0x0000000000000000000000000000000000000000000000000000000000000001
+
+
+  rpc-geth:
+    build:
+      context: ../
+      target: test
+    image: engine-node-test
+    #    command: sleep infinity
+    command: sh -c 'while sleep 3600; do :; done'
+    links:
+      - redis_db
+      - geth-poa
+      - sftp
+      - minio
+      - psql
+    environment:
+      - ENV=test
+      - SFTP_DRIVER_TESTS
+      - SFTP_HOST=sftp
+      - SFTP_PORT=22
+      - SFTP_USER=shipchain_user
+      - SFTP_PASS=shipchain_password
+      - S3_DRIVER_TESTS
+      - S3_BUCKET=my-test-bucket
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESSKEY=myMinioAccessKey
+      - S3_SECRETKEY=myMinioSecretKey
+      - GETH_NODE=http://geth-poa:8545

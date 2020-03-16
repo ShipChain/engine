@@ -22,6 +22,7 @@ import { Network, Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 import { AbstractEthereumService } from "../eth/AbstractEthereumService";
+import { LoomHooks } from "../eth/LoomHooks";
 
 const request = require('request');
 const config = require('config');
@@ -89,6 +90,7 @@ export const EventSubscriptionEntityTests = async  function() {
 
             const subscriberAttrs = new EventSubscriberAttrs();
             subscriberAttrs.project = 'ShipToken';
+            subscriberAttrs.version = '1.0.0';
             subscriberAttrs.url = ES_NODE;
             subscriberAttrs.receiverType = 'ELASTIC';
 
@@ -98,9 +100,12 @@ export const EventSubscriptionEntityTests = async  function() {
             const ETH = 10 ** 18;
             const TOTAL = 500 * SHIP;
 
-            expect(Number(await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]))).toEqual(TOTAL);
+            const ownerBalance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
+            expect(Number(ownerBalance)).toEqual(TOTAL);
 
-            expect(Number(await ethereumService.getBalance(await owner.asyncEvmAddress))).toEqual(5 * ETH);
+            if (!LoomHooks.enabled) {
+                expect(Number(await ethereumService.getBalance(await owner.asyncEvmAddress))).toEqual(5 * ETH);
+            }
 
             const txParams = await owner.add_tx_params(
                 network,
@@ -148,9 +153,9 @@ export const EventSubscriptionEntityTests = async  function() {
 
             //console.log('ElasticSearch Events:', results)
 
-            expect(results['hits']['total']).toEqual(4);
+            expect(results['hits']['total']['value']).toEqual(4);
 
         },
-        30000, // This one can be a bit slow...
+        60000, // This one can be a bit slow...
     );
 };

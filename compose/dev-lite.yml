@@ -18,6 +18,8 @@ services:
       - /data/shipchain/engine/loom.app.db:/app/app.db
       - /data/shipchain/engine/loom.evm.db:/app/evm.db
       - /data/shipchain/engine/loom.receipts_db:/app/receipts_db
+    ports:
+      - 46658:46658
 
 
   psql:
