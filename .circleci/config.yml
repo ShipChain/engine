@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Load testing docker image
           command: |
-            docker load < /root/project/docker-cache/test-image.tar
+            docker load < /root/repo/docker-cache/test-image.tar
       - run:
           name: Launch the docker containers
           command: |
@@ -94,7 +94,7 @@ jobs:
       - run:
           name: Load testing docker image
           command: |
-            docker load < /root/project/docker-cache/test-image.tar
+            docker load < /root/repo/docker-cache/test-image.tar
       - run:
           name: Launch the docker containers
           command: |
