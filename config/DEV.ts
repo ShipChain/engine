@@ -2,6 +2,7 @@ export default {
     "DEPLOY_CONTRACTS" : false,
     "FORCE_LATEST_LOAD_CONTRACT_VERSION" : "1.1.0",
     "FORCE_LATEST_NOTARY_CONTRACT_VERSION" : null,
+    "GETH_NETWORK" : "gamma",
     "IS_DEPLOYED_STAGE" : true,
     "LOGGING_LEVELS": {
         "CLOUDWATCH": "debug",

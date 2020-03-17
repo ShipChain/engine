@@ -28,61 +28,63 @@ const logger = Logger.get(module.filename);
 export class EthersEthereumService extends AbstractEthereumService {
     protected provider: ethers.providers.Provider;
 
-    constructor() {
+    constructor(skip?: boolean) {
         super();
-        if (config.has('GETH_NETWORK')) {
-            const network = config.get('GETH_NETWORK');
-            const applicableProviders: ethers.providers.BaseProvider[] = [];
+        if (!skip) {
+            if (config.has('GETH_NETWORK')) {
+                const network = config.get('GETH_NETWORK');
+                const applicableProviders: ethers.providers.BaseProvider[] = [];
 
-            logger.debug(`Connecting Ethers.js to [${network}]`);
+                logger.debug(`Connecting Ethers.js to [${network}]`);
 
-            // Add Infura provider if we have a projectId
-            if (config.has('INFURA_PROJECT_ID')) {
-                const projectId = config.get('INFURA_PROJECT_ID');
+                // Add Infura provider if we have a projectId
+                if (config.has('INFURA_PROJECT_ID')) {
+                    const projectId = config.get('INFURA_PROJECT_ID');
 
-                logger.debug(`Adding InfuraProvider [${projectId}]`);
-                applicableProviders.push(new ethers.providers.InfuraProvider(network, projectId));
-            }
+                    logger.debug(`Adding InfuraProvider [${projectId}]`);
+                    applicableProviders.push(new ethers.providers.InfuraProvider(network, projectId));
+                }
 
-            // Add Etherscan provider if we have an apiKey
-            if (config.has('ETHERSCAN_API_KEY')) {
-                const apiKey = config.get('ETHERSCAN_API_KEY');
+                // Add Etherscan provider if we have an apiKey
+                if (config.has('ETHERSCAN_API_KEY')) {
+                    const apiKey = config.get('ETHERSCAN_API_KEY');
 
-                logger.debug(`Adding EtherscanProvider [${apiKey}]`);
-                applicableProviders.push(new ethers.providers.EtherscanProvider(network, apiKey));
-            }
+                    logger.debug(`Adding EtherscanProvider [${apiKey}]`);
+                    applicableProviders.push(new ethers.providers.EtherscanProvider(network, apiKey));
+                }
 
-            // Include the default providers from Ethers.js
-            const defaultProvider = ethers.getDefaultProvider(network);
-            if (defaultProvider instanceof ethers.providers.FallbackProvider) {
-                logger.debug(`Adding ${defaultProvider.providers.length} FallbackProviders`);
-                applicableProviders.push(...defaultProvider.providers);
+                // Include the default providers from Ethers.js
+                const defaultProvider = ethers.getDefaultProvider(network);
+                if (defaultProvider instanceof ethers.providers.FallbackProvider) {
+                    logger.debug(`Adding ${defaultProvider.providers.length} FallbackProviders`);
+                    applicableProviders.push(...defaultProvider.providers);
+                } else {
+                    logger.debug(`Adding DefaultProvider`);
+                    applicableProviders.push(defaultProvider);
+                }
+
+                if (applicableProviders.length === 0) {
+                    throw new Error(`Unable to build list of Providers`);
+                }
+
+                this.provider = new ethers.providers.FallbackProvider(applicableProviders);
             } else {
-                logger.debug(`Adding DefaultProvider`);
-                applicableProviders.push(defaultProvider);
+                const GETH_NODE = config.get('GETH_NODE');
+
+                logger.debug(`Connecting Ethers.js to [${GETH_NODE}]`);
+
+                this.provider = new ethers.providers.JsonRpcProvider({
+                    url: GETH_NODE,
+                });
+
+                // Development Geth POA network does not continually create blocks
+                this.transactionConfirmations = 1;
             }
 
-            if (applicableProviders.length === 0) {
-                throw new Error(`Unable to build list of Providers`);
-            }
-
-            this.provider = new ethers.providers.FallbackProvider(applicableProviders);
-        } else {
-            const GETH_NODE = config.get('GETH_NODE');
-
-            logger.debug(`Connecting Ethers.js to [${GETH_NODE}]`);
-
-            this.provider = new ethers.providers.JsonRpcProvider({
-                url: GETH_NODE,
+            this.provider.on('error', error => {
+                logger.error(`Ethers.js Provider Error: ${error}`);
             });
-
-            // Development Geth POA network does not continually create blocks
-            this.transactionConfirmations = 1;
         }
-
-        this.provider.on('error', error => {
-            logger.error(`Ethers.js Provider Error: ${error}`);
-        });
     }
 
     // Network/Node Methods

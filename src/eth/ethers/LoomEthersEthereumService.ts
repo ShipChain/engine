@@ -85,7 +85,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     }
 
     constructor() {
-        super();
+        super(true);
         const GETH_NODE = config.get('GETH_NODE');
 
         logger.debug(`Connecting Ethers.js to [${GETH_NODE}]`);
