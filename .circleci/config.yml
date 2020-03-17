@@ -62,6 +62,8 @@ jobs:
     steps:
       - attach_workspace:
           at: docker-cache
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Load testing docker image
           command: |
@@ -91,6 +93,8 @@ jobs:
     steps:
       - attach_workspace:
           at: docker-cache
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Load testing docker image
           command: |
