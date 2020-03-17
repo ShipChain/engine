@@ -90,12 +90,8 @@ export class LoomHooks {
         const loomPrivateKey = CryptoUtils.generatePrivateKey();
         const loomPublicKey = CryptoUtils.publicKeyFromPrivateKey(loomPrivateKey);
         const loomClient = await LoomHooks.getLoomClient();
+
         loomClient.on('error', logger.error);
-        // loomClient.txMiddleware = [
-        //     new NonceTxMiddleware(ethLoomAddress, loomClient),
-        //     //@ts-ignore
-        //     new SignedEthTxMiddleware(ethSigner)
-        // ];
         loomClient.txMiddleware = createDefaultTxMiddleware(loomClient, loomPrivateKey);
 
         try {
