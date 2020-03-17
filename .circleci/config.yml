@@ -70,6 +70,10 @@ jobs:
           command: |
             docker load < /root/repo/docker-cache/test-image.tar
       - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache bash
+      - run:
           name: Launch the docker containers
           command: |
             bin/dc up -d rpc
@@ -101,6 +105,10 @@ jobs:
           name: Load testing docker image
           command: |
             docker load < /root/repo/docker-cache/test-image.tar
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache bash
       - run:
           name: Launch the docker containers
           command: |
