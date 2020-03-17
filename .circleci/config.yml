@@ -66,6 +66,10 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
+          name: Setup Docker network
+          command: |
+            docker network ls | grep portal > /dev/null || docker network create portal
+      - run:
           name: Load testing docker image
           command: |
             docker load < /root/repo/docker-cache/test-image.tar
@@ -101,6 +105,10 @@ jobs:
           at: docker-cache
       - setup_remote_docker:
           docker_layer_caching: true
+      - run:
+          name: Setup Docker network
+          command: |
+            docker network ls | grep portal > /dev/null || docker network create portal
       - run:
           name: Load testing docker image
           command: |
