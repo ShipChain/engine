@@ -279,8 +279,6 @@ export class Network extends BaseEntity {
 
     getEthereumService(): AbstractEthereumService {
         if (this._ethereumService) return this._ethereumService;
-
-        // this._ethereumService = new EthersEthereumService();
         this._ethereumService = EthereumService.Instance;
         return this._ethereumService;
     }
