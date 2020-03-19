@@ -31,6 +31,7 @@ import {
 import { RPCWallet } from '../wallet';
 import { Wallet } from "../../src/entity/Wallet";
 import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
+import { LoomHooks } from "../../src/eth/LoomHooks";
 
 export const RPCWalletTests = async function() {
 
@@ -165,8 +166,12 @@ export const RPCWalletTests = async function() {
                     wallet: imported.wallet.id,
                 });
                 expect(response.success).toBeTruthy();
-                expect(response.ether).toEqual('158456325028527356587087900672');
-                expect(response.ship).toEqual('0');
+                if (LoomHooks.enabled) {
+                    expect(response.ether).toEqual('0');
+                } else {
+                    expect(response.ether).toEqual('158456325028527356587087900672');
+                }
+                expect(response.ship).toEqual('500000000000000000000');
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }

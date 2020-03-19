@@ -32,6 +32,7 @@ import { RPCTransaction } from '../transaction';
 import { RPCLoad } from '../Load/1.2.0/RPCLoad';
 import { Wallet } from "../../src/entity/Wallet";
 import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
+import { LoomHooks } from "../../src/eth/LoomHooks";
 
 export const RPCTransactions = async function() {
 
@@ -121,7 +122,12 @@ export const RPCTransactions = async function() {
                 });
 
                 const txResponse = new EthereumTx(response.transaction);
-                const validTx = txResponse.validate();
+
+                // Validate checks gasLimit which is always 0 in a Loom environment
+                let validTx = true;
+                if (!LoomHooks.enabled) {
+                    validTx = txResponse.validate();
+                }
 
                 expect(response).toBeDefined();
                 expect(response.success).toBeTruthy();
@@ -129,7 +135,7 @@ export const RPCTransactions = async function() {
                 expect(validTx).toBeTruthy();
                 txSigned = txResponse;
             } catch (err){
-                fail(`Should not have thrown [${err}]`);
+                fail(`Should not have thrown [${err.message}]`);
             }
         }));
     });

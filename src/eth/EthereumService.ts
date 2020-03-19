@@ -14,49 +14,27 @@
  * limitations under the License.
  */
 
-export interface TransactionEventHandlers {
-    receipt?: Function;
-    confirmation?: Function;
-    error?: Function;
-}
+import { Logger } from '../Logger';
+import { EthersEthereumService } from './ethers/EthersEthereumService';
+import { LoomEthersEthereumService } from './ethers/LoomEthersEthereumService';
+import { AbstractEthereumService } from './AbstractEthereumService';
+import { LoomHooks } from './LoomHooks';
 
-export interface DeployedContractResult {
-    address;
-    author;
-    hash;
-}
+const logger = Logger.get(module.filename);
 
-export abstract class EthereumService {
-    protected transactionConfirmations: number = 12;
+export class EthereumService {
+    private static _esInstance: AbstractEthereumService;
 
-    // Network/Node Methods
-    // ====================
-    abstract async getBalance(address);
-    abstract async getCode(address);
-    abstract async getGasPrice();
-    abstract async getNetworkId();
-    abstract async getTransactionCount(address);
-
-    // Contract Instances and Calls
-    // ============================
-    abstract async createContractInstance(abi, address, providerOrSigner?);
-    abstract async callStaticMethod(contract: any, method: string, args: any[]);
-    abstract async encodeTransaction(contract: any, method: string, args: any[]);
-    abstract async estimateTransaction(contract: any, method: string, args: any[]);
-    abstract async sendSignedTransaction(rawTx, eventHandlers?: TransactionEventHandlers);
-    abstract async getContractEvents(contract: any, fromBlock: number, eventName?: string): Promise<any[]>;
-
-    // Local Network Node Interactions
-    // ===============================
-    abstract async deployContract(abi, bytecode): Promise<DeployedContractResult>;
-    abstract async sendWeiFromNodeAccount(address, amount);
-    abstract async callContractFromNodeAccount(contract: any, method: string, args: any[]);
-
-    // UTILITIES
-    // =========
-    abstract toHex(aNumber);
-    abstract toBigNumber(aNumber);
-    abstract unitToWei(value, unit);
-    abstract weiToUnit(wei, unit);
-    abstract convertBigNumbersToStrings(obj);
+    public static get Instance(): AbstractEthereumService {
+        if (!EthereumService._esInstance) {
+            if (LoomHooks.enabled) {
+                logger.info(`Instantiating LoomEthersEthereumService`);
+                this._esInstance = new LoomEthersEthereumService();
+            } else {
+                logger.info(`Instantiating EthersEthereumService`);
+                this._esInstance = new EthersEthereumService();
+            }
+        }
+        return this._esInstance;
+    }
 }

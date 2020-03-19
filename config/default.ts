@@ -15,6 +15,9 @@ export default {
         "DEFAULT": "debug",
         "ELASTICSEARCH": "none",
     },
+    "LOOM_CONFIG": {
+        "ENABLED": false,
+    },
     "REDIS_URL" : "redis://:redis_pass@redis_db:6379/1",
     "RPC_SERVER_PORT" : 2000,
     "RPC_SERVER_TIMEOUT": 270,

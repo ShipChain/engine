@@ -21,7 +21,7 @@ import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { AsyncPoll } from '../AsyncPoll';
 import { arrayChunker } from '../utils';
-import { EthereumService } from '../eth/EthereumService';
+import { AbstractEthereumService } from '../eth/AbstractEthereumService';
 
 const request = require('request');
 const requestPromise = require('request-promise-native');
@@ -341,10 +341,10 @@ export class EventSubscription extends BaseEntity {
 
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {
         async function pollMethod() {
-            const fromBlock: number = eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 0;
+            const fromBlock: number = eventSubscription.lastBlock ? +eventSubscription.lastBlock + 1 : 1;
 
             const startTime = Date.now();
-            const ethereumService: EthereumService = await eventSubscription.contractEntity.network.getEthereumService();
+            const ethereumService: AbstractEthereumService = await eventSubscription.contractEntity.network.getEthereumService();
 
             try {
                 const logs = await ethereumService.getContractEvents(

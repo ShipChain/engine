@@ -19,6 +19,7 @@ import EthCrypto from 'eth-crypto';
 import { Logger } from '../Logger';
 import { EncryptorContainer } from './encryption/EncryptorContainer';
 import { Network } from './Contract';
+import { LoomHooks } from '../eth/LoomHooks';
 
 const EthereumTx = require('ethereumjs-tx');
 
@@ -34,6 +35,18 @@ export class Wallet extends BaseEntity {
     @Column('text') private_key: string;
 
     private unlocked_private_key: string;
+
+    get asyncEvmAddress(): Promise<string> {
+        // TODO: Potential local caching opportunity here
+        return (async () => {
+            if (LoomHooks.enabled) {
+                return await LoomHooks.getOrCreateMapping(
+                    this.unlocked_private_key || (await EncryptorContainer.defaultEncryptor.decrypt(this.private_key)),
+                );
+            }
+            return this.address;
+        })();
+    }
 
     static async getById(id: string) {
         const DB = getConnection();
@@ -108,6 +121,11 @@ export class Wallet extends BaseEntity {
             unlocked_private_key: identity.privateKey,
         });
 
+        if (LoomHooks.enabled) {
+            let loomAddress = await LoomHooks.getOrCreateMapping(identity.privateKey);
+            logger.info(`Mapped eth:${identity.address} -> default:${loomAddress}`);
+        }
+
         return wallet;
     }
 
@@ -131,6 +149,11 @@ export class Wallet extends BaseEntity {
                 address: address,
                 unlocked_private_key: private_key,
             });
+
+            if (LoomHooks.enabled) {
+                let loomAddress = await LoomHooks.getOrCreateMapping(private_key);
+                logger.info(`Mapped eth:${address} -> default:${loomAddress}`);
+            }
 
             return wallet;
         }
@@ -209,7 +232,11 @@ export class Wallet extends BaseEntity {
 
         tx.sign(this.__unlocked_key_buffer());
 
-        const txHash = '0x' + tx.hash().toString('hex');
+        let txHash = '0x' + tx.hash().toString('hex');
+
+        if (LoomHooks.enabled) {
+            txHash = LoomHooks.getEthereumTxHash(tx.serialize());
+        }
 
         return [tx, txHash];
     }

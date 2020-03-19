@@ -43,6 +43,45 @@ jobs:
           command: |
             bin/dc exec -T rpc yarn lint-html
       - run:
+          name: Save docker image
+          command: |
+            mkdir -p docker-cache
+            docker save -o docker-cache/test-image.tar engine-node-test
+            docker save -o docker-cache/built-image.tar engine-node
+      - persist_to_workspace:
+          root: docker-cache
+          paths:
+            - test-image.tar
+            - built-image.tar
+  test-loom:
+    docker:
+      - image: docker/compose:1.21.0
+    environment:
+      - ROLE: circleci
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docker-cache
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Setup Docker network
+          command: |
+            docker network ls | grep portal > /dev/null || docker network create portal
+      - run:
+          name: Load testing docker image
+          command: |
+            docker load < /root/repo/docker-cache/test-image.tar
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache bash
+      - run:
+          name: Launch the docker containers
+          command: |
+            bin/dc up -d rpc
+      - run:
           name: Run unit tests
           command: |
             bin/dc exec -T rpc yarn test
@@ -54,15 +93,46 @@ jobs:
           path: reports/junit
       - store_artifacts:
           path: reports
+  test-eth:
+    docker:
+      - image: docker/compose:1.21.0
+    environment:
+      - ROLE: circleci
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docker-cache
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
-          name: Save docker image
+          name: Setup Docker network
           command: |
-            mkdir -p docker-cache
-            docker save -o docker-cache/built-image.tar engine-node
-      - persist_to_workspace:
-          root: docker-cache
-          paths:
-            - built-image.tar
+            docker network ls | grep portal > /dev/null || docker network create portal
+      - run:
+          name: Load testing docker image
+          command: |
+            docker load < /root/repo/docker-cache/test-image.tar
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache bash
+      - run:
+          name: Launch the docker containers
+          command: |
+            bin/dc up -d rpc-geth
+      - run:
+          name: Run unit tests
+          command: |
+            bin/dc exec -T rpc-geth yarn test
+      - run:
+          name: Copy artifacts from Docker
+          command: |
+            docker cp $(bin/dc ps -q rpc-geth):/app/reports/. reports
+      - store_test_results:
+          path: reports/junit
+      - store_artifacts:
+          path: reports
   push-to-ecr:
     docker:
       - image: docker:stable-git
@@ -106,12 +176,19 @@ workflows:
   build-and-deploy:
     jobs:
       - build
+      - test-eth:
+          requires:
+            - build
+      - test-loom:
+          requires:
+            - build
       - push-to-ecr:
           filters:
             branches:
               only: master
           requires:
-            - build
+            - test-eth
+            - test-loom
       - deploy-to-dev:
           filters:
             branches:

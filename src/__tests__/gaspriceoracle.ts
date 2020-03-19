@@ -19,7 +19,8 @@ require('./testLoggingConfig');
 import 'mocha';
 const nock = require('nock');
 import { GasPriceOracle } from '../GasPriceOracle';
-import { EthereumService } from "../eth/EthereumService";
+import { AbstractEthereumService } from "../eth/AbstractEthereumService";
+import { LoomHooks } from "../eth/LoomHooks";
 
 export const GasPriceOracleTests = async function() {
 
@@ -27,79 +28,84 @@ export const GasPriceOracleTests = async function() {
         const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
         // @ts-ignore
-        const ethereumService: EthereumService = gpo.ethereumService;
+        const ethereumService: AbstractEthereumService = gpo.ethereumService;
 
         expect(gpo.gasPrice).toEqual(ethereumService.unitToWei(20, 'gwei'));
     });
 
-    it(`can get price from Provider in gwei`, async () => {
-        const gpo: GasPriceOracle = GasPriceOracle.Instance;
+    if (LoomHooks.enabled) {
+        console.log('\n\nSKIPPING - GasPriceOracleTests test because Loom does not have gas\n');
+    } else {
 
-        // @ts-ignore
-        let providerPrice = await gpo.getProviderOracleGasPrice();
+        it(`can get price from Provider in gwei`, async () => {
+            const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
-        // geth-poa image always generates 18 gwei
-        expect(providerPrice).toEqual(18);
-    });
+            // @ts-ignore
+            let providerPrice = await gpo.getProviderOracleGasPrice();
 
-    it(`can get price from EthGasStation`, async () => {
-        const gpo: GasPriceOracle = GasPriceOracle.Instance;
+            // geth-poa image always generates 18 gwei
+            expect(providerPrice).toEqual(18);
+        });
 
-        nock('https://ethgasstation.info')
-            .get('/json/ethgasAPI.json')
-            .times(3)
-            .reply(200, {
-                fast: 500,
-                fastest: 600,
-                average: 400,
-                safeLow: 300,
-                safeLowWait: 2.0,
-                avgWait: 1.5,
-                fastWait: 1.0,
-                fastestWait: 0.5
-            });
+        it(`can get price from EthGasStation`, async () => {
+            const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
-        // @ts-ignore
-        let ethGasStationPrice = await gpo.getEthGasStationBestPrice();
+            nock('https://ethgasstation.info')
+                .get('/json/ethgasAPI.json')
+                .times(3)
+                .reply(200, {
+                    fast: 500,
+                    fastest: 600,
+                    average: 400,
+                    safeLow: 300,
+                    safeLowWait: 2.0,
+                    avgWait: 1.5,
+                    fastWait: 1.0,
+                    fastestWait: 0.5
+                });
 
-        // Based on DESIRED_WAIT_TIME of 2 minutes, this should pick safeLow
-        expect(ethGasStationPrice.price).toEqual(30);
-    });
+            // @ts-ignore
+            let ethGasStationPrice = await gpo.getEthGasStationBestPrice();
 
-    it(`can get default price from EthGasStation if no desired time match`, async () => {
-        const gpo: GasPriceOracle = GasPriceOracle.Instance;
+            // Based on DESIRED_WAIT_TIME of 2 minutes, this should pick safeLow
+            expect(ethGasStationPrice.price).toEqual(30);
+        });
 
-        nock('https://ethgasstation.info')
-            .get('/json/ethgasAPI.json')
-            .times(3)
-            .reply(200, {
-                fast: 500,
-                fastest: 600,
-                average: 400,
-                safeLow: 300,
-                safeLowWait: 10.0,
-                avgWait: 10.0,
-                fastWait: 10.0,
-                fastestWait: 10.0
-            });
+        it(`can get default price from EthGasStation if no desired time match`, async () => {
+            const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
-        // @ts-ignore
-        let ethGasStationPrice = await gpo.getEthGasStationBestPrice();
+            nock('https://ethgasstation.info')
+                .get('/json/ethgasAPI.json')
+                .times(3)
+                .reply(200, {
+                    fast: 500,
+                    fastest: 600,
+                    average: 400,
+                    safeLow: 300,
+                    safeLowWait: 10.0,
+                    avgWait: 10.0,
+                    fastWait: 10.0,
+                    fastestWait: 10.0
+                });
 
-        // Based on DESIRED_WAIT_TIME of 2 minutes, this should default to fastest
-        expect(ethGasStationPrice.price).toEqual(60);
-    });
+            // @ts-ignore
+            let ethGasStationPrice = await gpo.getEthGasStationBestPrice();
 
-    it(`returns only Provider price when not in PROD`, async () => {
-        const gpo: GasPriceOracle = GasPriceOracle.Instance;
+            // Based on DESIRED_WAIT_TIME of 2 minutes, this should default to fastest
+            expect(ethGasStationPrice.price).toEqual(60);
+        });
 
-        // @ts-ignore
-        await gpo.calculateGasPrice();
+        it(`returns only Provider price when not in PROD`, async () => {
+            const gpo: GasPriceOracle = GasPriceOracle.Instance;
 
-        // @ts-ignore
-        const ethereumService: EthereumService = gpo.ethereumService;
+            // @ts-ignore
+            await gpo.calculateGasPrice();
 
-        expect(gpo.gasPrice).toEqual(ethereumService.unitToWei(18, 'gwei'));
-    });
+            // @ts-ignore
+            const ethereumService: AbstractEthereumService = gpo.ethereumService;
+
+            expect(gpo.gasPrice).toEqual(ethereumService.unitToWei(18, 'gwei'));
+        });
+    }
 
 };

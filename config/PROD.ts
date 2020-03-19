@@ -9,5 +9,8 @@ export default {
         "DEFAULT": "info",
         "ELASTICSEARCH": "info",
     },
+    "LOOM_CONFIG": {
+        "ENABLED": false,
+    },
     "USE_JS_ORM_ENTITIES": true,
 }

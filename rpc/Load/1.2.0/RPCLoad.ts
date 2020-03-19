@@ -51,7 +51,7 @@ export class RPCLoad {
             args.shipmentUuid,
             args.fundingType,
             args.contractedAmount,
-            carrierWallet ? carrierWallet.address : undefined,
+            carrierWallet ? await carrierWallet.asyncEvmAddress : undefined,
         );
 
         return {
@@ -76,7 +76,11 @@ export class RPCLoad {
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
-        const txUnsigned = await LOAD_CONTRACT.setCarrierTx(senderWallet, args.shipmentUuid, carrierWallet.address);
+        const txUnsigned = await LOAD_CONTRACT.setCarrierTx(
+            senderWallet,
+            args.shipmentUuid,
+            await carrierWallet.asyncEvmAddress,
+        );
 
         return {
             success: true,
@@ -96,7 +100,11 @@ export class RPCLoad {
 
         const LOAD_CONTRACT: LoadContract = <LoadContract>loadedContracts.get(PROJECT, VERSION);
 
-        const txUnsigned = await LOAD_CONTRACT.setModeratorTx(senderWallet, args.shipmentUuid, moderatorWallet.address);
+        const txUnsigned = await LOAD_CONTRACT.setModeratorTx(
+            senderWallet,
+            args.shipmentUuid,
+            await moderatorWallet.asyncEvmAddress,
+        );
 
         return {
             success: true,

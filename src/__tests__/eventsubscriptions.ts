@@ -21,7 +21,8 @@ import { Wallet } from '../entity/Wallet';
 import { Network, Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
-import { EthereumService } from "../eth/EthereumService";
+import { AbstractEthereumService } from "../eth/AbstractEthereumService";
+import { LoomHooks } from "../eth/LoomHooks";
 
 const request = require('request');
 const config = require('config');
@@ -85,10 +86,11 @@ export const EventSubscriptionEntityTests = async  function() {
 
             const local = await utils.setupLocalTestNetContracts({ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD}, [owner]);
             const network: Network = await Network.getLocalTestNet();
-            const ethereumService: EthereumService = network.getEthereumService();
+            const ethereumService: AbstractEthereumService = network.getEthereumService();
 
             const subscriberAttrs = new EventSubscriberAttrs();
             subscriberAttrs.project = 'ShipToken';
+            subscriberAttrs.version = '1.0.0';
             subscriberAttrs.url = ES_NODE;
             subscriberAttrs.receiverType = 'ELASTIC';
 
@@ -98,13 +100,16 @@ export const EventSubscriptionEntityTests = async  function() {
             const ETH = 10 ** 18;
             const TOTAL = 500 * SHIP;
 
-            expect(Number(await local.ShipToken.call_static('balanceOf', [owner.address]))).toEqual(TOTAL);
+            const ownerBalance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
+            expect(Number(ownerBalance)).toEqual(TOTAL);
 
-            expect(Number(await ethereumService.getBalance(owner.address))).toEqual(5 * ETH);
+            if (!LoomHooks.enabled) {
+                expect(Number(await ethereumService.getBalance(await owner.asyncEvmAddress))).toEqual(5 * ETH);
+            }
 
             const txParams = await owner.add_tx_params(
                 network,
-                await local.ShipToken.build_transaction('transfer', [other.address, 100 * SHIP]),
+                await local.ShipToken.build_transaction('transfer', [await other.asyncEvmAddress, 100 * SHIP]),
             );
 
             const [signed_tx, txHash] = await owner.sign_tx(txParams);
@@ -113,8 +118,8 @@ export const EventSubscriptionEntityTests = async  function() {
 
             expect(receipt.transactionHash.length).toEqual(66);
 
-            const new_owner_balance = await local.ShipToken.call_static('balanceOf', [owner.address]);
-            const new_other_balance = await local.ShipToken.call_static('balanceOf', [other.address]);
+            const new_owner_balance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
+            const new_other_balance = await local.ShipToken.call_static('balanceOf', [await other.asyncEvmAddress]);
 
             expect(Number(new_owner_balance)).toEqual(TOTAL - 100 * SHIP);
 
@@ -148,9 +153,9 @@ export const EventSubscriptionEntityTests = async  function() {
 
             //console.log('ElasticSearch Events:', results)
 
-            expect(results['hits']['total']).toEqual(4);
+            expect(results['hits']['total']['value']).toEqual(4);
 
         },
-        30000, // This one can be a bit slow...
+        60000, // This one can be a bit slow...
     );
 };

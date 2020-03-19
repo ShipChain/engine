@@ -1,0 +1,6 @@
+#
+# Configuration of Web3 JSON-RPC methods served on the /eth endpoint.
+#
+Web3:
+  # Specifies the maximum number of blocks eth_getLogs will query per request
+  GetLogsMaxBlockRange: 999999999

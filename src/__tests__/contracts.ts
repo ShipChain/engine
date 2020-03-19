@@ -20,7 +20,8 @@ import 'mocha';
 import { Wallet } from '../entity/Wallet';
 import { Contract, Version, Project, Network } from '../entity/Contract';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
-import { EthereumService } from "../eth/EthereumService";
+import { AbstractEthereumService } from "../eth/AbstractEthereumService";
+import { LoomHooks } from "../eth/LoomHooks";
 
 const utils = require('../local-test-net-utils');
 
@@ -53,15 +54,18 @@ export const ContractEntityTests = async function() {
 
             const local = await utils.setupLocalTestNetContracts({ ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD, NOTARY: LATEST_NOTARY }, [owner]);
             const network: Network = await Network.getLocalTestNet();
-            const ethereumService: EthereumService = network.getEthereumService();
+            const ethereumService: AbstractEthereumService = network.getEthereumService();
 
-            expect(await local.ShipToken.call_static('balanceOf', [owner.address])).toEqual(ethereumService.unitToWei(500, 'ether'));
+            const ownerBalance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
+            expect(ownerBalance).toEqual(ethereumService.unitToWei(500, 'ether'));
 
-            expect(await ethereumService.getBalance(owner.address)).toEqual(ethereumService.unitToWei(5, 'ether').toString());
+            if (!LoomHooks.enabled) {
+                expect(await ethereumService.getBalance(await owner.asyncEvmAddress)).toEqual(ethereumService.unitToWei(5, 'ether').toString());
+            }
 
             const txParams = await owner.add_tx_params(
                 network,
-                await local.ShipToken.build_transaction('transfer', [other.address, ethereumService.unitToWei(100, 'ether').toString()]),
+                await local.ShipToken.build_transaction('transfer', [await other.asyncEvmAddress, ethereumService.unitToWei(100, 'ether').toString()]),
             );
 
             const [signed_tx, txHash] = await owner.sign_tx(txParams);
@@ -70,13 +74,13 @@ export const ContractEntityTests = async function() {
 
             expect(receipt.transactionHash.length).toEqual(66);
 
-            const new_owner_balance = await local.ShipToken.call_static('balanceOf', [owner.address]);
-            const new_other_balance = await local.ShipToken.call_static('balanceOf', [other.address]);
+            const new_owner_balance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
+            const new_other_balance = await local.ShipToken.call_static('balanceOf', [await other.asyncEvmAddress]);
 
             expect(new_owner_balance).toEqual(ethereumService.unitToWei(400, 'ether'));
 
             expect(new_other_balance).toEqual(ethereumService.unitToWei(100, 'ether'));
         },
-        10000,
+        60000,
     );
 };

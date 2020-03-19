@@ -18,6 +18,15 @@ services:
       GETH_VERBOSITY: 1
 
 
+  loom:
+    image: loomnetwork/loom:1374
+    volumes:
+      - ${PWD}/compose/loom/loom.yaml:/app/loom.yaml
+    expose:
+      - 46657
+      - 46658
+
+
   sftp:
     image: atmoz/sftp
     command: shipchain_user:shipchain_password:::upload
