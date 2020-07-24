@@ -81,6 +81,6 @@ export const ContractEntityTests = async function() {
 
             expect(new_other_balance).toEqual(ethereumService.unitToWei(100, 'ether'));
         },
-        60000,
+        180000,
     );
 };

@@ -87,7 +87,7 @@ const CONTRACT_METADATA_PATH = '/shipchain-contracts/meta.json';
 const STATIC_TEST_METADATA_FILE = '/app/src/__tests__/meta.json';
 
 
-jest.setTimeout(40000);
+jest.setTimeout(60000);
 
 
 describe('RPC', async () => {
