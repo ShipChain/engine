@@ -22,6 +22,7 @@ import { JsonRpcProvider, Log, TransactionReceipt, TransactionResponse } from 'e
 import { Logger } from '../../Logger';
 import { EthersEthereumService } from './EthersEthereumService';
 import { LoomHooks } from '../LoomHooks';
+import { getDeployKey } from '../deployKey';
 
 const config = require('config');
 
@@ -78,7 +79,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     private static get asyncDeployPrivateKey() {
         return (async () => {
             if (!LoomEthersEthereumService._deployPrivateKey) {
-                this._deployPrivateKey = config.get('LOOM_CONFIG.DEPLOY_KEY');
+                this._deployPrivateKey = await getDeployKey();
             }
             return this._deployPrivateKey;
         })();
