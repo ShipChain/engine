@@ -37,7 +37,7 @@ export class Wallet extends BaseEntity {
     private unlocked_private_key: string;
 
     get asyncEvmAddress(): Promise<string> {
-        // TODO: Potential local caching opportunity here
+        // TODO: cache mapped addresses in redis
         return (async () => {
             if (LoomHooks.enabled) {
                 return await LoomHooks.getOrCreateMapping(
@@ -60,6 +60,9 @@ export class Wallet extends BaseEntity {
 
         wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptor.decrypt(wallet.private_key);
 
+        // Ensure wallet mapping is properly initialized if required
+        await wallet.asyncEvmAddress;
+
         return wallet;
     }
 
@@ -74,6 +77,9 @@ export class Wallet extends BaseEntity {
         }
 
         wallet.unlocked_private_key = await EncryptorContainer.defaultEncryptor.decrypt(wallet.private_key);
+
+        // Ensure wallet mapping is properly initialized if required
+        await wallet.asyncEvmAddress;
 
         return wallet;
     }
