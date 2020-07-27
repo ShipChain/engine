@@ -75,4 +75,69 @@ export const RedisTests = async function() {
         expect(returnedValue).toEqual(value2);
     });
 
+    it(`cacheSet should throw on undefined key`, async() => {
+        let caughtError;
+
+        try {
+            await cacheSet(undefined, field, value);
+            fail(`Should have thrown`);
+        } catch (err) {
+            caughtError = err;
+        }
+
+        expect(caughtError.toString()).toContain(`Invalid parameters for cacheSet: (undefined,${field},${value})`);
+    });
+
+    it(`cacheSet should throw on undefined field`, async() => {
+        let caughtError;
+
+        try {
+            await cacheSet(key, undefined, value);
+            fail(`Should have thrown`);
+        } catch (err) {
+            caughtError = err;
+        }
+
+        expect(caughtError.toString()).toContain(`Invalid parameters for cacheSet: (${key},undefined,${value})`);
+    });
+
+    it(`cacheSet should throw on undefined value`, async() => {
+        let caughtError;
+
+        try {
+            await cacheSet(key, field, undefined);
+            fail(`Should have thrown`);
+        } catch (err) {
+            caughtError = err;
+        }
+
+        expect(caughtError.toString()).toContain(`Invalid parameters for cacheSet: (${key},${field},undefined)`);
+    });
+
+    it(`cacheGet should throw on undefined key`, async() => {
+        let caughtError;
+
+        try {
+            await cacheGet(undefined, field);
+            fail(`Should have thrown`);
+        } catch (err) {
+            caughtError = err;
+        }
+
+        expect(caughtError.toString()).toContain(`Invalid parameters for cacheGet: (undefined,${field})`);
+    });
+
+    it(`cacheGet should throw on undefined field`, async() => {
+        let caughtError;
+
+        try {
+            await cacheGet(key, undefined);
+            fail(`Should have thrown`);
+        } catch (err) {
+            caughtError = err;
+        }
+
+        expect(caughtError.toString()).toContain(`Invalid parameters for cacheGet: (${key},undefined)`);
+    });
+
 };

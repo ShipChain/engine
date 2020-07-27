@@ -47,7 +47,12 @@ export function getRedisClient() {
 }
 
 export async function cacheGet(key: string, field: string): Promise<any> {
+    if (!key || !field) {
+        throw new Error(`Invalid parameters for cacheGet: (${key},${field})`);
+    }
+
     const client = getRedisClient();
+
     try {
         return await client.asyncHashGet(key, field);
     } catch (err) {
@@ -57,7 +62,12 @@ export async function cacheGet(key: string, field: string): Promise<any> {
 }
 
 export async function cacheSet(key: string, field: string, value: any): Promise<void> {
+    if (!key || !field || !value) {
+        throw new Error(`Invalid parameters for cacheSet: (${key},${field},${value})`);
+    }
+
     const client = getRedisClient();
+
     try {
         await client.asyncHashSet(key, field, value);
     } catch (err) {

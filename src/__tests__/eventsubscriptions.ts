@@ -82,7 +82,9 @@ export const EventSubscriptionEntityTests = async  function() {
             }
             await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
             const owner = await Wallet.generate_entity();
+            await owner.save();
             const other = await Wallet.generate_entity();
+            await other.save();
 
             const local = await utils.setupLocalTestNetContracts({ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD}, [owner]);
             const network: Network = await Network.getLocalTestNet();

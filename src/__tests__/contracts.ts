@@ -50,7 +50,9 @@ export const ContractEntityTests = async function() {
         async () => {
             await Project.loadFixturesFromFile('/app/src/__tests__/meta.json');
             const owner = await Wallet.generate_entity();
+            await owner.save();
             const other = await Wallet.generate_entity();
+            await other.save();
 
             const local = await utils.setupLocalTestNetContracts({ ShipToken: LATEST_SHIPTOKEN, LOAD: LATEST_LOAD, NOTARY: LATEST_NOTARY }, [owner]);
             const network: Network = await Network.getLocalTestNet();
