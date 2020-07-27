@@ -20,10 +20,13 @@ import { Logger } from '../Logger';
 import { EncryptorContainer } from './encryption/EncryptorContainer';
 import { Network } from './Contract';
 import { LoomHooks } from '../eth/LoomHooks';
+import { cacheGet, cacheSet } from '../redis';
 
 const EthereumTx = require('ethereumjs-tx');
 
 const logger = Logger.get(module.filename);
+
+const EVM_ADDRESS_CACHE_KEY = 'evmAddress';
 
 @Entity()
 export class Wallet extends BaseEntity {
@@ -37,12 +40,19 @@ export class Wallet extends BaseEntity {
     private unlocked_private_key: string;
 
     get asyncEvmAddress(): Promise<string> {
-        // TODO: cache mapped addresses in redis
         return (async () => {
             if (LoomHooks.enabled) {
-                return await LoomHooks.getOrCreateMapping(
-                    this.unlocked_private_key || (await EncryptorContainer.defaultEncryptor.decrypt(this.private_key)),
-                );
+                let evmAddress: string = await cacheGet(this.id, EVM_ADDRESS_CACHE_KEY);
+
+                if (!evmAddress) {
+                    evmAddress = await LoomHooks.getOrCreateMapping(
+                        this.unlocked_private_key ||
+                            (await EncryptorContainer.defaultEncryptor.decrypt(this.private_key)),
+                    );
+                    await cacheSet(this.id, EVM_ADDRESS_CACHE_KEY, evmAddress);
+                }
+
+                return evmAddress;
             }
             return this.address;
         })();
