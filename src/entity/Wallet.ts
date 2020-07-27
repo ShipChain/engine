@@ -42,14 +42,21 @@ export class Wallet extends BaseEntity {
     get asyncEvmAddress(): Promise<string> {
         return (async () => {
             if (LoomHooks.enabled) {
-                let evmAddress: string = await cacheGet(this.id, EVM_ADDRESS_CACHE_KEY);
+                let evmAddress: string = null;
+
+                if (this.id) {
+                    evmAddress = await cacheGet(this.id, EVM_ADDRESS_CACHE_KEY);
+                }
 
                 if (!evmAddress) {
                     evmAddress = await LoomHooks.getOrCreateMapping(
                         this.unlocked_private_key ||
                             (await EncryptorContainer.defaultEncryptor.decrypt(this.private_key)),
                     );
-                    await cacheSet(this.id, EVM_ADDRESS_CACHE_KEY, evmAddress);
+
+                    if (this.id) {
+                        await cacheSet(this.id, EVM_ADDRESS_CACHE_KEY, evmAddress);
+                    }
                 }
 
                 return evmAddress;
@@ -137,10 +144,8 @@ export class Wallet extends BaseEntity {
             unlocked_private_key: identity.privateKey,
         });
 
-        if (LoomHooks.enabled) {
-            let loomAddress = await LoomHooks.getOrCreateMapping(identity.privateKey);
-            logger.info(`Mapped eth:${identity.address} -> default:${loomAddress}`);
-        }
+        // Ensure wallet mapping is properly initialized if required
+        await wallet.asyncEvmAddress;
 
         return wallet;
     }
@@ -166,10 +171,8 @@ export class Wallet extends BaseEntity {
                 unlocked_private_key: private_key,
             });
 
-            if (LoomHooks.enabled) {
-                let loomAddress = await LoomHooks.getOrCreateMapping(private_key);
-                logger.info(`Mapped eth:${address} -> default:${loomAddress}`);
-            }
+            // Ensure wallet mapping is properly initialized if required
+            await wallet.asyncEvmAddress;
 
             return wallet;
         }

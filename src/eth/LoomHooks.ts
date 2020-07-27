@@ -98,9 +98,7 @@ export class LoomHooks {
             const loomAddress = new Address(loomClient.chainId, LocalAddress.fromPublicKey(loomPublicKey));
             const mapper = await AddressMapper.createAsync(loomClient, loomAddress);
             await mapper.addIdentityMappingAsync(ethLoomAddress, loomAddress, loomEthSigner);
-            logger.debug(
-                `Added loom mapping for ${loomAddress.local.toString()} -> ${ethLoomAddress.local.toString()}`,
-            );
+            logger.info(`Added loom mapping for ${loomAddress.local.toString()} -> ${ethLoomAddress.local.toString()}`);
             return loomAddress.local.toString();
         } catch (err) {
             let errorToThrow = err;
@@ -110,7 +108,7 @@ export class LoomHooks {
                 try {
                     const mapper = await AddressMapper.createAsync(loomClient, ethLoomAddress);
                     const mapping = await mapper.getMappingAsync(ethLoomAddress);
-                    logger.silly(
+                    logger.debug(
                         `Existing loom mapping for ${mapping.to.local.toString()} -> ${ethLoomAddress.local.toString()}`,
                     );
                     return mapping.to.local.toString();
