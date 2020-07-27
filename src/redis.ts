@@ -20,6 +20,7 @@ import { MetricsReporter } from './MetricsReporter';
 const redis = require('redis');
 const Redlock = require('redlock');
 const config = require('config');
+const { promisify } = require('util');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -29,11 +30,45 @@ const REDIS_URL = config.get('REDIS_URL');
 let redisClient = null;
 let redlock = null;
 
-function getRedlock() {
-    if (!redlock || !redisClient) {
+export function getRedisClient() {
+    if (!redisClient) {
         redisClient = redis.createClient(REDIS_URL);
 
-        redlock = new Redlock([redisClient], {
+        // setup listeners
+        redisClient.on('error', error => {
+            logger.error(`RedisError: ${error}`);
+        });
+
+        // create helper methods for async interactions
+        redisClient.asyncHashGet = promisify(redisClient.hget).bind(redisClient);
+        redisClient.asyncHashSet = promisify(redisClient.hset).bind(redisClient);
+    }
+    return redisClient;
+}
+
+export async function cacheGet(key: string, field: string): Promise<any> {
+    const client = getRedisClient();
+    try {
+        return await client.asyncHashGet(key, field);
+    } catch (err) {
+        metrics.methodFail('redis_cacheGet');
+        return null;
+    }
+}
+
+export async function cacheSet(key: string, field: string, value: any): Promise<void> {
+    const client = getRedisClient();
+    try {
+        await client.asyncHashSet(key, field, value);
+    } catch (err) {
+        metrics.methodFail('redis_cacheSet');
+    }
+}
+
+function getRedlock() {
+    if (!redlock) {
+        const client = getRedisClient();
+        redlock = new Redlock([client], {
             // the expected clock drift; for more details
             // see http://redis.io/topics/distlock
             driftFactor: 0.01, // time in ms
