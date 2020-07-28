@@ -62,6 +62,7 @@ import { WalletEntityTests } from './src/__tests__/wallets';
 import { GasPriceOracleTests } from "./src/__tests__/gaspriceoracle";
 import { EventSubscriptionPostsTests } from "./src/__tests__/eventSubscriptionPosts";
 import { UtilsTests } from "./src/__tests__/utils";
+import { RedisTests } from "./src/__tests__/redis";
 
 
 // ShipChain Tests
@@ -179,6 +180,7 @@ describe('Core', async () => {
     describe('GasPriceOracle', GasPriceOracleTests);
     describe('EventSubscriptionPosts', EventSubscriptionPostsTests);
     describe('Utils', UtilsTests);
+    describe('Redis', RedisTests);
 
 });
 
