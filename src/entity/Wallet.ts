@@ -15,7 +15,7 @@
  */
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
-import EthCrypto from 'eth-crypto';
+import { default as EthCrypto, Encrypted } from 'eth-crypto';
 import { Logger } from '../Logger';
 import { EncryptorContainer } from './encryption/EncryptorContainer';
 import { Network } from './Contract';
@@ -27,6 +27,26 @@ const EthereumTx = require('ethereumjs-tx');
 const logger = Logger.get(module.filename);
 
 const EVM_ADDRESS_CACHE_KEY = 'evmAddress';
+
+export enum EncryptionMethod {
+    EthCrypto = 0,
+    TweetNaCl = 1,
+}
+
+interface EncryptParameters {
+    message: any;
+    publicKey?: string;
+    wallet?: Wallet;
+    asString?: boolean;
+    method?: EncryptionMethod;
+}
+
+interface DecryptParameters {
+    message: any;
+    privateKey?: string;
+    wallet?: Wallet;
+    method?: EncryptionMethod;
+}
 
 @Entity()
 export class Wallet extends BaseEntity {
@@ -178,43 +198,8 @@ export class Wallet extends BaseEntity {
         }
     }
 
-    static async encrypt(public_key, message) {
-        return await EthCrypto.encryptWithPublicKey(public_key, message);
-    }
-
-    static async encrypt_to_string(public_key, message) {
-        const result = await Wallet.encrypt(public_key, message);
-        return EthCrypto.cipher.stringify(result);
-    }
-
-    static async decrypt_with_raw_key(private_key, message) {
-        if (typeof message == 'string') message = EthCrypto.cipher.parse(message);
-        return EthCrypto.decryptWithPrivateKey(private_key, message);
-    }
-
-    static sign_hash_with_raw_key(private_key, hash) {
-        return EthCrypto.sign(private_key, hash);
-    }
-
-    static recover_signer_address(signature, hash) {
-        return EthCrypto.recover(signature, hash);
-    }
-
-    static recover_signer_public_key(signature, hash) {
-        return EthCrypto.recoverPublicKey(signature, hash);
-    }
-
-    // static async decrypt_with_safe_key(encrypted_private_key, message) {
-    //     return Wallet.decrypt_with_raw_key(Wallet.__unlock_encrypted_key(encrypted_private_key), message);
-    // }
-    //
-    // static sign_hash_with_safe_key(encrypted_private_key, hash) {
-    //     return Wallet.sign_hash_with_raw_key(Wallet.__unlock_encrypted_key(encrypted_private_key), hash);
-    // }
-    //
-    // static async __unlock_encrypted_key(encrypted_private_key) {
-    //     // always encrypt private keys at rest, and encourage encrypted keys over RPC
-    // }
+    // Private key accessors
+    // =====================
 
     private __unlocked_key() {
         if (!this.unlocked_private_key) {
@@ -228,14 +213,102 @@ export class Wallet extends BaseEntity {
         return Buffer.from(this.__unlocked_key().slice(2), 'hex');
     }
 
-    async decrypt_message(message) {
-        return Wallet.decrypt_with_raw_key(this.__unlocked_key(), message);
+    // Encryption
+    // ==========
+
+    static async encrypt({
+        message,
+        asString = true,
+        publicKey = null,
+        wallet = null,
+        method = EncryptionMethod.EthCrypto,
+    }: EncryptParameters): Promise<any> {
+        if (!message) {
+            throw new EncryptionError('Cannot encrypt null message');
+        }
+        if (!publicKey && !wallet) {
+            throw new EncryptionError('Either publicKey or wallet is required');
+        }
+        if (publicKey && wallet) {
+            throw new EncryptionError('Only one of publicKey or wallet is allowed');
+        }
+
+        switch (method) {
+            case EncryptionMethod.EthCrypto:
+                let encryptedData: Encrypted | string = await EthCrypto.encryptWithPublicKey(
+                    wallet ? wallet.public_key : publicKey,
+                    message,
+                );
+
+                if (asString) {
+                    encryptedData = EthCrypto.cipher.stringify(encryptedData);
+                }
+
+                return encryptedData;
+
+            case EncryptionMethod.TweetNaCl:
+                throw new EncryptionError(`Not Yet Implemented ${method}`);
+
+            default:
+                throw new EncryptionError(`Unknown encryption method ${method}`);
+        }
+    }
+
+    // Decryption
+    // ==========
+
+    static async decrypt({
+        message,
+        privateKey = null,
+        wallet = null,
+        method = EncryptionMethod.EthCrypto,
+    }: DecryptParameters): Promise<any> {
+        if (!message) {
+            throw new EncryptionError('Cannot decrypt null message');
+        }
+        if (!privateKey && !wallet) {
+            throw new EncryptionError('Either privateKey or wallet is required');
+        }
+        if (privateKey && wallet) {
+            throw new EncryptionError('Only one of privateKey or wallet is allowed');
+        }
+
+        switch (method) {
+            case EncryptionMethod.EthCrypto:
+                if (typeof message == 'string') {
+                    message = EthCrypto.cipher.parse(message);
+                }
+                return EthCrypto.decryptWithPrivateKey(wallet ? wallet.__unlocked_key() : privateKey, message);
+
+            case EncryptionMethod.TweetNaCl:
+                throw new EncryptionError(`Not Yet Implemented ${method}`);
+
+            default:
+                throw new EncryptionError(`Unknown encryption method ${method}`);
+        }
+    }
+
+    // Message Signing
+    // ===============
+
+    static sign_hash_with_raw_key(private_key, hash) {
+        return EthCrypto.sign(private_key, hash);
+    }
+
+    static recover_signer_address(signature, hash) {
+        return EthCrypto.recover(signature, hash);
+    }
+
+    static recover_signer_public_key(signature, hash) {
+        return EthCrypto.recoverPublicKey(signature, hash);
     }
 
     sign_hash(hash) {
         return Wallet.sign_hash_with_raw_key(this.__unlocked_key(), hash);
     }
 
+    // Contract Interaction
+    // ====================
     async add_tx_params(network: Network, txParams) {
         const ethereumService = network.getEthereumService();
         const hex_i = i => (Number.isInteger(i) ? ethereumService.toHex(i) : i);
@@ -279,3 +352,5 @@ export class Wallet extends BaseEntity {
         return result;
     }
 }
+
+class EncryptionError extends Error {}

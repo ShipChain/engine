@@ -18,7 +18,7 @@ import { StorageDriverFactory } from '../storage/StorageDriverFactory';
 import { DriverError, StorageDriver } from '../storage/StorageDriver';
 import { ContainerFactory } from './ContainerFactory';
 import { Container } from './Container';
-import { Wallet } from '../entity/Wallet';
+import { EncryptionMethod, Wallet } from '../entity/Wallet';
 
 import { ResourceLock } from '../redis';
 import * as path from 'path';
@@ -171,7 +171,11 @@ export class Vault {
         else this.meta.roles[role] = {};
 
         const role_identity = await Wallet.generate_identity();
-        const encrypted_key = await Wallet.encrypt_to_string(author.public_key, role_identity.privateKey);
+        const encrypted_key = await Wallet.encrypt({
+            message: role_identity.privateKey,
+            wallet: author,
+            method: EncryptionMethod.EthCrypto,
+        });
         this.meta.roles[role].public_key = role_identity.publicKey;
 
         this.logAction(author, 'create_role', { role });
@@ -206,13 +210,17 @@ export class Vault {
 
     protected async __loadRoleKey(wallet: Wallet, role: string) {
         if (!this.authorized_for_role(wallet.public_key, role)) return false;
-        return await wallet.decrypt_message(this.meta.roles[role][wallet.public_key]);
+        return await Wallet.decrypt({
+            message: this.meta.roles[role][wallet.public_key],
+            wallet: wallet,
+            method: EncryptionMethod.EthCrypto,
+        });
     }
 
     async decryptWithRoleKey(wallet: Wallet, role: string, message: any) {
         const key = await this.__loadRoleKey(wallet, role);
         if (!key) throw new Error('Role has no valid encryption key');
-        return await Wallet.decrypt_with_raw_key(key, message);
+        return await Wallet.decrypt({ message: message, privateKey: key, method: EncryptionMethod.EthCrypto });
     }
 
     async decryptMessage(wallet: Wallet, message: any) {
@@ -282,7 +290,11 @@ export class Vault {
 
     async encryptForRole(role: string, message: any) {
         const public_key = this.meta.roles[role].public_key;
-        return await Wallet.encrypt_to_string(public_key, message);
+        return await Wallet.encrypt({
+            message: message,
+            publicKey: public_key,
+            method: EncryptionMethod.EthCrypto,
+        });
     }
 
     async authorize(author: Wallet, role: string, public_key: string, force_key?: string) {
@@ -290,7 +302,11 @@ export class Vault {
         if (!force_key && !this.authorized_for_role(auth_pub, role) && !this.authorized_for_role(auth_pub, role))
             return false;
 
-        const encrypted_key = await Wallet.encrypt_to_string(public_key, await this.__loadRoleKey(author, role));
+        const encrypted_key = await Wallet.encrypt({
+            message: await this.__loadRoleKey(author, role),
+            publicKey: public_key,
+            method: EncryptionMethod.EthCrypto,
+        });
 
         this.meta.roles[role][public_key] = encrypted_key;
 
