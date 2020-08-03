@@ -23,25 +23,25 @@ const fs = require('fs');
 
 import 'mocha';
 import * as typeorm from "typeorm";
-import * as path from 'path';
-const AWS = require('aws-sdk');
 import {
-    mochaAsync,
-    expectMissingRequiredParams,
-    expectInvalidUUIDParams,
+    CallRPCMethod,
+    cleanupEntities,
     expectInvalidDateParams,
     expectInvalidNumberParams,
     expectInvalidParameterCombinationParams,
-    cleanupEntities,
-    CallRPCMethod,
+    expectInvalidUUIDParams,
+    expectMissingRequiredParams,
+    mochaAsync,
 } from "./utils";
 
-import { buildSchemaValidators } from "../validators";
-import { RPCVault } from '../vault';
-import { uuidv4, signObject } from "../../src/utils";
-import { StorageCredential } from "../../src/entity/StorageCredential";
-import { Wallet } from "../../src/entity/Wallet";
-import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
+import {buildSchemaValidators} from "../validators";
+import {RPCVault} from '../vault';
+import {signObject, uuidv4} from "../../src/utils";
+import {StorageCredential} from "../../src/entity/StorageCredential";
+import {EncryptionMethod, Wallet} from "../../src/entity/Wallet";
+import {EncryptorContainer} from '../../src/entity/encryption/EncryptorContainer';
+
+const AWS = require('aws-sdk');
 
 const DATE_0 = '2018-01-01T00:00:00.000Z';
 const DATE_1 = '2018-01-01T01:00:00.000Z';
@@ -116,8 +116,16 @@ export const RPCVaultTests = async function() {
         await localStorage.save();
 
         const role = Wallet.generate_identity();
-        const key1 = await Wallet.encrypt_to_string(fullWallet1.public_key, role.privateKey);
-        const key2 = await Wallet.encrypt_to_string(fullWallet1.public_key, role.privateKey);
+        const key1 = await Wallet.encrypt({
+            message: role.privateKey,
+            wallet: fullWallet1,
+            method: EncryptionMethod.EthCrypto,
+        });
+        const key2 = await Wallet.encrypt({
+            message: role.privateKey,
+            wallet: fullWallet1,
+            method: EncryptionMethod.EthCrypto,
+        });
         vaultToMigrate.roles.owners["public_key"] = role.publicKey;
         vaultToMigrate.roles.owners[fullWallet1.public_key] = key1;
         vaultToMigrate.roles.ledger["public_key"] = role.publicKey;

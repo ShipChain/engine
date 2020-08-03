@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import {signObject} from "../utils";
-
-const fs = require('fs');
 require('./testLoggingConfig');
 
+import {signObject} from "../utils";
+
 import 'mocha';
-import { Vault } from '../vaults/Vault';
-import { Wallet } from '../entity/Wallet';
-import { CloseConnection } from "../redis";
-import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
-import { StorageCredential } from "../entity/StorageCredential";
+import {Vault} from '../vaults/Vault';
+import {EncryptionMethod, Wallet} from '../entity/Wallet';
+import {CloseConnection} from "../redis";
+import {EncryptorContainer} from '../entity/encryption/EncryptorContainer';
+import {StorageCredential} from "../entity/StorageCredential";
+
+const fs = require('fs');
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 const CONTAINER = 'test2';
@@ -1229,8 +1230,16 @@ export const VaultTests = async function() {
         let metaFileJson;
         let author = await Wallet.generate_entity();
         const role = Wallet.generate_identity();
-        const key1 = await Wallet.encrypt_to_string(author.public_key, role.privateKey);
-        const key2 = await Wallet.encrypt_to_string(author.public_key, role.privateKey);
+        const key1 = await Wallet.encrypt({
+            message: role.privateKey,
+            wallet: author,
+            method: EncryptionMethod.EthCrypto,
+        });
+        const key2 = await Wallet.encrypt({
+            message: role.privateKey,
+            wallet: author,
+            method: EncryptionMethod.EthCrypto,
+        });
         vaultToMigrate.roles.owners["public_key"] = role.publicKey;
         vaultToMigrate.roles.owners[author.public_key] = key1;
         vaultToMigrate.roles.ledger["public_key"] = role.publicKey;

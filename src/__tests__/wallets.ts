@@ -18,10 +18,10 @@ require('./testLoggingConfig');
 
 import 'mocha';
 import * as typeorm from "typeorm";
-import { Wallet } from '../entity/Wallet';
+import {EncryptionMethod, Wallet} from '../entity/Wallet';
 
 import EthCrypto from 'eth-crypto';
-import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
+import {EncryptorContainer} from '../entity/encryption/EncryptorContainer';
 
 export const WalletEntityTests = async function() {
 
@@ -73,9 +73,19 @@ export const WalletEntityTests = async function() {
     it(`encrypts and decrypts messages`, async () => {
         const wallet = await Wallet.generate_entity();
 
-        const encrypted = await Wallet.encrypt(wallet.public_key, 'SHIPtest');
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            method: EncryptionMethod.EthCrypto,
+        });
 
-        expect(await wallet.decrypt_message(encrypted)).toEqual('SHIPtest');
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.EthCrypto,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
     });
 
     it(`signs messages and recovers keys`, async () => {
