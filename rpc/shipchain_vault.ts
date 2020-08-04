@@ -44,7 +44,7 @@ export class RPCShipChainVault {
 
         if (args.additionalWallet) {
             const additionalWallet = await Wallet.getById(args.additionalWallet);
-            await vault.authorize(vaultWallet, ShipChainVault.OWNERS_ROLE, additionalWallet.public_key);
+            await vault.authorize(vaultWallet, ShipChainVault.OWNERS_ROLE, additionalWallet);
         }
 
         const vaultWriteResponse = await vault.writeMetadata(vaultWallet);

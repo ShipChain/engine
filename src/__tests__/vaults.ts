@@ -165,7 +165,7 @@ export const VaultTests = async function() {
         expect(await vault.decryptMessage(author, encrypted)).toBe('TeST');
 
         /* This stranger can't authorize himself... */
-        expect(await vault.authorize(stranger, Vault.OWNERS_ROLE, stranger.public_key)).toBe(false);
+        expect(await vault.authorize(stranger, Vault.OWNERS_ROLE, stranger)).toBe(false);
         expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(false);
         try {
             await vault.decryptMessage(stranger, encrypted);
@@ -175,7 +175,7 @@ export const VaultTests = async function() {
         }
 
         /* But if the author lets him in... */
-        expect(await vault.authorize(author, Vault.OWNERS_ROLE, stranger.public_key)).toBe(true);
+        expect(await vault.authorize(author, Vault.OWNERS_ROLE, stranger)).toBe(true);
         expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(true);
 
         /* He can read the data! */

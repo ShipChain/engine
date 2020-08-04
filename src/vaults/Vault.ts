@@ -297,20 +297,20 @@ export class Vault {
         });
     }
 
-    async authorize(author: Wallet, role: string, public_key: string, force_key?: string) {
+    async authorize(author: Wallet, role: string, walletToAuthorize: Wallet, force_key?: string) {
         const auth_pub = author.public_key;
         if (!force_key && !this.authorized_for_role(auth_pub, role) && !this.authorized_for_role(auth_pub, role))
             return false;
 
         const encrypted_key = await Wallet.encrypt({
             message: await this.__loadRoleKey(author, role),
-            publicKey: public_key,
+            wallet: walletToAuthorize,
             method: EncryptionMethod.EthCrypto,
         });
 
         this.meta.roles[role][public_key] = encrypted_key;
 
-        this.logAction(author, 'authorize_key_for_role', { role, public_key }, { encrypted_key });
+        this.logAction(author, 'authorize_key_for_role', { role, public_key: walletToAuthorize.public_key }, { encrypted_key });
 
         return true;
     }
