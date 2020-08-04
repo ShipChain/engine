@@ -12,7 +12,7 @@ else
     echo "Waiting for dependencies to come up in the stack"
     /wait-for-it.sh ${REDIS_NAME:-redis_db}:6379
     /wait-for-it.sh ${PSQL_NAME:-psql}:5432
-    /wait-for-it.sh ${GETH_NAME:-geth-poa}:8545
+    /wait-for-it.sh ${GETH_NAME:-geth-poa}:${GETH_PORT:-8545}
 
     # Run migrations
     if [[ -z "$IS_DDO" ]];

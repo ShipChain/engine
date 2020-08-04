@@ -38,6 +38,8 @@ services:
       - ../:/app
     environment:
       - ENV
+      - GETH_NAME=loom
+      - GETH_PORT=46658
       - GETH_NODE=http://loom:46658/eth
       - LOOM_ENABLED=true
       - LOOM_CHAIN_ID_STRING=default
