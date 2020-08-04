@@ -70,7 +70,7 @@ export const WalletEntityTests = async function() {
         expect(wallet.address).toEqual(source_data.address);
     });
 
-    it(`encrypts and decrypts messages`, async () => {
+    it(`encrypts and decrypts messages with eth-crypto (aes-256-cbc)`, async () => {
         const wallet = await Wallet.generate_entity();
 
         const encrypted = await Wallet.encrypt({
@@ -83,6 +83,62 @@ export const WalletEntityTests = async function() {
             message: encrypted,
             wallet: wallet,
             method: EncryptionMethod.EthCrypto,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
+    });
+
+    it(`encrypts and decrypts messages as objects with eth-crypto (aes-256-cbc)`, async () => {
+        const wallet = await Wallet.generate_entity();
+
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            asString: false,
+            method: EncryptionMethod.EthCrypto,
+        });
+
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.EthCrypto,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
+    });
+
+    it(`encrypts and decrypts messages with eth-sig-util (x25519-xsalsa20-poly1305)`, async () => {
+        const wallet = await Wallet.generate_entity();
+
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            method: EncryptionMethod.TweetNaCl,
+        });
+
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.TweetNaCl,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
+    });
+
+    it(`encrypts and decrypts messages as objects with eth-sig-util (x25519-xsalsa20-poly1305)`, async () => {
+        const wallet = await Wallet.generate_entity();
+
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            asString: false,
+            method: EncryptionMethod.TweetNaCl,
+        });
+
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.TweetNaCl,
         });
 
         expect(decrypted).toEqual('SHIPtest');

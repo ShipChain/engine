@@ -16,17 +16,24 @@
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import { default as EthCrypto, Encrypted } from 'eth-crypto';
+import {
+    getEncryptionPublicKey as ethSigGetEncryptionPublicKey,
+    encrypt as ethSigEncrypt,
+    decrypt as ethSigDecrypt,
+} from 'eth-sig-util';
 import { Logger } from '../Logger';
 import { EncryptorContainer } from './encryption/EncryptorContainer';
 import { Network } from './Contract';
 import { LoomHooks } from '../eth/LoomHooks';
 import { cacheGet, cacheSet } from '../redis';
+import { EthEncryptedData } from 'eth-sig-util/index';
 
 const EthereumTx = require('ethereumjs-tx');
 
 const logger = Logger.get(module.filename);
 
 const EVM_ADDRESS_CACHE_KEY = 'evmAddress';
+const TWEETNACL_ALGORITHM = 'x25519-xsalsa20-poly1305';
 
 export enum EncryptionMethod {
     EthCrypto = 0,
@@ -201,12 +208,12 @@ export class Wallet extends BaseEntity {
     // Private key accessors
     // =====================
 
-    private __unlocked_key() {
+    private __unlocked_key(strip: boolean = false) {
         if (!this.unlocked_private_key) {
             throw new Error('Wallet not initialized properly');
         }
 
-        return this.unlocked_private_key;
+        return strip ? this.unlocked_private_key.slice(2) : this.unlocked_private_key;
     }
 
     private __unlocked_key_buffer() {
@@ -234,20 +241,38 @@ export class Wallet extends BaseEntity {
         }
 
         switch (method) {
-            case EncryptionMethod.EthCrypto:
+            case EncryptionMethod.EthCrypto: {
                 let encryptedData: Encrypted | string = await EthCrypto.encryptWithPublicKey(
                     wallet ? wallet.public_key : publicKey,
                     message,
                 );
 
                 if (asString) {
+                    // Generates a hex string
                     encryptedData = EthCrypto.cipher.stringify(encryptedData);
                 }
 
                 return encryptedData;
+            }
 
-            case EncryptionMethod.TweetNaCl:
-                throw new EncryptionError(`Not Yet Implemented ${method}`);
+            case EncryptionMethod.TweetNaCl: {
+                if (wallet) {
+                    publicKey = ethSigGetEncryptionPublicKey(wallet.__unlocked_key(true));
+                }
+                let encryptedData: EthEncryptedData | string = ethSigEncrypt(
+                    publicKey,
+                    { data: message },
+                    TWEETNACL_ALGORITHM,
+                );
+
+                if (asString) {
+                    // Generates a base64 string
+                    encryptedData = JSON.stringify(encryptedData);
+                    encryptedData = Buffer.from(encryptedData).toString('base64');
+                }
+
+                return encryptedData;
+            }
 
             default:
                 throw new EncryptionError(`Unknown encryption method ${method}`);
@@ -274,14 +299,20 @@ export class Wallet extends BaseEntity {
         }
 
         switch (method) {
-            case EncryptionMethod.EthCrypto:
+            case EncryptionMethod.EthCrypto: {
                 if (typeof message == 'string') {
                     message = EthCrypto.cipher.parse(message);
                 }
                 return EthCrypto.decryptWithPrivateKey(wallet ? wallet.__unlocked_key() : privateKey, message);
+            }
 
-            case EncryptionMethod.TweetNaCl:
-                throw new EncryptionError(`Not Yet Implemented ${method}`);
+            case EncryptionMethod.TweetNaCl: {
+                if (typeof message == 'string') {
+                    message = Buffer.from(message, 'base64').toString('utf8');
+                    message = JSON.parse(message);
+                }
+                return ethSigDecrypt(message, wallet ? wallet.__unlocked_key(true) : privateKey);
+            }
 
             default:
                 throw new EncryptionError(`Unknown encryption method ${method}`);
