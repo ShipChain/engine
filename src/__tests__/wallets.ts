@@ -98,6 +98,11 @@ export const WalletEntityTests = async function() {
             method: EncryptionMethod.EthCrypto,
         });
 
+        expect(encrypted).toHaveProperty('iv');
+        expect(encrypted).toHaveProperty('ephemPublicKey');
+        expect(encrypted).toHaveProperty('ciphertext');
+        expect(encrypted).toHaveProperty('mac');
+
         const decrypted = await Wallet.decrypt({
             message: encrypted,
             wallet: wallet,
@@ -134,6 +139,11 @@ export const WalletEntityTests = async function() {
             asString: false,
             method: EncryptionMethod.TweetNaCl,
         });
+
+        expect(encrypted).toHaveProperty('version');
+        expect(encrypted).toHaveProperty('nonce');
+        expect(encrypted).toHaveProperty('ephemPublicKey');
+        expect(encrypted).toHaveProperty('ciphertext');
 
         const decrypted = await Wallet.decrypt({
             message: encrypted,

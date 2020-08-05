@@ -40,6 +40,7 @@ import {signObject, uuidv4} from "../../src/utils";
 import {StorageCredential} from "../../src/entity/StorageCredential";
 import {EncryptionMethod, Wallet} from "../../src/entity/Wallet";
 import {EncryptorContainer} from '../../src/entity/encryption/EncryptorContainer';
+import {Vault} from "../../src/vaults/Vault";
 
 const AWS = require('aws-sdk');
 
@@ -49,9 +50,8 @@ const DATE_2 = '2018-01-01T02:00:00.000Z';
 const DATE_3 = '2018-01-01T03:00:00.000Z';
 const DATE_4 = '2018-01-01T04:00:00.000Z';
 const dummyId = 'e7721042-7ee1-4d92-93db-c9544b454abf';
-const oldVersion = '0.0.1';
-const newVersion = '0.0.2';
-let vaultToMigrate = {
+
+let vault_InitialVersion = {
     containers: {
         tracking: {
             container_type: "external_list_daily",
@@ -64,7 +64,7 @@ let vaultToMigrate = {
     },
     created: DATE_1,
     id: dummyId,
-    version: oldVersion
+    version: Vault.VAULT_VERSION__INITIAL
 };
 
 export const RPCVaultTests = async function() {
@@ -126,11 +126,11 @@ export const RPCVaultTests = async function() {
             wallet: fullWallet1,
             method: EncryptionMethod.EthCrypto,
         });
-        vaultToMigrate.roles.owners["public_key"] = role.publicKey;
-        vaultToMigrate.roles.owners[fullWallet1.public_key] = key1;
-        vaultToMigrate.roles.ledger["public_key"] = role.publicKey;
-        vaultToMigrate.roles.ledger[fullWallet1.public_key] = key2;
-        signedVaultToMigrate = JSON.stringify(signObject(fullWallet1, vaultToMigrate));
+        vault_InitialVersion.roles.owners["public_key"] = role.publicKey;
+        vault_InitialVersion.roles.owners[fullWallet1.public_key] = key1;
+        vault_InitialVersion.roles.ledger["public_key"] = role.publicKey;
+        vault_InitialVersion.roles.ledger[fullWallet1.public_key] = key2;
+        signedVaultToMigrate = JSON.stringify(signObject(fullWallet1, vault_InitialVersion));
         vaultDir = `/app/${dummyId}/`;
         fs.mkdirSync(vaultDir, {recursive: true});
         fs.writeFileSync(`${vaultDir}/meta.json`, signedVaultToMigrate);
@@ -3067,9 +3067,13 @@ export const RPCVaultTests = async function() {
                 expect(fs.existsSync(`${vaultDir}/tracking/20180101.json`)).toBeTruthy();
                 expect(fs.existsSync(`${vaultDir}/meta.json`)).toBeTruthy();
                 const meta = JSON.parse(fs.readFileSync(`${vaultDir}/meta.json`));
-                expect(meta.version == newVersion).toBeTruthy();
+                expect(meta.version == Vault.CURRENT_VAULT_VERSION).toBeTruthy();
                 expect(typeof meta.containers.tracking == "string").toBeTruthy();
                 expect(typeof meta.containers.ledger == "string").toBeTruthy();
+                // @ts-ignore
+                expect(meta.roles.owners[fullWallet1.public_key]).toContain(Vault.TWEETNACL_PREFIX);
+                // @ts-ignore
+                expect(meta.roles.ledger[fullWallet1.public_key]).toContain(Vault.TWEETNACL_PREFIX);
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }
