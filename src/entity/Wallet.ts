@@ -37,7 +37,7 @@ const TWEETNACL_ALGORITHM = 'x25519-xsalsa20-poly1305';
 
 export enum EncryptionMethod {
     EthCrypto = 0,
-    TweetNaCl = 1,
+    NaCl = 1,
 }
 
 interface EncryptParameters {
@@ -255,7 +255,7 @@ export class Wallet extends BaseEntity {
                 return encryptedData;
             }
 
-            case EncryptionMethod.TweetNaCl: {
+            case EncryptionMethod.NaCl: {
                 if (wallet) {
                     publicKey = ethSigGetEncryptionPublicKey(wallet.__unlocked_key(true));
                 }
@@ -306,7 +306,7 @@ export class Wallet extends BaseEntity {
                 return EthCrypto.decryptWithPrivateKey(wallet ? wallet.__unlocked_key() : privateKey, message);
             }
 
-            case EncryptionMethod.TweetNaCl: {
+            case EncryptionMethod.NaCl: {
                 if (typeof message == 'string') {
                     message = Buffer.from(message, 'base64').toString('utf8');
                     message = JSON.parse(message);

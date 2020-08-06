@@ -3071,9 +3071,9 @@ export const RPCVaultTests = async function() {
                 expect(typeof meta.containers.tracking == "string").toBeTruthy();
                 expect(typeof meta.containers.ledger == "string").toBeTruthy();
                 // @ts-ignore
-                expect(meta.roles.owners[fullWallet1.public_key]).toContain(Vault.TWEETNACL_PREFIX);
+                expect(meta.roles.owners[fullWallet1.public_key]).toContain(Vault.NACL_PREFIX);
                 // @ts-ignore
-                expect(meta.roles.ledger[fullWallet1.public_key]).toContain(Vault.TWEETNACL_PREFIX);
+                expect(meta.roles.ledger[fullWallet1.public_key]).toContain(Vault.NACL_PREFIX);
             } catch (err) {
                 fail(`Should not have thrown [${err}]`);
             }

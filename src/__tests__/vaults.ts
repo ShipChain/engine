@@ -1271,9 +1271,9 @@ export const VaultTests = async function() {
         expect(typeof metaFileJson.containers.tracking == 'string').toBeTruthy();
         expect(typeof metaFileJson.containers.shipment == 'string').toBeTruthy();
         // @ts-ignore
-        expect(metaFileJson.roles.owners[author.public_key]).toContain(Vault.TWEETNACL_PREFIX);
+        expect(metaFileJson.roles.owners[author.public_key]).toContain(Vault.NACL_PREFIX);
         // @ts-ignore
-        expect(metaFileJson.roles.ledger[author.public_key]).toContain(Vault.TWEETNACL_PREFIX);
+        expect(metaFileJson.roles.ledger[author.public_key]).toContain(Vault.NACL_PREFIX);
     });
 
 };

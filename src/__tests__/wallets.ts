@@ -112,32 +112,32 @@ export const WalletEntityTests = async function() {
         expect(decrypted).toEqual('SHIPtest');
     });
 
-    it(`encrypts and decrypts messages with eth-sig-util (x25519-xsalsa20-poly1305)`, async () => {
+    it(`encrypts and decrypts messages with sodium (x25519-xsalsa20-poly1305)`, async () => {
         const wallet = await Wallet.generate_entity();
 
         const encrypted = await Wallet.encrypt({
             message: 'SHIPtest',
             wallet: wallet,
-            method: EncryptionMethod.TweetNaCl,
+            method: EncryptionMethod.NaCl,
         });
 
         const decrypted = await Wallet.decrypt({
             message: encrypted,
             wallet: wallet,
-            method: EncryptionMethod.TweetNaCl,
+            method: EncryptionMethod.NaCl,
         });
 
         expect(decrypted).toEqual('SHIPtest');
     });
 
-    it(`encrypts and decrypts messages as objects with eth-sig-util (x25519-xsalsa20-poly1305)`, async () => {
+    it(`encrypts and decrypts messages as objects with sodium (x25519-xsalsa20-poly1305)`, async () => {
         const wallet = await Wallet.generate_entity();
 
         const encrypted = await Wallet.encrypt({
             message: 'SHIPtest',
             wallet: wallet,
             asString: false,
-            method: EncryptionMethod.TweetNaCl,
+            method: EncryptionMethod.NaCl,
         });
 
         expect(encrypted).toHaveProperty('version');
@@ -148,7 +148,7 @@ export const WalletEntityTests = async function() {
         const decrypted = await Wallet.decrypt({
             message: encrypted,
             wallet: wallet,
-            method: EncryptionMethod.TweetNaCl,
+            method: EncryptionMethod.NaCl,
         });
 
         expect(decrypted).toEqual('SHIPtest');

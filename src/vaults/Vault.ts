@@ -67,11 +67,11 @@ export class Vault {
     protected meta;
 
     private static readonly METADATA_FILE_NAME = 'meta.json';
-    private static readonly TWEETNACL_PREFIX = 'tweetnacl:';
+    private static readonly NACL_PREFIX = 'nacl:';
     static readonly VAULT_VERSION__INITIAL = '0.0.1';
     static readonly VAULT_VERSION__ZIP_CONTAINER = '0.0.2';
-    static readonly VAULT_VERSION__TWEETNACL_OUTER_ENCRYPTION = '0.0.3';
-    static readonly CURRENT_VAULT_VERSION = Vault.VAULT_VERSION__TWEETNACL_OUTER_ENCRYPTION;
+    static readonly VAULT_VERSION__NACL_OUTER_ENCRYPTION = '0.0.3';
+    static readonly CURRENT_VAULT_VERSION = Vault.VAULT_VERSION__NACL_OUTER_ENCRYPTION;
     static readonly OWNERS_ROLE = 'owners';
     static readonly LEDGER_ROLE = 'ledger';
     static readonly LEDGER_CONTAINER = 'ledger';
@@ -202,9 +202,9 @@ export class Vault {
         const encrypted_key = await Wallet.encrypt({
             message: privateKey,
             wallet: roleUser,
-            method: EncryptionMethod.TweetNaCl,
+            method: EncryptionMethod.NaCl,
         });
-        this.meta.roles[role][roleUser.public_key] = `${Vault.TWEETNACL_PREFIX}${encrypted_key}`;
+        this.meta.roles[role][roleUser.public_key] = `${Vault.NACL_PREFIX}${encrypted_key}`;
 
         return encrypted_key;
     }
@@ -253,10 +253,10 @@ export class Vault {
         let encryptionMethod: EncryptionMethod = EncryptionMethod.EthCrypto;
         let encryptedData = this.meta.roles[role][wallet.public_key];
 
-        if (compareVersions.compare(this.meta.version, Vault.VAULT_VERSION__TWEETNACL_OUTER_ENCRYPTION, '>=')) {
-            if (encryptedData.startsWith(Vault.TWEETNACL_PREFIX)) {
-                encryptedData = encryptedData.slice(Vault.TWEETNACL_PREFIX.length);
-                encryptionMethod = EncryptionMethod.TweetNaCl;
+        if (compareVersions.compare(this.meta.version, Vault.VAULT_VERSION__NACL_OUTER_ENCRYPTION, '>=')) {
+            if (encryptedData.startsWith(Vault.NACL_PREFIX)) {
+                encryptedData = encryptedData.slice(Vault.NACL_PREFIX.length);
+                encryptionMethod = EncryptionMethod.NaCl;
             }
         }
 
@@ -375,7 +375,7 @@ export class Vault {
          * As vaults are saved, the authorization for that user will be upgraded in any roles they have access to.
          */
         for (let role of this.authorized_roles(author.public_key)) {
-            if (!this.meta.roles[role][author.public_key].startsWith(Vault.TWEETNACL_PREFIX)) {
+            if (!this.meta.roles[role][author.public_key].startsWith(Vault.NACL_PREFIX)) {
                 await this.setRoleAuthorization(author, role, await this.__loadRoleKey(author, role));
             }
         }
