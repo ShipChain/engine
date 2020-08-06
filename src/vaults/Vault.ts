@@ -198,7 +198,7 @@ export class Vault {
     }
 
     private async setRoleAuthorization(roleUser: Wallet, role: string, privateKey: string): Promise<string> {
-        // Outer layer encryption is performed with EthSigUtil as of VAULT_VERSION__TWEETNACL_OUTER_ENCRYPTION
+        // Outer layer encryption is performed with NaCl as of VAULT_VERSION__NACL_OUTER_ENCRYPTION
         const encrypted_key = await Wallet.encrypt({
             message: privateKey,
             wallet: roleUser,
@@ -370,7 +370,7 @@ export class Vault {
     }
 
     private async upgradeAuthorizationEncryption(author: Wallet) {
-        /* VAULT_VERSION__TWEETNACL_OUTER_ENCRYPTION is updating the outer layer encryption method.
+        /* VAULT_VERSION__NACL_OUTER_ENCRYPTION is updating the outer layer encryption method.
          * We are handling this upgrade with a lazy migration to avoid re-processing all existing vaults.
          * As vaults are saved, the authorization for that user will be upgraded in any roles they have access to.
          */
