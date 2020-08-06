@@ -16,24 +16,24 @@
 
 import { Column, Entity, CreateDateColumn, PrimaryGeneratedColumn, BaseEntity, getConnection } from 'typeorm';
 import { default as EthCrypto, Encrypted } from 'eth-crypto';
-import {
-    getEncryptionPublicKey as ethSigGetEncryptionPublicKey,
-    encrypt as ethSigEncrypt,
-    decrypt as ethSigDecrypt,
-} from 'eth-sig-util';
 import { Logger } from '../Logger';
 import { EncryptorContainer } from './encryption/EncryptorContainer';
+import {
+    getEncryptionPublicKey,
+    naclEncrypt,
+    naclDecrypt,
+    NaclEncryptedData,
+    X25519_XSALSA20_POLY1305_VERSION,
+} from './encryption/NaClWrapper';
 import { Network } from './Contract';
 import { LoomHooks } from '../eth/LoomHooks';
 import { cacheGet, cacheSet } from '../redis';
-import { EthEncryptedData } from 'eth-sig-util/index';
 
 const EthereumTx = require('ethereumjs-tx');
 
 const logger = Logger.get(module.filename);
 
 const EVM_ADDRESS_CACHE_KEY = 'evmAddress';
-const TWEETNACL_ALGORITHM = 'x25519-xsalsa20-poly1305';
 
 export enum EncryptionMethod {
     EthCrypto = 0,
@@ -257,12 +257,12 @@ export class Wallet extends BaseEntity {
 
             case EncryptionMethod.NaCl: {
                 if (wallet) {
-                    publicKey = ethSigGetEncryptionPublicKey(wallet.__unlocked_key(true));
+                    publicKey = await getEncryptionPublicKey(wallet.__unlocked_key(true));
                 }
-                let encryptedData: EthEncryptedData | string = ethSigEncrypt(
+                let encryptedData: NaclEncryptedData | string = await naclEncrypt(
                     publicKey,
                     { data: message },
-                    TWEETNACL_ALGORITHM,
+                    X25519_XSALSA20_POLY1305_VERSION,
                 );
 
                 if (asString) {
@@ -311,7 +311,7 @@ export class Wallet extends BaseEntity {
                     message = Buffer.from(message, 'base64').toString('utf8');
                     message = JSON.parse(message);
                 }
-                return ethSigDecrypt(message, wallet ? wallet.__unlocked_key(true) : privateKey);
+                return await naclDecrypt(message, wallet ? wallet.__unlocked_key(true) : privateKey);
             }
 
             default:
