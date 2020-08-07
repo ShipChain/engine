@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import {signObject} from "../utils";
-
-const fs = require('fs');
 require('./testLoggingConfig');
 
+import {signObject} from "../utils";
+
 import 'mocha';
-import { Vault } from '../vaults/Vault';
-import { Wallet } from '../entity/Wallet';
-import { CloseConnection } from "../redis";
-import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
-import { StorageCredential } from "../entity/StorageCredential";
+import {Vault} from '../vaults/Vault';
+import {EncryptionMethod, Wallet} from '../entity/Wallet';
+import {CloseConnection} from "../redis";
+import {EncryptorContainer} from '../entity/encryption/EncryptorContainer';
+import {StorageCredential} from "../entity/StorageCredential";
+
+const fs = require('fs');
 
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 const CONTAINER = 'test2';
@@ -37,9 +38,8 @@ const DATE_3 = '2018-01-01T01:00:03.000Z';
 const DATE_4 = '2018-01-01T01:00:04.000Z';
 const DATE_5 = '2018-01-01T01:00:05.000Z';
 const dummyId = 'e7721042-7ee1-4d92-93db-c9544b454abf';
-const oldVersion = '0.0.1';
-const newVersion = '0.0.2';
-let vaultToMigrate = {
+
+let vault_InitialVersion = {
     containers: {
         tracking: {
             container_type: "external_list_daily",
@@ -52,7 +52,7 @@ let vaultToMigrate = {
     },
     created: DATE_1,
     id: dummyId,
-    version: oldVersion
+    version: Vault.VAULT_VERSION__INITIAL,
 };
 
 export const VaultTests = async function() {
@@ -164,7 +164,7 @@ export const VaultTests = async function() {
         expect(await vault.decryptMessage(author, encrypted)).toBe('TeST');
 
         /* This stranger can't authorize himself... */
-        expect(await vault.authorize(stranger, Vault.OWNERS_ROLE, stranger.public_key)).toBe(false);
+        expect(await vault.authorize(stranger, Vault.OWNERS_ROLE, stranger)).toBe(false);
         expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(false);
         try {
             await vault.decryptMessage(stranger, encrypted);
@@ -174,7 +174,7 @@ export const VaultTests = async function() {
         }
 
         /* But if the author lets him in... */
-        expect(await vault.authorize(author, Vault.OWNERS_ROLE, stranger.public_key)).toBe(true);
+        expect(await vault.authorize(author, Vault.OWNERS_ROLE, stranger)).toBe(true);
         expect(vault.authorized_for_role(stranger.public_key, Vault.OWNERS_ROLE)).toBe(true);
 
         /* He can read the data! */
@@ -1229,13 +1229,21 @@ export const VaultTests = async function() {
         let metaFileJson;
         let author = await Wallet.generate_entity();
         const role = Wallet.generate_identity();
-        const key1 = await Wallet.encrypt_to_string(author.public_key, role.privateKey);
-        const key2 = await Wallet.encrypt_to_string(author.public_key, role.privateKey);
-        vaultToMigrate.roles.owners["public_key"] = role.publicKey;
-        vaultToMigrate.roles.owners[author.public_key] = key1;
-        vaultToMigrate.roles.ledger["public_key"] = role.publicKey;
-        vaultToMigrate.roles.ledger[author.public_key] = key2;
-        const signedVaultToMigrate = JSON.stringify(signObject(author, vaultToMigrate));
+        const key1 = await Wallet.encrypt({
+            message: role.privateKey,
+            wallet: author,
+            method: EncryptionMethod.EthCrypto,
+        });
+        const key2 = await Wallet.encrypt({
+            message: role.privateKey,
+            wallet: author,
+            method: EncryptionMethod.EthCrypto,
+        });
+        vault_InitialVersion.roles.owners["public_key"] = role.publicKey;
+        vault_InitialVersion.roles.owners[author.public_key] = key1;
+        vault_InitialVersion.roles.ledger["public_key"] = role.publicKey;
+        vault_InitialVersion.roles.ledger[author.public_key] = key2;
+        const signedVaultToMigrate = JSON.stringify(signObject(author, vault_InitialVersion));
         const vaultDir = `/app/${storage_driver.base_path}/${dummyId}`;
 
         fs.mkdirSync(vaultDir, {recursive: true});
@@ -1243,13 +1251,15 @@ export const VaultTests = async function() {
 
         expect(fs.existsSync(`${vaultDir}/meta.json`)).toBeTruthy();
 
-        const previousVersionVault = new Vault(storage_driver, vaultToMigrate.id);
+        const previousVersionVault = new Vault(storage_driver, vault_InitialVersion.id);
         await previousVersionVault.loadMetadata();
         expect(await previousVersionVault.metadataFileExists()).toBeTruthy();
 
         metaFileJson = JSON.parse(await previousVersionVault.getFile('meta.json'));
-        expect(metaFileJson.version == oldVersion).toBeTruthy();
+        expect(metaFileJson.version == Vault.VAULT_VERSION__INITIAL).toBeTruthy();
         expect(typeof metaFileJson.containers.tracking == 'object').toBeTruthy();
+        expect(metaFileJson.roles.owners[author.public_key]).toEqual(key1);
+        expect(metaFileJson.roles.ledger[author.public_key]).toEqual(key2);
 
         const container = previousVersionVault.getOrCreateContainer(author, 'shipment', 'embedded_file');
         expect(typeof container == 'object').toBeTruthy();
@@ -1257,9 +1267,13 @@ export const VaultTests = async function() {
         await previousVersionVault.writeMetadata(author);
         expect(await previousVersionVault.metadataFileExists()).toBeTruthy();
         metaFileJson = JSON.parse(await previousVersionVault.getFile('meta.json'));
-        expect(metaFileJson.version == newVersion).toBeTruthy();
+        expect(metaFileJson.version == Vault.CURRENT_VAULT_VERSION).toBeTruthy();
         expect(typeof metaFileJson.containers.tracking == 'string').toBeTruthy();
         expect(typeof metaFileJson.containers.shipment == 'string').toBeTruthy();
+        // @ts-ignore
+        expect(metaFileJson.roles.owners[author.public_key]).toContain(Vault.NACL_PREFIX);
+        // @ts-ignore
+        expect(metaFileJson.roles.ledger[author.public_key]).toContain(Vault.NACL_PREFIX);
     });
 
 };

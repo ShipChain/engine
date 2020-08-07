@@ -18,10 +18,10 @@ require('./testLoggingConfig');
 
 import 'mocha';
 import * as typeorm from "typeorm";
-import { Wallet } from '../entity/Wallet';
+import {EncryptionMethod, Wallet} from '../entity/Wallet';
 
 import EthCrypto from 'eth-crypto';
-import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
+import {EncryptorContainer} from '../entity/encryption/EncryptorContainer';
 
 export const WalletEntityTests = async function() {
 
@@ -70,12 +70,88 @@ export const WalletEntityTests = async function() {
         expect(wallet.address).toEqual(source_data.address);
     });
 
-    it(`encrypts and decrypts messages`, async () => {
+    it(`encrypts and decrypts messages with eth-crypto (aes-256-cbc)`, async () => {
         const wallet = await Wallet.generate_entity();
 
-        const encrypted = await Wallet.encrypt(wallet.public_key, 'SHIPtest');
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            method: EncryptionMethod.EthCrypto,
+        });
 
-        expect(await wallet.decrypt_message(encrypted)).toEqual('SHIPtest');
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.EthCrypto,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
+    });
+
+    it(`encrypts and decrypts messages as objects with eth-crypto (aes-256-cbc)`, async () => {
+        const wallet = await Wallet.generate_entity();
+
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            asString: false,
+            method: EncryptionMethod.EthCrypto,
+        });
+
+        expect(encrypted).toHaveProperty('iv');
+        expect(encrypted).toHaveProperty('ephemPublicKey');
+        expect(encrypted).toHaveProperty('ciphertext');
+        expect(encrypted).toHaveProperty('mac');
+
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.EthCrypto,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
+    });
+
+    it(`encrypts and decrypts messages with sodium (x25519-xsalsa20-poly1305)`, async () => {
+        const wallet = await Wallet.generate_entity();
+
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            method: EncryptionMethod.NaCl,
+        });
+
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.NaCl,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
+    });
+
+    it(`encrypts and decrypts messages as objects with sodium (x25519-xsalsa20-poly1305)`, async () => {
+        const wallet = await Wallet.generate_entity();
+
+        const encrypted = await Wallet.encrypt({
+            message: 'SHIPtest',
+            wallet: wallet,
+            asString: false,
+            method: EncryptionMethod.NaCl,
+        });
+
+        expect(encrypted).toHaveProperty('version');
+        expect(encrypted).toHaveProperty('nonce');
+        expect(encrypted).toHaveProperty('ephemPublicKey');
+        expect(encrypted).toHaveProperty('ciphertext');
+
+        const decrypted = await Wallet.decrypt({
+            message: encrypted,
+            wallet: wallet,
+            method: EncryptionMethod.NaCl,
+        });
+
+        expect(decrypted).toEqual('SHIPtest');
     });
 
     it(`signs messages and recovers keys`, async () => {

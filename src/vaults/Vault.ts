@@ -18,7 +18,7 @@ import { StorageDriverFactory } from '../storage/StorageDriverFactory';
 import { DriverError, StorageDriver } from '../storage/StorageDriver';
 import { ContainerFactory } from './ContainerFactory';
 import { Container } from './Container';
-import { Wallet } from '../entity/Wallet';
+import { EncryptionMethod, Wallet } from '../entity/Wallet';
 
 import { ResourceLock } from '../redis';
 import * as path from 'path';
@@ -30,6 +30,35 @@ import compareVersions from 'compare-versions';
 
 const logger = Logger.get(module.filename);
 
+/*                         Vault Encryption
+ *                   ============================
+ * Data within Vaults is encrypted using envelope encryption.
+ * When a Container is first initialized in a Vault, an encryption key
+ * is generated for that role. All data in that container will be
+ * encrypted with that role key. Each user (Wallet) that is granted
+ * access to that Container will not have a full copy of the data
+ * encrypted with their own private key -- the data encryption key will
+ * be encrypted with their private key, and they will use their own
+ * private key to decrypt the data encryption key, granting them access
+ * to decrypt the actual container data.
+ *
+ * Prior to Vault version 0.0.3, both layers of encryption were handled
+ * with eth-crypto (secp256k1/aes-256-cbc). This algorithm and key
+ * derivation were selected as that is how the public keys and addresses
+ * are calculated in the Ethereum ecosystem.
+ *
+ * This works fine for Wallets hosted in Engine where we have access to
+ * the private key for decryption. But looking forward to Vault data
+ * being accessed via a browser with an extension like Metamask, there
+ * is no way to access the private key for decrypting the data encryption
+ * key. Metamask recently included support for message encryption and
+ * decryption utilizing eth-sig-util (x25519-xsalsa20-poly1305). We don't
+ * need to change the encryption key for each role to take advantage of
+ * metamask encryption/decryption. We only need to change the outer layer
+ * of the envelope encryption. Vault version 0.0.3 implements this change.
+ *
+ */
+
 export class Vault {
     protected driver: StorageDriver;
     protected auth;
@@ -38,9 +67,11 @@ export class Vault {
     protected meta;
 
     private static readonly METADATA_FILE_NAME = 'meta.json';
-    private static readonly VAULT_VERSION__INITIAL = '0.0.1';
-    private static readonly VAULT_VERSION__ZIP_CONTAINER = '0.0.2';
-    private static readonly CURRENT_VAULT_VERSION = Vault.VAULT_VERSION__ZIP_CONTAINER;
+    private static readonly NACL_PREFIX = 'nacl:';
+    static readonly VAULT_VERSION__INITIAL = '0.0.1';
+    static readonly VAULT_VERSION__ZIP_CONTAINER = '0.0.2';
+    static readonly VAULT_VERSION__NACL_OUTER_ENCRYPTION = '0.0.3';
+    static readonly CURRENT_VAULT_VERSION = Vault.VAULT_VERSION__NACL_OUTER_ENCRYPTION;
     static readonly OWNERS_ROLE = 'owners';
     static readonly LEDGER_ROLE = 'ledger';
     static readonly LEDGER_CONTAINER = 'ledger';
@@ -166,17 +197,27 @@ export class Vault {
         return await this.containers[Vault.LEDGER_CONTAINER].decryptToDate(author, container, date, subFile);
     }
 
+    private async setRoleAuthorization(roleUser: Wallet, role: string, privateKey: string): Promise<string> {
+        // Outer layer encryption is performed with NaCl as of VAULT_VERSION__NACL_OUTER_ENCRYPTION
+        const encrypted_key = await Wallet.encrypt({
+            message: privateKey,
+            wallet: roleUser,
+            method: EncryptionMethod.NaCl,
+        });
+        this.meta.roles[role][roleUser.public_key] = `${Vault.NACL_PREFIX}${encrypted_key}`;
+
+        return encrypted_key;
+    }
+
     async createRole(author: Wallet, role: string) {
         if (this.meta.roles[role]) return false;
         else this.meta.roles[role] = {};
 
         const role_identity = await Wallet.generate_identity();
-        const encrypted_key = await Wallet.encrypt_to_string(author.public_key, role_identity.privateKey);
+        await this.setRoleAuthorization(author, role, role_identity.privateKey);
         this.meta.roles[role].public_key = role_identity.publicKey;
 
         this.logAction(author, 'create_role', { role });
-
-        this.meta.roles[role][author.public_key] = encrypted_key;
     }
 
     authorized_for_role(public_key: string, role: string) {
@@ -186,7 +227,7 @@ export class Vault {
         return !!(this.meta.roles[role] && this.meta.roles[role][public_key]);
     }
 
-    authorized_roles(public_key: string) {
+    authorized_roles(public_key: string): string[] {
         const roles = [];
 
         // append OWNERS_ROLE first if we're an owner
@@ -205,14 +246,31 @@ export class Vault {
     }
 
     protected async __loadRoleKey(wallet: Wallet, role: string) {
-        if (!this.authorized_for_role(wallet.public_key, role)) return false;
-        return await wallet.decrypt_message(this.meta.roles[role][wallet.public_key]);
+        if (!this.authorized_for_role(wallet.public_key, role)) {
+            return null;
+        }
+
+        let encryptionMethod: EncryptionMethod = EncryptionMethod.EthCrypto;
+        let encryptedData = this.meta.roles[role][wallet.public_key];
+
+        if (compareVersions.compare(this.meta.version, Vault.VAULT_VERSION__NACL_OUTER_ENCRYPTION, '>=')) {
+            if (encryptedData.startsWith(Vault.NACL_PREFIX)) {
+                encryptedData = encryptedData.slice(Vault.NACL_PREFIX.length);
+                encryptionMethod = EncryptionMethod.NaCl;
+            }
+        }
+
+        return await Wallet.decrypt({
+            message: encryptedData,
+            wallet: wallet,
+            method: encryptionMethod,
+        });
     }
 
     async decryptWithRoleKey(wallet: Wallet, role: string, message: any) {
         const key = await this.__loadRoleKey(wallet, role);
         if (!key) throw new Error('Role has no valid encryption key');
-        return await Wallet.decrypt_with_raw_key(key, message);
+        return await Wallet.decrypt({ message: message, privateKey: key, method: EncryptionMethod.EthCrypto });
     }
 
     async decryptMessage(wallet: Wallet, message: any) {
@@ -233,7 +291,7 @@ export class Vault {
         throw new Error('Wallet has no access to contents');
     }
 
-    async compressContent(content: string | object): Promise<string> {
+    private async compressContent(content: string | object): Promise<string> {
         let toCompress;
         if (typeof content === 'object') {
             toCompress = JSON.stringify(content);
@@ -252,7 +310,7 @@ export class Vault {
         });
     }
 
-    async decompressContent(content: string): Promise<string> {
+    private async decompressContent(content: string): Promise<string> {
         let buffer;
         buffer = Buffer.from(content, 'base64');
         return new Promise((resolve, reject) => {
@@ -282,21 +340,45 @@ export class Vault {
 
     async encryptForRole(role: string, message: any) {
         const public_key = this.meta.roles[role].public_key;
-        return await Wallet.encrypt_to_string(public_key, message);
+        // Inner layer encryption is performed with EthCrypto
+        return await Wallet.encrypt({
+            message: message,
+            publicKey: public_key,
+            method: EncryptionMethod.EthCrypto,
+        });
     }
 
-    async authorize(author: Wallet, role: string, public_key: string, force_key?: string) {
+    async authorize(author: Wallet, role: string, walletToAuthorize: Wallet, force_key?: string) {
         const auth_pub = author.public_key;
         if (!force_key && !this.authorized_for_role(auth_pub, role) && !this.authorized_for_role(auth_pub, role))
             return false;
 
-        const encrypted_key = await Wallet.encrypt_to_string(public_key, await this.__loadRoleKey(author, role));
+        const encrypted_key = await this.setRoleAuthorization(
+            walletToAuthorize,
+            role,
+            await this.__loadRoleKey(author, role),
+        );
 
-        this.meta.roles[role][public_key] = encrypted_key;
-
-        this.logAction(author, 'authorize_key_for_role', { role, public_key }, { encrypted_key });
+        this.logAction(
+            author,
+            'authorize_key_for_role',
+            { role, public_key: walletToAuthorize.public_key },
+            { encrypted_key },
+        );
 
         return true;
+    }
+
+    private async upgradeAuthorizationEncryption(author: Wallet) {
+        /* VAULT_VERSION__NACL_OUTER_ENCRYPTION is updating the outer layer encryption method.
+         * We are handling this upgrade with a lazy migration to avoid re-processing all existing vaults.
+         * As vaults are saved, the authorization for that user will be upgraded in any roles they have access to.
+         */
+        for (let role of this.authorized_roles(author.public_key)) {
+            if (!this.meta.roles[role][author.public_key].startsWith(Vault.NACL_PREFIX)) {
+                await this.setRoleAuthorization(author, role, await this.__loadRoleKey(author, role));
+            }
+        }
     }
 
     async metadataFileExists() {
@@ -340,6 +422,7 @@ export class Vault {
     async writeMetadata(author: Wallet): Promise<VaultWriteResponse> {
         logger.info(`Writing Vault ${this.id} Metadata`);
         this.meta.version = Vault.CURRENT_VAULT_VERSION;
+        await this.upgradeAuthorizationEncryption(author);
         await this.updateContainerMetadata(author);
         this.meta = utils.signObject(author, this.meta);
         for (const name in this.meta.containers) {
