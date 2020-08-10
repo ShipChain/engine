@@ -101,7 +101,7 @@ export class SftpStorageDriver extends StorageDriver {
     async putFile(filePath: string, data: any, binary: boolean = false): Promise<any> {
         const startTime = Date.now();
         metrics.countAction('storage_put_file', { driver_type: this.type });
-        let encoding = binary ? null : 'utf8';
+        let encoding: BufferEncoding = binary ? null : 'utf8';
 
         if (!data) {
             throw new DriverError(

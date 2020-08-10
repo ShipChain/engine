@@ -60,7 +60,7 @@
     "js-yaml": "3.13.1"
   },
   "scripts": {
-    "postinstall": "$(yarn bin)/pm2 install typescript",
+    "postinstall": "$(yarn bin)/pm2 install typescript@3.2.4",
     "compile": "rm -rf ./dist && tsc",
     "lint": "eslint 'src/**/*.ts' 'rpc/**/*.ts' ",
     "lint-junit": "eslint 'src/**/*.ts' 'rpc/**/*.ts' --format junit -o reports/junit/lint-junit.xml ",
