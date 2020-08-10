@@ -1,8 +1,7 @@
 export default {
     "DEPLOY_CONTRACTS" : false,
-    "GETH_NETWORK" : "mainnet",
-    "GPO_ETH_GAS_STATION" : true,
-    "GPO_INTERVAL": 90000,
+    "GETH_NODE": "https://shipchain-mainnet.network.shipchain.io:46658/eth",
+    "GETH_NETWORK" : "sidechain-prod",
     "IS_DEPLOYED_STAGE" : true,
     "LOGGING_LEVELS": {
         "CLOUDWATCH": "info",
@@ -10,7 +9,9 @@ export default {
         "ELASTICSEARCH": "info",
     },
     "LOOM_CONFIG": {
-        "ENABLED": false,
+        "ENABLED": true,
+        "CHAIN_ID_STRING": "default",
+        "CHAIN_ID_NUMBER": 3657971041736948,
     },
     "USE_JS_ORM_ENTITIES": true,
 }
