@@ -34,10 +34,10 @@ export class RPCStorageCredentials {
 
         // This should be non-blocking
         StorageCredential.getCount()
-            .then(count => {
+            .then((count) => {
                 metrics.entityTotal('StorageCredential', count);
             })
-            .catch(err => {});
+            .catch((err) => {});
 
         return {
             success: true,

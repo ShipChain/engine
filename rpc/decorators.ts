@@ -98,7 +98,7 @@ class RPCMethodValidateRequireOne {
 }
 
 export function RPCMethod(options?: RPCMethodOptions) {
-    return function(target, propertyKey: string, descriptor: PropertyDescriptor) {
+    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
         // save a reference to the original method this way we keep the values currently in the
         // descriptor and don't overwrite what another decorator might have done to the descriptor.
         if (descriptor === undefined) {
@@ -108,15 +108,16 @@ export function RPCMethod(options?: RPCMethodOptions) {
 
         //editing the descriptor/value parameter
         descriptor.value = new Method({
-            handler: function(args: any, done: any) {
+            handler: function (args: any, done: any) {
                 let context = this;
 
                 // We cannot check this at compile time due to the class-decorator not being
                 // fully applied yet while the methods are being defined within the class
                 if (!target.__isRpcClass) {
                     logger.error(
-                        `@RPCMethod '${propertyKey}' used outside of @RPCNamespace in '${target.name ||
-                            target.constructor.name}'`,
+                        `@RPCMethod '${propertyKey}' used outside of @RPCNamespace in '${
+                            target.name || target.constructor.name
+                        }'`,
                     );
                 }
 
@@ -132,8 +133,8 @@ export function RPCMethod(options?: RPCMethodOptions) {
                 logger.debug(`Invoking RPCMethod: '${propertyKey}' in '${target.name || target.constructor.name}'`);
                 originalMethod
                     .apply(context, arguments)
-                    .then(resolve => done(null, resolve))
-                    .catch(reject => {
+                    .then((resolve) => done(null, resolve))
+                    .catch((reject) => {
                         metrics.methodFail(target.__rpcNamespace + '.' + propertyKey);
                         const errType = Server.errors.INVALID_REQUEST;
                         const errMsg = Server.errorMessages[errType];
@@ -303,7 +304,7 @@ function validateParameters(args, validations: RPCMethodValidateOptions) {
                     !(
                         Array.isArray(args[param]) &&
                         args[param].length &&
-                        args[param].every(item => typeof item === 'string')
+                        args[param].every((item) => typeof item === 'string')
                     )
                 ) {
                     failed.push(param);

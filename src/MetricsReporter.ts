@@ -99,12 +99,12 @@ export class MetricsReporter {
             this.influx
                 .writeMeasurement(measurement, points, options)
                 .then(
-                    result => {},
-                    error => {
+                    (result) => {},
+                    (error) => {
                         logger.error(`Error when reporting metrics ${error}`);
                     },
                 )
-                .catch(error => {
+                .catch((error) => {
                     logger.error(`Error when reporting metrics ${error}`);
                 });
         }

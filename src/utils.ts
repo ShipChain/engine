@@ -92,7 +92,7 @@ export function verifyHash(obj) {
 }
 
 export function delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function arrayChunker(array, size) {
@@ -129,8 +129,8 @@ export function splitRemainder(str, separator, limit) {
 // https://www.typescriptlang.org/docs/handbook/mixins.html
 // ========================================================
 export function applyMixins(derivedCtor: any, baseCtors: any[]) {
-    baseCtors.forEach(baseCtor => {
-        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+    baseCtors.forEach((baseCtor) => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
             Object.defineProperty(
                 derivedCtor.prototype,
                 name,

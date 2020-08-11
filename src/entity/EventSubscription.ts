@@ -33,7 +33,7 @@ const metrics = MetricsReporter.Instance;
 const SECONDS = 1000;
 
 function AsyncPut(url) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         request.put(url, (error, response, body) => {
             resolve(body);
         });
@@ -309,7 +309,7 @@ export class EventSubscription extends BaseEntity {
         return new Promise(async (resolve, reject) => {
             request
                 .post(options)
-                .on('response', async function(response) {
+                .on('response', async function (response) {
                     if (response.statusCode != 201 && response.statusCode != 204) {
                         logger.error(
                             `Event Subscription Failed with ${response.statusCode} [
@@ -325,7 +325,7 @@ export class EventSubscription extends BaseEntity {
                         resolve();
                     }
                 })
-                .on('error', async function(err) {
+                .on('error', async function (err) {
                     logger.error(
                         `Event Subscription Failed with ${err} [
                             ${eventSubscription.project}_

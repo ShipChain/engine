@@ -64,7 +64,7 @@ export class EthersEthereumService extends AbstractEthereumService {
                 this.transactionConfirmations = 1;
             }
 
-            this.provider.on('error', error => {
+            this.provider.on('error', (error) => {
                 logger.error(`Ethers.js Provider Error: ${error}`);
             });
         }
@@ -218,7 +218,7 @@ export class EthersEthereumService extends AbstractEthereumService {
         logger.silly(`Getting Logs for '${eventName}' from block ${fromBlock}`);
 
         const logs: ethers.providers.Log[] = await this.provider.getLogs(filter);
-        return Promise.all(logs.map(log => this.parseLogToEvent(log, contract)));
+        return Promise.all(logs.map((log) => this.parseLogToEvent(log, contract)));
     }
 
     protected async parseLogToEvent(log: ethers.providers.Log, contract: ethers.Contract) {

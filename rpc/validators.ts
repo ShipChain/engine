@@ -59,7 +59,7 @@ export async function buildSchemaValidators() {
     ajv = new AJV({ loadSchema: loadSchemaFromUrl });
 
     await Promise.all(
-        schemaFiles.map(async file => {
+        schemaFiles.map(async (file) => {
             let data = await loadSchemaFromUrl(_buildUrl(file));
             await ajv.compileAsync(data);
         }),

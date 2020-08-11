@@ -115,10 +115,7 @@ async function getNetwork(contractMetaData) {
 
         const deployedContracts = await test_net_utils.setupLocalTestNetContracts(
             { LOAD: LATEST_LOAD, ShipToken: LATEST_SHIPTOKEN, NOTARY: LATEST_NOTARY },
-            await typeorm
-                .getConnection()
-                .getRepository(Wallet)
-                .find(),
+            await typeorm.getConnection().getRepository(Wallet).find(),
             contractMetaData,
         );
 
@@ -139,9 +136,7 @@ async function getNetwork(contractMetaData) {
         if (!contractMetaData.LOAD.deployed[network] || !contractMetaData.LOAD.deployed[network][LATEST_LOAD]) {
             logger.warn(`LOAD version ${LATEST_LOAD} is not deployed to ${network}`);
             if (contractMetaData.LOAD.deployed[network]) {
-                let testVersions = Object.keys(contractMetaData.LOAD.deployed[network])
-                    .sort(compareVersions)
-                    .reverse();
+                let testVersions = Object.keys(contractMetaData.LOAD.deployed[network]).sort(compareVersions).reverse();
                 LATEST_LOAD = testVersions[0];
                 logger.warn(`Using latest ${network} version ${LATEST_LOAD}`);
             }

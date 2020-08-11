@@ -49,7 +49,7 @@ class LoomTxProvider extends ethers.providers.JsonRpcProvider {
                 this._emitted['t:' + tx.hash] = 'pending';
             }
 
-            return this.waitForTransaction(tx.hash, confirmations).then(receipt => {
+            return this.waitForTransaction(tx.hash, confirmations).then((receipt) => {
                 if (receipt == null && confirmations === 0) {
                     return null;
                 }
@@ -100,7 +100,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
             },
         );
 
-        this.provider.on('error', error => {
+        this.provider.on('error', (error) => {
             logger.error(`Ethers.js Provider Error: ${error}`);
         });
     }

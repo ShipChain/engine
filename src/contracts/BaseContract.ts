@@ -26,7 +26,7 @@ export abstract class BaseContract {
     protected _ethereumService;
 
     protected constructor(contractName: string, network: string, version: string) {
-        this.Ready = Contract.getContractVersion(contractName, network, version).then(contract => {
+        this.Ready = Contract.getContractVersion(contractName, network, version).then((contract) => {
             this._contract = contract;
             this._network = contract.network;
             this._ethereumService = this._network.getEthereumService();

@@ -50,12 +50,12 @@ export class TransmissionConfirmationCallback extends ContractCallback {
 
             request
                 .post(options)
-                .on('response', function(response) {
+                .on('response', function (response) {
                     if (response.statusCode != 204) {
                         logger.error(`Transaction Callback Failed with ${response.statusCode}`);
                     }
                 })
-                .on('error', function(err) {
+                .on('error', function (err) {
                     logger.error(`${err}`);
                 });
         } catch (_err) {

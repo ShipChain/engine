@@ -179,7 +179,7 @@ export class Logger {
                     level: CLOUDWATCH_LEVEL,
                     messageFormatter: Logger.logCloudWatchFormat,
                     logGroupName: `engine-node-${ENVIRONMENT}`,
-                    logStreamName: function() {
+                    logStreamName: function () {
                         // Spread log streams across dates as the server stays up
                         let date = new Date().toISOString().split('T')[0];
                         return 'rpc-server-' + date + '-' + PROCESS_UNIQUENESS;

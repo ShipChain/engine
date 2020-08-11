@@ -48,9 +48,9 @@ export class Project extends BaseEntity {
     @Column() title: string;
     @Column() description: string;
 
-    @OneToMany(type => Contract, contract => contract.project)
+    @OneToMany((type) => Contract, (contract) => contract.project)
     contracts: Contract[];
-    @OneToMany(type => Version, version => version.project)
+    @OneToMany((type) => Version, (version) => version.project)
     versions: Version[];
 
     static async getOrCreate(title: string, description: string) {
@@ -166,12 +166,12 @@ export class Project extends BaseEntity {
 export class Version extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
 
-    @ManyToOne(type => Project, project => project.versions)
+    @ManyToOne((type) => Project, (project) => project.versions)
     @JoinColumn()
     project: Project;
     @Column() projectId: string;
 
-    @OneToMany(type => Contract, contract => contract.version)
+    @OneToMany((type) => Contract, (contract) => contract.version)
     contracts: Contract[];
 
     @Column() title: string;
@@ -251,7 +251,7 @@ export abstract class GenericCallback {
 export class Network extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
 
-    @OneToMany(type => Contract, contract => contract.network)
+    @OneToMany((type) => Contract, (contract) => contract.network)
     contracts: Contract[];
 
     @Column() title: string;
@@ -290,16 +290,16 @@ export class Network extends BaseEntity {
         const startTime = Date.now();
         return new Promise((resolve, reject) =>
             ethereumService.sendSignedTransaction(raw, {
-                receipt: receipt => {
+                receipt: (receipt) => {
                     metrics.methodTime('send_tx_receipt', Date.now() - startTime, { web3: true });
                     resolve(receipt);
                 },
-                confirmation: obj => {
+                confirmation: (obj) => {
                     if (callbacks) {
                         callbacks.call('confirmation', [obj]);
                     }
                 },
-                error: err => {
+                error: (err) => {
                     if (callbacks) {
                         callbacks.call('error', [err]);
                     }
@@ -314,17 +314,17 @@ export class Network extends BaseEntity {
 export class Contract extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
 
-    @ManyToOne(type => Project, project => project.contracts)
+    @ManyToOne((type) => Project, (project) => project.contracts)
     @JoinColumn()
     project: Project;
     @Column() projectId: string;
 
-    @ManyToOne(type => Version, version => version.contracts)
+    @ManyToOne((type) => Version, (version) => version.contracts)
     @JoinColumn()
     version: Version;
     @Column() versionId: string;
 
-    @ManyToOne(type => Network, network => network.contracts)
+    @ManyToOne((type) => Network, (network) => network.contracts)
     @JoinColumn()
     network: Network;
     @Column() networkId: string;
