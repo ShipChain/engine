@@ -28,7 +28,7 @@ import { Container } from "../../vaults/Container";
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const ShipChainVaultTests = async function() {
+export const ShipChainVaultTests = function() {
     let author: Wallet;
 
     beforeAll(async () => {
@@ -94,7 +94,7 @@ export const ShipChainVaultTests = async function() {
         }
     });
 
-    describe(`getPrimitive`, async() => {
+    describe(`getPrimitive`, () => {
         it(`throws if invalid primitive is retrieved`, async () => {
             let vault = new ShipChainVault(storage_driver);
             await vault.getOrCreateMetadata(author);
@@ -138,7 +138,7 @@ export const ShipChainVaultTests = async function() {
         });
     });
 
-    describe(`injectPrimitive`, async() => {
+    describe(`injectPrimitive`, () => {
         it(`throws if invalid primitive is injected`, async () => {
             let vault = new ShipChainVault(storage_driver);
             await vault.getOrCreateMetadata(author);

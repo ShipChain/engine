@@ -44,7 +44,7 @@ import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 
 const DATE_1 = '2018-01-01T01:00:00.000Z';
 
-export const RPCShipmentListPrimitiveTests = async function() {
+export const RPCShipmentListPrimitiveTests = function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {
@@ -237,8 +237,8 @@ export const RPCShipmentListPrimitiveTests = async function() {
                 expect(result.shipment.items['itemId'].item.product.documents['docId'].fields.name).toEqual(getPrimitiveData('Document').fields.name);
                 expect(result.shipment.tracking.length).toEqual(getPrimitiveData('Tracking').length);
                 expect(result.shipment.tracking[0]).toEqual(getPrimitiveData('Tracking')[0]);
-                
-                
+
+
                 expect(thisShipmentNock.isDone()).toBeTruthy();
                 expect(thisDocumentNock.isDone()).toBeTruthy();
                 expect(thisItemNock.isDone()).toBeTruthy();

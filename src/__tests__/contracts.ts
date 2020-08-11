@@ -31,7 +31,7 @@ const LATEST_LOAD = "1.2.0";
 const LATEST_NOTARY = "1.0.0";
 
 
-export const ContractEntityTests = async function() {
+export const ContractEntityTests = function() {
 
     beforeAll(async () => {
         await EncryptorContainer.init();

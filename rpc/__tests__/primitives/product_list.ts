@@ -44,7 +44,7 @@ import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 
 const DATE_1 = '2018-01-01T01:00:00.000Z';
 
-export const RPCProductListPrimitiveTests = async function() {
+export const RPCProductListPrimitiveTests = function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {

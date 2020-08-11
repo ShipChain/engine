@@ -25,7 +25,7 @@ import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const LoadVaultTests = async function() {
+export const LoadVaultTests = function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {

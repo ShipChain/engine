@@ -32,7 +32,7 @@ import {
 import { RPCStorageCredentials } from '../storage_credentials';
 import { StorageCredential } from "../../src/entity/StorageCredential";
 
-export const RPCStorageCredentialsTests = async function() {
+export const RPCStorageCredentialsTests = function() {
 
     afterAll(async() => {
         await cleanupEntities(typeorm);

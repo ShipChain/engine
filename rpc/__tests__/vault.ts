@@ -67,7 +67,7 @@ let vault_InitialVersion = {
     version: Vault.VAULT_VERSION__INITIAL
 };
 
-export const RPCVaultTests = async function() {
+export const RPCVaultTests = function() {
     const RealDate = Date;
     const RealAwsS3 = AWS.S3;
 

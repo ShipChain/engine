@@ -33,7 +33,7 @@ import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const DocumentListPrimitiveTests = async function() {
+export const DocumentListPrimitiveTests = function() {
     let author: Wallet;
     let vault: ShipChainVault;
 
@@ -127,7 +127,7 @@ export const DocumentListPrimitiveTests = async function() {
         let fullDocument = await documentList.getEntity('docId') as DocumentProperties;
 
         expect(fullDocument.fields.name).toEqual(getPrimitiveData('Document').fields.name);
-        
+
         expect(thisDocumentNock.isDone()).toBeTruthy();
     });
 

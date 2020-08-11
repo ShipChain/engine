@@ -21,7 +21,7 @@ import 'mocha';
 const nock = require('nock');
 import { EventSubscriberAttrs, EventSubscription } from "../entity/EventSubscription";
 
-export const EventSubscriptionPostsTests = async function() {
+export const EventSubscriptionPostsTests = function() {
     const TEST_URL = 'http://invalid.domain.shipchain.io';
     const TEST_URL_PATH = '/testEvent';
     const EVENTS = [{"blockNumber": 1}, {"blockNumber": 2}];

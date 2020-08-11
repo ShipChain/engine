@@ -55,7 +55,7 @@ let vault_InitialVersion = {
     version: Vault.VAULT_VERSION__INITIAL,
 };
 
-export const VaultTests = async function() {
+export const VaultTests = function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {

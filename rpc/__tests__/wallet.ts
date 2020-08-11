@@ -33,7 +33,7 @@ import { Wallet } from "../../src/entity/Wallet";
 import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
 import { LoomHooks } from "../../src/eth/LoomHooks";
 
-export const RPCWalletTests = async function() {
+export const RPCWalletTests = function() {
 
     beforeAll(async () => {
 

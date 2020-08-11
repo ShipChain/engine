@@ -42,7 +42,7 @@ import { getPrimitiveData } from "./utils";
 
 const DATE_1 = '2018-01-01T01:00:00.000Z';
 
-export const RPCTrackingPrimitiveTests = async function() {
+export const RPCTrackingPrimitiveTests = function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {

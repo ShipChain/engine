@@ -19,7 +19,7 @@ require('./testLoggingConfig');
 import 'mocha';
 import { cacheGet, cacheSet } from "../redis";
 
-export const RedisTests = async function() {
+export const RedisTests = function() {
     const missingKey = 'missing_key';
     const missingField = 'missing_field';
 

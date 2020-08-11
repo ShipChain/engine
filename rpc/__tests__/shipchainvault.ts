@@ -42,7 +42,7 @@ import { ShipChainVault } from "../../src/shipchain/vaults/ShipChainVault";
 
 const DATE_1 = '2018-01-01T01:00:00.000Z';
 
-export const RPCShipChainVaultTests = async function() {
+export const RPCShipChainVaultTests = function() {
     const RealDate = Date;
     const RealAwsS3 = AWS.S3;
 

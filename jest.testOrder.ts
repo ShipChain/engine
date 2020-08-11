@@ -91,7 +91,7 @@ const STATIC_TEST_METADATA_FILE = '/app/src/__tests__/meta.json';
 jest.setTimeout(60000);
 
 
-describe('RPC', async () => {
+describe('RPC', () => {
 
     beforeAll(async () => {
         try {
@@ -149,7 +149,7 @@ describe('RPC', async () => {
 
 });
 
-describe('Core', async () => {
+describe('Core', () => {
     beforeAll(async () => {
         try {
             // read connection options from ormconfig file (or ENV variables)
@@ -184,7 +184,7 @@ describe('Core', async () => {
 
 });
 
-describe('ShipChain', async () => {
+describe('ShipChain', () => {
     beforeAll(async () => {
         try {
             // read connection options from ormconfig file (or ENV variables)

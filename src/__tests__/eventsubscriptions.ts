@@ -56,7 +56,7 @@ function AsyncGetJSON(url) {
 }
 
 
-export const EventSubscriptionEntityTests = async  function() {
+export const EventSubscriptionEntityTests = function() {
 
     beforeAll(async () => {
         await EncryptorContainer.init();

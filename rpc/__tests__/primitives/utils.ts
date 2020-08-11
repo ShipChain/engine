@@ -19,7 +19,7 @@ const nockedUrl = 'http://nocked-url:2000';
 
 export function nockLinkedData(linkedPrimitive: string, times: number = 1) {
     return nock(nockedUrl)
-        .post('', (body) => {
+        .post('/', (body) => {
             return body.method === 'vaults.linked.get_linked_data' &&
                 body.params &&
                 body.params.linkEntry &&

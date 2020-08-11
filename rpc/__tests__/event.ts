@@ -29,7 +29,7 @@ import {
 import { RPCEvent } from '../event';
 import { EventSubscription } from "../../src/entity/EventSubscription";
 
-export const RPCEventTests = async function() {
+export const RPCEventTests = function() {
 
     afterAll(async() => {
         await cleanupEntities(typeorm);

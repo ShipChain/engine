@@ -29,7 +29,7 @@ import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const DocumentPrimitiveTests = async function() {
+export const DocumentPrimitiveTests = function() {
     let author: Wallet;
     let vault: ShipChainVault;
 
@@ -79,7 +79,7 @@ export const DocumentPrimitiveTests = async function() {
         expect(documentData.content).toBeNull();
     });
 
-    describe(`fields`, async () => {
+    describe(`fields`, () => {
         it(`can be set`, async () => {
             let document = await injectPrimitive();
 
@@ -103,7 +103,7 @@ export const DocumentPrimitiveTests = async function() {
         });
     });
 
-    describe(`contents`, async () => {
+    describe(`contents`, () => {
         it(`can be set`, async () => {
             let document = await injectPrimitive();
 
@@ -120,7 +120,7 @@ export const DocumentPrimitiveTests = async function() {
         });
     });
 
-    describe(`full primitive`, async () => {
+    describe(`full primitive`, () => {
         it(`can be set`, async () => {
             let document = await injectPrimitive();
 

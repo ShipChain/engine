@@ -31,7 +31,7 @@ import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const ProductPrimitiveTests = async function() {
+export const ProductPrimitiveTests = function() {
     let author: Wallet;
     let vault: ShipChainVault;
 
@@ -81,7 +81,7 @@ export const ProductPrimitiveTests = async function() {
         expect(productData.documents).toEqual({});
     });
 
-    describe(`fields`, async () => {
+    describe(`fields`, () => {
 
         it(`can be set`, async () => {
             let product = await injectPrimitive();
@@ -104,7 +104,7 @@ export const ProductPrimitiveTests = async function() {
         });
     });
 
-    describe(`documents`, async () => {
+    describe(`documents`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let product = await injectPrimitive();
@@ -169,7 +169,7 @@ export const ProductPrimitiveTests = async function() {
         });
     });
 
-    describe(`full primitive`, async () => {
+    describe(`full primitive`, () => {
 
         it(`can be retrieved`, async () => {
             let product = await injectPrimitive();

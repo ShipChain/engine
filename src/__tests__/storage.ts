@@ -155,7 +155,7 @@ const fileConfigs = {
 
 const emptyDirectoryListing = new DirectoryListing('.');
 
-export const StorageDriverTests = async function() {
+export const StorageDriverTests = function() {
     // Create and Cleanup the local testing directory
     // ==============================================
     beforeAll(() => {

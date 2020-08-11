@@ -33,7 +33,7 @@ import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const ShipmentPrimitiveTests = async function() {
+export const ShipmentPrimitiveTests = function() {
     let author: Wallet;
     let vault: ShipChainVault;
 
@@ -85,7 +85,7 @@ export const ShipmentPrimitiveTests = async function() {
         expect(shipmentProperties.items).toEqual({});
     });
 
-    describe(`fields`, async () => {
+    describe(`fields`, () => {
 
         it(`can be set`, async () => {
             let shipment = await injectPrimitive();
@@ -108,7 +108,7 @@ export const ShipmentPrimitiveTests = async function() {
         });
     });
 
-    describe(`documents`, async () => {
+    describe(`documents`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let shipment = await injectPrimitive();
@@ -171,7 +171,7 @@ export const ShipmentPrimitiveTests = async function() {
         });
     });
 
-    describe(`items`, async () => {
+    describe(`items`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let shipment = await injectPrimitive();
@@ -265,7 +265,7 @@ export const ShipmentPrimitiveTests = async function() {
         });
     });
 
-    describe(`tracking`, async () => {
+    describe(`tracking`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let shipment = await injectPrimitive();
@@ -316,7 +316,7 @@ export const ShipmentPrimitiveTests = async function() {
         });
     });
 
-    describe(`telemetry`, async () => {
+    describe(`telemetry`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let shipment = await injectPrimitive();
@@ -367,7 +367,7 @@ export const ShipmentPrimitiveTests = async function() {
         });
     });
 
-    describe(`full primitive`, async () => {
+    describe(`full primitive`, () => {
 
         it(`can be retrieved`, async () => {
             let shipment = await injectPrimitive();
