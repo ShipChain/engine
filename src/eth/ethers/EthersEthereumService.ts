@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import { errors, ethers } from 'ethers';
-import { BigNumber, Network, shallowCopy, UnsignedTransaction } from 'ethers/utils';
+import { ethers, UnsignedTransaction, utils as ethersUtils } from 'ethers';
 
 import { DeployedContractResult, AbstractEthereumService, TransactionEventHandlers } from '../AbstractEthereumService';
-import { JsonRpcProvider, Log, TransactionReceipt } from 'ethers/providers';
 import { Logger } from '../../Logger';
 
 const config = require('config');
@@ -33,41 +31,26 @@ export class EthersEthereumService extends AbstractEthereumService {
         if (!skip) {
             if (config.has('GETH_NETWORK')) {
                 const network = config.get('GETH_NETWORK');
-                const applicableProviders: ethers.providers.BaseProvider[] = [];
+                const defaultProviderOptions = {};
 
                 logger.debug(`Connecting Ethers.js to [${network}]`);
 
                 // Add Infura provider if we have a projectId
                 if (config.has('INFURA_PROJECT_ID')) {
                     const projectId = config.get('INFURA_PROJECT_ID');
-
                     logger.debug(`Adding InfuraProvider [${projectId}]`);
-                    applicableProviders.push(new ethers.providers.InfuraProvider(network, projectId));
+                    defaultProviderOptions['infura'] = projectId;
                 }
 
                 // Add Etherscan provider if we have an apiKey
                 if (config.has('ETHERSCAN_API_KEY')) {
                     const apiKey = config.get('ETHERSCAN_API_KEY');
-
                     logger.debug(`Adding EtherscanProvider [${apiKey}]`);
-                    applicableProviders.push(new ethers.providers.EtherscanProvider(network, apiKey));
+                    defaultProviderOptions['etherscan'] = apiKey;
                 }
 
                 // Include the default providers from Ethers.js
-                const defaultProvider = ethers.getDefaultProvider(network);
-                if (defaultProvider instanceof ethers.providers.FallbackProvider) {
-                    logger.debug(`Adding ${defaultProvider.providers.length} FallbackProviders`);
-                    applicableProviders.push(...defaultProvider.providers);
-                } else {
-                    logger.debug(`Adding DefaultProvider`);
-                    applicableProviders.push(defaultProvider);
-                }
-
-                if (applicableProviders.length === 0) {
-                    throw new Error(`Unable to build list of Providers`);
-                }
-
-                this.provider = new ethers.providers.FallbackProvider(applicableProviders);
+                this.provider = ethers.getDefaultProvider(network, defaultProviderOptions);
             } else {
                 const GETH_NODE = config.get('GETH_NODE');
 
@@ -89,7 +72,7 @@ export class EthersEthereumService extends AbstractEthereumService {
 
     // Network/Node Methods
     // ====================
-    async getBalance(address): Promise<BigNumber> {
+    async getBalance(address): Promise<ethers.BigNumber> {
         return this.convertBigNumbersToStrings(await this.provider.getBalance(address));
     }
 
@@ -97,12 +80,12 @@ export class EthersEthereumService extends AbstractEthereumService {
         return await this.provider.getCode(address);
     }
 
-    async getGasPrice(): Promise<BigNumber> {
+    async getGasPrice(): Promise<ethers.BigNumber> {
         return await this.provider.getGasPrice();
     }
 
     async getNetworkId(): Promise<number> {
-        const network: Network = await this.provider.getNetwork();
+        const network = await this.provider.getNetwork();
         return network.chainId;
     }
 
@@ -114,7 +97,7 @@ export class EthersEthereumService extends AbstractEthereumService {
         return await this.provider.getTransactionCount(address);
     }
 
-    async getTransactionReceipt(hash): Promise<TransactionReceipt> {
+    async getTransactionReceipt(hash): Promise<ethers.providers.TransactionReceipt> {
         return await this.provider.getTransactionReceipt(hash);
     }
 
@@ -142,9 +125,11 @@ export class EthersEthereumService extends AbstractEthereumService {
 
         let tx: UnsignedTransaction = {};
 
+        const functionFragment = contract.interface.getFunction(method);
+
         // If we have 1 additional argument, we allow transaction overrides
-        if (args.length === contract.interface.functions[method].inputs.length + 1) {
-            tx = shallowCopy(args.pop());
+        if (args.length === functionFragment.inputs.length + 1) {
+            tx = ethersUtils.shallowCopy(args.pop());
             for (let key in tx) {
                 if (!allowedTransactionKeys[key]) {
                     throw new Error('unknown transaction override ' + key);
@@ -153,25 +138,25 @@ export class EthersEthereumService extends AbstractEthereumService {
         }
 
         // Make sure the call matches the constructor signature
-        errors.checkArgumentCount(args.length, contract.interface.functions[method].inputs.length, ` in ${method}`);
+        const ethersLogger = new ethers.utils.Logger('EthersEthereumService');
+        ethersLogger.checkArgumentCount(args.length, functionFragment.inputs.length, ` in ${method}`);
 
         // Set the data to the bytecode + the encoded constructor arguments
 
         //convert the uint256 arguments from string to bignumber
-        let inputsArray = contract.interface.functions[method].inputs;
-        for (let i = 0; i < inputsArray.length; i++) {
-            if (inputsArray[i]['type'] === 'uint256') {
+        for (let i = 0; i < functionFragment.inputs.length; i++) {
+            if (functionFragment.inputs[i]['type'] === 'uint256') {
                 args[i] = this.toBigNumber(`${args[i]}`);
             }
         }
-        tx.data = contract.interface.functions[method].encode(args);
+        tx.data = contract.interface.encodeFunctionData(method, args);
 
         return tx;
     }
 
     async estimateTransaction(contract: ethers.Contract, method: string, args: any[]) {
         // Gas estimation tends to undershoot the total gas consumption
-        return this.toBigNumber(2).mul(await contract.estimate[method](...args));
+        return this.toBigNumber(2).mul(await contract.estimateGas[method](...args));
     }
 
     async sendSignedTransaction(rawTx, eventHandlers?: TransactionEventHandlers) {
@@ -226,16 +211,17 @@ export class EthersEthereumService extends AbstractEthereumService {
             toBlock: 'latest',
         };
         if (eventName != 'allEvents') {
-            filter['topics'] = [contract.interface.events[eventName].topic];
+            const eventFragment = contract.interface.getEvent(eventName);
+            filter['topics'] = [contract.interface.getEventTopic(eventFragment)];
         }
 
         logger.silly(`Getting Logs for '${eventName}' from block ${fromBlock}`);
 
-        const logs: Log[] = await this.provider.getLogs(filter);
+        const logs: ethers.providers.Log[] = await this.provider.getLogs(filter);
         return Promise.all(logs.map(log => this.parseLogToEvent(log, contract)));
     }
 
-    protected async parseLogToEvent(log: Log, contract: ethers.Contract) {
+    protected async parseLogToEvent(log: ethers.providers.Log, contract: ethers.Contract) {
         // Engine already interchanges Event data with the Transmission project in a specific format (from web3)
         // These modifications are to retain that existing format until (if) Transmission models are modified
 
@@ -250,7 +236,7 @@ export class EthersEthereumService extends AbstractEthereumService {
             ...parsedLog,
         };
 
-        parsedEvent['returnValues'] = parsedEvent.values;
+        parsedEvent['returnValues'] = parsedEvent.args;
         parsedEvent['event'] = parsedLog.name;
         parsedEvent['signature'] = parsedLog.topic;
         parsedEvent['raw'] = {
@@ -283,7 +269,7 @@ export class EthersEthereumService extends AbstractEthereumService {
     // Local Network Node Interactions
     // ===============================
     async deployContract(abi, bytecode): Promise<DeployedContractResult> {
-        if (this.provider instanceof JsonRpcProvider) {
+        if (this.provider instanceof ethers.providers.JsonRpcProvider) {
             const accounts = await this.provider.listAccounts();
             const deployerAccount = accounts[0];
 
@@ -316,7 +302,7 @@ export class EthersEthereumService extends AbstractEthereumService {
     }
 
     async callContractFromNodeAccount(contract: ethers.Contract, method: string, args: any[]) {
-        if (this.provider instanceof JsonRpcProvider) {
+        if (this.provider instanceof ethers.providers.JsonRpcProvider) {
             const accounts = await this.provider.listAccounts();
             const deployerAccount = accounts[0];
 
@@ -331,7 +317,7 @@ export class EthersEthereumService extends AbstractEthereumService {
     }
 
     async sendWeiFromNodeAccount(address, amount) {
-        if (this.provider instanceof JsonRpcProvider) {
+        if (this.provider instanceof ethers.providers.JsonRpcProvider) {
             const accounts = await this.provider.listAccounts();
             const deployerAccount = accounts[0];
 
@@ -356,7 +342,7 @@ export class EthersEthereumService extends AbstractEthereumService {
     }
 
     toBigNumber(aNumber) {
-        return ethers.utils.bigNumberify(aNumber);
+        return ethers.BigNumber.from(aNumber);
     }
 
     unitToWei(value, unit) {
@@ -368,17 +354,19 @@ export class EthersEthereumService extends AbstractEthereumService {
     }
 
     convertBigNumbersToStrings(obj) {
-        let transformedResponse: any = shallowCopy(obj);
+        let transformedResponse: any = ethersUtils.shallowCopy(obj);
 
-        // If this is a single value response, there's no nested properties
-        if (Object.keys(obj).length === 1 && obj.hasOwnProperty('_hex')) {
-            transformedResponse = this.toBigNumber(obj).toString();
+        // If this is a single value response, return string representation of number
+        if (ethers.BigNumber.isBigNumber(obj)) {
+            transformedResponse = obj.toString();
         }
 
-        // ethers returns uint256 values as {"_hex": "0x00"}
-        for (let property of Object.keys(obj)) {
-            if (obj[property] && Object.keys(obj[property]).length === 1 && obj[property].hasOwnProperty('_hex')) {
-                transformedResponse[property] = this.toBigNumber(obj[property]).toString();
+        // scan object for BigNumber instances and return string representation of number
+        else {
+            for (let property of Object.keys(obj)) {
+                if (obj[property] && ethers.BigNumber.isBigNumber(obj[property])) {
+                    transformedResponse[property] = obj[property].toString();
+                }
             }
         }
 

@@ -59,7 +59,7 @@ export const ContractEntityTests = async function() {
             const ethereumService: AbstractEthereumService = network.getEthereumService();
 
             const ownerBalance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
-            expect(ownerBalance).toEqual(ethereumService.unitToWei(500, 'ether'));
+            expect(ownerBalance[0]).toEqual(ethereumService.unitToWei(500, 'ether'));
 
             if (!LoomHooks.enabled) {
                 expect(await ethereumService.getBalance(await owner.asyncEvmAddress)).toEqual(ethereumService.unitToWei(5, 'ether').toString());
@@ -79,9 +79,9 @@ export const ContractEntityTests = async function() {
             const new_owner_balance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
             const new_other_balance = await local.ShipToken.call_static('balanceOf', [await other.asyncEvmAddress]);
 
-            expect(new_owner_balance).toEqual(ethereumService.unitToWei(400, 'ether'));
+            expect(new_owner_balance[0]).toEqual(ethereumService.unitToWei(400, 'ether'));
 
-            expect(new_other_balance).toEqual(ethereumService.unitToWei(100, 'ether'));
+            expect(new_other_balance[0]).toEqual(ethereumService.unitToWei(100, 'ether'));
         },
         180000,
     );

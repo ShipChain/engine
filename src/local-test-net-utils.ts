@@ -144,7 +144,7 @@ async function getAndUpdateShipBalance(tokenContractEntity, wallet) {
     let currentShipBalance = await tokenContractEntity.call_static('balanceOf', [await wallet.asyncEvmAddress]);
 
     // Depending on the underlying AbstractEthereumService implementation this step may or may not be necessary
-    currentShipBalance = ethereumService.toBigNumber(currentShipBalance);
+    currentShipBalance = ethereumService.toBigNumber(currentShipBalance[0]);
 
     if (currentShipBalance.lt(ethereumService.unitToWei(250, 'ether'))) {
         logger.info(
@@ -157,8 +157,8 @@ async function getAndUpdateShipBalance(tokenContractEntity, wallet) {
         ]);
     }
 
-    currentShipBalance = ethereumService.toBigNumber(
-        await tokenContractEntity.call_static('balanceOf', [await wallet.asyncEvmAddress]),
-    );
+    currentShipBalance = await tokenContractEntity.call_static('balanceOf', [await wallet.asyncEvmAddress]);
+    currentShipBalance = ethereumService.toBigNumber(currentShipBalance[0]);
+
     return ethereumService.weiToUnit(currentShipBalance, 'ether');
 }

@@ -100,7 +100,7 @@ export class RPCWallet {
         return {
             success: true,
             ether: eth_balance,
-            ship: ship_balance,
+            ship: ship_balance[0],
         };
     }
 }

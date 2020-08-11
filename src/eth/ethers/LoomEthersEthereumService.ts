@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import { errors as ethersErrors, ethers } from 'ethers';
-import { BigNumber, hexDataLength, Transaction } from 'ethers/utils';
+import { ethers, Transaction, utils as ethersUtils } from 'ethers';
 
 import { DeployedContractResult } from '../AbstractEthereumService';
-import { JsonRpcProvider, Log, TransactionReceipt, TransactionResponse } from 'ethers/providers';
 import { Logger } from '../../Logger';
 import { EthersEthereumService } from './EthersEthereumService';
 import { LoomHooks } from '../LoomHooks';
@@ -29,12 +27,12 @@ const config = require('config');
 const logger = Logger.get(module.filename);
 
 class LoomTxProvider extends ethers.providers.JsonRpcProvider {
-    _wrapTransaction(tx: Transaction, hash?: string): TransactionResponse {
-        if (hash != null && hexDataLength(hash) !== 32) {
+    _wrapTransaction(tx: Transaction, hash?: string): ethers.providers.TransactionResponse {
+        if (hash != null && ethersUtils.hexDataLength(hash) !== 32) {
             throw new Error('invalid response - sendTransaction');
         }
 
-        let result: TransactionResponse = <TransactionResponse>tx;
+        let result: ethers.providers.TransactionResponse = <ethers.providers.TransactionResponse>tx;
 
         // Check the hash we expect is the same as the hash the server reported
         if (hash != null && tx.hash !== hash) {
@@ -60,7 +58,8 @@ class LoomTxProvider extends ethers.providers.JsonRpcProvider {
                 this._emitted['t:' + tx.hash] = receipt.blockNumber;
 
                 if (receipt.status === 0) {
-                    ethersErrors.throwError('transaction failed', ethersErrors.CALL_EXCEPTION, {
+                    const ethersLogger = new ethers.utils.Logger('LoomEthersEthereumService');
+                    ethersLogger.throwError('transaction failed', ethers.utils.Logger.errors.CALL_EXCEPTION, {
                         transactionHash: tx.hash,
                         transaction: tx,
                     });
@@ -108,7 +107,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
 
     // Network/Node Methods
     // ====================
-    async getBalance(address): Promise<BigNumber> {
+    async getBalance(address): Promise<ethers.BigNumber> {
         return await super.getBalance(address.toLowerCase());
     }
 
@@ -135,7 +134,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
         return await super.createContractInstance(abi, address.toLowerCase(), providerOrSigner);
     }
 
-    protected async parseLogToEvent(log: Log, contract: ethers.Contract) {
+    protected async parseLogToEvent(log: ethers.providers.Log, contract: ethers.Contract) {
         const parsedEvent = await super.parseLogToEvent(log, contract);
 
         parsedEvent['removed'] = false;
@@ -147,7 +146,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
     // Local Network Node Interactions
     // ===============================
     async deployContract(abi, bytecode): Promise<DeployedContractResult> {
-        if (this.provider instanceof JsonRpcProvider) {
+        if (this.provider instanceof ethers.providers.JsonRpcProvider) {
             await LoomHooks.getOrCreateMapping(await LoomEthersEthereumService.asyncDeployPrivateKey);
             let wallet = new ethers.Wallet(await LoomEthersEthereumService.asyncDeployPrivateKey, this.provider);
 
@@ -166,7 +165,7 @@ export class LoomEthersEthereumService extends EthersEthereumService {
 
             try {
                 await contract.deployed();
-                let receipt: TransactionReceipt = await this.provider.getTransactionReceipt(
+                let receipt: ethers.providers.TransactionReceipt = await this.provider.getTransactionReceipt(
                     contract.deployTransaction.hash,
                 );
                 return {

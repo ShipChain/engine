@@ -103,7 +103,7 @@ export const EventSubscriptionEntityTests = async  function() {
             const TOTAL = 500 * SHIP;
 
             const ownerBalance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
-            expect(Number(ownerBalance)).toEqual(TOTAL);
+            expect(Number(ownerBalance[0])).toEqual(TOTAL);
 
             if (!LoomHooks.enabled) {
                 expect(Number(await ethereumService.getBalance(await owner.asyncEvmAddress))).toEqual(5 * ETH);
@@ -123,9 +123,9 @@ export const EventSubscriptionEntityTests = async  function() {
             const new_owner_balance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
             const new_other_balance = await local.ShipToken.call_static('balanceOf', [await other.asyncEvmAddress]);
 
-            expect(Number(new_owner_balance)).toEqual(TOTAL - 100 * SHIP);
+            expect(Number(new_owner_balance[0])).toEqual(TOTAL - 100 * SHIP);
 
-            expect(Number(new_other_balance)).toEqual(100 * SHIP);
+            expect(Number(new_other_balance[0])).toEqual(100 * SHIP);
 
             const status_url = ES_NODE+"/_cat/health";
 
