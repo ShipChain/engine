@@ -22,7 +22,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
     "pg": "^7.6.1",
-    "pm2": "^3.5.1",
+    "pm2": "^4.4.0",
     "read-source-stream": "^1.0.4",
     "redis": "^2.8.0",
     "redlock": "^3.1.2",
@@ -31,7 +31,7 @@
     "request-promise-native": "^1.0.5",
     "rimraf": "^2.6.2",
     "ssh2-sftp-client": "2.5.0",
-    "ts-node": "^7.0.1",
+    "ts-node": "8.10.2",
     "typeorm": "0.2.9",
     "typescript": "3.9.7",
     "uuid": "^3.3.2",
@@ -60,7 +60,7 @@
     "js-yaml": "3.13.1"
   },
   "scripts": {
-    "postinstall": "$(yarn bin)/pm2 install typescript@3.9.7",
+    "postinstall": "$(yarn bin)/pm2 install typescript",
     "compile": "rm -rf ./dist && tsc",
     "lint": "eslint 'src/**/*.ts' 'rpc/**/*.ts' ",
     "lint-junit": "eslint 'src/**/*.ts' 'rpc/**/*.ts' --format junit -o reports/junit/lint-junit.xml ",
