@@ -378,6 +378,7 @@ export class Contract extends BaseEntity {
     async getContractInstance() {
         if (this._driver) return this._driver;
 
+        this.project = this.project || (await Project.findOne({ id: this.projectId }));
         this.network = this.network || (await Network.findOne({ id: this.networkId }));
         this.version = this.version || (await Version.findOne({ id: this.versionId }));
 
