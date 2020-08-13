@@ -155,6 +155,7 @@ describe('Core', () => {
             // read connection options from ormconfig file (or ENV variables)
             const connectionOptions = await typeorm.getConnectionOptions();
             await typeorm.createConnection(connectionOptions);
+            await EncryptorContainer.init();
         } catch(err){
             console.error(`beforeAll Error ${err}`);
         }

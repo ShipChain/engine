@@ -15,8 +15,8 @@
  */
 
 import { Logger as WinstonLogger, format, transports, loggers } from 'winston';
+import { v4 as uuidv4 } from 'uuid';
 
-const uuidv4 = require('uuid/v4');
 const appRoot = require('app-root-path');
 const path = require('path');
 const ElasticSearch = require('winston-elasticsearch');

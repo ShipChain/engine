@@ -16,8 +16,11 @@
 
 import EthCrypto from 'eth-crypto';
 import { Wallet } from './entity/Wallet';
+import { v4 } from 'uuid';
 
-export const uuidv4 = require('uuid/v4');
+export function uuidv4() {
+    return v4();
+}
 export const stringify = require('fast-json-stable-stringify');
 const crypto = require('crypto');
 
