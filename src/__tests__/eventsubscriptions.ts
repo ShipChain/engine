@@ -26,6 +26,9 @@ import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 import { AbstractEthereumService } from "../eth/AbstractEthereumService";
 import { LoomHooks } from "../eth/LoomHooks";
 
+import * as typeorm from "typeorm";
+import {cleanupDeployedContracts} from "../../rpc/__tests__/utils";
+
 const config = require('config');
 const utils = require('../local-test-net-utils');
 
@@ -44,6 +47,7 @@ export const EventSubscriptionEntityTests = function() {
 
     beforeAll(async () => {
         await EncryptorContainer.init();
+        await cleanupDeployedContracts(typeorm);
     });
 
     it(
