@@ -18,13 +18,11 @@ import { DirectoryListing, DriverError, FileEntity, StorageDriver } from '../Sto
 import { MetricsReporter } from '../../MetricsReporter';
 
 const fs = require('fs');
-const util = require('util');
 const path = require('path');
-const _mkdirp = require('mkdirp');
+const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 
 // Convert mkdirp into Promise version of same
-const mkdirp = util.promisify(_mkdirp);
 
 const metrics = MetricsReporter.Instance;
 
