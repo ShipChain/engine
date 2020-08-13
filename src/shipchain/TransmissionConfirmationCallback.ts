@@ -17,9 +17,9 @@
 import { ContractCallback } from '../contracts/ContractCallback';
 import { getRequestOptions } from '../request-options';
 import { Logger } from '../Logger';
+import axios from 'axios';
 
 const logger = Logger.get(module.filename);
-const request = require('request');
 
 export class TransmissionConfirmationCallback extends ContractCallback {
     private readonly url: string;
@@ -42,29 +42,17 @@ export class TransmissionConfirmationCallback extends ContractCallback {
 
     private async postData(body: any) {
         try {
-            let options = {
-                url: this.url,
-                json: body,
-            };
-            options = Object.assign(options, await getRequestOptions());
-
-            request
-                .post(options)
-                .on('response', function (response) {
-                    if (response.statusCode != 204) {
-                        logger.error(`Transaction Callback Failed with ${response.statusCode}`);
-                    }
-                })
-                .on('error', function (err) {
-                    logger.error(`${err}`);
-                });
+            let response = await axios.post(this.url, body, await getRequestOptions());
+            if (response.status != 204) {
+                logger.error(`Transaction Callback Failed with ${response.status}`);
+            }
         } catch (_err) {
             logger.error(`${_err}`);
         }
     }
 
     protected async confirmation(receipt) {
-        this.postData({
+        await this.postData({
             type: 'ETH_TRANSACTION',
             body: receipt,
         });
@@ -72,7 +60,7 @@ export class TransmissionConfirmationCallback extends ContractCallback {
 
     protected async error(error) {
         logger.error(`Error prior to confirmation: ${error}`);
-        this.postData({
+        await this.postData({
             type: 'ERROR',
             body: { exception: error.toString() },
         });

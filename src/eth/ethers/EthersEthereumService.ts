@@ -249,10 +249,14 @@ export class EthersEthereumService extends AbstractEthereumService {
             typeof parsedEvent.transactionHash === 'string' &&
             typeof parsedEvent.logIndex === 'number'
         ) {
-            const shaId = ethers.utils.keccak256(
-                parsedEvent.blockHash + parsedEvent.transactionHash.replace('0x', '') + parsedEvent.logIndex.toString(),
-            );
+            let hashSource = parsedEvent.blockHash + parsedEvent.transactionHash.replace('0x', '');
 
+            if (parsedEvent.logIndex.toString().length % 2 == 1) {
+                hashSource += '0';
+            }
+            hashSource += parsedEvent.logIndex.toString();
+
+            const shaId = ethers.utils.keccak256(hashSource);
             parsedEvent.id = `log_${shaId.replace('0x', '').substr(0, 8)}`;
         }
 

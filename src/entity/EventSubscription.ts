@@ -15,6 +15,7 @@
  */
 
 import { BaseEntity, Column, CreateDateColumn, Entity, getConnection, Index, PrimaryGeneratedColumn } from 'typeorm';
+import axios from 'axios';
 import { Contract } from './Contract';
 import { getRequestOptions } from '../request-options';
 import { Logger } from '../Logger';
@@ -23,22 +24,12 @@ import { AsyncPoll } from '../AsyncPoll';
 import { arrayChunker } from '../utils';
 import { AbstractEthereumService } from '../eth/AbstractEthereumService';
 
-const request = require('request');
-const requestPromise = require('request-promise-native');
 const config = require('config');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
 
 const SECONDS = 1000;
-
-function AsyncPut(url) {
-    return new Promise((resolve) => {
-        request.put(url, (error, response, body) => {
-            resolve(body);
-        });
-    });
-}
 
 export class EventSubscriberAttrs {
     url: string;
@@ -252,20 +243,19 @@ export class EventSubscription extends BaseEntity {
     }
 
     private static async sendPostEventsChunk(eventSubscription: EventSubscription, chunk, highestChunkBlock) {
-        let options = {
-            url: eventSubscription.url,
-            json: {
-                events: chunk,
-                project: eventSubscription.project,
-                version: eventSubscription.version,
-            },
-            timeout: 90 * SECONDS,
+        let data = {
+            events: chunk,
+            project: eventSubscription.project,
+            version: eventSubscription.version,
         };
 
+        let options = {
+            timeout: 90 * SECONDS,
+        };
         options = Object.assign(options, await getRequestOptions());
 
         try {
-            await requestPromise.post(options);
+            await axios.post(eventSubscription.url, data, options);
             await eventSubscription.success(highestChunkBlock);
         } catch (err) {
             await eventSubscription.failed();
@@ -279,7 +269,7 @@ export class EventSubscription extends BaseEntity {
                 `About to put events to ElasticSearch ${eventSubscription.project}_${eventSubscription.version}_${eventSubscription.url}`,
             );
 
-            await AsyncPut(eventSubscription.url + '/events/');
+            await axios.put(eventSubscription.url + '/events/');
 
             for (let event of events) {
                 await EventSubscription.sendElasticEventSingle(eventSubscription, event, highestBlock);
@@ -293,50 +283,37 @@ export class EventSubscription extends BaseEntity {
     }
 
     private static async sendElasticEventSingle(eventSubscription, event, highestBlock) {
+        let data = {
+            network_id: eventSubscription.contractEntity.network.id,
+            network_title: eventSubscription.contractEntity.network.title,
+            project_id: eventSubscription.contractEntity.project.id,
+            project_title: eventSubscription.contractEntity.project.title,
+            version_id: eventSubscription.contractEntity.version.id,
+            version_title: eventSubscription.contractEntity.version.title,
+            ...event,
+        };
+
         let options = {
-            url: eventSubscription.url + '/events/_doc',
-            json: {
-                network_id: eventSubscription.contractEntity.network.id,
-                network_title: eventSubscription.contractEntity.network.title,
-                project_id: eventSubscription.contractEntity.project.id,
-                project_title: eventSubscription.contractEntity.project.title,
-                version_id: eventSubscription.contractEntity.version.id,
-                version_title: eventSubscription.contractEntity.version.title,
-                ...event,
-            },
             timeout: 1 * SECONDS,
         };
-        return new Promise(async (resolve, reject) => {
-            request
-                .post(options)
-                .on('response', async function (response) {
-                    if (response.statusCode != 201 && response.statusCode != 204) {
-                        logger.error(
-                            `Event Subscription Failed with ${response.statusCode} [
-                                ${eventSubscription.project}_
-                                ${eventSubscription.version}_
-                                ${eventSubscription.url}
-                            ]`,
-                        );
-                        await eventSubscription.failed();
-                        resolve();
-                    } else {
-                        await eventSubscription.success(highestBlock);
-                        resolve();
-                    }
-                })
-                .on('error', async function (err) {
-                    logger.error(
-                        `Event Subscription Failed with ${err} [
-                            ${eventSubscription.project}_
-                            ${eventSubscription.version}_
-                            ${eventSubscription.url}
-                        ]`,
-                    );
-                    await eventSubscription.failed();
-                    resolve();
-                });
-        });
+        options = Object.assign(options, await getRequestOptions());
+
+        try {
+            let response = await axios.post(eventSubscription.url + '/events/_doc', data, options);
+            if (response.status != 201 && response.status != 204) {
+                logger.error(
+                    `Event Subscription Failed with ${response.status} [${eventSubscription.project}_${eventSubscription.version}_${eventSubscription.url}]`,
+                );
+                await eventSubscription.failed();
+            } else {
+                await eventSubscription.success(highestBlock);
+            }
+        } catch (err) {
+            logger.error(
+                `Event Subscription Failed with ${err} [${eventSubscription.project}_${eventSubscription.version}_${eventSubscription.url}]`,
+            );
+            await eventSubscription.failed();
+        }
     }
 
     private static buildPoll(eventSubscription: EventSubscription, eventName: string) {

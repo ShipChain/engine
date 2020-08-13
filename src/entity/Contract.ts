@@ -25,6 +25,8 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import axios from 'axios';
+
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { GasPriceOracle } from '../GasPriceOracle';
@@ -33,7 +35,6 @@ import { EthereumService } from '../eth/EthereumService';
 
 const fs = require('fs');
 const EthereumTx = require('ethereumjs-tx');
-const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -142,14 +143,9 @@ export class Project extends BaseEntity {
     }
 
     static async loadFixturesFromUrl(fixture_url: string): Promise<any> {
-        const requestOptions = {
-            uri: fixture_url,
-            json: true,
-            timeout: 20000,
-        };
-
         try {
-            const meta = await requestPromise(requestOptions);
+            logger.debug(`Loading fixtures from ${fixture_url}`);
+            const meta = (await axios.get(fixture_url, { timeout: 20000 })).data;
             return await Project.loadFixtureMetaData(meta);
         } catch (err) {
             logger.error(`Retrieving Fixtures returned ${err}`);

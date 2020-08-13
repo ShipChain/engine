@@ -15,6 +15,7 @@
  */
 
 const regression = require('regression');
+import axios from 'axios';
 
 import { AsyncPoll } from './AsyncPoll';
 import { Logger } from './Logger';
@@ -24,7 +25,6 @@ import { AbstractEthereumService } from './eth/AbstractEthereumService';
 import { EthereumService } from './eth/EthereumService';
 import { LoomHooks } from './eth/LoomHooks';
 
-const requestPromise = require('request-promise-native');
 const config = require('config');
 
 const logger = Logger.get(module.filename);
@@ -243,14 +243,8 @@ export class GasPriceOracle {
     // Generic Retrieve JSON from api
     // ------------------------------
     private static async retrieveJson(apiUrl: string): Promise<any> {
-        const requestOptions = {
-            uri: apiUrl,
-            json: true,
-            timeout: 5000,
-        };
-
         try {
-            return await requestPromise(requestOptions);
+            return (await axios.get(apiUrl, { timeout: 5000 })).data;
         } catch (err) {
             logger.error(`Retrieving JSON from ${apiUrl} failed with ${err}`);
             throw err;

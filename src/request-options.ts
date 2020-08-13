@@ -19,7 +19,9 @@ const fs = require('fs'),
     keyFile = '/app/client-cert.key',
     caFile = '/app/ca-bundle.crt';
 
+import * as https from 'https';
 import { Logger } from './Logger';
+
 const config = require('config');
 const logger = Logger.get(module.filename);
 
@@ -29,9 +31,12 @@ export async function getRequestOptions() {
     if (config.get('IS_DEPLOYED_STAGE')) {
         if (!options) {
             options = {
-                cert: fs.readFileSync(certFile),
-                key: fs.readFileSync(keyFile),
-                ca: fs.readFileSync(caFile),
+                // the httpsAgent property is needed for axios
+                httpsAgent: new https.Agent({
+                    cert: fs.readFileSync(certFile),
+                    key: fs.readFileSync(keyFile),
+                    ca: fs.readFileSync(caFile),
+                }),
             };
         }
         return options;
