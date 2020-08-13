@@ -50,7 +50,8 @@ class Migration {
 
             connection = await createConnection(fullOptions);
 
-            const options = { transaction: true };
+            const all: "all" | "none" | "each" = "all";
+            const options = { transaction: all };
             if (revert === false) {
                 logger.info("Running the forward migration.");
                 await connection.runMigrations(options);
@@ -75,10 +76,10 @@ class Migration {
 
 try {
     if (process.argv[2] === '--revert') {
-        Migration.run(true);
+        Migration.run(true).then(logger.info);
     }
     else {
-        Migration.run();
+        Migration.run().then(logger.info);
     }
 } catch (_err) {
     logger.error(`Error during migration run: ${_err}`);
