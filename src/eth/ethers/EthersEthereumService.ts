@@ -263,7 +263,9 @@ export class EthersEthereumService extends AbstractEthereumService {
         delete parsedEvent['data'];
         delete parsedEvent['topics'];
         delete parsedEvent['topic'];
-        delete parsedEvent['values'];
+        delete parsedEvent['args'];
+        delete parsedEvent['name'];
+        delete parsedEvent['eventFragment'];
 
         parsedEvent['returnValues'] = this.convertBigNumbersToStrings(parsedEvent['returnValues']);
 

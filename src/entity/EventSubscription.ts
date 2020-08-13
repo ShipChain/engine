@@ -283,7 +283,7 @@ export class EventSubscription extends BaseEntity {
     }
 
     private static async sendElasticEventSingle(eventSubscription, event, highestBlock) {
-        let data = {
+        const data = {
             network_id: eventSubscription.contractEntity.network.id,
             network_title: eventSubscription.contractEntity.network.title,
             project_id: eventSubscription.contractEntity.project.id,
@@ -293,13 +293,8 @@ export class EventSubscription extends BaseEntity {
             ...event,
         };
 
-        let options = {
-            timeout: 1 * SECONDS,
-        };
-        options = Object.assign(options, await getRequestOptions());
-
         try {
-            let response = await axios.post(eventSubscription.url + '/events/_doc', data, options);
+            let response = await axios.post(eventSubscription.url + '/events/_doc', data, { timeout: 5 * SECONDS });
             if (response.status != 201 && response.status != 204) {
                 logger.error(
                     `Event Subscription Failed with ${response.status} [${eventSubscription.project}_${eventSubscription.version}_${eventSubscription.url}]`,
