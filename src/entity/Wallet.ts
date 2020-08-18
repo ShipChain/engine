@@ -146,10 +146,7 @@ export class Wallet extends BaseEntity {
         const DB = getConnection();
         const repository = DB.getRepository(Wallet);
 
-        const count = await repository
-            .createQueryBuilder('wallet')
-            .select('COUNT(wallet.id) AS cnt')
-            .getRawMany();
+        const count = await repository.createQueryBuilder('wallet').select('COUNT(wallet.id) AS cnt').getRawMany();
 
         return count[0]['cnt'];
     }
@@ -342,7 +339,7 @@ export class Wallet extends BaseEntity {
     // ====================
     async add_tx_params(network: Network, txParams) {
         const ethereumService = network.getEthereumService();
-        const hex_i = i => (Number.isInteger(i) ? ethereumService.toHex(i) : i);
+        const hex_i = (i) => (Number.isInteger(i) ? ethereumService.toHex(i) : i);
         return {
             nonce: hex_i(txParams.nonce || (await ethereumService.getTransactionCount(this.address))),
             chainId: txParams.chainId || (await ethereumService.getNetworkId()),

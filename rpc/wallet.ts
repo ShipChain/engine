@@ -33,10 +33,10 @@ export class RPCWallet {
 
         // This should be non-blocking
         Wallet.getCount()
-            .then(count => {
+            .then((count) => {
                 metrics.entityTotal('Wallet', count);
             })
-            .catch(err => {});
+            .catch((err) => {});
 
         return {
             success: true,
@@ -56,10 +56,10 @@ export class RPCWallet {
 
         // This should be non-blocking
         Wallet.getCount()
-            .then(count => {
+            .then((count) => {
                 metrics.entityTotal('Wallet', count);
             })
-            .catch(err => {});
+            .catch((err) => {});
 
         return {
             success: true,
@@ -100,7 +100,7 @@ export class RPCWallet {
         return {
             success: true,
             ether: eth_balance,
-            ship: ship_balance,
+            ship: ship_balance[0],
         };
     }
 }

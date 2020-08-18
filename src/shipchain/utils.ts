@@ -35,7 +35,7 @@ export async function getAwsSecret(secretName: string): Promise<any> {
             region: region,
         });
 
-        client.getSecretValue({ SecretId: secretName }, function(err, data) {
+        client.getSecretValue({ SecretId: secretName }, function (err, data) {
             if (err) {
                 if (err.code === 'ResourceNotFoundException') {
                     logger.error(`The requested secret ${secretName} was not found`);

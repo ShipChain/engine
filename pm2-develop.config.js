@@ -3,8 +3,8 @@ module.exports = {
     {
       name: 'engine-rpc',
       script: 'rpc-server.ts',
-      interpreter: 'ts-node',
-      exec_mode : "cluster",
+      exec_interpreter: 'ts-node',
+      exec_mode : "fork_mode",
       instances: 1,
       instance_var: 'INSTANCE_ID',
 

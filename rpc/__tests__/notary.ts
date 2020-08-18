@@ -35,7 +35,7 @@ import { Wallet } from "../../src/entity/Wallet";
 import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
 import { latest as LATEST_NOTARY } from '../VaultNotary/Latest';
 
-export const RPCVaultNotaryTests = async function() {
+export const RPCVaultNotaryTests = function() {
 
     let fullWallet1;
     let fullWallet2;
@@ -104,7 +104,7 @@ export const RPCVaultNotaryTests = async function() {
                 expect(rpcReturn.transaction.to).toBeDefined();
                 expect(rpcReturn.transaction.chainId).toBeDefined();
                 expect(rpcReturn.contractVersion).toMatch(LATEST_NOTARY);
- 
+
         }));
 
         it(`Validates vaultUri is string`, mochaAsync(async () => {

@@ -29,7 +29,7 @@ import { EncryptorContainer } from '../../entity/encryption/EncryptorContainer';
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const TelemetryPrimitiveTests = async function() {
+export const TelemetryPrimitiveTests = function() {
     let author: Wallet;
     let vault: ShipChainVault;
 

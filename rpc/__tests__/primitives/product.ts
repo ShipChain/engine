@@ -44,7 +44,7 @@ import { ShipChainVault } from "../../../src/shipchain/vaults/ShipChainVault";
 
 const DATE_1 = '2018-01-01T01:00:00.000Z';
 
-export const RPCProductPrimitiveTests = async function() {
+export const RPCProductPrimitiveTests = function() {
     const RealDate = Date;
 
     function mockDate(isoDate) {
@@ -651,7 +651,7 @@ export const RPCProductPrimitiveTests = async function() {
                     vault: vaultId,
                     documentId: documentId,
                 });
-                
+
                 expect(response.success).toBeTruthy();
                 expect(response.vault_id).toEqual(vaultId);
                 expect(response.wallet_id).toEqual(fullWallet1.id);

@@ -22,7 +22,7 @@ import { GasPriceOracle } from '../GasPriceOracle';
 import { AbstractEthereumService } from "../eth/AbstractEthereumService";
 import { LoomHooks } from "../eth/LoomHooks";
 
-export const GasPriceOracleTests = async function() {
+export const GasPriceOracleTests = function() {
 
     it(`has a default price of 20 gwei`, async () => {
         const gpo: GasPriceOracle = GasPriceOracle.Instance;

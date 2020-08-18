@@ -16,8 +16,11 @@
 
 import EthCrypto from 'eth-crypto';
 import { Wallet } from './entity/Wallet';
+import { v4 } from 'uuid';
 
-export const uuidv4 = require('uuid/v4');
+export function uuidv4() {
+    return v4();
+}
 export const stringify = require('fast-json-stable-stringify');
 const crypto = require('crypto');
 
@@ -92,7 +95,7 @@ export function verifyHash(obj) {
 }
 
 export function delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function arrayChunker(array, size) {
@@ -129,8 +132,8 @@ export function splitRemainder(str, separator, limit) {
 // https://www.typescriptlang.org/docs/handbook/mixins.html
 // ========================================================
 export function applyMixins(derivedCtor: any, baseCtors: any[]) {
-    baseCtors.forEach(baseCtor => {
-        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+    baseCtors.forEach((baseCtor) => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
             Object.defineProperty(
                 derivedCtor.prototype,
                 name,

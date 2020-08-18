@@ -17,6 +17,8 @@
 require('./testLoggingConfig');
 
 import 'mocha';
+import axios from 'axios';
+
 import { Wallet } from '../entity/Wallet';
 import { Network, Project } from '../entity/Contract';
 import { EventSubscription, EventSubscriberAttrs } from '../entity/EventSubscription';
@@ -24,7 +26,9 @@ import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 import { AbstractEthereumService } from "../eth/AbstractEthereumService";
 import { LoomHooks } from "../eth/LoomHooks";
 
-const request = require('request');
+import * as typeorm from "typeorm";
+import {cleanupDeployedContracts} from "../../rpc/__tests__/utils";
+
 const config = require('config');
 const utils = require('../local-test-net-utils');
 
@@ -38,28 +42,12 @@ function AsyncSleep(time) {
     })
 }
 
-function AsyncGet(url) {
-    return new Promise(resolve => {
-        request.get(url, (error, response, body) => {
-          resolve(body);
-        });
-    })
-}
 
-function AsyncGetJSON(url) {
-    return new Promise(resolve => {
-        request.get(url, (error, response, body) => {
-          let json = JSON.parse(body);
-          resolve(json);
-        });
-    });
-}
-
-
-export const EventSubscriptionEntityTests = async  function() {
+export const EventSubscriptionEntityTests = function() {
 
     beforeAll(async () => {
         await EncryptorContainer.init();
+        await cleanupDeployedContracts(typeorm);
     });
 
     it(
@@ -98,20 +86,16 @@ export const EventSubscriptionEntityTests = async  function() {
 
             const subscriber = await EventSubscription.getOrCreate(subscriberAttrs);
 
-            const SHIP = 10 ** 18;
-            const ETH = 10 ** 18;
-            const TOTAL = 500 * SHIP;
-
             const ownerBalance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
-            expect(Number(ownerBalance)).toEqual(TOTAL);
+            expect(ownerBalance[0].toString()).toEqual(ethereumService.unitToWei(500, 'ether').toString());
 
             if (!LoomHooks.enabled) {
-                expect(Number(await ethereumService.getBalance(await owner.asyncEvmAddress))).toEqual(5 * ETH);
+                expect(await ethereumService.getBalance(await owner.asyncEvmAddress)).toEqual(ethereumService.unitToWei(5, 'ether').toString());
             }
 
             const txParams = await owner.add_tx_params(
                 network,
-                await local.ShipToken.build_transaction('transfer', [await other.asyncEvmAddress, 100 * SHIP]),
+                await local.ShipToken.build_transaction('transfer', [await other.asyncEvmAddress, ethereumService.unitToWei(100, 'ether').toString()]),
             );
 
             const [signed_tx, txHash] = await owner.sign_tx(txParams);
@@ -120,18 +104,20 @@ export const EventSubscriptionEntityTests = async  function() {
 
             expect(receipt.transactionHash.length).toEqual(66);
 
+            await AsyncSleep(2000);
+
             const new_owner_balance = await local.ShipToken.call_static('balanceOf', [await owner.asyncEvmAddress]);
             const new_other_balance = await local.ShipToken.call_static('balanceOf', [await other.asyncEvmAddress]);
 
-            expect(Number(new_owner_balance)).toEqual(TOTAL - 100 * SHIP);
+            expect(new_owner_balance[0].toString()).toEqual(ethereumService.unitToWei(400, 'ether').toString());
 
-            expect(Number(new_other_balance)).toEqual(100 * SHIP);
+            expect(new_other_balance[0].toString()).toEqual(ethereumService.unitToWei(100, 'ether').toString());
 
             const status_url = ES_NODE+"/_cat/health";
 
             //console.log('ElasticSearch Node:', ES_NODE);
 
-            const ES_STATUS = await AsyncGet(status_url);
+            const ES_STATUS = (await axios.get(status_url)).data;
 
             //console.log('ElasticSearch Status:', ES_STATUS);
 
@@ -151,7 +137,7 @@ export const EventSubscriptionEntityTests = async  function() {
 
             let events_url = ES_NODE+"/events/_search?pretty=true";
 
-            const results = await AsyncGetJSON(events_url);
+            const results = (await axios.get(events_url)).data;
 
             //console.log('ElasticSearch Events:', results)
 

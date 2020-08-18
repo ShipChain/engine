@@ -29,7 +29,7 @@ import {
 import { RPCEvent } from '../event';
 import { EventSubscription } from "../../src/entity/EventSubscription";
 
-export const RPCEventTests = async function() {
+export const RPCEventTests = function() {
 
     afterAll(async() => {
         await cleanupEntities(typeorm);
@@ -79,7 +79,7 @@ export const RPCEventTests = async function() {
                 expect(response.subscription.callback).toEqual('URL');
                 expect(response.subscription.events).toEqual(['allEvents']);
             } catch (err){
-                fail(`Should not have thrown [${err}]`);
+                fail(`Should not have thrown [${JSON.stringify(err)}]`);
             }
             expect(await EventSubscription.count()).toEqual(1);
         }));

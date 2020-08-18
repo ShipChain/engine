@@ -33,7 +33,7 @@ import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const ProcurementPrimitiveTests = async function() {
+export const ProcurementPrimitiveTests = function() {
     let author: Wallet;
     let vault: ShipChainVault;
 
@@ -85,7 +85,7 @@ export const ProcurementPrimitiveTests = async function() {
         expect(procurementProperties.products).toEqual({});
     });
 
-    describe(`fields`, async () => {
+    describe(`fields`, () => {
 
         it(`can be set`, async () => {
             let procurement = await injectPrimitive();
@@ -108,7 +108,7 @@ export const ProcurementPrimitiveTests = async function() {
         });
     });
 
-    describe(`shipments`, async () => {
+    describe(`shipments`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let procurement = await injectPrimitive();
@@ -189,7 +189,7 @@ export const ProcurementPrimitiveTests = async function() {
         });
     });
 
-    describe(`documents`, async () => {
+    describe(`documents`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let procurement = await injectPrimitive();
@@ -252,7 +252,7 @@ export const ProcurementPrimitiveTests = async function() {
         });
     });
 
-    describe(`products`, async () => {
+    describe(`products`, () => {
 
         it(`needs valid linkEntry`, async () => {
             let procurement = await injectPrimitive();
@@ -339,7 +339,7 @@ export const ProcurementPrimitiveTests = async function() {
         });
     });
 
-    describe(`full primitive`, async () => {
+    describe(`full primitive`, () => {
 
         it(`can be retrieved`, async () => {
             let procurement = await injectPrimitive();

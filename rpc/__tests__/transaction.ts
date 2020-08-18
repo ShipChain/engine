@@ -34,7 +34,7 @@ import { Wallet } from "../../src/entity/Wallet";
 import { EncryptorContainer } from '../../src/entity/encryption/EncryptorContainer';
 import { LoomHooks } from "../../src/eth/LoomHooks";
 
-export const RPCTransactions = async function() {
+export const RPCTransactions = function() {
 
     let fullWallet;
     let txUnsigned;

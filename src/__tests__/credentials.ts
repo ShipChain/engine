@@ -21,7 +21,7 @@ import * as typeorm from "typeorm";
 import { StorageCredential } from '../entity/StorageCredential';
 import { EncryptorContainer } from '../entity/encryption/EncryptorContainer';
 
-export const StorageCredentialEntityTests = async function() {
+export const StorageCredentialEntityTests = function() {
 
     it(`can create and retrieve storage credentials`, async () => {
         const DB = typeorm.getConnection();

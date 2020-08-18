@@ -33,7 +33,7 @@ import { getNockableLink, getPrimitiveData, nockLinkedData } from "./utils";
 const storage_driver = { driver_type: 'local', base_path: 'storage/vault-tests' };
 
 
-export const ProductListPrimitiveTests = async function() {
+export const ProductListPrimitiveTests = function() {
     let author: Wallet;
     let vault: ShipChainVault;
 

@@ -25,6 +25,8 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import axios from 'axios';
+
 import { Logger } from '../Logger';
 import { MetricsReporter } from '../MetricsReporter';
 import { GasPriceOracle } from '../GasPriceOracle';
@@ -33,7 +35,6 @@ import { EthereumService } from '../eth/EthereumService';
 
 const fs = require('fs');
 const EthereumTx = require('ethereumjs-tx');
-const requestPromise = require('request-promise-native');
 
 const logger = Logger.get(module.filename);
 const metrics = MetricsReporter.Instance;
@@ -48,9 +49,9 @@ export class Project extends BaseEntity {
     @Column() title: string;
     @Column() description: string;
 
-    @OneToMany(type => Contract, contract => contract.project)
+    @OneToMany((type) => Contract, (contract) => contract.project)
     contracts: Contract[];
-    @OneToMany(type => Version, version => version.project)
+    @OneToMany((type) => Version, (version) => version.project)
     versions: Version[];
 
     static async getOrCreate(title: string, description: string) {
@@ -142,14 +143,9 @@ export class Project extends BaseEntity {
     }
 
     static async loadFixturesFromUrl(fixture_url: string): Promise<any> {
-        const requestOptions = {
-            uri: fixture_url,
-            json: true,
-            timeout: 20000,
-        };
-
         try {
-            const meta = await requestPromise(requestOptions);
+            logger.debug(`Loading fixtures from ${fixture_url}`);
+            const meta = (await axios.get(fixture_url, { timeout: 20000 })).data;
             return await Project.loadFixtureMetaData(meta);
         } catch (err) {
             logger.error(`Retrieving Fixtures returned ${err}`);
@@ -166,12 +162,12 @@ export class Project extends BaseEntity {
 export class Version extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
 
-    @ManyToOne(type => Project, project => project.versions)
+    @ManyToOne((type) => Project, (project) => project.versions)
     @JoinColumn()
     project: Project;
     @Column() projectId: string;
 
-    @OneToMany(type => Contract, contract => contract.version)
+    @OneToMany((type) => Contract, (contract) => contract.version)
     contracts: Contract[];
 
     @Column() title: string;
@@ -251,7 +247,7 @@ export abstract class GenericCallback {
 export class Network extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
 
-    @OneToMany(type => Contract, contract => contract.network)
+    @OneToMany((type) => Contract, (contract) => contract.network)
     contracts: Contract[];
 
     @Column() title: string;
@@ -290,16 +286,16 @@ export class Network extends BaseEntity {
         const startTime = Date.now();
         return new Promise((resolve, reject) =>
             ethereumService.sendSignedTransaction(raw, {
-                receipt: receipt => {
+                receipt: (receipt) => {
                     metrics.methodTime('send_tx_receipt', Date.now() - startTime, { web3: true });
                     resolve(receipt);
                 },
-                confirmation: obj => {
+                confirmation: (obj) => {
                     if (callbacks) {
                         callbacks.call('confirmation', [obj]);
                     }
                 },
-                error: err => {
+                error: (err) => {
                     if (callbacks) {
                         callbacks.call('error', [err]);
                     }
@@ -314,17 +310,17 @@ export class Network extends BaseEntity {
 export class Contract extends BaseEntity {
     @PrimaryGeneratedColumn('uuid') id: string;
 
-    @ManyToOne(type => Project, project => project.contracts)
+    @ManyToOne((type) => Project, (project) => project.contracts)
     @JoinColumn()
     project: Project;
     @Column() projectId: string;
 
-    @ManyToOne(type => Version, version => version.contracts)
+    @ManyToOne((type) => Version, (version) => version.contracts)
     @JoinColumn()
     version: Version;
     @Column() versionId: string;
 
-    @ManyToOne(type => Network, network => network.contracts)
+    @ManyToOne((type) => Network, (network) => network.contracts)
     @JoinColumn()
     network: Network;
     @Column() networkId: string;
@@ -382,6 +378,7 @@ export class Contract extends BaseEntity {
     async getContractInstance() {
         if (this._driver) return this._driver;
 
+        this.project = this.project || (await Project.findOne({ id: this.projectId }));
         this.network = this.network || (await Network.findOne({ id: this.networkId }));
         this.version = this.version || (await Version.findOne({ id: this.versionId }));
 

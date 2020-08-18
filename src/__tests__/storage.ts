@@ -155,7 +155,7 @@ const fileConfigs = {
 
 const emptyDirectoryListing = new DirectoryListing('.');
 
-export const StorageDriverTests = async function() {
+export const StorageDriverTests = function() {
     // Create and Cleanup the local testing directory
     // ==============================================
     beforeAll(() => {
@@ -250,7 +250,13 @@ export const StorageDriverTests = async function() {
                         let directoryListing = await storageDriver.listDirectory(null, true);
 
                         if (fileConfig.variant == 'shallow') {
-                            expect(directoryListing.files[0].name).toEqual(fileConfig.file);
+                            let found = false;
+                            for(let file of directoryListing.files) {
+                                if (file.name == fileConfig.file) {
+                                    found = true;
+                                }
+                            }
+                            expect(found).toBeTruthy();
                         } else {
                             let directories = fileConfig.file.split('/');
 

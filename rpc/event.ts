@@ -34,10 +34,10 @@ export class RPCEvent {
 
         // This should be non-blocking
         EventSubscription.getCount()
-            .then(count => {
+            .then((count) => {
                 metrics.entityTotal('EventSubscription', count);
             })
-            .catch(err => {});
+            .catch((err) => {});
 
         return {
             success: true,

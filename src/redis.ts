@@ -35,7 +35,7 @@ export function getRedisClient() {
         redisClient = redis.createClient(REDIS_URL);
 
         // setup listeners
-        redisClient.on('error', error => {
+        redisClient.on('error', (error) => {
             logger.error(`RedisError: ${error}`);
         });
 
@@ -112,7 +112,7 @@ export async function ResourceLock(
         const lockAttemptTime = Date.now();
         getRedlock()
             .lock(key, ttl)
-            .then(async function(lock) {
+            .then(async function (lock) {
                 const lockObtainTime = Date.now();
                 metrics.methodTime('ResourceLock', lockObtainTime - lockAttemptTime);
                 logger.silly(`Locked using key ${key} for duration of ${ttl} ms using method ${method_to_lock}.`);
@@ -129,7 +129,7 @@ export async function ResourceLock(
                     lock.unlock();
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 // we weren't able to reach redis; your lock will eventually
                 // expire, but you probably want to log this error
                 logger.error(`${err}`);

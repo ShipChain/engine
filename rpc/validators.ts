@@ -15,7 +15,7 @@
  */
 
 import { Logger } from '../src/Logger';
-const requestPromise = require('request-promise-native');
+import axios from 'axios';
 const config = require('config');
 
 const logger = Logger.get(module.filename);
@@ -42,12 +42,8 @@ function _buildUrl(file) {
 
 async function loadSchemaFromUrl(url) {
     try {
-        let options = {
-            url: url,
-        };
         logger.debug(`Loading Schema from: ${url}`);
-        let response = await requestPromise(options);
-        return await JSON.parse(response);
+        return (await axios.get(url)).data;
     } catch (error) {
         logger.error(`${error}`);
         throw error;
@@ -59,7 +55,7 @@ export async function buildSchemaValidators() {
     ajv = new AJV({ loadSchema: loadSchemaFromUrl });
 
     await Promise.all(
-        schemaFiles.map(async file => {
+        schemaFiles.map(async (file) => {
             let data = await loadSchemaFromUrl(_buildUrl(file));
             await ajv.compileAsync(data);
         }),

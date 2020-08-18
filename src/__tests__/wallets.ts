@@ -23,7 +23,7 @@ import {EncryptionMethod, Wallet} from '../entity/Wallet';
 import EthCrypto from 'eth-crypto';
 import {EncryptorContainer} from '../entity/encryption/EncryptorContainer';
 
-export const WalletEntityTests = async function() {
+export const WalletEntityTests = function() {
 
     beforeAll(async () => {
         await EncryptorContainer.init();
