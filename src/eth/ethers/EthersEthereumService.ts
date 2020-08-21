@@ -186,7 +186,7 @@ export class EthersEthereumService extends AbstractEthereumService {
                 logger.silly(`${tx.hash} waiting for ${this.transactionConfirmations} confirmations`);
                 let confirmation: any = tx;
 
-                if (this.transactionConfirmations > 1) {
+                if (this.transactionConfirmations >= 1) {
                     confirmation = await tx.wait(this.transactionConfirmations);
                 }
 
