@@ -12,20 +12,22 @@ echo "Running tests"
 export ROLE=circleci
 # export ROLE=circleci-es
 
+TEST_SERVICE=rpc
+
 bin/dc down
 
 bin/dc build
 
-bin/dc up -d rpc
+bin/dc up -d ${TEST_SERVICE}
 
-bin/dc exec -T rpc yarn check --integrity
+bin/dc exec -T ${TEST_SERVICE} yarn check --integrity
 
-bin/dc exec -T rpc yarn check --verify-tree
+bin/dc exec -T ${TEST_SERVICE} yarn check --verify-tree
 
-bin/dc exec -T rpc yarn run lint
+bin/dc exec -T ${TEST_SERVICE} yarn run lint
 
-bin/dc exec -T rpc yarn run test
+bin/dc exec -T ${TEST_SERVICE} yarn run test
 
-docker cp $(bin/dc ps -q rpc):/app/reports/. reports/
+docker cp $(bin/dc ps -q ${TEST_SERVICE}):/app/reports/. reports/
 
 bin/dc down
