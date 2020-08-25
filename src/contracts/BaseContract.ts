@@ -68,6 +68,9 @@ export abstract class BaseContract {
     }
 
     async buildTransactionForWallet(sender: Wallet, method: string, args: any[], options?: any) {
+        if (!options) options = {};
+        // Need to include sender as 'from' in transaction prior to gas estimation
+        options = Object.assign(options, { from: await sender.asyncEvmAddress });
         const txParams = await this.buildTransaction(method, args, options);
         return await sender.add_tx_params(this._network, txParams);
     }
