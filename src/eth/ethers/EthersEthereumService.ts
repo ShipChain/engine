@@ -154,9 +154,11 @@ export class EthersEthereumService extends AbstractEthereumService {
         return tx;
     }
 
-    async estimateTransaction(contract: ethers.Contract, method: string, args: any[]) {
-        // Gas estimation tends to undershoot the total gas consumption
-        return this.toBigNumber(2).mul(await contract.estimateGas[method](...args));
+    async estimateTransaction(contract: ethers.Contract, method: string, args: any[], sender: string) {
+        const baseTx = await contract.populateTransaction[method](...args, { from: sender });
+        const estimate = await this.provider.estimateGas(baseTx);
+        // buffer estimate by 25%
+        return estimate.add(estimate.div(this.toBigNumber(4)));
     }
 
     async sendSignedTransaction(rawTx, eventHandlers?: TransactionEventHandlers) {

@@ -44,7 +44,7 @@ export abstract class AbstractEthereumService {
     abstract async createContractInstance(abi, address, providerOrSigner?);
     abstract async callStaticMethod(contract: any, method: string, args: any[]);
     abstract async encodeTransaction(contract: any, method: string, args: any[]);
-    abstract async estimateTransaction(contract: any, method: string, args: any[]);
+    abstract async estimateTransaction(contract: any, method: string, args: any[], sender: string);
     abstract async sendSignedTransaction(rawTx, eventHandlers?: TransactionEventHandlers);
     abstract async getContractEvents(contract: any, fromBlock: number, eventName?: string): Promise<any[]>;
 

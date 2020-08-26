@@ -411,9 +411,9 @@ export class Contract extends BaseEntity {
 
         let estimatedGas = 500000;
         try {
-            estimatedGas = await ethereumService.estimateTransaction(contractInstance, methodName, args);
+            estimatedGas = await ethereumService.estimateTransaction(contractInstance, methodName, args, options.from);
         } catch (err) {
-            logger.warn(`Gas Estimation Failed: ${err}.  Falling back to ${estimatedGas}`);
+            logger.warn(`Gas Estimation Failed. Falling back to ${estimatedGas}`);
         }
 
         return {

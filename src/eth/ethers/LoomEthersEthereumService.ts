@@ -134,6 +134,11 @@ export class LoomEthersEthereumService extends EthersEthereumService {
         return await super.createContractInstance(abi, address.toLowerCase(), providerOrSigner);
     }
 
+    async estimateTransaction(contract: ethers.Contract, method: string, args: any[], sender: string) {
+        // Loom has no gas fees
+        return this.toBigNumber(0);
+    }
+
     protected async parseLogToEvent(log: ethers.providers.Log, contract: ethers.Contract) {
         const parsedEvent = await super.parseLogToEvent(log, contract);
 
