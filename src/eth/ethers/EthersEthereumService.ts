@@ -167,10 +167,9 @@ export class EthersEthereumService extends AbstractEthereumService {
             logger.debug(`Submitted Transaction ${tx.hash}`);
 
             // Wait for initial mine
-            await tx.wait();
+            const receipt = await tx.wait();
             logger.debug(`Transaction ${tx.hash} mined`);
 
-            const receipt = await this.provider.getTransactionReceipt(tx.hash);
             logger.silly(`receipt ${JSON.stringify(receipt, null, 2)}`);
 
             // Post-byzantium blocks will have a status (0 indicated failure during execution)

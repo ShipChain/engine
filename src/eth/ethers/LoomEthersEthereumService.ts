@@ -49,7 +49,7 @@ class LoomTxProvider extends ethers.providers.JsonRpcProvider {
                 this._emitted['t:' + tx.hash] = 'pending';
             }
 
-            return this.waitForTransaction(tx.hash, confirmations).then((receipt) => {
+            return this.waitForTransaction(tx.hash, confirmations).then(async (receipt) => {
                 if (receipt == null && confirmations === 0) {
                     return null;
                 }
@@ -64,6 +64,11 @@ class LoomTxProvider extends ethers.providers.JsonRpcProvider {
                         transaction: tx,
                     });
                 }
+
+                // Capture the EVM Hash from the Loom Transaction
+                const evmTx = await this.getTransaction(tx.hash);
+                receipt['evmHash'] = evmTx.hash;
+
                 return receipt;
             });
         };
